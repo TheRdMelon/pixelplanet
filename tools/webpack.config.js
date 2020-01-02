@@ -262,7 +262,7 @@ const clientConfig = {
 
         vendor: {
           name: "vendor",
-          chunks: 'all',
+          chunks: chunk => chunk.name !== "client",
           test: /node_modules/,
         }
       }
