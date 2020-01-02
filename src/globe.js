@@ -3,137 +3,104 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { TrackballControls } from 'three-trackballcontrols-ts';
 
-var Detector = {
 
-        canvas: !! window.CanvasRenderingContext2D,
-        webgl: ( function () { try { var canvas = document.createElement( 'canvas' ); return !! window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ); } catch( e ) { return false; } } )(),
-        workers: !! window.Worker,
-        fileapi: window.File && window.FileReader && window.FileList && window.Blob,
-
-        getWebGLErrorMessage: function () {
-
-                var element = document.createElement( 'div' );
-                element.className = 'webgl-error';
-
-                if ( !this.webgl ) {
-
-                        element.innerHTML = window.WebGLRenderingContext ? [
-                                'Your graphics card does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br />',
-                                'Find out how to get it <a href="http://get.webgl.org/">here</a>.'
-                        ].join( '\n' ) : [
-                                'Your browser does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>',
-                                'Find out how to get it <a href="http://get.webgl.org/">here</a>.'
-                        ].join( '\n' );
-
-                }
-
-                return element;
-
-        },
-
-        addGetWebGLMessage: function (parent ) {
-
-                parent.appendChild( Detector.getWebGLErrorMessage() );
-
-        }
-
-};
-
-
-(function () {
-  function checkMaterial(object) {
-      if (object.material) {
-          const materialName = object.material.name;
-          if (materialName == "canvas") {
-              console.log("Found material");
-              object.material = canvasTexture;
-              return true;
-          }
-      }
-      return false;
+function checkMaterial(object) {
+  if (object.material) {
+    const materialName = object.material.name;
+    if (materialName == "canvas") {
+      console.log("Found material for canvas texture");
+      return true;
+    }
   }
+  return false;
+}
 
-  function parseHashCoords() {
-      try {
-          const hash = window.location.hash;
-          const array = hash.substring(1).split(',');
-          const ident = array.shift(); 
-          const [id, size, x, y] = array.map((z) => parseInt(z));
-          if (!ident || isNaN(x) || isNaN(y) || isNaN(id) || isNaN(size)) {
-              throw "NaN";
-          }
-          return [ident, id, size, x, y];
-      } catch (error) {
-          return ['d', 0, 65536, 0, 0];
-      };
-  }
+function parseHashCoords() {
+  try {
+    const hash = window.location.hash;
+    const array = hash.substring(1).split(',');
+    const ident = array.shift(); 
+    const [id, size, x, y] = array.map((z) => parseInt(z));
+    if (!ident || isNaN(x) || isNaN(y) || isNaN(id) || isNaN(size)) {
+      throw "NaN";
+    }
+    return [ident, id, size, x, y];
+  } catch (error) {
+    return ['d', 0, 65536, 0, 0];
+  };
+}
 
-  function rotateToCoords(canvasSize, object, coords) {
-      console.log("Rotate to", coords);
-      const [x, y] = coords;
-      const rotOffsetX = 0;
-      const rotOffsetY = 3 * Math.PI / 2;
-      const rotX = -y * Math.PI / canvasSize;
-      const rotY = -x * 2 * Math.PI / canvasSize;
-      object.rotation.x += rotOffsetX + rotX;
-      object.rotation.y += rotOffsetY + rotY;
-  }
+function rotateToCoords(canvasSize, object, coords) {
+  console.log("Rotate to", coords);
+  const [x, y] = coords;
+  const rotOffsetX = 0;
+  const rotOffsetY = 3 * Math.PI / 2;
+  const rotX = -y * Math.PI / canvasSize;
+  const rotY = -x * 2 * Math.PI / canvasSize;
+  object.rotation.x += rotOffsetX + rotX;
+  object.rotation.y += rotOffsetY + rotY;
+}
 
-        var webglEl = document.getElementById('webgl');
 
-        if (!Detector.webgl) {
-                Detector.addGetWebGLMessage(webglEl);
-                return;
-        }
+document.addEventListener('DOMContentLoaded', () => {
+  var webglEl = document.getElementById('webgl');
 
   const [canvasIdent, canvasId, canvasSize, x, y] = parseHashCoords();
 
-  const canvasTexture = new THREE.MeshPhongMaterial({
-      map:         new THREE.TextureLoader().load(`./tiles/${canvasId}/texture.png`),
-      bumpMap:     new THREE.TextureLoader().load(`./assets3d/normal${canvasId}.jpg`),
-      bumpScale:   0.02,
-      specularMap: new THREE.TextureLoader().load(`./assets3d/specular${canvasId}.jpg`),
-      specular: new THREE.Color('grey')
+  var canvasTexture = new THREE.MeshPhongMaterial({
+    map:         new THREE.TextureLoader().load(`./tiles/${canvasId}/texture.png`),
+    bumpMap:     new THREE.TextureLoader().load(`./assets3d/normal${canvasId}.jpg`),
+    bumpScale:   0.02,
+    specularMap: new THREE.TextureLoader().load(`./assets3d/specular${canvasId}.jpg`),
+    specular: new THREE.Color('grey')
   });
 
-        var width  = window.innerWidth,
-                height = window.innerHeight;
+  var width  = window.innerWidth,
+      height = window.innerHeight;
 
-        var scene = new THREE.Scene();
+  var scene = new THREE.Scene();
 
-        var camera = new THREE.PerspectiveCamera(45, width / height, 0.01, 1000);
-        camera.position.z = 4.0;
+  var camera = new THREE.PerspectiveCamera(45, width / height, 0.01, 1000);
+  camera.position.z = 4.0;
 
-        var renderer = new THREE.WebGLRenderer();
-        renderer.setSize(width, height);
+  var renderer = new THREE.WebGLRenderer();
+  renderer.setSize(width, height);
 
-        scene.add(new THREE.AmbientLight(0x333333));
+  scene.add(new THREE.AmbientLight(0x333333));
 
-        var light = new THREE.DirectionalLight(0xffffff, 0.7);
-        light.position.set(10,6,10);
-        scene.add(light);
+  var light = new THREE.DirectionalLight(0xffffff, 0.7);
+  light.position.set(10,6,10);
+  scene.add(light);
 
-    var object = null;
-    var loader = new GLTFLoader();
-    loader.load('./assets3d/globe.glb', function (glb) {
-        scene.add(glb.scene);
-        const children = glb.scene.children;
-        for (let cnt = 0; cnt < children.length; cnt++) {
-            //children[cnt].scale.x *= -1;
-            //children[cnt].scale.y *= -1;
-            if (checkMaterial(children[cnt]))
-                object = children[cnt];
-            const grandchildren = children[cnt].children;
-            for (let xnt = 0; xnt < grandchildren.length; xnt++) {
-                if (checkMaterial(grandchildren[xnt]))
-                    object = children[cnt];
-                //children[cnt].material.side = THREE.DoubleSide;
-            }
-        } 
-        rotateToCoords(canvasSize, object, [x, y]);
-    }, function (xhr) {console.log(`${xhr.loaded} / ${xhr.total}% loaded`);
-    }, function (error) {console.log('An error happened', error);
-    });
+  var controls = null;
+
+  var object = null;
+  var loader = new GLTFLoader();
+  loader.load('./assets3d/globe.glb', function (glb) {
+    scene.add(glb.scene);
+    const children = glb.scene.children;
+    for (let cnt = 0; cnt < children.length; cnt++) {
+      if (checkMaterial(children[cnt])) {
+        object = children[cnt];
+      }
+      const grandchildren = children[cnt].children;
+      for (let xnt = 0; xnt < grandchildren.length; xnt++) {
+        if (checkMaterial(grandchildren[xnt])) {
+          object = children[cnt];
+        }
+      }
+    } 
+    if (object) {
+      object.material = canvasTexture;
+    }
+    rotateToCoords(canvasSize, object, [x, y]);
+    controls = createControls(camera);
+    render();
+  }, function (xhr) {
+    console.log(`${xhr.loaded} loaded`);
+  }, function (error) {
+    console.log('An error happened', error);
+  });
 
     
   // Earth params
@@ -142,41 +109,50 @@ var Detector = {
       rotation = 6;  
 
 
-  var stars = createStars(90, 64);
-  scene.add(stars);
-
-  var controls = new TrackballControls(camera, renderer.domElement);
-  controls.rotateSpeed = 1.0;
-  controls.zoomSpeed = 1.2;
-  controls.panSpeed = 0.3;
-  controls.minDistance = 1.6;
-  controls.maxDistance = 118.32;
-  controls.keys = [65, 83, 68]; // ASD
-  controls.dynamicDampingFactor = 0.2;
+  function createControls(camera) {
+    const controls = new TrackballControls(camera, renderer.domElement);
+    controls.rotateSpeed = 1.8;
+    controls.zoomSpeed = 1.0;
+    controls.panSpeed = 0.3;
+    controls.minDistance = 1.5;
+    controls.maxDistance = 70.00;
+    controls.keys = [65, 83, 68]; // ASD
+    controls.dynamicDampingFactor = 0.2;
+    return controls;
+  }
 
 
   webglEl.appendChild(renderer.domElement);
 
-  render();
 
   function render() {
-          controls.update();
-          if (object) object.rotation.y += 0.0005;
-          requestAnimationFrame(render);
-          renderer.render(scene, camera);
+    controls.update();
+    if (object) object.rotation.y += 0.0005;
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
   }
 
-  function createStars(radius, segments) {
-          return new THREE.Mesh(
-                  new THREE.SphereGeometry(radius, segments, segments), 
-                  new THREE.MeshBasicMaterial({
-                          map: new THREE.TextureLoader().load('./assets3d/starfield'),
-                          side: THREE.BackSide
-                  })
-          );
-  }
+  var stars = new THREE.Mesh(
+    new THREE.SphereGeometry(90, 64, 64), 
+    new THREE.MeshBasicMaterial({
+      map: new THREE.TextureLoader().load('./assets3d/starfield.png'),
+      side: THREE.BackSide
+    })
+  );
+  scene.add(stars);
 
   setInterval(onDocumentMouseMove, 1000);
+
+
+  function onWindowResize() {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    const aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = aspect;
+    camera.updateProjectionMatrix();
+    if (controls) controls.handleResize();
+  }
+  window.addEventListener('resize', onWindowResize,false);
+
 
   var raycaster = new THREE.Raycaster();
   var mouse = new THREE.Vector2();
@@ -210,7 +186,11 @@ var Detector = {
     }
   }
 
+
   function onDocumentDblClick(event) {
+    if (!object) {
+      return;
+    }
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
@@ -224,7 +204,8 @@ var Detector = {
       window.location.href = `./#${canvasIdent},${xabs},${yabs},0`;
     }
   }
+
   document.addEventListener('mousemove', onDocumentMouseMove, false);
   document.addEventListener('dblclick', onDocumentDblClick, false);
-}());
 
+});

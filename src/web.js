@@ -153,6 +153,7 @@ const data = {
     ASSET_SERVER + assets.vendor.js,
     ASSET_SERVER + assets.client.js,
   ],
+  useRecaptcha: true,
 };
 const indexEtag = etag(
   `${assets.vendor.js},${assets.client.js}`,

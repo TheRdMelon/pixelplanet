@@ -27,10 +27,11 @@ class Html extends React.Component {
     scripts: Array<string>,
     body: string,
     code: string,
+    useRecaptcha: boolean,
   };
 
   render() {
-    const { title, description, styles, scripts, body, code } = this.props;
+    const { title, description, styles, scripts, body, code, useRecaptcha } = this.props;
     return (
       <html className="no-js" lang="en">
         <head>
@@ -52,8 +53,8 @@ class Html extends React.Component {
               dangerouslySetInnerHTML={{ __html: style.cssText }}
             />),
           )}
-          {RECAPTCHA_SITEKEY && <script dangerouslySetInnerHTML={{ __html: `window.sitekey="${RECAPTCHA_SITEKEY}"` }} />}
-          {RECAPTCHA_SITEKEY && <script src="https://www.google.com/recaptcha/api.js" async defer />}
+          {RECAPTCHA_SITEKEY && useRecaptcha && <script dangerouslySetInnerHTML={{ __html: `window.sitekey="${RECAPTCHA_SITEKEY}"` }} />}
+          {RECAPTCHA_SITEKEY && useRecaptcha && <script src="https://www.google.com/recaptcha/api.js" async defer />}
         </head>
         <body>
           <div id="app">
