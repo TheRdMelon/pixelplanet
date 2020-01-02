@@ -8,10 +8,13 @@
  */
 
 
-import { CANVAS_SIZE, CANVAS_MIN_XY, CANVAS_MAX_XY } from '../../src/core/constants';
 import { imagemask2Canvas } from '../../src/core/Image';
 import sharp from 'sharp';
 import fs from 'fs';
+
+const CANVAS_SIZE = 256 * 256;
+const CANVAS_MIN_XY = -(CANVAS_SIZE / 2);
+const CANVAS_MAX_XY = (CANVAS_SIZE / 2) - 1;
 
 const TILEFOLDER = './ocean';
 const TILE_SIZE = 2048;
@@ -25,7 +28,7 @@ async function applyMasks() {
       console.log(`Checking tile ${filename}`);
       if (!fs.existsSync(filename)) continue;
       let tile = await sharp(filename).removeAlpha().raw().toBuffer();
-      await imagemask2Canvas(x, y, tile, TILE_SIZE, TILE_SIZE, (clr) => {
+      await imagemask2Canvas(0, x, y, tile, TILE_SIZE, TILE_SIZE, (clr) => {
         return 1; //set color to index 1 -> land
       });
       tile = null;
