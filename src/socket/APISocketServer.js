@@ -43,7 +43,6 @@ class APISocketServer extends EventEmitter {
   wss: WebSocket.Server;
   mc: Minecraft;
 
-  // constructor(server: http.Server) {
   constructor() {
     super();
     logger.info('Starting API websocket server');
@@ -151,107 +150,107 @@ class APISocketServer extends EventEmitter {
 
   async onTextMessage(message, ws) {
     logger.info(`Got message ${message}`);
-    // try {
-    const packet = JSON.parse(message);
-    const command = packet[0];
-    packet.shift();
-    if (!command) {
-      return;
-    }
-    if (command == 'sub') {
-      const even = packet[0];
-      if (even == 'chat') {
-        ws.subChat = true;
-      }
-      if (even == 'pxl') {
-        ws.subPxl = true;
-      }
-      if (even == 'online') {
-        ws.subOnline = true;
-      }
-      return;
-    }
-    if (command == 'setpxl') {
-      const [minecraftid, ip, x, y, clr] = packet;
-      if (clr < 0 || clr > 32) return;
-      // be aware that user null has no cd
-      if (!minecraftid && !ip) {
-        setPixel(0, x, y, clr);
-        ws.send(JSON.stringify(['retpxl', null, null, true, 0, 0]));
+    try {
+      const packet = JSON.parse(message);
+      const command = packet[0];
+      packet.shift();
+      if (!command) {
         return;
       }
-      const user = this.mc.minecraftid2User(minecraftid);
-      user.ip = ip;
-      const { error, success, waitSeconds, coolDownSeconds } = await drawUnsafe(user, 0, x, y, clr);
-      ws.send(JSON.stringify([
-        'retpxl',
-        (minecraftid) || ip,
-        (error) || null,
-        success,
-        waitSeconds,
-        (coolDownSeconds) || null,
-      ]));
-      return;
-    }
-    if (command == 'login') {
-      const [minecraftid, minecraftname, ip] = packet;
-      const user = await this.mc.report_login(minecraftid, minecraftname);
-      // get userinfo
-      user.ip = ip;
-      const wait = await user.getWait(0);
-      const waitSeconds = (wait) ? (wait - Date.now()) / 1000 : null;
-      const name = (user.id == null) ? null : user.regUser.name;
-      ws.send(JSON.stringify([
-        'mcme',
-        minecraftid,
-        waitSeconds,
-        name,
-      ]));
-      return;
-    }
-    if (command == 'userlst') {
-      const [userlist] = packet;
-      if (!Array.isArray(userlist) || !Array.isArray(userlist[0])) {
-        logger.error('Got invalid minecraft userlist on APISocketServer');
+      if (command == 'sub') {
+        const even = packet[0];
+        if (even == 'chat') {
+          ws.subChat = true;
+        }
+        if (even == 'pxl') {
+          ws.subPxl = true;
+        }
+        if (even == 'online') {
+          ws.subOnline = true;
+        }
         return;
       }
-      this.mc.report_userlist(userlist);
-      return;
-    }
-    if (command == 'logout') {
-      const [minecraftid] = packet;
-      this.mc.report_logout(minecraftid);
-      return;
-    }
-    if (command == 'mcchat') {
-      const [minecraftname, msg] = packet;
-      const user = this.mc.minecraftname2User(minecraftname);
-      const chatname = (user.id) ? `[MC] ${user.regUser.name}` : `[MC] ${minecraftname}`;
-      broadcastChatMessage(chatname, msg, false);
-      this.broadcastChatMessage(chatname, msg, ws);
-      return;
-    }
-    if (command == 'chat') {
-      const [name, msg] = packet;
-      broadcastChatMessage(name, msg, false);
-      this.broadcastChatMessage(name, msg, ws);
-      return;
-    }
-    if (command == 'linkacc') {
-      const [minecraftid, minecraftname, name] = packet;
-      const ret = await this.mc.linkacc(minecraftid, minecraftname, name);
-      if (!ret) {
-        notifyChangedMe(name);
+      if (command == 'setpxl') {
+        const [minecraftid, ip, x, y, clr] = packet;
+        if (clr < 0 || clr > 32) return;
+        // be aware that user null has no cd
+        if (!minecraftid && !ip) {
+          setPixel(0, x, y, clr);
+          ws.send(JSON.stringify(['retpxl', null, null, true, 0, 0]));
+          return;
+        }
+        const user = this.mc.minecraftid2User(minecraftid);
+        user.ip = ip;
+        const { error, success, waitSeconds, coolDownSeconds } = await drawUnsafe(user, 0, x, y, clr);
+        ws.send(JSON.stringify([
+          'retpxl',
+          (minecraftid) || ip,
+          (error) || null,
+          success,
+          waitSeconds,
+          (coolDownSeconds) || null,
+        ]));
+        return;
       }
-      ws.send(JSON.stringify([
-        'linkret',
-        minecraftid,
-        ret,
-      ]));
+      if (command == 'login') {
+        const [minecraftid, minecraftname, ip] = packet;
+        const user = await this.mc.report_login(minecraftid, minecraftname);
+        // get userinfo
+        user.ip = ip;
+        const wait = await user.getWait(0);
+        const waitSeconds = (wait) ? (wait - Date.now()) / 1000 : null;
+        const name = (user.id == null) ? null : user.regUser.name;
+        ws.send(JSON.stringify([
+          'mcme',
+          minecraftid,
+          waitSeconds,
+          name,
+        ]));
+        return;
+      }
+      if (command == 'userlst') {
+        const [userlist] = packet;
+        if (!Array.isArray(userlist) || !Array.isArray(userlist[0])) {
+          logger.error('Got invalid minecraft userlist on APISocketServer');
+          return;
+        }
+        this.mc.report_userlist(userlist);
+        return;
+      }
+      if (command == 'logout') {
+        const [minecraftid] = packet;
+        this.mc.report_logout(minecraftid);
+        return;
+      }
+      if (command == 'mcchat') {
+        const [minecraftname, msg] = packet;
+        const user = this.mc.minecraftname2User(minecraftname);
+        const chatname = (user.id) ? `[MC] ${user.regUser.name}` : `[MC] ${minecraftname}`;
+        broadcastChatMessage(chatname, msg, false);
+        this.broadcastChatMessage(chatname, msg, ws);
+        return;
+      }
+      if (command == 'chat') {
+        const [name, msg] = packet;
+        broadcastChatMessage(name, msg, false);
+        this.broadcastChatMessage(name, msg, ws);
+        return;
+      }
+      if (command == 'linkacc') {
+        const [minecraftid, minecraftname, name] = packet;
+        const ret = await this.mc.linkacc(minecraftid, minecraftname, name);
+        if (!ret) {
+          notifyChangedMe(name);
+        }
+        ws.send(JSON.stringify([
+          'linkret',
+          minecraftid,
+          ret,
+        ]));
+      }
+    } catch(err) {
+      logger.error(`Got undecipherable api-ws message ${message}`);
     }
-    // } catch(err) {
-    // logger.error(`Got undecipherable api-ws message ${message}`);
-    // }
   }
 
   ping() {

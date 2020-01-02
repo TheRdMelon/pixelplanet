@@ -1,5 +1,7 @@
 /*
  * save the chat history
+ * TODO: 
+ * This should really be saved in redis
  */
 
 class ChatHistory {
