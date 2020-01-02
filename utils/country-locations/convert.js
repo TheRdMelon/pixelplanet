@@ -5,7 +5,9 @@
 
 import fs from 'fs';
 import countryCodeLatLong from './countrycode-latlong-array.json';
-import { CANVAS_SIZE, CANVAS_MIN_XY } from '../../src/core/constants';
+
+const CANVAS_SIZE = 256 * 256;
+const CANVAS_MIN_XY = -(CANVAS_SIZE / 2);
 
 
 /*
