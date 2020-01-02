@@ -1,0 +1,393 @@
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  border: none;
+  user-select: none;
+  background: white;
+}
+
+html, body {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+/**
+ * https://github.com/benweet/stackedit/issues/212
+ */
+kbd {
+  padding: 0.1em 0.6em;
+  border: 1px solid #ccc;
+  font-size: 11px;
+  font-family: Arial,Helvetica,sans-serif;
+  background-color: #f7f7f7;
+  color: #333;
+  -moz-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
+  -webkit-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
+  box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  display: inline-block;
+  margin: 0 0.1em;
+  text-shadow: 0 1px 0 #fff;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+:global(.modallink) {
+  text-decoration: none;
+  color: #428bca;
+  cursor: pointer;
+}
+:global(.modallink:hover){
+  font-weight: bold;
+  color: #226baa;
+}
+
+:global(.inarea) {
+  border-style: solid;
+  border-color: #d5d5d5;
+  padding: 4px;
+  margin-top: 4px;
+  border-width: 1px;
+}
+
+:global(.tab-list) {
+  border-bottom: 1px solid #ccc;
+  padding-left: 0;
+}
+
+:global(.tab-list-item) {
+  display: inline-block;
+  list-style: none;
+  margin-bottom: -1px;
+  padding: 0.5rem 0.75rem;
+}
+
+:global(.tab-list-active) {
+  background-color: white;
+  border: solid #ccc;
+  border-width: 1px 1px 0 1px;
+}
+
+:global(table) {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+:global(td, th) {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+:global(tr:nth-child(even)) {
+  background-color: #dddddd;
+}
+
+:global(.chatbox) {
+  position: absolute;
+  background-color: rgba(226, 226, 226, 0.92);
+  width: 350px;
+  height: 200px;
+  bottom: 16px;
+  right: 98px;
+  border: solid black;
+  border-width: thin;
+}
+
+:global(.actionbuttons), :global(.coorbox), :global(.onlinebox), :global(.cooldownbox), :global(.palettebox) {
+    position: absolute;
+    background-color: rgba(226, 226, 226, 0.80);
+    color: black;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 36px;
+    height: 36px;
+    width: auto;
+    padding: 0 16px;
+    border: solid black;
+    border-width: thin;
+}
+:global(.coorbox) {
+    left: 16px;
+    bottom: 16px;
+}
+:global(.onlinebox) {
+    left: 16px;
+    bottom: 57px;
+    white-space: nowrap;
+}
+
+:global(#menubutton) {
+    left: 16px;
+    top: 16px;
+}
+
+:global(#helpbutton) {
+    left: 16px;
+    top: 221px;
+}
+:global(#minecraftbutton) {
+    left: 16px;
+    top: 180px;
+}
+:global(#settingsbutton) {
+    left: 16px;
+    top: 57px;
+}
+:global(#loginbutton) {
+    left: 16px;
+    top: 98px;
+}
+:global(#downloadbutton) {
+    left: 16px;
+    top: 139px;
+}
+:global(#globebutton) {
+    left: 57px;
+    top: 16px;
+}
+:global(#canvasbutton) {
+    left: 98px;
+    top: 16px;
+}
+:global(#minecrafttpbutton) {
+  top: 16px;
+  right: 16px;
+}
+:global(#palselbutton) {
+    bottom: 16px;
+    right: 16px;
+}
+:global(#chatbutton) {
+  bottom: 16px;
+  right: 57px;
+}
+
+:global(.Modal) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    border: 1px solid rgb(204, 204, 204);
+    background: rgb(255, 255, 255) none repeat scroll 0% 0%;
+    overflow-y: auto;
+    border-radius: 4px;
+    outline: currentcolor none medium;
+    padding: 20px 40px;
+    transform: translate(-50%, -50%);
+    height: 80%;
+    max-height: 700px;
+    transition: all 0.5s ease 0s;
+}
+@media (max-width: 604px) {
+  :global(.Modal) {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    height: 100%;
+    transform: none;
+    max-width: none;
+    max-height: none;
+  }
+}
+:global(.Overlay) {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: rgba(255, 255, 255, 0.75);
+    z-index: 2;
+}
+
+:global(.chatbox div .chatarea ) {
+  height: 174px;
+}
+:global(.chatarea) {
+  padding: 3px 3px 0px 3px;
+  margin: 0px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  height: 95%;
+}
+:global(.Modal div chatarea) {
+  max-height: 600px;
+}
+:global(.chatinput) {
+  height: 22px;
+  white-space: nowrap;
+}
+:global(.chatname) {
+  color: #4B0000;
+  font-size: 13px;
+}
+:global(.chatmsg) {
+  color: #030303;
+  font-size: 13px;
+  margin: 0;
+}
+
+:global(.usermessages) {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+}
+:global(.stattext) {
+  font-size: 18px;
+}
+:global(.statvalue) {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2d0045;
+}
+
+:global(.pressed) {
+    box-shadow:0 0 3px 2px rgba(0,0,0,.6);
+}
+
+:global(.notifyboxvis), :global(.notifyboxhid) {
+    position: absolute;
+    top: 57px;
+    left: 0px;
+    right: 0px;
+    height: 30px;
+    width: 20px;
+    color: black;
+    font-size: 14px;
+    line-height: 30px;
+    text-align: center;
+    vertical-align: middle;
+    border: solid black;
+    border-width: thin;
+    padding: 0 24px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 2;
+}
+
+:global(.notifyboxvis) {
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0s, opacity 0.5s linear;
+}
+:global(.notifyboxhid) {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.5s, opacity 0.5s linear;
+}
+
+:global(.cooldownbox) {
+    top: 16px;
+    width: 48px;
+    left: 0px;
+    right: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 2;
+}
+
+:global(.actionbuttons) {
+    vertical-align: text-bottom;
+    cursor: pointer;
+    width: 36px;
+    padding: 0;
+}
+
+:global(.palettebox) {
+    text-align: center; 
+    line-height: 0; 
+    z-index: 1;
+    bottom: 59px;
+    padding: 3px; 
+    position: fixed; 
+    right: 16px; 
+    margin-left: auto; 
+    margin-right: auto; 
+    display: flex; 
+    flex-wrap: wrap;
+}
+
+:global(.widpalette) {
+    height: 720px; 
+    width: 24px;
+    flex-direction: column;
+}
+:global(.widpalette) > span {
+    width: 24px;
+    height: 24px;
+    margin: 0px;
+}
+
+@media (max-height: 801px) {
+  :global(.widpalette) {
+    height: 360px;
+    width: 48px; 
+  }
+}
+
+:global(.selected), :global(.unselected) {
+    display: block;
+    cursor: pointer;
+    padding: 0;
+}
+
+:global(.compalette) {
+    flex-direction: row;
+    width: 140px;
+    height: 168px;
+}
+:global(.compalette) > span {
+    width: 28px;
+    height: 28px;
+    margin: 0px;
+}
+
+@media (max-width: 300px),  (max-height: 432px) {
+  :global(.widpalette), :global(.compalette) {
+    flex-direction: row;
+    width: 120px;
+    height: 144px;
+  }
+  :global(.widpalette) > span, :global(.compalette) > span {
+    width: 24px;
+    height: 24px;
+    margin: 0px;
+  }
+}
+
+:global(#colors) :global(.selected),
+:global(#colors) span:hover {
+  z-index: 2 !important;
+  outline: rgb(234, 234, 234) solid 1px;
+  box-shadow: rgba(0, 0, 0, 0.80) 0px 0px 5px 2px;
+  -ms-transform: scale(1.10,1.10); /* IE 9 */
+  -webkit-transform: scale(1.10,1.10); /* Safari */
+  transform: scale(1.10,1.10); /* Standard syntax */
+}
+
+:global(#outstreamContainer) {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: black;
+    z-index: 9000;
+}
+
+:global(.grecaptcha-badge) {
+    visibility: hidden;
+}

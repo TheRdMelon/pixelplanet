@@ -1,0 +1,44 @@
+/**
+ *
+ * @flow
+ */
+
+import React from 'react';
+import { connect } from 'react-redux';
+
+import Modal from './Modal';
+import Chat from './Chat';
+
+import type { State } from '../reducers';
+
+
+const textStyle = {
+  color: 'hsla(218, 5%, 47%, .6)',
+  fontSize: 14,
+  fontWeight: 500,
+  position: 'relative',
+  textAlign: 'inherit',
+  float: 'none',
+  margin: 0,
+  padding: 0,
+  lineHeight: 'normal',
+};
+
+
+const ChatModal = ({ center }) => (
+  <Modal title="Chat">
+    <p style={{ textAlign: 'center' }}>
+      <p style={textStyle}>Chat with other people here</p>
+    </p>
+    <div className="inarea" style={{ height: '65%' }}>
+      <Chat />
+    </div>
+  </Modal>
+);
+
+function mapStateToProps(state: State) {
+  const { center } = state.user;
+  return { center };
+}
+
+export default connect(mapStateToProps)(ChatModal);

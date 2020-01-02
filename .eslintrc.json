@@ -1,0 +1,25 @@
+{
+  "extends": [
+    "plugin:flowtype/recommended",
+    "airbnb"
+  ],
+  "plugins": [
+      "flowtype",
+      "react",
+      "jsx-a11y",
+      "import"
+  ],
+  "globals": {
+    "__DEV__": false
+  },
+  "env": {
+    "browser": true
+  },
+  "rules": {
+    "max-len": [1, 80, 2, {"ignoreComments": true}],
+    "no-bitwise": 0,
+    "no-plusplus" : "off",
+    "no-param-reassign": "off",
+    "no-mixed-operators":"off"
+  }
+}
