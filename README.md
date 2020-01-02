@@ -151,13 +151,6 @@ Wants=network-online.target
 After=network.target mysql.service redis.service
 ```
 
-#### nginx auto-start issues
-If nginx fails to auto start because the network is not propably up yet, add the line:
-```
-After=network-online.target
-```
-in `systemctl edit nginx.service`, which will create the file `/etc/systemd/system/nginx.service.d/override.conf`
-
 ### Development
 
 Install packages that are just required for building with `yarn add --dev` others with `yarn add`
