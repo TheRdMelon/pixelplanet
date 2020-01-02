@@ -168,7 +168,7 @@ export async function createZoomTileFromChunk(
       .png({ options: { compressionLevel: 6 } })
       .toFile(filename);
     logger.info(
-      `Tiling: Created Tile ${x} / ${y} with ${na.length} empty chunks`,
+      `Tiling: Created Tile ${filename} with ${na.length} empty chunks`,
     );
     return true;
   }
