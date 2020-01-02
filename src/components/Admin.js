@@ -1,5 +1,7 @@
 /*
  * react html for adminpage
+ *
+ * @flow
  */
 
 import React from 'react';

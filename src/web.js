@@ -24,6 +24,8 @@ import {
   admintools,
   resetPassword,
 } from './routes';
+import globeHtml from './components/Globe';
+
 import { SECOND, MONTH } from './core/constants';
 import { PORT, ASSET_SERVER, DISCORD_INVITE } from './core/config';
 
@@ -107,10 +109,34 @@ app.get('/chunks/:c([0-9]+)/:x([0-9]+)/:y([0-9]+).bmp', chunks);
 // -----------------------------------------------------------------------------
 app.use('/admintools', admintools);
 
+
 //
 // Password Reset Link
 // -----------------------------------------------------------------------------
 app.use('/reset_password', resetPassword);
+
+
+//
+// 3D Globe
+// -----------------------------------------------------------------------------
+const globeEtag = etag(
+  `${assets.globe.js}`,
+  { weak: true },
+);
+app.get('/globe', async (req, res) => {
+  res.set({
+    'Cache-Control': `private, max-age=${15 * 60}`, // seconds
+    'Content-Type': 'text/html; charset=utf-8',
+    ETag: indexEtag,
+  });
+
+  if (req.headers['if-none-match'] === indexEtag) {
+    res.status(304).end();
+    return;
+  }
+
+  res.status(200).send(globeHtml);
+});
 
 
 //
@@ -136,6 +162,7 @@ const indexEtag = etag(
 app.get('/', async (req, res) => {
   res.set({
     'Cache-Control': `private, max-age=${15 * 60}`, // seconds
+    'Content-Type': 'text/html; charset=utf-8',
     ETag: indexEtag,
   });
 
@@ -153,7 +180,7 @@ app.get('/', async (req, res) => {
   const html = ReactDOM.renderToStaticMarkup(<Html {...htmldata} />);
   const index = `<!doctype html>${html}`;
 
-  res.send(index);
+  res.status(200).send(index);
 });
 
 

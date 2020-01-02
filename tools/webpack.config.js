@@ -222,6 +222,7 @@ const clientConfig = {
 
   entry: {
     client: ['./src/client.js'],
+    globe: ['./src/globe.js'],
   },
 
   output: {
@@ -262,7 +263,7 @@ const clientConfig = {
 
         vendor: {
           name: "vendor",
-          chunks: chunk => chunk.name !== "client",
+          chunks: chunk => chunk.name === "client",
           test: /node_modules/,
         }
       }

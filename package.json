@@ -18,10 +18,9 @@
   },
   "author": "HF <hf@example.com>",
   "browserslist": [
-    ">1%",
-    "last 2 versions",
-    "Firefox ESR",
-    "not ie <= 11"
+    "defaults",
+    "not IE 11",
+    "not IE_Mob 11"
   ],
   "dependencies": {
     "bcrypt": "^3.0.6",
@@ -80,6 +79,8 @@
     "sharp": "^0.21.3",
     "startaudiocontext": "^1.2.1",
     "sweetalert2": "^6.6.6",
+    "three": "^0.112.1",
+    "three-trackballcontrols-ts": "^0.1.2",
     "url-search-params-polyfill": "^7.0.0",
     "validator": "^7.0.0",
     "visibilityjs": "^1.2.4",
