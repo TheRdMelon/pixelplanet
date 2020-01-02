@@ -29,5 +29,5 @@ Script to copy a canvas from one redis to another, with different keys if necces
 ## sql-commandtest.js
 Script that connects to the mysql database and does some stuff, just for testing
 
-## proxy-Convert.sh
+## proxyConvert.sh
 Converts a proxy list in specific txt format to a better readable list

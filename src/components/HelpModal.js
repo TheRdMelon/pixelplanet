@@ -54,7 +54,8 @@ const HelpModal = ({ center }) => (
         The current canvas size is from -32768 to +32768 in x and y.
         Higher zoomlevels take some time to update, the 3D globe gets updated at least once per day.
 		Have fun!</p>
-      <p>New Discord: <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
+      <p>Discord: <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
+      <p>Source on <a href="https://github.com/pixelplanetdev/pixelplanet" target="_blank">github</a></p>
       <p>Reddit: <a href="https://www.reddit.com/r/PixelPlanetFun/" target="_blank">r/PixelPlanetFun</a></p>
       <p>Image Converter: <a href="./convert" target="_blank">pixelplanet.fun/convert</a></p>
       <p>Image Converter for 2nd Planet: <a href="./convert2" target="_blank">pixelplanet.fun/convert2</a></p>
