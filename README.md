@@ -153,4 +153,6 @@ After=network.target mysql.service redis.service
 
 ### Development
 
-Install packages that are just required for building with `yarn add --dev` others with `yarn add`
+Install packages that are just required for building with `yarn add --dev` others with `yarn add.
+Run `yarn run lint` to check for code errors and warnings. We have enough warnings already, just don't produce too many additional ones.
+
