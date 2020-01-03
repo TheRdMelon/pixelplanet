@@ -82,6 +82,7 @@ async function oauth_login(email, name, discordid = null) {
     while (reguser) {
       // name is taken by someone else
       name = `${name.substring(0, 15)}-${Math.random().toString(36).substring(2, 10)}`;
+      // eslint-disable-next-line no-await-in-loop
       reguser = await RegUser.findOne({ where: { name } });
     }
     reguser = await RegUser.create({

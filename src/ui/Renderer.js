@@ -205,7 +205,7 @@ class Renderer {
             if (chunk.ready) {
               context.drawImage(chunk.image, x, y);
               if (fetch) chunk.timestamp = curTime;
-            } else if (loadingTile) context.drawImage(loadingTile, x, y);
+            } else if (loadingTile.img) context.drawImage(loadingTile.img, x, y);
             else context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
           } else {
             // we don't have that chunk
@@ -216,7 +216,7 @@ class Renderer {
                 store.dispatch(fetchTile(canvasId, [tiledZoom, cx, cy]));
               }
             }
-            if (loadingTile) context.drawImage(loadingTile, x, y);
+            if (loadingTile.img) context.drawImage(loadingTile.img, x, y);
             else context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
           }
         }
@@ -248,7 +248,7 @@ class Renderer {
 
     if (!view || canvasId === null) return;
 
-    if (this.canvasId != canvasId) {
+    if (this.canvasId !== canvasId) {
       const { canvasSize, palette, canvasMaxTiledZoom } = state.canvas;
       this.canvasSize = canvasSize;
       this.palette = palette;

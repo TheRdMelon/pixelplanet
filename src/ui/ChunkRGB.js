@@ -8,8 +8,11 @@ import { TILE_SIZE, TILE_LOADING_IMAGE } from '../core/constants';
 import loadImage from './loadImage';
 
 
-export let loadingTile = null;
-loadImage(TILE_LOADING_IMAGE).then((img) => { loadingTile = img; });
+export const loadingTile = {
+  url: TILE_LOADING_IMAGE,
+  img: null,
+};
+loadImage(TILE_LOADING_IMAGE).then((img) => { loadingTile.img = img; });
 
 
 class ChunkRGB {
@@ -66,8 +69,8 @@ class ChunkRGB {
         return;
       }
     }
-    if (loadingTile) {
-      ctx.drawImage(loadingTile, 0, 0);
+    if (loadingTile.img) {
+      ctx.drawImage(loadingTile.img, 0, 0);
       return;
     } else {
       ctx.fillStyle = this.palette.colors[2];
