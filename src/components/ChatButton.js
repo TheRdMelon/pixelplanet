@@ -10,7 +10,7 @@ import { MdForum } from 'react-icons/md';
 import { showChatModal } from '../actions';
 
 
-const ChatButton = ({ name, open }) => (
+const ChatButton = ({ open }) => (
   <div id="chatbutton" className="actionbuttons" onClick={open}>
     <MdForum />
   </div>: null

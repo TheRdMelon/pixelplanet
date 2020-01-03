@@ -140,7 +140,7 @@ class CanvasUpdater {
       setInterval(this.updateZoomlevelTiles, timeout, c);
     }
     if (this.maxTiledZoom === 0) {
-      //in the case of canvasSize == 256
+      // in the case of canvasSize == 256
       this.TileLoadingQueues.push([]);
       setInterval(this.updateZoomlevelTiles, 5 * 60 * 1000, 0);
     }

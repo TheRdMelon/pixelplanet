@@ -25,7 +25,7 @@ import globeHtml from './components/Globe';
 import generateMainPage from './components/Main';
 
 import { SECOND, MONTH } from './core/constants';
-import { PORT, ASSET_SERVER, DISCORD_INVITE } from './core/config';
+import { PORT, DISCORD_INVITE } from './core/config';
 
 import { ccToCoords } from './utils/location';
 import { wsupgrade } from './socket/websockets';
@@ -125,7 +125,7 @@ app.get('/globe', async (req, res) => {
   res.set({
     'Cache-Control': `private, max-age=${15 * 60}`, // seconds
     'Content-Type': 'text/html; charset=utf-8',
-    ETag: indexEtag,
+    ETag: globeEtag,
   });
 
   if (req.headers['if-none-match'] === globeEtag) {

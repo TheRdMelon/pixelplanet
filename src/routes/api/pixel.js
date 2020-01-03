@@ -9,7 +9,7 @@ import nodeIp from 'ip';
 
 import draw from '../../core/draw';
 import { blacklistDetector, cheapDetector, strongDetector } from '../../core/isProxy';
-import { verifyCaptcha } from '../../utils/recaptcha';
+import verifyCaptcha from '../../utils/recaptcha';
 import logger from '../../core/logger';
 import { clamp } from '../../core/utils';
 import redis from '../../data/redis';

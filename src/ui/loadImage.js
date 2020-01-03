@@ -3,7 +3,7 @@
 function loadImage(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.addEventListener('load', e => resolve(img));
+    img.addEventListener('load', () => resolve(img));
     img.addEventListener('error', () => {
       reject(new Error(`Failed to load image's URL: ${url}`));
     });

@@ -19,19 +19,19 @@ const ENDPOINT = `${BASE_ENDPOINT}?secret=${RECAPTCHA_SECRET}`;
  * @param ip
  * @returns {Promise.<boolean>}
  */
-export async function verifyCaptcha(
+async function verifyCaptcha(
   token: string,
   ip: string,
 ): Promise<boolean> {
   try {
     if (!RECAPTCHA_SECRET) {
-      logger.info(`Got captcha token but reCaptcha isn't configured?!`);
+      logger.info('Got captcha token but reCaptcha isn\'t configured?!');
       return true;
     }
     const url = `${ENDPOINT}&response=${token}&remoteip=${ip}`;
     const response = await fetch(url);
     if (response.ok) {
-      const { success, challenge_ts, hostname } = await response.json();
+      const { success } = await response.json();
       if (success) {
         logger.info(`CAPTCHA ${ip} successfully solved captcha`);
         return true;
@@ -46,3 +46,5 @@ export async function verifyCaptcha(
 
   return false;
 }
+
+export default verifyCaptcha;

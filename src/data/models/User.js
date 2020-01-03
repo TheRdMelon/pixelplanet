@@ -9,7 +9,6 @@
 
 import redis from '../redis';
 import { randomDice } from '../../utils/random';
-import { verifyCaptcha } from '../../utils/recaptcha';
 import logger from '../../core/logger';
 import Sequelize from 'sequelize';
 
