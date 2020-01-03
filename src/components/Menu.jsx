@@ -9,7 +9,7 @@ import HelpButton from './HelpButton';
 import SettingsButton from './SettingsButton';
 import LogInButton from './LogInButton';
 import DownloadButton from './DownloadButton';
-import MinecraftTPButton from './MinecraftTPButton.js';
+import MinecraftTPButton from './MinecraftTPButton';
 import MinecraftButton from './MinecraftButton';
 
 const Menu = ({ menuOpen, minecraftname, messages, canvasId }) => (

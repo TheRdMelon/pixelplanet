@@ -3,6 +3,11 @@
     "plugin:flowtype/recommended",
     "airbnb"
   ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
   "plugins": [
       "flowtype",
       "react",

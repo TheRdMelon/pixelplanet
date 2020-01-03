@@ -15,6 +15,13 @@ export function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
 }
 
+export function sum(values: Array<number>): number {
+  let total = 0;
+  // TODO map reduce
+  values.forEach(value => total += value);
+  return total;
+}
+
 export function distMax([x1, y1]: Cell, [x2, y2]: Cell): number {
   return Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2));
 }

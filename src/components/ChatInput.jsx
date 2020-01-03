@@ -1,5 +1,7 @@
 /*
  * Chat input field
+ *
+ * @flow
  */
 
 import React from 'react';

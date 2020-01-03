@@ -1,7 +1,20 @@
+/*
+ * check if IP is from cloudflare
+ * @flow
+ */
 
-// 3rd
-const Address4 = require('ip-address').Address4;
-const Address6 = require('ip-address').Address6;
+import { Address4, Address6 } from 'ip-address';
+
+// returns undefined | Address4 | Address6
+function intoAddress(str) {
+  if (typeof str === 'string') str = str.trim();
+  let ip = new Address6(str);
+  if (ip.v4 && !ip.valid) {
+    ip = new Address4(str);
+  }
+  if (!ip.valid) return null;
+  return ip;
+}
 
 const cloudflareIps = [
   '103.21.244.0/22',
@@ -27,21 +40,12 @@ const cloudflareIps = [
   '2a06:98c0::/29',
 ].map(intoAddress);
 
-// returns undefined | Address4 | Address6
-function intoAddress(str) {
-  if (typeof str === 'string') str = str.trim();
-  let ip = new Address6(str);
-  if (ip.v4 && !ip.valid) {
-    ip = new Address4(str);
-  }
-  if (!ip.valid) return;
-  return ip;
-}
-
 // returns bool
-export function isCloudflareIp(testIpString: string): boolean {
+function isCloudflareIp(testIpString: string): boolean {
   if (!testIpString) return false;
   const testIp = intoAddress(testIpString);
   if (!testIp) return false;
   return cloudflareIps.some(cf => testIp.isInSubnet(cf));
 }
+
+export default isCloudflareIp;

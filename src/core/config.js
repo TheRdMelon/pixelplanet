@@ -17,7 +17,7 @@ export const TILE_FOLDER = path.join(__dirname, `./${TILE_FOLDER_REL}`);
 export const ASSET_SERVER = process.env.ASSET_SERVER || '.';
 
 // Proxycheck
-export const USE_PROXYCHECK = parseInt(process.env.USE_PROXYCHECK) || false;
+export const USE_PROXYCHECK = parseInt(process.env.USE_PROXYCHECK, 10) || false;
 
 export const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6380';
 // Database
@@ -80,7 +80,7 @@ export const ads = {
 export const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET || false;
 export const RECAPTCHA_SITEKEY = process.env.RECAPTCHA_SITEKEY || false;
 // time on which to display captcha in minutes
-export const RECAPTCHA_TIME = parseInt(process.env.RECAPTCHA_TIME) || 30;
+export const RECAPTCHA_TIME = parseInt(process.env.RECAPTCHA_TIME, 10) || 30;
 
 export const SESSION_SECRET = process.env.SESSION_SECRET || 'dummy';
 
