@@ -470,6 +470,7 @@ export function receiveMe(
     dailyRanking,
     minecraftname,
     canvases,
+    factions
   } = me;
   ProtocolClient.setName(name);
   return {
@@ -483,6 +484,7 @@ export function receiveMe(
     dailyRanking,
     minecraftname,
     canvases,
+    factions: (factions) || []
   };
 }
 
@@ -494,6 +496,15 @@ export function receiveStats(
     type: 'RECEIVE_STATS',
     totalRanking,
     totalDailyRanking,
+  };
+}
+
+export function recieveFactions(
+  factions: Array,
+): Action {
+  return {
+    type: 'RECIEVE_FACTIONS',
+    factions
   };
 }
 
@@ -541,6 +552,17 @@ export function fetchStats(): PromiseAction {
       const rankings = await response.json();
 
       dispatch(receiveStats(rankings));
+    }
+  };
+}
+
+export function fetchFactions(): PromiseAction {
+  return async (dispatch) => {
+    const response = await fetch('api/factions', { credentials: 'include' });
+    if (response.ok) {
+      const factions = await response.json();
+
+      dispatch(recieveFactions(factions))
     }
   };
 }
@@ -675,4 +697,3 @@ export function switchCanvas(canvasId: number): PromiseAction {
     dispatch(onViewFinishChange());
   };
 }
-

@@ -8,21 +8,19 @@ import Tabs from './Tabs';
 import { connect } from 'react-redux';
 import JoinFactionForm from './JoinFactionForm';
 
-const JoinFaction = ({ factionInfo }) => (
+const JoinFaction = ({ joined_faction }) => (
     <p style={{ textAlign: 'center' }}>
         <p style={textStyle}>Join a faction to gain perks and work together.</p><br />
         <h2>Join Private Faction:</h2>
-        <JoinFactionForm faction_info={factionInfo} />
+        <JoinFactionForm joined_faction={joined_faction} />
         <h2>Or Join a Public Faction:</h2>
-        
+        <PublicFaction joined_faction={joined_faction} />
     </p>
 )
 
-const FactionModal = ({ }) => (
+const FactionModal = ({ joined_faction }) => (
     <Modal title="Faction Area">
         <p style={{ textAlign: 'center' }}>
-            {(factions.length === 0) ?
-                <JoinFaction /> :
                 <Tabs>
                     <div label="Info">
                         <FactionInfo />
@@ -34,9 +32,12 @@ const FactionModal = ({ }) => (
                         <Admin />
                     </div>
                     <div label="Join">
-                        <JoinFaction />
+                        <JoinFaction joined_faction={joined_faction} />
                     </div>
-                </Tabs>}
+                    <div label="Create">
+                        <CreateFaction />
+                    </div>
+                </Tabs>
             <p>Expand your faction on our Discord: <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
         </p>
     </Modal>
@@ -44,6 +45,9 @@ const FactionModal = ({ }) => (
 
 function mapDispatchToProps(dispatch) {
     return {
+        joined_faction(factionInfo) {
+            dispatch(joinedFaction(factionInfo));
+        }
     };
 }
 

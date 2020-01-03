@@ -21,6 +21,10 @@ export type UserState = {
   // global stats
   totalRanking: Object,
   totalDailyRanking: Object,
+  // user factions
+  userFactions: Array
+  // all factions
+  factions: Array,
   // chat
   chatMessages: Array,
   // minecraft
@@ -38,6 +42,8 @@ const initialState: UserState = {
   mailreg: false,
   totalRanking: {},
   totalDailyRanking: {},
+  userFactions: [],
+  factions: [],
   chatMessages: [['info', 'Welcome to the PixelPlanet Chat']],
   minecraftname: null,
 };
@@ -141,6 +147,7 @@ export default function user(
         ranking,
         dailyRanking,
         minecraftname,
+        factions,
       } = action;
       const messages = (action.messages) ? action.messages : [];
       return {
@@ -153,6 +160,7 @@ export default function user(
         ranking,
         dailyRanking,
         minecraftname,
+        userFactions: factions,
       };
     }
 
@@ -162,6 +170,14 @@ export default function user(
         ...state,
         totalRanking,
         totalDailyRanking,
+      };
+    }
+
+    case 'RECIEVE_FACTIONS': {
+      const { factions } = action;
+      return {
+        ...state,
+        factions
       };
     }
 

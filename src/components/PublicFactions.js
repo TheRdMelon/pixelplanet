@@ -4,6 +4,9 @@
  */
 
 import React from 'react';
+import { connect } from 'react-redux';
+
+import type { State } from '../reducers';
 
 const PublicFactions = ({ public_factions, join_faction }) => (
     <div style={{ overflowY: 'auto' }}>
@@ -23,7 +26,7 @@ const PublicFactions = ({ public_factions, join_faction }) => (
                         <td>{faction.name}</td>
                         <td>{faction.leader}</td>
                         <td>
-                            <a onClick={join_faction}>
+                            <a onClick={() => join_faction(faction.id)}>
                                 Join
                             </a>
                         </td>
@@ -32,4 +35,11 @@ const PublicFactions = ({ public_factions, join_faction }) => (
             }
         </table>
     </div>
-)
+);
+
+function mapStateToProps(state: State) {
+    const { public_factions, join_faction } = state.factions;
+    return { public_factions, join_faction };
+}
+
+export default connect(mapStateToProps)(PublicFactions);

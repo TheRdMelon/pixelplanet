@@ -14,9 +14,8 @@ function validate(password) {
     return errors;
 }
 
-async function join_faction(joining, password) {
+async function join_faction(password) {
     const body = JSON.stringify({
-        joining,
         password
     });
     const response = await fetch('./api/faction/join', {
@@ -60,7 +59,7 @@ class JoinFactionForm extends React.Component {
         if (errors.length > 0) return;
 
         this.setState({ joining: true });
-        const { errors: resperrors, factionInfo } = await join_faction(joining, password);
+        const { errors: resperrors, factionInfo } = await join_faction(password);
         if (resperrors) {
             this.setState({
                 errors: resperrors,
@@ -68,7 +67,7 @@ class JoinFactionForm extends React.Component {
             });
             return;
         }
-        this.props.faction_info(factionInfo);
+        this.props.joined_faction(factionInfo);
     }
 
     render() {

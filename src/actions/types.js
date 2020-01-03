@@ -43,8 +43,9 @@ export type Action =
   | { type: 'RECEIVE_CHAT_HISTORY', data: Array }
   | { type: 'RECEIVE_ME', name: string, waitSeconds: number, messages: Array,
       mailreg: boolean, totalPixels: number, dailyTotalPixels: number,
-      ranking: number, dailyRanking: number, minecraftname: string, canvases: Object}
+      ranking: number, dailyRanking: number, minecraftname: string, canvases: Object, factions: Array}
   | { type: 'RECEIVE_STATS', totalRanking: Object, totalDailyRanking: Object }
+  | { type: 'RECIEVE_FACTIONS', factions: Array }
   | { type: 'SET_NAME', name: string }
   | { type: 'SET_MINECRAFT_NAME', minecraftname: string }
   | { type: 'SET_MAILREG', mailreg: boolean }

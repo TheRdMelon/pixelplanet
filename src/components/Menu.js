@@ -11,6 +11,7 @@ import LogInButton from './LogInButton';
 import DownloadButton from './DownloadButton';
 import MinecraftTPButton from './MinecraftTPButton.js';
 import MinecraftButton from './MinecraftButton';
+import FactionButton from "./FactionButton";
 
 const Menu = ({ menuOpen, minecraftname, messages, canvasId }) => (
   <div>
