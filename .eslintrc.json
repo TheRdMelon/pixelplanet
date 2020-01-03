@@ -25,6 +25,7 @@
     "no-bitwise": 0,
     "no-plusplus" : "off",
     "no-param-reassign": "off",
-    "no-mixed-operators":"off"
+    "no-mixed-operators":"off",
+    "react/prop-types": "off"
   }
 }
