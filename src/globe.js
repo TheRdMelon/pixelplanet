@@ -8,7 +8,6 @@ function checkMaterial(object) {
   if (object.material) {
     const materialName = object.material.name;
     if (materialName === 'canvas') {
-      console.log('Found material for canvas texture');
       return true;
     }
   }
@@ -22,7 +21,7 @@ function parseHashCoords() {
     const ident = array.shift();
     const [id, size, x, y] = array.map(z => parseInt(z, 10));
     if (!ident || isNaN(x) || isNaN(y) || isNaN(id) || isNaN(size)) {
-      throw 'NaN';
+      throw new Error('NaN');
     }
     return [ident, id, size, x, y];
   } catch (error) {
@@ -31,7 +30,6 @@ function parseHashCoords() {
 }
 
 function rotateToCoords(canvasSize, object, coords) {
-  console.log('Rotate to', coords);
   const [x, y] = coords;
   const rotOffsetX = 0;
   const rotOffsetY = 3 * Math.PI / 2;
@@ -116,10 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
     rotateToCoords(canvasSize, object, [x, y]);
     controls = createControls();
     render();
-  }, (xhr) => {
-    console.log(`${xhr.loaded} loaded`);
-  }, (error) => {
-    console.log('An error happened', error);
+  }, () => {
+    // console.log(`${xhr.loaded} loaded`);
+  }, () => {
+    // console.log('An error happened', error);
   });
 
 
