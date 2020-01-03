@@ -20,19 +20,18 @@ Click or tab: Place Pixel
 ## Build
 ### Requirements
 - [nodejs environment](https://nodejs.org/en/)
-- [yarn](https://yarnpkg.com/lang/en/docs/install/#debian-stable)
 - (optional) [babel-cli](https://www.npmjs.com/package/babel-cli) (`sudo npm install --global babel-cli`)
 
 ### Building
 Make sure that you have rights to g++ (if not, run as root and then `chown username:username -R .` after build)
 
 ```
-yarn install
-yarn run build --release
+npm install
+npm run build
 ```
 All needed files to run it got created in `./build`
 #### Note:
-If yarn install fails with "unable to connect to github.com" set:
+If npm install fails with "unable to connect to github.com" set:
 ```
 git config --global url.https://github.com/.insteadOf git://github.com/
 ```
@@ -155,6 +154,5 @@ After=network.target mysql.service redis.service
 
 ### Development
 
-Install packages that are just required for building with `yarn add --dev` others with `yarn add`.
-Run `yarn run lint` to check for code errors and warnings. We have enough warnings already, just don't produce too many additional ones.
+Run `npm run lint:src` to check for code errors and warnings or `npm run lint -- ./your/file.js` to check a single file. We have enough warnings already, just don't produce too many additional ones.
 
