@@ -16,6 +16,7 @@ const Menu = ({ menuOpen, minecraftname, messages, canvasId }) => (
   <div>
     {(menuOpen) ? <SettingsButton /> : null}
     {(menuOpen) ? <LogInButton /> : null}
+    {(menuOpen) ? <FactionButton /> : null},
     {(menuOpen) ? <DownloadButton /> : null}
     {(menuOpen) ? <MinecraftButton /> : null}
     {(menuOpen) ? <HelpButton /> : null}

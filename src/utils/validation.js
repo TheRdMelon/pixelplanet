@@ -42,6 +42,11 @@ export function validatePassword(password) {
   return false;
 }
 
+export function validateFactionPassword(password) {
+  if (password.length === 0) return 'Must enter password to join private faction.';
+  return false;
+}
+
 /*
  * makes sure that responses from the api
  * includes errors when failure occures

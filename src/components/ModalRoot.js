@@ -15,6 +15,7 @@ import RegisterModal from './RegisterModal';
 import ChatModal from './ChatModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import MinecraftModal from './MinecraftModal';
+import FactionModal from './FactionModal';
 
 
 const MODAL_COMPONENTS = {
@@ -25,6 +26,7 @@ const MODAL_COMPONENTS = {
   FORGOT_PASSWORD: ForgotPasswordModal,
   CHAT: ChatModal,
   MINECRAFT: MinecraftModal,
+  FACTION: FactionModal
   /* other modals */
 };
 

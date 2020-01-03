@@ -616,6 +616,10 @@ export function showUserAreaModal(): Action {
   return showModal('USERAREA');
 }
 
+export function showFactionsAreaModal(): Action {
+  return showModal('FACTION');
+}
+
 export function showMinecraftModal(): Action {
   return showModal('MINECRAFT');
 }
