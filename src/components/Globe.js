@@ -16,7 +16,7 @@ import globeCss from './globe.tcss';
 const Globe = () => (
   <div>
     <style dangerouslySetInnerHTML={{ __html: globeCss }} />
-    <div id="webgl"></div>
+    <div id="webgl" />
     <div id="coorbox">(0, 0)</div>
     <div id="info">Double click on globe to go back.</div>
   </div>

@@ -7,12 +7,12 @@ import React from 'react';
 import { IconContext } from 'react-icons';
 
 import CoolDownBox from './CoolDownBox';
-import NotifyBox from './NotifyBox.js';
+import NotifyBox from './NotifyBox';
 import CoordinatesBox from './CoordinatesBox';
 import GlobeButton from './GlobeButton';
 import CanvasSwitchButton from './CanvasSwitchButton';
 import OnlineBox from './OnlineBox';
-import PalselButton from './PalselButton.js';
+import PalselButton from './PalselButton';
 import ChatButton from './ChatButton';
 import Palette from './Palette';
 import ChatBox from './ChatBox';
@@ -22,10 +22,6 @@ import ExpandMenuButton from './ExpandMenuButton';
 import ModalRoot from './ModalRoot';
 
 import baseCss from './base.tcss';
-
-const position = 'absolute';
-const left = '1em';
-const right = left;
 
 const App = () => (
   <div>

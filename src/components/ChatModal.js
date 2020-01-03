@@ -25,7 +25,7 @@ const textStyle = {
 };
 
 
-const ChatModal = ({ center }) => (
+const ChatModal = () => (
   <Modal title="Chat">
     <p style={{ textAlign: 'center' }}>
       <p style={textStyle}>Chat with other people here</p>
@@ -36,9 +36,3 @@ const ChatModal = ({ center }) => (
   </Modal>
 );
 
-function mapStateToProps(state: State) {
-  const { center } = state.user;
-  return { center };
-}
-
-export default connect(mapStateToProps)(ChatModal);

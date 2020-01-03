@@ -248,7 +248,7 @@ class APISocketServer extends EventEmitter {
           ret,
         ]));
       }
-    } catch(err) {
+    } catch (err) {
       logger.error(`Got undecipherable api-ws message ${message}`);
     }
   }
