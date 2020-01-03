@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const elem = document.getElementsByTagName('BODY')[0];
     if (intersects.length > 0) {
-      const { xi, yi } = intersects[0].uv;
+      const { x: xi, y: yi } = intersects[0].uv;
       const xabs = Math.floor((xi - 0.5) * canvasSize);
       const yabs = Math.floor((0.5 - yi) * canvasSize);
       // console.log(`On ${xabs} / ${yabs} cam: ${camera.position.z}`);
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const intersects = raycaster.intersectObject(object);
 
     if (intersects.length > 0) {
-      const { xi, yi } = intersects[0].uv;
+      const { x: xi, y: yi } = intersects[0].uv;
       const xabs = Math.round((xi - 0.5) * canvasSize);
       const yabs = Math.round((0.5 - yi) * canvasSize);
       window.location.href = `./#${canvasIdent},${xabs},${yabs},0`;
