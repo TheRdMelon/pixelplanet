@@ -18,7 +18,7 @@ Click or tab: Place Pixel
 
 
 ## Build
-### Requriements
+### Requirements
 - [nodejs environment](https://nodejs.org/en/)
 - [yarn](https://yarnpkg.com/lang/en/docs/install/#debian-stable)
 - (optional) [babel-cli](https://www.npmjs.com/package/babel-cli) (`sudo npm install --global babel-cli`)
@@ -38,7 +38,7 @@ git config --global url.https://github.com/.insteadOf git://github.com/
 ```
 
 ## Run
-### Requriements
+### Requirements
 - nodejs environment with [npm](https://www.npmjs.com/get-npm)
 - (optional)[babel-cli](https://www.npmjs.com/package/babel-cli) (`npm install -g babel-cli`)
 - [pm2](https://github.com/Unitech/pm2) (`npm install -g pm2`) as process manager and for logging
@@ -153,6 +153,6 @@ After=network.target mysql.service redis.service
 
 ### Development
 
-Install packages that are just required for building with `yarn add --dev` others with `yarn add.
+Install packages that are just required for building with `yarn add --dev` others with `yarn add`.
 Run `yarn run lint` to check for code errors and warnings. We have enough warnings already, just don't produce too many additional ones.
 
