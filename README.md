@@ -103,6 +103,8 @@ Note:
 Canvas specific configuartion like colors and cooldown is in `src/canvases.json` for all canvases.
 The CanvasSize is expected to be a power of 4 (4096, 16384, 65536,...) and not smaller than 256.
 bcd is base cooldown for unset pixels, pcd is cooldown for placing on top of others, cds is stacktime, req is the requirement to be allowed to set on canvas in total pixels placed. All the cooldown values are in ms.
+If you want to add a new canvas, be sure that you additionally create `public/loading${canvasId}.png` and `public/assets3d/normal${canvasId}.jpg` and `public/assets3d/specular${canvasId}.jpg`, check out the existing ones to see what those files are for.
+
 The default configuration values can be seen in `src/core/config.js` and for the canvases in `src/core/constats.js`
 
 ### Running

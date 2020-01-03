@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     rotateToCoords(canvasSize, object, [x, y]);
     controls = createControls();
     render();
+    document.getElementById('loading').style.display = "none";
   }, () => {
     // console.log(`${xhr.loaded} loaded`);
   }, () => {

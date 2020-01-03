@@ -19,6 +19,7 @@ const Globe = () => (
     <div id="webgl" />
     <div id="coorbox">(0, 0)</div>
     <div id="info">Double click on globe to go back.</div>
+    <div id="loading">Loading...</div>
   </div>
 );
 

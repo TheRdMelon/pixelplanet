@@ -19,7 +19,8 @@ import {
   renderPlaceholder,
   renderPotatoPlaceholder,
 } from './renderelements';
-import ChunkRGB, { loadingTile } from './ChunkRGB';
+import ChunkRGB from './ChunkRGB';
+import { loadingTiles } from './loadImage';
 
 
 import pixelNotify from './PixelNotify';
@@ -205,8 +206,11 @@ class Renderer {
             if (chunk.ready) {
               context.drawImage(chunk.image, x, y);
               if (fetch) chunk.timestamp = curTime;
-            } else if (loadingTile.img) context.drawImage(loadingTile.img, x, y);
-            else context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            } else if (loadingTiles.hasTiles) {
+              context.drawImage(loadingTiles.getTile(canvasId), x, y);
+            } else {
+              context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            }
           } else {
             // we don't have that chunk
             if (fetch) {
@@ -216,8 +220,11 @@ class Renderer {
                 store.dispatch(fetchTile(canvasId, [tiledZoom, cx, cy]));
               }
             }
-            if (loadingTile.img) context.drawImage(loadingTile.img, x, y);
-            else context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            if (loadingTiles.hasTiles) {
+              context.drawImage(loadingTiles.getTile(canvasId), x, y);
+            } else {
+              context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            }
           }
         }
       }

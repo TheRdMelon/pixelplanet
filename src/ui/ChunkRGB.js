@@ -3,16 +3,7 @@
 import type { Cell } from '../core/Cell';
 import type { Palette } from '../core/Palette';
 
-import { TILE_SIZE, TILE_LOADING_IMAGE } from '../core/constants';
-
-import loadImage from './loadImage';
-
-
-export const loadingTile = {
-  url: TILE_LOADING_IMAGE,
-  img: null,
-};
-loadImage(TILE_LOADING_IMAGE).then((img) => { loadingTile.img = img; });
+import { TILE_SIZE } from '../core/constants';
 
 
 class ChunkRGB {
@@ -69,8 +60,8 @@ class ChunkRGB {
         return;
       }
     }
-    if (loadingTile.img) {
-      ctx.drawImage(loadingTile.img, 0, 0);
+    if (loadingTiles.hasTiles) {
+      ctx.drawImage(loadingTiles.getTile(0), 0, 0);
       return;
     } else {
       ctx.fillStyle = this.palette.colors[2];
