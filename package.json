@@ -78,15 +78,15 @@
     "validator": "^7.0.0",
     "visibilityjs": "^1.2.4",
     "winston": "^2.3.1",
-    "ws": "^7.1.2"
-  },
-  "devDependencies": {
     "three": "^0.112.1",
     "three-trackballcontrols-ts": "^0.1.2",
     "hammerjs": "^2.0.8",
     "push.js": "1.0.9",
     "startaudiocontext": "^1.2.1",
     "sweetalert2": "^6.6.6",
+    "ws": "^7.1.2"
+  },
+  "devDependencies": {
     "rimraf": "^2.6.1",
     "@babel/core": "^7.0.0",
     "@babel/node": "^7.0.0",
