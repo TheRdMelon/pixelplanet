@@ -5,14 +5,11 @@ import compression from 'compression';
 import express from 'express';
 import http from 'http';
 import etag from 'etag';
-import React from 'react';
-import ReactDOM from 'react-dom/server';
 import expressValidator from 'express-validator';
 
 
 // import baseCss from './components/base.tcss';
 import forceGC from './core/forceGC';
-import Html from './components/Html';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import logger from './core/logger';
 import models from './data/models';
@@ -25,6 +22,7 @@ import {
   resetPassword,
 } from './routes';
 import globeHtml from './components/Globe';
+import generateMainPage from './components/Main';
 
 import { SECOND, MONTH } from './core/constants';
 import { PORT, ASSET_SERVER, DISCORD_INVITE } from './core/config';
@@ -117,7 +115,7 @@ app.use('/reset_password', resetPassword);
 
 
 //
-// 3D Globe
+// 3D Globe (react generated)
 // -----------------------------------------------------------------------------
 const globeEtag = etag(
   `${assets.globe.js}`,
@@ -130,7 +128,7 @@ app.get('/globe', async (req, res) => {
     ETag: indexEtag,
   });
 
-  if (req.headers['if-none-match'] === indexEtag) {
+  if (req.headers['if-none-match'] === globeEtag) {
     res.status(304).end();
     return;
   }
@@ -140,21 +138,8 @@ app.get('/globe', async (req, res) => {
 
 
 //
-// Register server-side rendering middleware
+// Main Page (react generated)
 // -----------------------------------------------------------------------------
-const data = {
-  title: 'PixelPlanet.fun',
-  description: 'Place color pixels on an map styled canvas ' +
-  'with other players online',
-  //  styles: [
-  //    { id: 'css', cssText: baseCss },
-  //  ],
-  scripts: [
-    ASSET_SERVER + assets.vendor.js,
-    ASSET_SERVER + assets.client.js,
-  ],
-  useRecaptcha: true,
-};
 const indexEtag = etag(
   `${assets.vendor.js},${assets.client.js}`,
   { weak: true },
@@ -174,14 +159,9 @@ app.get('/', async (req, res) => {
 
   // get start coordinates based on cloudflare header country
   const country = req.headers['cf-ipcountry'];
-  const [x, y] = (country) ? ccToCoords(country) : [0, 0];
-  const code =
-    `window.coordx=${x};window.coordy=${y};window.assetserver="${ASSET_SERVER}";`;
-  const htmldata = { ...data, code };
-  const html = ReactDOM.renderToStaticMarkup(<Html {...htmldata} />);
-  const index = `<!doctype html>${html}`;
+  const countryCoords = (country) ? ccToCoords(country) : [0, 0];
 
-  res.status(200).send(index);
+  res.status(200).send(generateMainPage(countryCoords));
 });
 
 

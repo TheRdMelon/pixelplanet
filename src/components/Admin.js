@@ -1,10 +1,13 @@
 /*
- * react html for adminpage
+ * Html for adminpage
  *
  * @flow
  */
 
 import React from 'react';
+import ReactDOM from 'react-dom/server';
+
+import Html from './Html';
 
 const Admin = () => (
   <form method="post" action="admintools" encType="multipart/form-data">
@@ -36,4 +39,11 @@ const Admin = () => (
   </form>
 );
 
-export default Admin;
+const data = {
+  title: 'PixelPlanet.fun AdminTools',
+  description: 'admin access on pixelplanet',
+  body: <Admin />,
+};
+const adminHtml = `<!doctype html>${ReactDOM.renderToStaticMarkup(<Html {...data} />)}`;
+
+export default adminHtml;

@@ -11,8 +11,6 @@ import type { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import sharp from 'sharp';
 import multer from 'multer';
-import React from 'react';
-import ReactDOM from 'react-dom/server';
 
 import { getIPFromRequest } from '../utils/ip';
 import { getIdFromObject } from '../core/utils';
@@ -26,22 +24,11 @@ import { MINUTE } from '../core/constants';
 import canvases from '../canvases.json';
 import { imageABGR2Canvas } from '../core/Image';
 
-import Html from '../components/Html';
-import Admin from '../components/Admin';
+import adminHtml from '../components/Admin';
 
 
 const router = express.Router();
 const limiter = expressLimiter(router, redis);
-
-/*
- * build html of admin page with react
- */
-const data = {
-  title: 'PixelPlanet.fun AdminTools',
-  description: 'admin access on pixelplanet',
-  body: <Admin />,
-};
-const index = `<!doctype html>${ReactDOM.renderToStaticMarkup(<Html {...data} />)}`;
 
 
 /*
@@ -246,7 +233,7 @@ router.use(async (req: Request, res: Response) => {
   res.set({
     'Content-Type': 'text/html',
   });
-  res.status(200).send(index);
+  res.status(200).send(adminHtml);
 });
 
 
