@@ -15,7 +15,7 @@ import type { State } from '../reducers';
  */
 function globe(canvasId, canvasIdent, canvasSize, view) {
   const [x, y] = view.map(Math.round);
-  window.location.href = `go/#${canvasIdent},${canvasId},${canvasSize},${x},${y}`;
+  window.location.href = `globe#${canvasIdent},${canvasId},${canvasSize},${x},${y}`;
 }
 
 

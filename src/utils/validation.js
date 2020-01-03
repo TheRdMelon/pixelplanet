@@ -3,15 +3,17 @@
  * @flow
  */
 
-const mail_tester = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
+const mailTester = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
 
 export function validateEMail(email) {
   if (!email) return "Email can't be empty.";
   if (email.length < 5) return 'Email should be at least 5 characters long.';
   if (email.length > 40) return "Email can't be longer than 40 characters.";
   if (email.indexOf('.') === -1) return 'Email should at least contain a dot';
-  if (email.split('').filter(x => x === '@').length !== 1) return 'Email should contain a @';
-  if (!mail_tester.test(email)) return 'Your Email looks shady';
+  if (email.split('').filter(x => x === '@').length !== 1) {
+    return 'Email should contain a @';
+  }
+  if (!mailTester.test(email)) return 'Your Email looks shady';
   return false;
 }
 
@@ -24,7 +26,9 @@ export function validateName(name) {
       name.indexOf('\\') !== -1 ||
       name.indexOf('>') !== -1 ||
       name.indexOf('<') !== -1 ||
-      name.indexOf('#') !== -1) return 'Name contains invalid character like @, /, \\ or #';
+      name.indexOf('#') !== -1) {
+    return 'Name contains invalid character like @, /, \\ or #';
+  }
   return false;
 }
 
@@ -37,8 +41,12 @@ export function sanitizeName(name) {
 }
 
 export function validatePassword(password) {
-  if (password.length < 6) return 'Password must be at least 6 characters long.';
-  if (password.length > 60) return 'Password must be shorter than 60 characters.';
+  if (password.length < 6) {
+    return 'Password must be at least 6 characters long.';
+  }
+  if (password.length > 60) {
+    return 'Password must be shorter than 60 characters.';
+  }
   return false;
 }
 

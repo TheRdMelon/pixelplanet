@@ -63,7 +63,7 @@ export function getIdFromObject(obj: Object, ident: string): number {
   for (let i = 0; i < ids.length; i += 1) {
     const key = ids[i];
     if (obj[key].ident === ident) {
-      return key;
+      return parseInt(key, 10);
     }
   }
   return null;

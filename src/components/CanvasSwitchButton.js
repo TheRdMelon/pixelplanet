@@ -12,14 +12,8 @@ import { switchCanvas } from '../actions';
 import type { State } from '../reducers';
 
 
-function globe(canvasId, canvasIdent, canvasSize, view) {
-  const [x, y] = view.map(Math.round);
-  window.location.href = `globe/#${canvasIdent},${canvasId},${canvasSize},${x},${y}`;
-}
-
-
-const CanvasSwitchButton = ({ canvasId, switchCanvas }) => (
-  <div id="canvasbutton" className="actionbuttons" onClick={() => switchCanvas(canvasId)}>
+const CanvasSwitchButton = ({ canvasId, changeCanvas }) => (
+  <div id="canvasbutton" className="actionbuttons" onClick={() => changeCanvas(canvasId)}>
     {(canvasId == 0) ? <FaGlobe /> : <FaGlobeAfrica />}
   </div>
 );
@@ -31,7 +25,7 @@ function mapStateToProps(state: State) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    switchCanvas(canvasId) {
+    changeCanvas(canvasId) {
       const newCanvasId = (canvasId == 0) ? 1 : 0;
       dispatch(switchCanvas(newCanvasId));
     },

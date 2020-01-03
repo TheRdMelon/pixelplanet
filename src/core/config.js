@@ -32,8 +32,8 @@ export const DISCORD_INVITE = process.env.DISCORD_INVITE || 'https://discordapp.
 // Accounts
 export const APISOCKET_KEY = process.env.APISOCKET_KEY || 'changethis';
 // Comma seperated list of user ids of Admins
-export const ADMIN_IDS = (process.env.ADMIN_IDS) ? 
-  process.env.ADMIN_IDS.split(',').map((z) => parseInt(z, 10)) : [];
+export const ADMIN_IDS = (process.env.ADMIN_IDS) ?
+  process.env.ADMIN_IDS.split(',').map(z => parseInt(z, 10)) : [];
 
 export const analytics = {
   // https://analytics.google.com/
