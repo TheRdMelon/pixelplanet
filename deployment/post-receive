@@ -33,7 +33,7 @@ do
         COMMITS=`echo "$COMMITS" | sed ':a;N;$!ba;s/\n/\\\n/g'`
         echo "---BUILDING pixelplanet---"
         cd "$BUILDDIR"
-        cp "$PROXYFILE" ./
+        cp "$PROXYFILE" ./src/
         yarn run build --release
         echo "---RESTARTING CANVAS---"
         cp -r build/* "${PFOLDER}/"
@@ -55,7 +55,7 @@ do
         COMMITS=`echo "$COMMITS" | sed ':a;N;$!ba;s/\n/\\\n/g'`
         echo "---BUILDING pixelplanet---"
         cd "$BUILDDIR"
-        cp "$PROXYFILE" ./
+        cp "$PROXYFILE" ./src/
         nice -n 19 yarn run build --release
         echo "---RESTARTING CANVAS---"
         cp -r build/* "${DEVFOLDER}/"
