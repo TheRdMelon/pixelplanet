@@ -4,7 +4,7 @@
  * hook it up to some timer function that causes the least load
  * @flow
  */
-import { HOUR, MINUTE } from '../core/constants';
+import { HOUR } from '../core/constants';
 
 import logger from '../core/logger';
 

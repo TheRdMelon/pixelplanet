@@ -12,7 +12,7 @@ import type { Cell } from '../core/Cell';
 import type { ColorIndex } from '../core/Palette';
 
 import ProtocolClient from '../socket/ProtocolClient';
-import loadImage from '../ui/loadImage';
+import { loadImage } from '../ui/loadImage';
 import {
   getColorIndexOfPixel,
 } from '../core/utils';

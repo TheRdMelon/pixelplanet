@@ -72,7 +72,7 @@ router.use('/', express.static(TILE_FOLDER, {
 /*
  * catch File Not Found: Send empty tile
  */
-router.use('/:c([0-9]+)/:z([0-9]+)/:x([0-9]+)/:y([0-9]+).png', async (req: Request, res: Response, next) => {
+router.use('/:c([0-9]+)/:z([0-9]+)/:x([0-9]+)/:y([0-9]+).png', async (req: Request, res: Response) => {
   const { c: paramC } = req.params;
   const c = parseInt(paramC, 10);
   res.set({

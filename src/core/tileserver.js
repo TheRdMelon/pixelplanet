@@ -32,7 +32,7 @@ class CanvasUpdater {
   firstZoomtileWidth: number;
   canvasTileFolder: string;
 
-  constructor(id) {
+  constructor(id: number) {
     this.updateZoomlevelTiles = this.updateZoomlevelTiles.bind(this);
 
     this.TileLoadingQueues = [];
@@ -162,7 +162,7 @@ export function startAllCanvasLoops() {
   if (!fs.existsSync(`${TILE_FOLDER}`)) fs.mkdirSync(`${TILE_FOLDER}`);
   const ids = Object.keys(canvases);
   for (let i = 0; i < ids.length; i += 1) {
-    const updater = new CanvasUpdater(ids[i]);
+    const updater = new CanvasUpdater(parseInt(ids[i], 10));
     CanvasUpdaters[ids[i]] = updater;
   }
 }

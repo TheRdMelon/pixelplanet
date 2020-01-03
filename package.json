@@ -11,10 +11,9 @@
   "scripts": {
     "build": "babel-node tools/run build",
     "clean": "babel-node tools/run clean",
-    "lint:js": "eslint src",
+    "lint": "eslint --ext .jsx --ext .js src",
     "lint:css": "stylelint \"src/**/*.{css,less,scss,sss}\"",
-    "lint:staged": "lint-staged",
-    "lint": "yarn run lint:js && yarn run lint:css"
+    "lint:staged": "lint-staged"
   },
   "author": "HF <hf@example.com>",
   "browserslist": [

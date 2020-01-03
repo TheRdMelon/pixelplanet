@@ -3,9 +3,7 @@
  * @flow
  */
 
-import dns from 'dns';
-import { isCloudflareIp } from './cloudflareip';
-import nodeIp from 'ip';
+import isCloudflareIp from './cloudflareip';
 
 import logger from '../core/logger';
 

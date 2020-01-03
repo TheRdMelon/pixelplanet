@@ -4,12 +4,9 @@
  */
 
 import React from 'react';
-import { connect } from 'react-redux';
 
 import Modal from './Modal';
 import Chat from './Chat';
-
-import type { State } from '../reducers';
 
 
 const textStyle = {
@@ -36,3 +33,4 @@ const ChatModal = () => (
   </Modal>
 );
 
+export default ChatModal;

@@ -23,10 +23,14 @@ const config = {
     pathinfo: isVerbose,
   },
 
+  resolve: {
+    extensions: ['.js', '.jsx', '.json'],
+  },
+
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.(js|jsx)$/,
         loader: 'babel-loader',
         include: [
           path.resolve(__dirname, '../src'),

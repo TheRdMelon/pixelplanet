@@ -43,7 +43,7 @@ export function setPixel(
  */
 async function draw(
   user: User,
-  canvasId: string,
+  canvasId: number,
   x: number,
   y: number,
   color: ColorIndex,

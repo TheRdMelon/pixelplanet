@@ -1,5 +1,6 @@
 /*
  * keypress actions
+ * @flow
  */
 import keycode from 'keycode';
 
