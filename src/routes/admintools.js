@@ -52,8 +52,7 @@ router.use('/',
     total: 240,
     expire: 5 * MINUTE,
     skipHeaders: true,
-  }),
-);
+  }));
 
 
 /*
@@ -70,7 +69,9 @@ router.use(async (req, res, next) => {
     return;
   }
   if (!req.user.isAdmin()) {
-    logger.info(`${ip} / ${req.user.id} tried to access admintools but isn't Admin`);
+    logger.info(
+      `${ip} / ${req.user.id} tried to access admintools but isn't Admin`,
+    );
     res.status(403).send('You are not allowed to access this page');
     return;
   }
@@ -123,29 +124,28 @@ async function executeAction(action: string, ip: string): boolean {
 /*
  * Check for POST parameters,
  */
-router.post('/', upload.single('image'), async (req: Request, res: Response, next) => {
+router.post('/', upload.single('image'), async (req, res, next) => {
   try {
     if (req.file) {
-      req.checkBody('x', 'x out of limits')
-        .notEmpty()
-        .isInt();
-      req.checkBody('y', 'y out of limits')
-        .notEmpty()
-        .isInt();
-      req.checkBody('canvasident', 'canvas name not valid')
-        .notEmpty();
-      req.checkBody('imageaction', 'no imageaction given')
-        .notEmpty();
+      const { imageaction, canvasident } = req.body;
 
-      const validationResult = await req.getValidationResult();
-      if (!validationResult.isEmpty()) {
-        res.status(403).send(validationResult.array().toString());
+      let error = null;
+      if (Number.isNaN(req.body.x)) {
+        error = 'x is not a valid number';
+      } else if (Number.isNaN(req.body.y)) {
+        error = 'y is not a valid number';
+      } else if (!imageaction) {
+        error = 'No imageaction given';
+      } else if (!canvasident) {
+        error = 'No canvas specified';
+      }
+      if (error !== null) {
+        res.status(403).send(error);
         return;
       }
-      req.sanitizeBody('x').toInt();
-      req.sanitizeBody('y').toInt();
+      const x = parseInt(req.body.x, 10);
+      const y = parseInt(req.body.y, 10);
 
-      const { x, y, imageaction, canvasident } = req.body;
       const canvasId = getIdFromObject(canvases, canvasident);
       if (canvasId === null) {
         res.status(403).send('This canvas does not exist');
@@ -156,8 +156,8 @@ router.post('/', upload.single('image'), async (req: Request, res: Response, nex
 
       const canvasMaxXY = canvas.size / 2;
       const canvasMinXY = -canvasMaxXY;
-      if (x < canvasMinXY || y < canvasMinXY ||
-          x >= canvasMaxXY || y >= canvasMaxXY) {
+      if (x < canvasMinXY || y < canvasMinXY
+          || x >= canvasMaxXY || y >= canvasMaxXY) {
         res.status(403).send('Coordinates are outside of canvas');
         return;
       }
@@ -189,7 +189,9 @@ router.post('/', upload.single('image'), async (req: Request, res: Response, nex
       if (!ret) {
         res.status(403).send('Failed');
       } else {
-        res.status(200).send(`Succseefully did ${req.body.action} ${req.body.ip}`);
+        res.status(200).send(
+          `Succseefully did ${req.body.action} ${req.body.ip}`,
+        );
       }
       return;
     }
