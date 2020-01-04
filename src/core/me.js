@@ -11,7 +11,9 @@ import canvases from '../canvases.json';
 export default async function getMe(user) {
   const userdata = user.getUserData();
   // sanitize data
-  const { name, mailVerified, minecraftname, mcVerified } = userdata;
+  const {
+    name, mailVerified, minecraftname, mcVerified,
+  } = userdata;
   if (!name) userdata.name = null;
   const messages = [];
   if (name && !mailVerified) {
@@ -30,4 +32,3 @@ export default async function getMe(user) {
 
   return userdata;
 }
-

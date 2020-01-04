@@ -19,7 +19,7 @@ router.use(session);
  * (cut IPv6 to subnet to prevent abuse)
  */
 router.use(async (req, res, next) => {
-  const session = req.session;
+  const { session } = req;
   const ip = await getIPFromRequest(req);
   const trueIp = ip || '0.0.0.1';
   req.trueIp = trueIp;

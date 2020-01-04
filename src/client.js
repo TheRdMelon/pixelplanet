@@ -132,8 +132,9 @@ function initViewport() {
   let lastScale = initialState.canvas.scale;
   hammertime.on(
     'panstart pinchstart pan pinch panend pinchend',
-    ({ type, deltaX, deltaY, scale },
-    ) => {
+    ({
+      type, deltaX, deltaY, scale,
+    }) => {
       viewport.style.cursor = 'move'; // like google maps
       const { scale: viewportScale } = store.getState().canvas;
 
@@ -192,7 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderer = new Renderer();
   renderer.setViewport(viewport);
 
-  ProtocolClient.on('pixelUpdate', ({ i, j, offset, color }) => {
+  ProtocolClient.on('pixelUpdate', ({
+    i, j, offset, color,
+  }) => {
     store.dispatch(receivePixelUpdate(i, j, offset, color));
     // render updated pixel
     renderer.renderPixel(i, j, offset, color);

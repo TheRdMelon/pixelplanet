@@ -29,11 +29,14 @@ export const MYSQL_PW = process.env.MYSQL_PW || 'password';
 // Social
 export const DISCORD_INVITE = process.env.DISCORD_INVITE || 'https://discordapp.com/';
 
+// Logging
+export const LOG_MYSQL = parseInt(process.env.LOG_MYSQL, 10) || false;
+
 // Accounts
 export const APISOCKET_KEY = process.env.APISOCKET_KEY || 'changethis';
 // Comma seperated list of user ids of Admins
-export const ADMIN_IDS = (process.env.ADMIN_IDS) ?
-  process.env.ADMIN_IDS.split(',').map(z => parseInt(z, 10)) : [];
+export const ADMIN_IDS = (process.env.ADMIN_IDS)
+  ? process.env.ADMIN_IDS.split(',').map((z) => parseInt(z, 10)) : [];
 
 export const analytics = {
   // https://analytics.google.com/
@@ -83,4 +86,3 @@ export const RECAPTCHA_SITEKEY = process.env.RECAPTCHA_SITEKEY || false;
 export const RECAPTCHA_TIME = parseInt(process.env.RECAPTCHA_TIME, 10) || 30;
 
 export const SESSION_SECRET = process.env.SESSION_SECRET || 'dummy';
-

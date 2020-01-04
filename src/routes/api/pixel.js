@@ -4,14 +4,12 @@
  */
 
 import type { Request, Response } from 'express';
-import url from 'url';
 import nodeIp from 'ip';
 
 import draw from '../../core/draw';
 import { blacklistDetector, cheapDetector, strongDetector } from '../../core/isProxy';
 import verifyCaptcha from '../../utils/recaptcha';
 import logger from '../../core/logger';
-import { clamp } from '../../core/utils';
 import redis from '../../data/redis';
 import { USE_PROXYCHECK, RECAPTCHA_SECRET, RECAPTCHA_TIME } from '../../core/config';
 import {
@@ -20,36 +18,42 @@ import {
 
 
 async function validate(req: Request, res: Response, next) {
-  // c canvas id
-  req.checkBody('cn', 'No canvas selected')
-    .notEmpty()
-    .isInt();
-  // x x coordinage
-  req.checkBody('x', 'x not a valid integer')
-    .notEmpty()
-    .isInt();
-  // y y coordinage
-  req.checkBody('y', 'y not a valid integer')
-    .notEmpty()
-    .isInt();
-  // clr color
-  req.checkBody('clr', 'color not valid')
-    .notEmpty()
-    .isInt({ min: 2, max: 31 });
+  let error = null;
+  const cn = parseInt(req.body.cn, 10);
+  const x = parseInt(req.body.x, 10);
+  const y = parseInt(req.body.y, 10);
+  const clr = parseInt(req.body.clr, 10);
 
-  req.sanitizeBody('cn').toInt();
-  req.sanitizeBody('x').toInt();
-  req.sanitizeBody('y').toInt();
-  req.sanitizeBody('clr').toInt();
-
-  const validationResult = await req.getValidationResult();
-  if (!validationResult.isEmpty()) {
-    res.status(400).json({ errors: validationResult.array() });
+  if (Number.isNaN(cn)) {
+    error = 'No valid canvas selected';
+  } else if (Number.isNaN(x)) {
+    error = 'x is not a valid number';
+  } else if (Number.isNaN(y)) {
+    error = 'y is not a valid number';
+  } else if (Number.isNaN(clr)) {
+    error = 'No color selected';
+  } else if (clr < 2 || clr > 31) {
+    error = 'Invalid color selected';
+  }
+  if (error !== null) {
+    res.status(400).json({ errors: [error] });
     return;
   }
 
-  const { noauthUser } = req;
-  let user = req.user;
+  req.body.cn = cn;
+  req.body.x = x;
+  req.body.y = y;
+  req.body.clr = clr;
+
+
+  /**
+   * make sure that a user is chosen
+   * req.noauthUser: user with just ip and id set
+   * req.user: fully passport authenticated user
+   * api/pixel just requires ip and id, so noauthUser is enough
+   *   a fully authenticated user would cause more SQL requests
+   */
+  let { user } = req;
   if (!req.user) {
     req.user = req.noauthUser;
     user = req.user;
@@ -110,9 +114,9 @@ async function checkHuman(req: Request, res: Response, next) {
 async function checkProxy(req: Request, res: Response, next) {
   const { trueIp: ip } = req;
   if (USE_PROXYCHECK && ip != '0.0.0.1') {
-    const { x, y } = req.body;
     /*
     //one area uses stronger detector
+    const { x, y } = req.body;
     if ((x > 970 && x < 2380 && y > -11407 && y < -10597) || //nc
         (x > 4220 && x < 6050 && y > -12955 && y < -11230) || //belarius
         (x > 14840 && x < 15490 && y > -17380 && y < -16331) || //russian bot
@@ -174,7 +178,9 @@ async function place(req: Request, res: Response) {
     Expires: '0',
   });
 
-  const { cn, x, y, clr } = req.body;
+  const {
+    cn, x, y, clr,
+  } = req.body;
   const { user, headers, trueIp } = req;
   const { ip } = user;
 
@@ -182,7 +188,9 @@ async function place(req: Request, res: Response) {
 
   logger.info(`${trueIp} / ${user.id} wants to place ${clr} in (${x}, ${y})`);
 
-  const { errorTitle, error, success, waitSeconds, coolDownSeconds } = await draw(user, cn, x, y, clr);
+  const {
+    errorTitle, error, success, waitSeconds, coolDownSeconds,
+  } = await draw(user, cn, x, y, clr);
   logger.log('debug', success);
 
   if (success) {
@@ -194,9 +202,13 @@ async function place(req: Request, res: Response) {
       errors.push({ msg: error });
     }
     if (errorTitle) {
-      res.json({ success, waitSeconds, coolDownSeconds, errorTitle, errors });
+      res.json({
+        success, waitSeconds, coolDownSeconds, errorTitle, errors,
+      });
     } else {
-      res.json({ success, waitSeconds, coolDownSeconds, errors });
+      res.json({
+        success, waitSeconds, coolDownSeconds, errors,
+      });
     }
   }
 }

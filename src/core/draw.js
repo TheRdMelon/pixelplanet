@@ -58,8 +58,8 @@ async function draw(
 
   const canvasMaxXY = canvas.size / 2;
   const canvasMinXY = -canvasMaxXY;
-  if (x < canvasMinXY || y < canvasMinXY ||
-      x >= canvasMaxXY || y >= canvasMaxXY) {
+  if (x < canvasMinXY || y < canvasMinXY
+      || x >= canvasMaxXY || y >= canvasMaxXY) {
     return {
       error: 'Coordinates not withing canvas',
       success: false,

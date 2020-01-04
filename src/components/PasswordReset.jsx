@@ -4,7 +4,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import Html from '../components/Html';
+import Html from './Html';
 
 const PasswordReset = ({ name, code }) => (
   <form method="post" action="reset_password">

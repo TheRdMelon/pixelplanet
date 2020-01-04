@@ -19,7 +19,9 @@ function globe(canvasId, canvasIdent, canvasSize, view) {
 }
 
 
-const GlobeButton = ({ canvasId, canvasIdent, canvasSize, view }) => (
+const GlobeButton = ({
+  canvasId, canvasIdent, canvasSize, view,
+}) => (
   <div id="globebutton" className="actionbuttons" onClick={() => globe(canvasId, canvasIdent, canvasSize, view)}>
     <Md3DRotation />
   </div>
@@ -27,8 +29,12 @@ const GlobeButton = ({ canvasId, canvasIdent, canvasSize, view }) => (
 
 // TODO optimize
 function mapStateToProps(state: State) {
-  const { canvasId, canvasIdent, canvasSize, view } = state.canvas;
-  return { canvasId, canvasIdent, canvasSize, view };
+  const {
+    canvasId, canvasIdent, canvasSize, view,
+  } = state.canvas;
+  return {
+    canvasId, canvasIdent, canvasSize, view,
+  };
 }
 
 export default connect(mapStateToProps)(GlobeButton);

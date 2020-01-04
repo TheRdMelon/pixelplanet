@@ -25,12 +25,12 @@ export async function getIPFromRequest(req): ?string {
   const conip = (connection ? connection.remoteAddress : socket.remoteAddress);
 
   if (!headers['x-forwarded-for'] || !isTrustedProxy(conip)) {
-    logger.warn('Connection not going through nginx and cloudflare! IP:', conip, headers);
+    logger.warn(`Connection not going through nginx and cloudflare! IP: ${conip}`, headers);
     return conip;
   }
 
   const forwardedFor = headers['x-forwarded-for'];
-  const ipList = forwardedFor.split(',').map(str => str.trim());
+  const ipList = forwardedFor.split(',').map((str) => str.trim());
 
   let ip = ipList.pop();
   while (isTrustedProxy(ip) && ipList.length) {

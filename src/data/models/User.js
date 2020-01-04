@@ -7,10 +7,10 @@
  * @flow
  * */
 
+import Sequelize from 'sequelize';
 import redis from '../redis';
 import { randomDice } from '../../utils/random';
 import logger from '../../core/logger';
-import Sequelize from 'sequelize';
 
 import Model from '../sequelize';
 import RegUser from './RegUser';
@@ -58,7 +58,7 @@ class User {
   }
 
   async incrementPixelcount(): Promise<boolean> {
-    const id = this.id;
+    const { id } = this;
     if (!id) return false;
     if (this.isAdmin()) return false;
     try {
@@ -75,7 +75,7 @@ class User {
   }
 
   async getTotalPixels(): Promise<number> {
-    const id = this.id;
+    const { id } = this;
     if (!id) return 0;
     if (this.isAdmin()) return 100000;
     if (this.regUser) {
@@ -83,7 +83,9 @@ class User {
     }
     try {
       const userq = await Model.query('SELECT totalPixels FROM Users WHERE id = $1',
-        { bind: [id], type: Sequelize.QueryTypes.SELECT, raw: true, plain: true });
+        {
+          bind: [id], type: Sequelize.QueryTypes.SELECT, raw: true, plain: true,
+        });
       return userq.totalPixels;
     } catch (err) {
       return 0;

@@ -14,8 +14,8 @@ import { ASSET_SERVER } from '../core/config';
 
 const data = {
   title: 'PixelPlanet.fun',
-  description: 'Place color pixels on an map styled canvas ' +
-  'with other players online',
+  description: 'Place color pixels on an map styled canvas '
+  + 'with other players online',
   //  styles: [
   //    { id: 'css', cssText: baseCss },
   //  ],
@@ -35,8 +35,7 @@ const data = {
  */
 function generateMainPage(countryCoords: Cell): string {
   const [x, y] = countryCoords;
-  const code =
-    `window.coordx=${x};window.coordy=${y};window.assetserver="${ASSET_SERVER}";`;
+  const code = `window.coordx=${x};window.coordy=${y};window.assetserver="${ASSET_SERVER}";`;
   const htmldata = { ...data, code };
   const html = ReactDOM.renderToStaticMarkup(<Html {...htmldata} />);
 

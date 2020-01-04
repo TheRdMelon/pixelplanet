@@ -26,6 +26,10 @@
     "no-plusplus" : "off",
     "no-param-reassign": "off",
     "no-mixed-operators":"off",
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "react/jsx-one-expression-per-line": "off",
+    "react/jsx-closing-tag-location":"off",
+    "jsx-a11y/click-events-have-key-events":"off",
+    "lines-between-class-members":["warn", "always",{"exceptAfterSingleLine": true}]
   }
 }

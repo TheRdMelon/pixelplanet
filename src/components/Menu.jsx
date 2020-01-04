@@ -13,7 +13,9 @@ import MinecraftTPButton from './MinecraftTPButton';
 import MinecraftButton from './MinecraftButton';
 import FactionButton from "./FactionButton";
 
-const Menu = ({ menuOpen, minecraftname, messages, canvasId }) => (
+const Menu = ({
+  menuOpen, minecraftname, messages, canvasId,
+}) => (
   <div>
     {(menuOpen) ? <SettingsButton /> : null}
     {(menuOpen) ? <LogInButton /> : null}
@@ -29,7 +31,9 @@ function mapStateToProps(state: State) {
   const { menuOpen } = state.gui;
   const { minecraftname, messages } = state.user;
   const { canvasId } = state.canvas;
-  return { menuOpen, minecraftname, messages, canvasId };
+  return {
+    menuOpen, minecraftname, messages, canvasId,
+  };
 }
 
 export default connect(mapStateToProps)(Menu);

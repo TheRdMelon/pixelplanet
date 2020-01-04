@@ -7,7 +7,7 @@ import Model from '../data/sequelize';
 import RegUser from '../data/models/RegUser';
 import logger from './logger';
 
-import { HOUR, MINUTE } from '../core/constants';
+import { HOUR, MINUTE } from './constants';
 import { DailyCron } from '../utils/cron';
 
 class Ranks {

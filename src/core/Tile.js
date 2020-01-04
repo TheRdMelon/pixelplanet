@@ -121,7 +121,8 @@ export async function createZoomTileFromChunk(
   canvasId: number,
   canvasTileFolder: string,
   palette: Palette,
-  cell: Cell): boolean {
+  cell: Cell,
+): boolean {
   const [x, y] = cell;
   const maxTiledZoom = getMaxTiledZoom(canvasSize);
   const tileRGBBuffer = new Uint8Array(
@@ -162,8 +163,7 @@ export async function createZoomTileFromChunk(
         height: TILE_SIZE * TILE_ZOOM_LEVEL,
         channels: 3,
       },
-    },
-    )
+    })
       .resize(TILE_SIZE)
       .png({ options: { compressionLevel: 6 } })
       .toFile(filename);
@@ -212,7 +212,8 @@ export async function createZoomedTile(
     const filename = tileFileName(canvasTileFolder, [z, x, y]);
     await sharp(
       Buffer.from(
-        tileRGBBuffer.buffer), {
+        tileRGBBuffer.buffer,
+      ), {
         raw: {
           width: TILE_SIZE * TILE_ZOOM_LEVEL,
           height: TILE_SIZE * TILE_ZOOM_LEVEL,
@@ -255,8 +256,7 @@ export async function createEmptyTile(
       height: TILE_SIZE,
       channels: 3,
     },
-  },
-  )
+  })
     .png({ options: { compressionLevel: 6 } })
     .toFile(filename);
   logger.info(`Tiling: Created empty tile at ${filename}`);
@@ -422,4 +422,3 @@ export async function initializeTiles(
     `Tiling: Elapsed Time: ${Math.round((Date.now() - startTime) / 1000)} for canvas${canvasId}`,
   );
 }
-

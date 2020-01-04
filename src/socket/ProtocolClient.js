@@ -175,8 +175,8 @@ class ProtocolClient extends EventEmitter {
     this.isConnected = false;
     // reconnect in 1s if last connect was longer than 7s ago, else 5s
     const timeout = (this.timeConnected < Date.now() - 7000) ? 1000 : 5000;
-    console.warn('Socket is closed. ' +
-      `Reconnect will be attempted in ${timeout} ms.`, e.reason);
+    console.warn('Socket is closed. '
+      + `Reconnect will be attempted in ${timeout} ms.`, e.reason);
 
     setTimeout(() => this.connect(), 5000);
   }

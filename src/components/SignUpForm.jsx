@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
-import { validateEMail, validateName, validatePassword, parseAPIresponse } from '../utils/validation';
+import {
+  validateEMail, validateName, validatePassword, parseAPIresponse,
+} from '../utils/validation';
 
 function validate(name, email, password, confirm_password) {
   const errors = [];
@@ -64,7 +66,9 @@ class SignUpForm extends React.Component {
   async handleSubmit(e) {
     e.preventDefault();
 
-    const { name, email, password, confirm_password, submitting } = this.state;
+    const {
+      name, email, password, confirm_password, submitting,
+    } = this.state;
     if (submitting) return;
 
     const errors = validate(name, email, password, confirm_password);
@@ -89,34 +93,34 @@ class SignUpForm extends React.Component {
     const { errors } = this.state;
     return (
       <form onSubmit={this.handleSubmit}>
-        {errors.map(error => (
+        {errors.map((error) => (
           <p key={error} className="errormessage">Error: {error}</p>
         ))}
         <input
           style={inputStyles}
           value={this.state.name}
-          onChange={evt => this.setState({ name: evt.target.value })}
+          onChange={(evt) => this.setState({ name: evt.target.value })}
           type="text"
           placeholder="Name"
         />
         <input
           style={inputStyles}
           value={this.state.email}
-          onChange={evt => this.setState({ email: evt.target.value })}
+          onChange={(evt) => this.setState({ email: evt.target.value })}
           type="text"
           placeholder="Email"
         />
         <input
           style={inputStyles}
           value={this.state.password}
-          onChange={evt => this.setState({ password: evt.target.value })}
+          onChange={(evt) => this.setState({ password: evt.target.value })}
           type="password"
           placeholder="Password"
         />
         <input
           style={inputStyles}
           value={this.state.confirm_password}
-          onChange={evt => this.setState({ confirm_password: evt.target.value })}
+          onChange={(evt) => this.setState({ confirm_password: evt.target.value })}
           type="password"
           placeholder="Confirm Password"
         />

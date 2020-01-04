@@ -12,4 +12,6 @@ function sync(...args) {
 }
 
 export default { sync };
-export { Whitelist, Blacklist, User, RegUser };
+export {
+  Whitelist, Blacklist, User, RegUser,
+};

@@ -20,7 +20,6 @@
  * DEALINGS IN THE SOFTWARE
  */
 
-export default store => next => action =>
-  (Array.isArray(action)
-    ? action.map(next)
-    : next(action));
+export default (store) => (next) => (action) => (Array.isArray(action)
+  ? action.map(next)
+  : next(action));

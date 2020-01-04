@@ -1,5 +1,7 @@
 # PixelPlanet.fun
 
+![](https://github.com/pixelplanetdev/pixelplanet/workflows/Node%20CI/badge.svg)
+
 Official  repository of [pixelplanet.fun](http://www.pixelplanet.fun).
 
 ![videothumb](promotion/videothumb.gif)
@@ -20,19 +22,30 @@ Click or tab: Place Pixel
 ## Build
 ### Requirements
 - [nodejs environment](https://nodejs.org/en/)
-- [yarn](https://yarnpkg.com/lang/en/docs/install/#debian-stable)
-- (optional) [babel-cli](https://www.npmjs.com/package/babel-cli) (`sudo npm install --global babel-cli`)
 
 ### Building
-Make sure that you have rights to g++ (if not, run as root and then `chown username:username -R .` after build)
+Checkout repository
 
 ```
-yarn install
-yarn run build --release
+git clone https://github.com/pixelplanetdev/pixelplanet.git
+cd pixelplanet
 ```
+
+Install packages and build
+
+```
+npm install
+npm run build
+```
+
+
 All needed files to run it got created in `./build`
+
 #### Note:
-If yarn install fails with "unable to connect to github.com" set:
+If you run into problems, make sure that you have rights to g++ (if not, run as root and then chown username:username -R . after build)
+
+If `npm install` fails with "unable to connect to github.com" set:
+
 ```
 git config --global url.https://github.com/.insteadOf git://github.com/
 ```
@@ -40,7 +53,6 @@ git config --global url.https://github.com/.insteadOf git://github.com/
 ## Run
 ### Requirements
 - nodejs environment with [npm](https://www.npmjs.com/get-npm)
-- (optional)[babel-cli](https://www.npmjs.com/package/babel-cli) (`npm install -g babel-cli`)
 - [pm2](https://github.com/Unitech/pm2) (`npm install -g pm2`) as process manager and for logging
 - [redis](https://redis.io/) as database for storgìng the canvas
 - mysql or mariadb ([setup own user](https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql) and [create database](https://www.w3schools.com/SQl/sql_create_db.asp) for pixelplanet) for storing additional data like IP blacklist
@@ -72,6 +84,7 @@ Configuration takes place in the environment variables that are defined in ecosy
 | RECAPTCHA_SITEKEY | reCaptcha site key                    | "23ksdfssd" |
 | RECAPTCHA_TIME    | time in minutes between captchas      | 30          |
 | SESSION_SECRET    | random sting for expression sessions  | "ayylmao"   |
+| LOG_MYSQL         | if sql queries should get logged      | 0           |
 
 Notes:
 
@@ -155,6 +168,9 @@ After=network.target mysql.service redis.service
 
 ### Development
 
-Install packages that are just required for building with `yarn add --dev` others with `yarn add`.
-Run `yarn run lint` to check for code errors and warnings. We have enough warnings already, just don't produce too many additional ones.
+Run `npm run lint:src` to check for code errors and warnings or `npm run lint -- ./your/file.js` to check a single file.
+We have enough warnings already, just don't produce too many additional ones.
 
+You can use `npm run babel-node ./your/script.js` to execute a script with local babel.
+
+`npm run upgrade` can be use for interactively upgrading npm packages.

@@ -83,13 +83,13 @@ class NewPasswordForm extends React.Component {
     }
     return (
       <form onSubmit={this.handleSubmit}>
-        {errors.map(error => (
+        {errors.map((error) => (
           <p key={error}>Error: {error}</p>
         ))}
         <input
           style={inputStyles}
           value={this.state.email}
-          onChange={evt => this.setState({ email: evt.target.value })}
+          onChange={(evt) => this.setState({ email: evt.target.value })}
           type="text"
           placeholder="Email"
         />

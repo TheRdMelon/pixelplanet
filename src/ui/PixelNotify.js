@@ -75,7 +75,7 @@ class PixelNotify {
         continue;
       }
       const [sx, sy] = worldToScreen(state, $viewport, [x, y])
-        .map(x => x + this.scale / 2);
+        .map((x) => x + this.scale / 2);
 
       const notRadius = timePasseded / PixelNotify.NOTIFICATION_TIME * this.notificationRadius;
       const circleScale = notRadius / 100;

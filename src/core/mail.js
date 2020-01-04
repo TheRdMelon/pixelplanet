@@ -4,13 +4,13 @@
  */
 
 // must use require for arguments
+import Sequelize from 'sequelize';
 import logger from './logger';
 
 import { HOUR, MINUTE } from './constants';
 import { HOSTURL } from './config';
 import { DailyCron, HourlyCron } from '../utils/cron';
 
-import Sequelize from 'sequelize';
 import RegUser from '../data/models/RegUser';
 
 const sendmail = require('sendmail')({ silent: true });

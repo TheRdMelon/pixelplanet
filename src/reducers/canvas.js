@@ -3,7 +3,8 @@
 import type { Action } from '../actions/types';
 import type { Cell } from '../core/Cell';
 import Palette from '../core/Palette';
-import { getMaxTiledZoom,
+import {
+  getMaxTiledZoom,
   getChunkOfPixel,
   getCellInsideChunk,
   clamp,
@@ -51,7 +52,7 @@ function getGivenCoords() {
  * @return view, viewscale and scale for state
  */
 function getViewFromURL(canvases: Object) {
-  const hash: string = window.location.hash;
+  const { hash } = window.location;
   try {
     const almost = hash.substring(1)
       .split(',');
@@ -59,8 +60,8 @@ function getViewFromURL(canvases: Object) {
     const canvasIdent = almost[0];
     // will be null if not in DEFAULT_CANVASES
     const canvasId = getIdFromObject(canvases, almost[0]);
-    const colors = (canvasId !== null) ?
-      canvases[canvasId].colors : canvases[DEFAULT_CANVAS_ID].colors;
+    const colors = (canvasId !== null)
+      ? canvases[canvasId].colors : canvases[DEFAULT_CANVAS_ID].colors;
     const canvasSize = (canvasId !== null) ? canvases[canvasId].size : 1024;
 
     const x = parseInt(almost[1], 10);
@@ -115,7 +116,9 @@ export default function gui(
 ): CanvasState {
   switch (action.type) {
     case 'PLACE_PIXEL': {
-      const { chunks, canvasMaxTiledZoom, palette, canvasSize } = state;
+      const {
+        chunks, canvasMaxTiledZoom, palette, canvasSize,
+      } = state;
       const { coordinates, color } = action;
 
       const [cx, cy] = getChunkOfPixel(coordinates, canvasSize);
@@ -159,7 +162,7 @@ export default function gui(
       }
       const canvasMinXY = -canvasSize / 2;
       const canvasMaxXY = canvasSize / 2 - 1;
-      view = [hx, hy].map(z => clamp(z, canvasMinXY, canvasMaxXY));
+      view = [hx, hy].map((z) => clamp(z, canvasMinXY, canvasMaxXY));
       return {
         ...state,
         view,
@@ -173,7 +176,7 @@ export default function gui(
       const { canvasSize } = state;
       const canvasMinXY = -canvasSize / 2;
       const canvasMaxXY = canvasSize / 2 - 1;
-      const newview = view.map(z => clamp(z, canvasMinXY, canvasMaxXY));
+      const newview = view.map((z) => clamp(z, canvasMinXY, canvasMaxXY));
       return {
         ...state,
         view: newview,
@@ -209,12 +212,14 @@ export default function gui(
     }
 
     case 'REQUEST_BIG_CHUNK': {
-      const { palette, chunks, fetchs, requested } = state;
+      const {
+        palette, chunks, fetchs, requested,
+      } = state;
       const { center } = action;
 
       const chunkRGB = new ChunkRGB(palette, center);
       // chunkRGB.preLoad(chunks);
-      const key = chunkRGB.key;
+      const { key } = chunkRGB;
       chunks.set(key, chunkRGB);
 
       requested.add(key);
@@ -281,7 +286,9 @@ export default function gui(
       const { chunks, canvasMaxTiledZoom } = state;
       // i, j: Coordinates of chunk
       // offset: Offset of pixel within said chunk
-      const { i, j, offset, color } = action;
+      const {
+        i, j, offset, color,
+      } = action;
 
       const key = ChunkRGB.getKey(canvasMaxTiledZoom, i, j);
       const chunk = chunks.get(key);

@@ -33,8 +33,7 @@ router.use('/',
     total: 24,
     expire: 5 * MINUTE,
     skipHeaders: true,
-  }),
-);
+  }));
 
 
 /*

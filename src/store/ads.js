@@ -11,7 +11,7 @@
 import { playAd } from '../ui/ads';
 
 
-export default store => next => (action) => {
+export default (store) => (next) => (action) => {
   switch (action.type) {
     case 'PLACE_PIXEL': {
       // wait 1 second

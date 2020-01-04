@@ -76,26 +76,28 @@ class UserMessages extends React.Component {
 
     return (
       <div>
-        {(messages.includes('not_verified') && messages.splice(messages.indexOf('not_verified'), 1)) ?
-          <p className="usermessages">
+        {(messages.includes('not_verified') && messages.splice(messages.indexOf('not_verified'), 1))
+          ? (
+            <p className="usermessages">
             Please verify your mail address or your account could get deleted after a few days.
-            {(this.state.verify_answer) ?
-              <span className="modallink">{this.state.verify_answer}</span> :
-              <span className="modallink" onClick={this.submit_resend_verify}>Click here to request a new verification mail.</span>
-            }
-          </p> : null
-        }
-        {(messages.includes('not_mc_verified') && messages.splice(messages.indexOf('not_mc_verified'), 1)) ?
-          <p className="usermessages">You requested to link your mc account {this.props.minecraftname}.
-            {(this.state.link_answer) ?
-              <span className="modallink">{this.state.link_answer}</span> :
-              <span>
-                <span className="modallink" onClick={() => { this.submit_mc_link(true); }}>Accept</span> or <span className="modallink" onClick={() => { this.submit_mc_link(false); }}>Deny</span>.
-              </span>
-            }
-          </p> : null
-        }
-        {messages.map(message => (
+              {(this.state.verify_answer)
+                ? <span className="modallink">{this.state.verify_answer}</span>
+                : <span className="modallink" onClick={this.submit_resend_verify}>Click here to request a new verification mail.</span>}
+            </p>
+          ) : null}
+        {(messages.includes('not_mc_verified') && messages.splice(messages.indexOf('not_mc_verified'), 1))
+          ? (
+            <p className="usermessages">You requested to link your mc account {this.props.minecraftname}.
+              {(this.state.link_answer)
+                ? <span className="modallink">{this.state.link_answer}</span>
+                : (
+                  <span>
+                    <span className="modallink" onClick={() => { this.submit_mc_link(true); }}>Accept</span> or <span className="modallink" onClick={() => { this.submit_mc_link(false); }}>Deny</span>.
+                  </span>
+                )}
+            </p>
+          ) : null}
+        {messages.map((message) => (
           <p className="usermessages" key={message} className="message">{message}</p>
         ))}
       </div>

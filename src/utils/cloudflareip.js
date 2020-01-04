@@ -45,7 +45,7 @@ function isCloudflareIp(testIpString: string): boolean {
   if (!testIpString) return false;
   const testIp = intoAddress(testIpString);
   if (!testIp) return false;
-  return cloudflareIps.some(cf => testIp.isInSubnet(cf));
+  return cloudflareIps.some((cf) => testIp.isInSubnet(cf));
 }
 
 export default isCloudflareIp;

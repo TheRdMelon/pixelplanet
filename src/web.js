@@ -5,7 +5,6 @@ import compression from 'compression';
 import express from 'express';
 import http from 'http';
 import etag from 'etag';
-import expressValidator from 'express-validator';
 
 
 // import baseCss from './components/base.tcss';
@@ -46,12 +45,6 @@ const server = http.createServer(app);
 server.on('upgrade', wsupgrade);
 
 
-/*
- * using validator to check user input
- */
-app.use(expressValidator());
-
-
 //
 // API
 // -----------------------------------------------------------------------------
@@ -69,13 +62,15 @@ app.use('/tiles', tiles);
 /* level from -1 (default, 6) to 0 (no) from 1 (fastest) to 9 (best)
  * Set custon filter to make sure that .bmp files get compressed
  */
-app.use(compression({ level: 3,
+app.use(compression({
+  level: 3,
   filter: (req, res) => {
     if (res.getHeader('Content-Type') === 'application/octet-stream') {
       return true;
     }
     return compression.filter(req, res);
-  } }));
+  },
+}));
 
 
 //
@@ -168,7 +163,7 @@ app.get('/', async (req, res) => {
 //
 // ip config
 // -----------------------------------------------------------------------------
-const promise = models.sync().catch(err => logger.error(err.stack));
+const promise = models.sync().catch((err) => logger.error(err.stack));
 promise.then(() => {
   server.listen(PORT, () => {
     const address = server.address();

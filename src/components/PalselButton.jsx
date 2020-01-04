@@ -10,7 +10,9 @@ import { MdPalette } from 'react-icons/md';
 
 import { toggleOpenPalette } from '../actions';
 
-const PalselButton = ({ palette, onToggle, selectedColor, paletteOpen }) => (
+const PalselButton = ({
+  palette, onToggle, selectedColor, paletteOpen,
+}) => (
   <div id="palselbutton" className={`actionbuttons ${(paletteOpen) ? '' : 'pressed'}`} style={{ color: palette.isDark(selectedColor) ? 'white' : 'black', backgroundColor: palette.colors[selectedColor] }} onClick={onToggle}>
     <MdPalette />
   </div>

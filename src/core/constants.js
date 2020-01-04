@@ -88,4 +88,3 @@ export const MIN_COOLDOWN = 30 * SECOND; */
 
 export const BLANK_COOLDOWN = 3 * SECOND;
 export const MIN_COOLDOWN = 15 * SECOND;
-

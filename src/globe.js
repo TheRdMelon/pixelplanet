@@ -16,10 +16,10 @@ function checkMaterial(object) {
 
 function parseHashCoords() {
   try {
-    const hash = window.location.hash;
+    const { hash } = window.location;
     const array = hash.substring(1).split(',');
     const ident = array.shift();
-    const [id, size, x, y] = array.map(z => parseInt(z, 10));
+    const [id, size, x, y] = array.map((z) => parseInt(z, 10));
     if (!ident || isNaN(x) || isNaN(y) || isNaN(id) || isNaN(size)) {
       throw new Error('NaN');
     }
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const loader = new GLTFLoader();
   loader.load('./assets3d/globe.glb', (glb) => {
     scene.add(glb.scene);
-    const children = glb.scene.children;
+    const { children } = glb.scene;
     for (let cnt = 0; cnt < children.length; cnt++) {
       if (checkMaterial(children[cnt])) {
         object = children[cnt];
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     rotateToCoords(canvasSize, object, [x, y]);
     controls = createControls();
     render();
-    document.getElementById('loading').style.display = "none";
+    document.getElementById('loading').style.display = 'none';
   }, () => {
     // console.log(`${xhr.loaded} loaded`);
   }, () => {

@@ -7,7 +7,7 @@ import AssetsPlugin from 'assets-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import pkg from '../package.json';
 
-const isDebug = !process.argv.includes('--release');
+const isDebug = process.argv.includes('--debug');
 const isVerbose = process.argv.includes('--verbose');
 const isAnalyze = process.argv.includes('--analyze') || process.argv.includes('--analyse');
 
@@ -127,10 +127,6 @@ const config = {
               sourceMap: isDebug,
               // CSS Modules https://github.com/css-modules/css-modules
               modules: true,
-              localIdentName: isDebug ? '[name]-[local]-[hash:base64:5]' : '[hash:base64:5]',
-              // CSS Nano http://cssnano.co/options/
-              minimize: !isDebug,
-              discardComments: { removeAll: true },
             },
           },
         ],
@@ -147,9 +143,6 @@ const config = {
               sourceMap: isDebug,
               // CSS Modules https://github.com/css-modules/css-modules
               modules: false,
-              // CSS Nano http://cssnano.co/options/
-              minimize: !isDebug,
-              discardComments: { removeAll: true },
             },
           },
           'sass-loader',
@@ -165,9 +158,6 @@ const config = {
               sourceMap: isDebug,
               // CSS Modules https://github.com/css-modules/css-modules
               modules: false,
-              // CSS Nano http://cssnano.co/options/
-              minimize: !isDebug,
-              discardComments: { removeAll: true },
             },
           },
         ],

@@ -42,7 +42,7 @@ class ChatInput extends React.Component {
             <input
               style={{ maxWidth: '80%', width: '240px' }}
               value={this.state.message}
-              onChange={evt => this.setState({ message: evt.target.value })}
+              onChange={(evt) => this.setState({ message: evt.target.value })}
               type="text"
               placeholder="Chat here"
             />

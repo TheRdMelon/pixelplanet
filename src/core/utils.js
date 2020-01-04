@@ -18,7 +18,7 @@ export function mod(n: number, m: number): number {
 export function sum(values: Array<number>): number {
   let total = 0;
   // TODO map reduce
-  values.forEach(value => total += value);
+  values.forEach((value) => total += value);
   return total;
 }
 
@@ -31,12 +31,12 @@ export function clamp(n: number, min: number, max: number): number {
 }
 
 export function getChunkOfPixel(pixel: Cell, canvasSize: number = null): Cell {
-  const target = pixel.map(x => Math.floor((x + (canvasSize / 2)) / TILE_SIZE));
+  const target = pixel.map((x) => Math.floor((x + (canvasSize / 2)) / TILE_SIZE));
   return target;
 }
 
 export function getTileOfPixel(tileScale: number, pixel: Cell, canvasSize: number = null): Cell {
-  const target = pixel.map(x => Math.floor((x + canvasSize / 2) / TILE_SIZE * tileScale));
+  const target = pixel.map((x) => Math.floor((x + canvasSize / 2) / TILE_SIZE * tileScale));
   return target;
 }
 
@@ -92,7 +92,7 @@ export function getPixelFromChunkOffset(
 
 export function getCellInsideChunk(pixel: Cell): Cell {
   // TODO assert is positive!
-  return pixel.map(x => mod(x, TILE_SIZE));
+  return pixel.map((x) => mod(x, TILE_SIZE));
 }
 
 export function screenToWorld(
@@ -172,9 +172,9 @@ export function numberToString(num: number): string {
   while (postfixNum < postfix.length) {
     if (num < 10000) {
       return `${Math.floor(num / 1000)}.${Math.floor((num % 1000) / 10)}${postfix[postfixNum]}`;
-    } else if (num < 100000) {
+    } if (num < 100000) {
       return `${Math.floor(num / 1000)}.${Math.floor((num % 1000) / 100)}${postfix[postfixNum]}`;
-    } else if (num < 1000000) {
+    } if (num < 1000000) {
       return Math.floor(num / 1000) + postfix[postfixNum];
     }
     postfixNum += 1;
@@ -186,9 +186,9 @@ export function numberToString(num: number): string {
 export function numberToStringFull(num: number): string {
   if (num < 0) {
     return `${num} :-(`;
-  } else if (num < 1000) {
+  } if (num < 1000) {
     return num;
-  } else if (num < 1000000) {
+  } if (num < 1000000) {
     return `${Math.floor(num / 1000)}.${(`00${num % 1000}`).slice(-3)}`;
   }
 

@@ -11,9 +11,9 @@ function forceGC() {
   if (global.gc) {
     global.gc();
   } else {
-    logger.warn('Garbage collection unavailable. ' +
-      'Pass --expose-gc when launching node to enable forced garbage ' +
-      'collection.');
+    logger.warn('Garbage collection unavailable. '
+      + 'Pass --expose-gc when launching node to enable forced garbage '
+      + 'collection.');
   }
 }
 

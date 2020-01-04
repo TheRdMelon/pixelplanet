@@ -44,7 +44,6 @@ const data = {
   description: 'admin access on pixelplanet',
   body: <Admin />,
 };
-const adminHtml =
-  `<!doctype html>${ReactDOM.renderToStaticMarkup(<Html {...data} />)}`;
+const adminHtml = `<!doctype html>${ReactDOM.renderToStaticMarkup(<Html {...data} />)}`;
 
 export default adminHtml;

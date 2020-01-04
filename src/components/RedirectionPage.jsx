@@ -5,7 +5,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import Html from '../components/Html';
+import Html from './Html';
 
 const RedirectionPage = ({ text }) => (
   <div>
@@ -25,4 +25,3 @@ export function getHtml(description, text) {
   const index = `<!doctype html>${ReactDOM.renderToStaticMarkup(<Html {...data} />)}`;
   return index;
 }
-

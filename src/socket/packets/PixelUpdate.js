@@ -25,7 +25,9 @@ export default {
     const j = data.getInt16(3);
     const offset = data.getUint16(5);
     const color = data.getUint8(7);
-    return { i, j, offset, color };
+    return {
+      i, j, offset, color,
+    };
   },
   dehydrate(i, j, offset, color): Buffer {
     // SERVER

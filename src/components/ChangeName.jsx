@@ -74,12 +74,12 @@ class ChangeName extends React.Component {
     return (
       <div className="inarea">
         <form onSubmit={this.handleSubmit}>
-          {errors.map(error => (
+          {errors.map((error) => (
             <p key={error} className="errormessage">Error: {error}</p>
           ))}
           <input
             value={this.state.name}
-            onChange={evt => this.setState({ name: evt.target.value })}
+            onChange={(evt) => this.setState({ name: evt.target.value })}
             type="text"
             placeholder="New Username"
           />

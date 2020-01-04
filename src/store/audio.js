@@ -10,7 +10,7 @@ const COLORS_AMOUNT = 32;
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const context = new AudioContext();
 
-export default store => next => (action) => {
+export default (store) => (next) => (action) => {
   const { mute, chatNotify } = store.getState().audio;
 
   switch (action.type) {
@@ -85,7 +85,7 @@ export default store => next => (action) => {
       break;
     }
 
-    case 'PLACE_PIXEL' : {
+    case 'PLACE_PIXEL': {
       if (mute) break;
       const { color } = action;
       const clrFreq = 100 + Math.log(color / COLORS_AMOUNT + 1) * 300;
@@ -107,7 +107,7 @@ export default store => next => (action) => {
       break;
     }
 
-    case 'COOLDOWN_END' : {
+    case 'COOLDOWN_END': {
       if (mute) break;
       const oscillatorNode = context.createOscillator();
       const gainNode = context.createGain();
