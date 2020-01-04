@@ -29,6 +29,9 @@ export const MYSQL_PW = process.env.MYSQL_PW || 'password';
 // Social
 export const DISCORD_INVITE = process.env.DISCORD_INVITE || 'https://discordapp.com/';
 
+// Logging
+export const LOG_MYSQL = parseInt(process.env.LOG_MYSQL, 10) || false;
+
 // Accounts
 export const APISOCKET_KEY = process.env.APISOCKET_KEY || 'changethis';
 // Comma seperated list of user ids of Admins
