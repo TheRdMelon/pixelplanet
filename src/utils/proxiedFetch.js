@@ -13,7 +13,7 @@ import logger from '../core/logger';
 
 function randomProxyURL() {
   const rand = proxylist[Math.floor(Math.random() * proxylist.length)];
-  logger.info('choosesn fetch proxy', rand);
+  logger.info(`choosesn fetch proxy ${rand}`);
   return rand;
 }
 

@@ -19,7 +19,7 @@ import logger from './logger';
 async function getIPIntel(ip: string): Promise<boolean> {
   const email = `${Math.random().toString(36).substring(8)}-${Math.random().toString(36).substring(4)}@gmail.com`;
   const url = `http://check.getipintel.net/check.php?ip=${ip}&contact=${email}&flags=m`;
-  logger.info('fetching getipintel', url);
+  logger.info(`PROXYCHECK fetching getipintel ${url}`);
   const response = await fetch(url, {
     headers: {
       Accept: '*/*',
@@ -29,13 +29,13 @@ async function getIPIntel(ip: string): Promise<boolean> {
     },
   });
   // TODO log response code
-  logger.debug('getipintel?', ip);
+  logger.debug('PROXYCHECK getipintel? %s', ip);
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`getipintel not ok ${response.status}/${text}`);
+    throw new Error(`PROXYCHECK getipintel not ok ${response.status}/${text}`);
   }
   const body = await response.text();
-  logger.info('fetch getipintel is proxy?', ip, body);
+  logger.info('PROXYCHECK fetch getipintel is proxy? %s : %s', ip, body);
   // returns tru iff we found 1 in the response and was ok (http code = 200)
   const value = parseFloat(body);
   return value > 0.995;
@@ -49,7 +49,7 @@ async function getIPIntel(ip: string): Promise<boolean> {
  */
 async function getProxyCheck(ip: string): Promise<boolean> {
   const url = `http://proxycheck.io/v2/${ip}?risk=1&vpn=1&asn=1`;
-  logger.info('fetching proxycheck', url);
+  logger.info('PROXYCHECK fetching proxycheck %s', url);
   const response = await fetch(url, {
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
@@ -60,7 +60,7 @@ async function getProxyCheck(ip: string): Promise<boolean> {
     throw new Error(`proxycheck not ok ${response.status}/${text}`);
   }
   const data = await response.json();
-  logger.info('proxycheck is proxy?', ip, data);
+  logger.info('PROXYCHECK proxycheck is proxy?', data);
   return data.status == 'ok' && data[ip].proxy === 'yes';
 }
 
@@ -72,7 +72,7 @@ async function getProxyCheck(ip: string): Promise<boolean> {
  * @return true if proxy, false if not
  */
 async function getShroomey(ip: string): Promise<boolean> {
-  logger.info('fetching shroomey', ip);
+  logger.info('PROXYCHECK fetching shroomey %s', ip);
   const response = await fetch(`http://www.shroomery.org/ythan/proxycheck.php?ip=${ip}`, {
     headers: {
       Accept: '*/*',
@@ -83,7 +83,7 @@ async function getShroomey(ip: string): Promise<boolean> {
   });
   if (!response.ok) throw new Error('shroomery.org not ok');
   const body = await response.text();
-  logger.info('fetch shroomey is proxy?', ip, body);
+  logger.info('PROXYCHECK fetch shroomey is proxy? %s %s', ip, body);
   return body === 'Y';
 }
 
@@ -168,10 +168,10 @@ async function withCache(f, ip) {
   const cache = await redis.getAsync(key);
   if (cache) {
     const str = cache.toString('utf8');
-    logger.debug('fetch isproxy from cache', key, cache, typeof cache, str, typeof str);
+    logger.debug('PROXYCHECK fetch isproxy from cache %s %s %s %s %s', key, cache, typeof cache, str, typeof str);
     return str === 'y';
   }
-  logger.debug('fetch isproxy not from cache', key);
+  logger.debug('PROXYCHECK fetch isproxy not from cache %s', key);
 
   // else make asynchronous ipcheck and assume no proxy in the meantime
   // use lock to just check three at a time
@@ -188,7 +188,7 @@ async function withCache(f, ip) {
         lock += 1;
       })
       .catch((error) => {
-        logger.error('withCache', error.message || error);
+        logger.error('PROXYCHECK withCache %s', error.message || error);
         const pos = checking.indexOf(ip);
         if (~pos) checking.splice(pos, 1);
         lock += 1;

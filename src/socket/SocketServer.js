@@ -35,7 +35,7 @@ async function verifyClient(info, done) {
 
   // Limiting socket connections per ip
   const ip = await getIPFromRequest(req);
-  logger.info('Got ws request from', ip);
+  logger.info(`Got ws request from ${ip}`);
   if (ipCounter.get(ip) > 50) {
     logger.info(`Client ${ip} has more than 50 connections open.`);
     return done(false);
