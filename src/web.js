@@ -5,7 +5,6 @@ import compression from 'compression';
 import express from 'express';
 import http from 'http';
 import etag from 'etag';
-import expressValidator from 'express-validator';
 
 
 // import baseCss from './components/base.tcss';
@@ -44,12 +43,6 @@ setInterval(forceGC, 15 * 60 * SECOND);
 // create websocket
 const server = http.createServer(app);
 server.on('upgrade', wsupgrade);
-
-
-/*
- * using validator to check user input
- */
-app.use(expressValidator());
 
 
 //
