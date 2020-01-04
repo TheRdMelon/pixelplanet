@@ -249,10 +249,10 @@ export function requestPlacePixel(
       }
 
       dispatch(pixelFailure());
-      swal({
+      swal.fire({
         title: (errorTitle || `Error ${response.status}`),
         text: errors[0].msg,
-        type: 'error',
+        icon: 'error',
         confirmButtonText: 'OK',
       });
     } catch (e) {
