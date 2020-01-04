@@ -137,10 +137,10 @@ router.post('/', upload.single('image'), async (req, res, next) => {
       } else if (!imageaction) {
         error = 'No imageaction given';
       } else if (!canvasident) {
-        error = 'No imageaction given';
+        error = 'No canvas specified';
       }
       if (error !== null) {
-        res.status(403).json(error);
+        res.status(403).send(error);
         return;
       }
       const x = parseInt(req.body.x, 10);
