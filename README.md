@@ -1,5 +1,7 @@
 # PixelPlanet.fun
 
+![](https://github.com/pixelplanetdev/pixelplanet/workflows/Node%20CI/badge.svg)
+
 Official  repository of [pixelplanet.fun](http://www.pixelplanet.fun).
 
 ![videothumb](promotion/videothumb.gif)
