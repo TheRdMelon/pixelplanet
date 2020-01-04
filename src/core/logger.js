@@ -10,7 +10,7 @@ import winston from 'winston';
 
 const logger = winston;
 
-export const proxyLogger = new winston.Logger({
+export const proxyLogger = winston.createLogger({
   transports: [
     new winston.transports.File({
       level: 'info',

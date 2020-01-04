@@ -4,47 +4,38 @@
  * @flow
  */
 
-import Push from 'push.js';
-
-function onGranted() {
-
-}
-function onDenied() {
-
-}
-
 
 export default (store) => (next) => (action) => {
-  if (!Push.isSupported) return next(action);
+  try {
+    switch (action.type) {
+      case 'PLACE_PIXEL': {
+        if (window.Notification
+          && Notification.permission !== 'granted'
+          && Notification.permission !== 'denied'
+        ) {
+          Notification.requestPermission();
+        }
+        break;
+      }
 
-  switch (action.type) {
-    case 'PLACE_PIXEL': {
-      // request permission
-      // gives callback error now
-      Push.Permission.request(onGranted, onDenied);
+      case 'COOLDOWN_END': {
+        if (window.Notification && Notification.permission === 'granted') {
+          // eslint-disable-next-line no-unused-vars
+          const notification = new Notification('Your next pixels are ready', {
+            icon: '/tile.png',
+            silent: true,
+            vibrate: [200, 100],
+            body: 'You can now place more on pixelplanet.fun :)',
+          });
+        }
+        break;
+      }
 
-      // clear notifications
-      Push.clear();
-      break;
+      default:
+        // nothing
     }
-
-    case 'COOLDOWN_END': {
-      Push.create('Your next pixel is now available', {
-        icon: '/tile.png',
-        silent: true,
-        vibrate: [200, 100],
-        onClick() {
-          parent.focus();
-          window.focus();
-          Push.clear();
-        },
-      });
-      break;
-    }
-
-    default:
-      // nothing
+  } catch (e) {
+    console.error(e);
   }
-
   return next(action);
 };
