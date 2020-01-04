@@ -10,5 +10,6 @@ apps:
       MYSQL_HOST: "localhost"
       MYSQL_USER: "pixelplanet"
       MYSQL_DATABASE: "pixelplanet"
+      LOG_MYSQL: 1
       MYSQL_PW: "sqlpassword"
       SESSION_SECRET: "ayyylmao"
