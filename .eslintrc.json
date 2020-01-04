@@ -1,19 +1,11 @@
 {
-  "extends": [
-    "plugin:flowtype/recommended",
-    "airbnb"
-  ],
+  "extends": ["plugin:flowtype/recommended", "airbnb"],
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
     }
   },
-  "plugins": [
-      "flowtype",
-      "react",
-      "jsx-a11y",
-      "import"
-  ],
+  "plugins": ["flowtype", "react", "jsx-a11y", "import"],
   "globals": {
     "__DEV__": false
   },
@@ -21,15 +13,19 @@
     "browser": true
   },
   "rules": {
-    "max-len": [1, 80, 2, {"ignoreComments": true}],
+    "max-len": [1, 80, 2, { "ignoreComments": true }],
     "no-bitwise": 0,
-    "no-plusplus" : "off",
+    "no-plusplus": "off",
     "no-param-reassign": "off",
-    "no-mixed-operators":"off",
+    "no-mixed-operators": "off",
     "react/prop-types": "off",
     "react/jsx-one-expression-per-line": "off",
-    "react/jsx-closing-tag-location":"off",
-    "jsx-a11y/click-events-have-key-events":"off",
-    "lines-between-class-members":["warn", "always",{"exceptAfterSingleLine": true}]
+    "react/jsx-closing-tag-location": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "lines-between-class-members": [
+      "warn",
+      "always",
+      { "exceptAfterSingleLine": true }
+    ]
   }
 }

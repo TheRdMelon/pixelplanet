@@ -131,11 +131,11 @@ kbd {
 
 :global(#helpbutton) {
     left: 16px;
-    top: 221px;
+    top: 262px;
 }
 :global(#minecraftbutton) {
     left: 16px;
-    top: 180px;
+    top: 221px;
 }
 :global(#settingsbutton) {
     left: 16px;
@@ -145,9 +145,13 @@ kbd {
     left: 16px;
     top: 98px;
 }
-:global(#downloadbutton) {
+:global(#factionbutton) {
     left: 16px;
     top: 139px;
+}
+:global(#downloadbutton) {
+    left: 16px;
+    top: 180px;
 }
 :global(#globebutton) {
     left: 57px;
