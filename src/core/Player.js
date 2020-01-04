@@ -7,6 +7,7 @@ class Player {
   constructor() {
     this.wait = null;
   }
+
   setWait(wait) {
     this.wait = wait;
   }

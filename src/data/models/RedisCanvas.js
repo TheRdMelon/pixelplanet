@@ -24,8 +24,7 @@ class RedisCanvas {
   }
 
   static async setChunk(i: number, j: number, chunk: Uint8Array,
-    canvasId: number,
-  ) {
+    canvasId: number) {
     if (chunk.length !== TILE_SIZE * TILE_SIZE) {
       logger.error(`Tried to set chunk with invalid length ${chunk.length}!`);
       return false;

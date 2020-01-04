@@ -111,7 +111,7 @@ startOnlineCounterBroadcast();
  * Get hooked up to httpServer and routes to the right socket
  */
 export function wsupgrade(request, socket, head) {
-  const pathname = url.parse(request.url).pathname;
+  const { pathname } = url.parse(request.url);
 
   if (pathname === '/ws') {
     usersocket.wss.handleUpgrade(request, socket, head, (ws) => {

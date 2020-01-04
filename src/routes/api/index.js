@@ -40,7 +40,7 @@ router.use(session);
  * (cut IPv6 to subnet to prevent abuse)
  */
 router.use(async (req, res, next) => {
-  const session = req.session;
+  const { session } = req;
   const id = (session.passport && session.passport.user) ? session.passport.user : null;
   const ip = await getIPFromRequest(req);
   const trueIp = ip || '0.0.0.1';

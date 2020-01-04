@@ -30,7 +30,7 @@ export async function getIPFromRequest(req): ?string {
   }
 
   const forwardedFor = headers['x-forwarded-for'];
-  const ipList = forwardedFor.split(',').map(str => str.trim());
+  const ipList = forwardedFor.split(',').map((str) => str.trim());
 
   let ip = ipList.pop();
   while (isTrustedProxy(ip) && ipList.length) {

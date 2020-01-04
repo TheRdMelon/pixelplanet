@@ -60,7 +60,9 @@ class ChangePassword extends React.Component {
   async handleSubmit(e) {
     e.preventDefault();
 
-    const { password, new_password, confirm_password, submitting } = this.state;
+    const {
+      password, new_password, confirm_password, submitting,
+    } = this.state;
     if (submitting) return;
 
     const errors = validate(this.props.mailreg, password, new_password, confirm_password);
@@ -95,28 +97,29 @@ class ChangePassword extends React.Component {
     return (
       <div className="inarea">
         <form onSubmit={this.handleSubmit}>
-          {errors.map(error => (
+          {errors.map((error) => (
             <p key={error} className="errormessage">Error: {error}</p>
           ))}
-          {(this.props.mailreg) &&
+          {(this.props.mailreg)
+          && (
           <input
             value={this.state.password}
-            onChange={evt => this.setState({ password: evt.target.value })}
+            onChange={(evt) => this.setState({ password: evt.target.value })}
             type="password"
             placeholder="Old Password"
           />
-          }
+          )}
           <br />
           <input
             value={this.state.new_password}
-            onChange={evt => this.setState({ new_password: evt.target.value })}
+            onChange={(evt) => this.setState({ new_password: evt.target.value })}
             type="password"
             placeholder="New Password"
           />
           <br />
           <input
             value={this.state.confirm_password}
-            onChange={evt => this.setState({ confirm_password: evt.target.value })}
+            onChange={(evt) => this.setState({ confirm_password: evt.target.value })}
             type="password"
             placeholder="Confirm New Password"
           />

@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
-import { validateName, validateEMail, validatePassword, parseAPIresponse } from '../utils/validation';
+import {
+  validateName, validateEMail, validatePassword, parseAPIresponse,
+} from '../utils/validation';
 
 function validate(email, password) {
   const errors = [];
@@ -87,19 +89,19 @@ class ChangeMail extends React.Component {
     return (
       <div className="inarea">
         <form onSubmit={this.handleSubmit}>
-          {errors.map(error => (
+          {errors.map((error) => (
             <p key={error} className="errormessage">Error: {error}</p>
           ))}
           <input
             value={this.state.password}
-            onChange={evt => this.setState({ password: evt.target.value })}
+            onChange={(evt) => this.setState({ password: evt.target.value })}
             type="password"
             placeholder="Password"
           />
           <br />
           <input
             value={this.state.email}
-            onChange={evt => this.setState({ email: evt.target.value })}
+            onChange={(evt) => this.setState({ email: evt.target.value })}
             type="text"
             placeholder="New Mail"
           />

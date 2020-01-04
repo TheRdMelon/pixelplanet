@@ -4,7 +4,7 @@
  */
 import keycode from 'keycode';
 
-import store from '../ui/store';
+import store from './store';
 import {
   toggleGrid,
   togglePixelNotify,

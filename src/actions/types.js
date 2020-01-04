@@ -52,10 +52,7 @@ export type Action =
   | { type: 'SHOW_MODAL', modalType: string, modalProps: obj }
   | { type: 'HIDE_MODAL' }
   | { type: 'RELOAD_URL' }
-  | { type: 'ON_VIEW_FINISH_CHANGE' }
-  ;
-
-
+  | { type: 'ON_VIEW_FINISH_CHANGE' };
 export type PromiseAction = Promise<Action>;
 export type ThunkAction = (dispatch: Dispatch, getState: GetState) => any;
 export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;

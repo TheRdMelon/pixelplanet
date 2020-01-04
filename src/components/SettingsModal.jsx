@@ -74,7 +74,9 @@ const dividerStyles = {
 };
 
 
-const SettingsItem = ({ title, description, keyBind, value, onToggle }) => (
+const SettingsItem = ({
+  title, description, keyBind, value, onToggle,
+}) => (
   <div style={itemStyles}>
     <div style={rowStyles}>
       <h3 style={titleStyles}>{title} {keyBind && <kbd>{keyBind}</kbd>}</h3>
@@ -154,11 +156,15 @@ function SettingsModal({
 
 function mapStateToProps(state: State) {
   const { mute, chatNotify } = state.audio;
-  const { showGrid, showPixelNotify, autoZoomIn, compactPalette, isPotato } = state.gui;
+  const {
+    showGrid, showPixelNotify, autoZoomIn, compactPalette, isPotato,
+  } = state.gui;
   const isMuted = mute;
   const isGridShown = showGrid;
   const isPixelNotifyShown = showPixelNotify;
-  return { isMuted, isGridShown, isPixelNotifyShown, autoZoomIn, compactPalette, chatNotify, isPotato };
+  return {
+    isMuted, isGridShown, isPixelNotifyShown, autoZoomIn, compactPalette, chatNotify, isPotato,
+  };
 }
 
 function mapDispatchToProps(dispatch) {

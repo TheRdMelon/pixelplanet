@@ -19,14 +19,15 @@ const DailyRankings = ({ totalDailyRanking }) => (
         <th>Total Pixels</th>
       </tr>
       {
-        totalDailyRanking.map(rank => (
+        totalDailyRanking.map((rank) => (
           <tr>
             <td>{rank.dailyRanking}</td>
             <td>{rank.name}</td>
             <td>{rank.dailyTotalPixels}</td>
             <td>{rank.ranking}</td>
             <td>{rank.totalPixels}</td>
-          </tr>))
+          </tr>
+        ))
       }
     </table>
   </div>

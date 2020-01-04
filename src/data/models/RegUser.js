@@ -7,8 +7,8 @@
  */
 
 import DataType from 'sequelize';
-import Model from '../sequelize';
 import bcrypt from 'bcrypt';
+import Model from '../sequelize';
 
 import { generateHash } from '../../utils/hash';
 

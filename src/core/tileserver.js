@@ -12,12 +12,16 @@ import canvases from '../canvases.json';
 import Palette from './Palette';
 
 import { TILE_FOLDER } from './config';
-import { TILE_SIZE,
-  TILE_ZOOM_LEVEL } from './constants';
-import { createZoomTileFromChunk,
+import {
+  TILE_SIZE,
+  TILE_ZOOM_LEVEL,
+} from './constants';
+import {
+  createZoomTileFromChunk,
   createZoomedTile,
   createTexture,
-  initializeTiles } from './Tile';
+  initializeTiles,
+} from './Tile';
 import { mod, getChunkOfPixel, getMaxTiledZoom } from './utils';
 
 
@@ -77,7 +81,7 @@ class CanvasUpdater {
       if (zoom === 0) {
         createTexture(this.id, this.canvas.size, this.canvasTileFolder, this.palette);
       } else {
-        const [ucx, ucy] = [cx, cy].map(z => Math.floor(z / 4));
+        const [ucx, ucy] = [cx, cy].map((z) => Math.floor(z / 4));
         const upperTile = ucx + ucy * (TILE_ZOOM_LEVEL ** (zoom - 1));
         const upperQueue = this.TileLoadingQueues[zoom - 1];
         if (~upperQueue.indexOf(upperTile)) return;
@@ -95,7 +99,7 @@ class CanvasUpdater {
     const queue = this.TileLoadingQueues[Math.max(this.maxTiledZoom - 1, 0)];
     if (typeof queue === 'undefined') return;
 
-    const [cx, cy] = chunk.map(z => Math.floor(z / 4));
+    const [cx, cy] = chunk.map((z) => Math.floor(z / 4));
     const chunkOffset = cx + cy * this.firstZoomtileWidth;
     if (~queue.indexOf(chunkOffset)) return;
     queue.push(chunkOffset);
@@ -166,4 +170,3 @@ export function startAllCanvasLoops() {
     CanvasUpdaters[ids[i]] = updater;
   }
 }
-

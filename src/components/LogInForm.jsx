@@ -3,14 +3,16 @@
  * @flow
  */
 import React from 'react';
-import { validateEMail, validateName, validatePassword, parseAPIresponse } from '../utils/validation';
+import {
+  validateEMail, validateName, validatePassword, parseAPIresponse,
+} from '../utils/validation';
 
 
 function validate(nameoremail, password) {
   const errors = [];
-  const mailerror = (nameoremail.indexOf('@') !== -1) ?
-    validateEMail(nameoremail) :
-    validateName(nameoremail);
+  const mailerror = (nameoremail.indexOf('@') !== -1)
+    ? validateEMail(nameoremail)
+    : validateName(nameoremail);
   if (mailerror) errors.push(mailerror);
   const passworderror = validatePassword(password);
   if (passworderror) errors.push(passworderror);
@@ -80,20 +82,20 @@ class LogInForm extends React.Component {
     const { errors } = this.state;
     return (
       <form onSubmit={this.handleSubmit}>
-        {errors.map(error => (
+        {errors.map((error) => (
           <p key={error}>Error: {error}</p>
         ))}
         <input
           style={inputStyles}
           value={this.state.nameoremail}
-          onChange={evt => this.setState({ nameoremail: evt.target.value })}
+          onChange={(evt) => this.setState({ nameoremail: evt.target.value })}
           type="text"
           placeholder="Name or Email"
         />
         <input
           style={inputStyles}
           value={this.state.password}
-          onChange={evt => this.setState({ password: evt.target.value })}
+          onChange={(evt) => this.setState({ password: evt.target.value })}
           type="password"
           placeholder="Password"
         />

@@ -23,7 +23,7 @@ const MdToggleButtonHover = ({ value, onToggle }) => (
       width: 32,
       height: 32,
     }}
-    animateThumbStyleHover={n => ({
+    animateThumbStyleHover={(n) => ({
       boxShadow: `0 0 ${2 + (4 * n)}px rgba(0,0,0,.16),0 ${2 + (3 * n)}px ${4 + (8 * n)}px rgba(0,0,0,.32)`,
     })}
   />

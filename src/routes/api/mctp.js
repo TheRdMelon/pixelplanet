@@ -37,7 +37,7 @@ export default async (req: Request, res: Response) => {
     return;
   }
 
-  const minecraftid = user.regUser.minecraftid;
+  const { minecraftid } = user.regUser;
   if (!minecraftid) {
     res.status(400);
     res.json({

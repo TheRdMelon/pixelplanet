@@ -10,7 +10,7 @@ export function validateEMail(email) {
   if (email.length < 5) return 'Email should be at least 5 characters long.';
   if (email.length > 40) return "Email can't be longer than 40 characters.";
   if (email.indexOf('.') === -1) return 'Email should at least contain a dot';
-  if (email.split('').filter(x => x === '@').length !== 1) {
+  if (email.split('').filter((x) => x === '@').length !== 1) {
     return 'Email should contain a @';
   }
   if (!mailTester.test(email)) return 'Your Email looks shady';
@@ -21,12 +21,12 @@ export function validateName(name) {
   if (!name) return "Name can't be empty.";
   if (name.length < 4) return 'Name must be at least 4 characters long';
   if (name.length > 26) return 'Name must be shorter than 26 characters';
-  if (name.indexOf('@') !== -1 ||
-      name.indexOf('/') !== -1 ||
-      name.indexOf('\\') !== -1 ||
-      name.indexOf('>') !== -1 ||
-      name.indexOf('<') !== -1 ||
-      name.indexOf('#') !== -1) {
+  if (name.indexOf('@') !== -1
+      || name.indexOf('/') !== -1
+      || name.indexOf('\\') !== -1
+      || name.indexOf('>') !== -1
+      || name.indexOf('<') !== -1
+      || name.indexOf('#') !== -1) {
     return 'Name contains invalid character like @, /, \\ or #';
   }
   return false;

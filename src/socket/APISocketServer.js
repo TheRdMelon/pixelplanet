@@ -181,7 +181,9 @@ class APISocketServer extends EventEmitter {
         }
         const user = this.mc.minecraftid2User(minecraftid);
         user.ip = ip;
-        const { error, success, waitSeconds, coolDownSeconds } = await drawUnsafe(user, 0, x, y, clr);
+        const {
+          error, success, waitSeconds, coolDownSeconds,
+        } = await drawUnsafe(user, 0, x, y, clr);
         ws.send(JSON.stringify([
           'retpxl',
           (minecraftid) || ip,

@@ -226,7 +226,7 @@ class SocketServer extends EventEmitter {
         break;
       case RegisterMultipleChunks.OP_CODE:
         this.deleteAllChunks(ws);
-        const length = buffer.length;
+        const { length } = buffer;
         let posu = 2;
         while (posu < length) {
           const chunkid = buffer[posu++] | buffer[posu++] << 8;

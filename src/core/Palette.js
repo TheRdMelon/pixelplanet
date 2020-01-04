@@ -56,12 +56,12 @@ class Palette {
    * @return index of color
    */
   getIndexOfColor(r: number, g: number, b: number): ColorIndex {
-    const rgb = this.rgb;
+    const { rgb } = this;
     let i = rgb.length;
     while (i >= 0) {
-      if (rgb[--i] === b &&
-          rgb[--i] === g &&
-          rgb[--i] === r
+      if (rgb[--i] === b
+          && rgb[--i] === g
+          && rgb[--i] === r
       ) {
         return (i / 3);
       }
@@ -75,7 +75,7 @@ class Palette {
    * @return ABRG Buffer
    */
   buffer2ABGR(chunkBuffer: Buffer): Uint32Array {
-    const length = chunkBuffer.length;
+    const { length } = chunkBuffer;
     const colors = new Uint32Array(length);
     let value: number;
     const buffer = chunkBuffer;
@@ -94,7 +94,7 @@ class Palette {
    * @return RGB Buffer
    */
   buffer2RGB(chunkBuffer: Buffer): Uint8Array {
-    const length = chunkBuffer.length;
+    const { length } = chunkBuffer;
     const colors = new Uint8Array(length * 3);
     let color: number;
     let value: number;
@@ -167,8 +167,7 @@ export const COLORS_RGB: Uint8Array = new Uint8Array([
   25, 25, 115, // darker blue
   207, 110, 228, // light violette
   130, 0, 128, // violette
-],
-);
+]);
 
 export const COLORS_AMOUNT = COLORS_RGB.length / 3;
 export const COLORS: Array<Color> = new Array(COLORS_AMOUNT);

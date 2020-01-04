@@ -26,20 +26,21 @@ const Chat = ({ chatMessages }) => {
     <div style={{ height: '100%' }}>
       <ul className="chatarea" ref={listRef}>
         {
-          chatMessages.map(message => (
+          chatMessages.map((message) => (
             <p className="chatmsg">
-              {(message[0] == 'info') ?
-                <span style={{ color: '#cc0000' }}>{message[1]}</span> :
-                <div>
-                  <span className="chatname" style={{ color: colorFromText(message[0]) }}>{`${message[0]}: `}</span>
-                  {
+              {(message[0] == 'info')
+                ? <span style={{ color: '#cc0000' }}>{message[1]}</span>
+                : (
+                  <div>
+                    <span className="chatname" style={{ color: colorFromText(message[0]) }}>{`${message[0]}: `}</span>
+                    {
                     splitCoordsInString(message[1]).map((text, i) => {
                       if (i % 2 == 0) { return (<span className="msg">{text}</span>); }
                       return (<a href={`./${text}`}>{text}</a>);
                     })
                   }
-                </div>
-              }
+                  </div>
+                )}
             </p>
           ))
         }

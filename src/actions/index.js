@@ -671,4 +671,3 @@ export function switchCanvas(canvasId: number): PromiseAction {
     dispatch(onViewFinishChange());
   };
 }
-

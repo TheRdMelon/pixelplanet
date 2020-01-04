@@ -14,7 +14,7 @@ function onDenied() {
 }
 
 
-export default store => next => (action) => {
+export default (store) => (next) => (action) => {
   if (!Push.isSupported) return next(action);
 
   switch (action.type) {

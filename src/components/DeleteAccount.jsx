@@ -72,12 +72,12 @@ class DeleteAccount extends React.Component {
     return (
       <div className="inarea" style={{ backgroundColor: '#ff6666' }}>
         <form onSubmit={this.handleSubmit}>
-          {errors.map(error => (
+          {errors.map((error) => (
             <p key={error} className="errormessage">Error: {error}</p>
           ))}
           <input
             value={this.state.password}
-            onChange={evt => this.setState({ password: evt.target.value })}
+            onChange={(evt) => this.setState({ password: evt.target.value })}
             type="password"
             placeholder="Password"
           />

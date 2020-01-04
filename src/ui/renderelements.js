@@ -101,4 +101,3 @@ export function renderGrid(
 
   viewportCtx.globalAlpha = 1;
 }
-

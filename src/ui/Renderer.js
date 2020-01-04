@@ -95,7 +95,7 @@ class Renderer {
     const [x, y] = getPixelFromChunkOffset(i, j, offset, this.canvasSize);
 
     const [canX, canY] = this.centerChunk
-      .map(z => (z + 0.5) * TILE_SIZE - this.canvasSize / 2);
+      .map((z) => (z + 0.5) * TILE_SIZE - this.canvasSize / 2);
     const px = ((x - canX) * scale) + (CANVAS_WIDTH / 2);
     const py = ((y - canY) * scale) + (CANVAS_HEIGHT / 2);
     // if not part of our current canvas, do not render
@@ -118,10 +118,8 @@ class Renderer {
       return false;
     }
     const { width, height } = this.viewport;
-    const CHUNK_RENDER_RADIUS_X =
-      Math.ceil(width / TILE_SIZE / 2 / this.relScale);
-    const CHUNK_RENDER_RADIUS_Y =
-      Math.ceil(height / TILE_SIZE / 2 / this.relScale);
+    const CHUNK_RENDER_RADIUS_X = Math.ceil(width / TILE_SIZE / 2 / this.relScale);
+    const CHUNK_RENDER_RADIUS_Y = Math.ceil(height / TILE_SIZE / 2 / this.relScale);
     const [xc, yc] = this.centerChunk;
     if (Math.abs(cx - xc)
       <= CHUNK_RENDER_RADIUS_X && Math.abs(cy - yc)
@@ -141,8 +139,10 @@ class Renderer {
     const context = this.canvas.getContext('2d');
     if (!context) return;
 
-    const { centerChunk: chunkPosition, scale, tiledScale, tiledZoom } = this;
-    let relScale = this.relScale;
+    const {
+      centerChunk: chunkPosition, scale, tiledScale, tiledZoom,
+    } = this;
+    let { relScale } = this;
     // clear rect is just needed for Google Chrome, else it would flash regularly
     context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
@@ -234,7 +234,7 @@ class Renderer {
 
 
   render() {
-    const viewport = this.viewport;
+    const { viewport } = this;
     const state: State = store.getState();
     const {
       showGrid,
@@ -296,14 +296,14 @@ class Renderer {
     // note: this.hover is used to, to render without the placeholder one last time when cursor leaves window
     } else if (
       // no full rerender
-      !doRenderCanvas &&
+      !doRenderCanvas
       // no render placeholder under cursor
-      !doRenderPlaceholder &&
-      !doRenderPotatoPlaceholder &&
+      && !doRenderPlaceholder
+      && !doRenderPotatoPlaceholder
       // no pixelnotification
-      !doRenderPixelnotify &&
+      && !doRenderPixelnotify
       // no forced just-viewscale render (i.e. when just a pixel got set)
-      !this.forceNextSubrender
+      && !this.forceNextSubrender
     ) {
       return;
     }
@@ -332,14 +332,12 @@ class Renderer {
       viewportCtx.scale(viewscale, viewscale);
       viewportCtx.drawImage(this.canvas,
         width / 2 / viewscale - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE - canvasCenter - x),
-        height / 2 / viewscale - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y),
-      );
+        height / 2 / viewscale - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y));
       viewportCtx.restore();
     } else {
       viewportCtx.drawImage(this.canvas,
         Math.floor(width / 2 - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE / this.tiledScale - canvasCenter - x) * viewscale),
-        Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE / this.tiledScale - canvasCenter - y) * viewscale),
-      );
+        Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE / this.tiledScale - canvasCenter - y) * viewscale));
     }
 
     if (showGrid && viewscale >= 8) renderGrid(state, viewport, viewscale);

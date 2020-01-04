@@ -11,7 +11,9 @@ import Modal from './Modal';
 import type { State } from '../reducers';
 
 
-import { showRegisterModal, showForgotPasswordModal, setName, setMailreg, receiveMe } from '../actions';
+import {
+  showRegisterModal, showForgotPasswordModal, setName, setMailreg, receiveMe,
+} from '../actions';
 import LogInForm from './LogInForm';
 import Tabs from './Tabs';
 import UserArea from './UserArea';
@@ -63,23 +65,27 @@ const LogInArea = ({ register, forgot_password, me }) => (
   </p>
 );
 
-const UserAreaModal = ({ name, register, forgot_password, doMe, logout, setName, setMailreg }) => (
+const UserAreaModal = ({
+  name, register, forgot_password, doMe, logout, setName, setMailreg,
+}) => (
   <Modal title="User Area">
     <p style={{ textAlign: 'center' }}>
-      {(name === null) ?
-        <LogInArea register={register} forgot_password={forgot_password} me={doMe} /> :
-        <Tabs>
-          <div label="Profile">
-            <UserArea
-              logout={logout}
-              set_name={setName}
-              set_mailreg={setMailreg}
-            />
-          </div>
-          <div label="Ranking">
-            <Rankings />
-          </div>
-        </Tabs>}
+      {(name === null)
+        ? <LogInArea register={register} forgot_password={forgot_password} me={doMe} />
+        : (
+          <Tabs>
+            <div label="Profile">
+              <UserArea
+                logout={logout}
+                set_name={setName}
+                set_mailreg={setMailreg}
+              />
+            </div>
+            <div label="Ranking">
+              <Rankings />
+            </div>
+          </Tabs>
+        )}
       <p>Also join our Discord: <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
     </p>
   </Modal>

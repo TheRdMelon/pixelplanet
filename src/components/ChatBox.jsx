@@ -13,10 +13,12 @@ import Chat from './Chat';
 
 const ChatBox = ({ chatOpen }) => (
   <div>
-    {(chatOpen) ?
-      <div className="chatbox">
-        <Chat />
-      </div> : null}
+    {(chatOpen)
+      ? (
+        <div className="chatbox">
+          <Chat />
+        </div>
+      ) : null}
   </div>
 );
 

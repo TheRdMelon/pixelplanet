@@ -2,8 +2,8 @@
  * @flow
  * */
 
-import fetch from '../utils/proxiedFetch.js';
 import IP from 'ip';
+import fetch from '../utils/proxiedFetch.js';
 
 import redis from '../data/redis';
 import { Blacklist, Whitelist } from '../data/models';

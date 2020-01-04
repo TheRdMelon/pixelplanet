@@ -6,7 +6,9 @@
 import Sequelize from 'sequelize';
 
 import logging from '../core/logger';
-import { MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PW } from '../core/config';
+import {
+  MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PW,
+} from '../core/config';
 
 const sequelize = new Sequelize(MYSQL_DATABASE, MYSQL_USER, MYSQL_PW, {
   host: MYSQL_HOST,

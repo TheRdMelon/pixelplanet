@@ -63,28 +63,30 @@ class UserArea extends React.Component {
           > Log out</span> |
           <span
             className="modallink"
-            onClick={evt => this.setState({
+            onClick={(evt) => this.setState({
               change_name_extended: true,
               change_mail_extended: false,
               change_passwd_extended: false,
               delete_account_extended: false,
             })}
           > Change Username</span> |
-          {(this.props.mailreg) &&
+          {(this.props.mailreg)
+            && (
             <span>
               <span
                 className="modallink"
-                onClick={evt => this.setState({
+                onClick={(evt) => this.setState({
                   change_name_extended: false,
                   change_mail_extended: true,
                   change_passwd_extended: false,
                   delete_account_extended: false,
                 })}
               > Change Mail</span> |
-            </span>}
+            </span>
+            )}
           <span
             className="modallink"
-            onClick={evt => this.setState({
+            onClick={(evt) => this.setState({
               change_name_extended: false,
               change_mail_extended: false,
               change_passwd_extended: true,
@@ -93,7 +95,7 @@ class UserArea extends React.Component {
           > Change Password</span> |
           <span
             className="modallink"
-            onClick={evt => this.setState({
+            onClick={(evt) => this.setState({
               change_name_extended: false,
               change_mail_extended: false,
               change_passwd_extended: false,
@@ -101,26 +103,34 @@ class UserArea extends React.Component {
             })}
           > Delete Account</span> )
         </p>
-        {(this.state.change_passwd_extended) &&
+        {(this.state.change_passwd_extended)
+          && (
           <ChangePassword
             mailreg={this.props.mailreg}
             done={() => { this.props.set_mailreg(true); this.setState({ change_passwd_extended: false }); }}
             cancel={() => { this.setState({ change_passwd_extended: false }); }}
-          />}
-        {(this.state.change_name_extended) &&
+          />
+          )}
+        {(this.state.change_name_extended)
+          && (
           <ChangeName
             set_name={this.props.set_name}
             done={() => { this.setState({ change_name_extended: false }); }}
-          />}
-        {(this.state.change_mail_extended) &&
+          />
+          )}
+        {(this.state.change_mail_extended)
+          && (
           <ChangeMail
             done={() => { this.setState({ change_mail_extended: false }); }}
-          />}
-        {(this.state.delete_account_extended) &&
+          />
+          )}
+        {(this.state.delete_account_extended)
+          && (
           <DeleteAccount
             set_name={this.props.set_name}
             done={() => { this.setState({ delete_account_extended: false }); }}
-          />}
+          />
+          )}
       </p>
     );
   }

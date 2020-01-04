@@ -152,4 +152,3 @@ export async function imagemask2Canvas(
   }
   logger.info('Imagemask loading done.');
 }
-
