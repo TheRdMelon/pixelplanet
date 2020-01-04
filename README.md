@@ -84,6 +84,7 @@ Configuration takes place in the environment variables that are defined in ecosy
 | RECAPTCHA_SITEKEY | reCaptcha site key                    | "23ksdfssd" |
 | RECAPTCHA_TIME    | time in minutes between captchas      | 30          |
 | SESSION_SECRET    | random sting for expression sessions  | "ayylmao"   |
+| LOG_MYSQL         | if sql queries should get logged      | 0           |
 
 Notes:
 

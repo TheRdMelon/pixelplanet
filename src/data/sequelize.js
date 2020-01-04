@@ -5,9 +5,9 @@
 
 import Sequelize from 'sequelize';
 
-import logging from '../core/logger';
+import logger from '../core/logger';
 import {
-  MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PW,
+  MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PW, LOG_MYSQL,
 } from '../core/config';
 
 const sequelize = new Sequelize(MYSQL_DATABASE, MYSQL_USER, MYSQL_PW, {
@@ -18,8 +18,8 @@ const sequelize = new Sequelize(MYSQL_DATABASE, MYSQL_USER, MYSQL_PW, {
     max: 25,
     idle: 10000,
     acquire: 10000,
-    logging,
   },
+  logging: (LOG_MYSQL) ? (...msg) => logger.info(msg) : false,
   dialectOptions: {
     connectTimeout: 10000,
     multipleStatements: true,

@@ -5,18 +5,25 @@
  * @flow
  */
 
-import winston from 'winston';
+import { createLogger, format, transports } from 'winston';
 
 
-const logger = winston;
-
-export const proxyLogger = winston.createLogger({
+const logger = createLogger({
+  level: 'info',
+  format: format.combine(
+    format.simple(),
+  ),
   transports: [
-    new winston.transports.File({
+    new transports.Console(),
+  ],
+});
+
+export const proxyLogger = createLogger({
+  transports: [
+    new transports.File({
       level: 'info',
-      filename: '/var/log/pixelplace/proxies.log',
-      json: true,
-      maxsize: 2 * 52428800, // 100MB
+      filename: './proxies.log',
+      maxsize: 10428800, // 10MB
       colorize: false,
     }),
   ],
