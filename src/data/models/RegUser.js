@@ -6,97 +6,96 @@
  * @flow
  */
 
-import DataType from "sequelize";
-import bcrypt from "bcrypt";
-import Model from "../sequelize";
+import DataType from 'sequelize';
+import Model from '../sequelize';
 
-import { generateHash } from "../../utils/hash";
+import { generateHash } from '../../utils/hash';
 
 const RegUser = Model.define(
-  "User",
+  'User',
   {
     id: {
       type: DataType.INTEGER.UNSIGNED,
       autoIncrement: true,
-      primaryKey: true
+      primaryKey: true,
     },
 
     email: {
       type: DataType.CHAR(40),
-      allowNull: true
+      allowNull: true,
     },
 
     name: {
       type: DataType.CHAR(32),
-      allowNull: false
+      allowNull: false,
     },
 
     // null if external oauth authentification
     password: {
       type: DataType.CHAR(60),
-      allowNull: true
+      allowNull: true,
     },
 
     totalPixels: {
       type: DataType.INTEGER.UNSIGNED,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 0,
     },
 
     dailyTotalPixels: {
       type: DataType.INTEGER.UNSIGNED,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 0,
     },
 
     ranking: {
       type: DataType.INTEGER.UNSIGNED,
-      allowNull: true
+      allowNull: true,
     },
 
     dailyRanking: {
       type: DataType.INTEGER.UNSIGNED,
-      allowNull: true
+      allowNull: true,
     },
 
     // mail and Minecraft verified
     verified: {
       type: DataType.TINYINT,
       allowNull: false,
-      defaultValue: false
+      defaultValue: false,
     },
 
     discordid: {
       type: DataType.CHAR(18),
-      allowNull: true
+      allowNull: true,
     },
 
     redditid: {
       type: DataType.CHAR(10),
-      allowNull: true
+      allowNull: true,
     },
 
     minecraftid: {
       type: DataType.CHAR(36),
-      allowNull: true
+      allowNull: true,
     },
 
     minecraftname: {
       type: DataType.CHAR(16),
-      allowNull: true
+      allowNull: true,
     },
 
     // when mail verification got requested,
     // used for purging unverified accounts
     verificationReqAt: {
       type: DataType.DATE,
-      allowNull: true
+      allowNull: true,
     },
 
     lastLogIn: {
       type: DataType.DATE,
-      allowNull: true
-    }
+      allowNull: true,
+    },
   },
   {
     timestamps: true,
@@ -109,33 +108,30 @@ const RegUser = Model.define(
 
       mcVerified(): boolean {
         return this.verified & 0x02;
-      }
+      },
     },
 
     setterMethods: {
       mailVerified(num: boolean) {
         const val = num ? this.verified | 0x01 : this.verified & ~0x01;
-        this.setDataValue("verified", val);
+        this.setDataValue('verified', val);
       },
 
       mcVerified(num: boolean) {
         const val = num ? this.verified | 0x02 : this.verified & ~0x02;
-        this.setDataValue("verified", val);
+        this.setDataValue('verified', val);
       },
 
       password(value: string) {
-        if (value) this.setDataValue("password", generateHash(value));
-      }
-    }
-  }
+        if (value) this.setDataValue('password', generateHash(value));
+      },
+    },
+  },
 );
 
-RegUser.associate = function(models) {
+RegUser.associate = (models) => {
   RegUser.belongsToMany(models.Faction, {
-    through: "UserFactions",
-    as: "users",
-    foreignKey: "factionId",
-    otherKey: "userId"
+    through: 'UserFactions',
   });
 };
 

@@ -21,12 +21,14 @@ export function validateName(name) {
   if (!name) return "Name can't be empty.";
   if (name.length < 4) return 'Name must be at least 4 characters long';
   if (name.length > 26) return 'Name must be shorter than 26 characters';
-  if (name.indexOf('@') !== -1
-      || name.indexOf('/') !== -1
-      || name.indexOf('\\') !== -1
-      || name.indexOf('>') !== -1
-      || name.indexOf('<') !== -1
-      || name.indexOf('#') !== -1) {
+  if (
+    name.indexOf('@') !== -1
+    || name.indexOf('/') !== -1
+    || name.indexOf('\\') !== -1
+    || name.indexOf('>') !== -1
+    || name.indexOf('<') !== -1
+    || name.indexOf('#') !== -1
+  ) {
     return 'Name contains invalid character like @, /, \\ or #';
   }
   return false;
@@ -52,6 +54,17 @@ export function validatePassword(password) {
 
 export function validateFactionPassword(password) {
   if (password.length === 0) return 'Must enter password to join private faction.';
+  return false;
+}
+
+export function validateFactionName(name) {
+  if (name.length < 4) return 'Name must be at least 4 characters long.';
+  if (name.length > 50) return 'Name must be shorter than 50 characters long.';
+  return false;
+}
+
+export function validateFactionIcon(icon) {
+  if (icon.length === 0) return 'You must choose an icon for your faction.';
   return false;
 }
 

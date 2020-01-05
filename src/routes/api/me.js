@@ -3,11 +3,9 @@
  * @flow
  */
 
-
 import type { Request, Response } from 'express';
 
 import getMe from '../../core/me';
-
 
 export default async (req: Request, res: Response) => {
   const user = req.user || req.noauthUser;

@@ -3,25 +3,25 @@
  * @flow
  */
 
-import React from "react";
-import { connect } from "react-redux";
+import React from 'react';
+import { connect } from 'react-redux';
 
-import type { State } from "../reducers";
+import type { State } from '../reducers';
 
 const iconStyle = {
-  width: "32px"
+  width: '32px',
 };
 
 const PublicFactions = ({ factions }) => (
-  <div style={{ overflowY: "auto" }}>
+  <div style={{ overflowY: 'auto' }}>
     <table>
       <tr>
-        <th />
+        <th> </th>
         <th>Faction</th>
         <th>Leader</th>
-        <th />
+        <th> </th>
       </tr>
-      {factions.map(faction => (
+      {factions.map((faction) => (
         <tr>
           <td>
             <img
@@ -34,7 +34,7 @@ const PublicFactions = ({ factions }) => (
           <td>{faction.name}</td>
           <td>{faction.leader}</td>
           <td>
-            <a /* onClick={() => join_faction(faction.id)} */>Join</a>
+            <a>Join</a>
           </td>
         </tr>
       ))}

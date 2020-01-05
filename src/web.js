@@ -11,6 +11,7 @@ import forceGC from './core/forceGC';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import logger from './core/logger';
 import rankings from './core/ranking';
+import factions from './core/factions';
 import models from './data/models';
 
 import {
@@ -152,6 +153,7 @@ const promise = models.sync().catch((err) => logger.error(err.stack));
 promise.then(() => {
   server.listen(PORT, () => {
     rankings.updateRanking();
+    factions.updateFactions();
     const address = server.address();
     logger.info('info', `web is running at http://localhost:${address.port}/`);
   });

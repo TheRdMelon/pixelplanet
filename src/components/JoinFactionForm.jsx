@@ -16,14 +16,14 @@ function validate(password) {
 
 async function join_faction(password) {
   const body = JSON.stringify({
-    password
+    password,
   });
-  const response = await fetch('./api/faction/join', {
+  const response = await fetch('./api/factions/join', {
     method: 'POST',
     body,
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   });
 
   return parseAPIresponse(response);
@@ -31,7 +31,7 @@ async function join_faction(password) {
 
 const inputStyles = {
   display: 'block',
-  width: '100%'
+  width: '100%',
 };
 
 class JoinFactionForm extends React.Component {
@@ -41,7 +41,7 @@ class JoinFactionForm extends React.Component {
       password: '',
       joining: false,
 
-      errors: []
+      errors: [],
     };
 
     this.handleJoin = this.handleJoin.bind(this);
@@ -63,7 +63,7 @@ class JoinFactionForm extends React.Component {
     if (resperrors) {
       this.setState({
         errors: resperrors,
-        joining: null
+        joining: false,
       });
       return;
     }
@@ -74,13 +74,13 @@ class JoinFactionForm extends React.Component {
     const { errors } = this.state;
     return (
       <form onSubmit={this.handleJoin}>
-        {errors.map(error => (
+        {errors.map((error) => (
           <p key={error}>Error: {error}</p>
         ))}
         <input
           style={inputStyles}
           value={this.state.password}
-          onChange={e => this.setState({ password: e.target.value })}
+          onChange={(e) => this.setState({ password: e.target.value })}
           type="text"
           placeholder="Join Password"
         />

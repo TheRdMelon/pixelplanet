@@ -3,28 +3,29 @@
  * @flow
  */
 
-import React from "react";
-import Tabs from "./Tabs";
-import { connect } from "react-redux";
-import JoinFactionForm from "./JoinFactionForm";
-import PublicFactions from "./PublicFactions";
+import React from 'react';
+import { connect } from 'react-redux';
+import Tabs from './Tabs';
+import JoinFactionForm from './JoinFactionForm';
+import PublicFactions from './PublicFactions';
 
-import Modal from "./Modal";
+import Modal from './Modal';
+import CreateFactionForm from './CreateFactionForm';
 
 const textStyle = {
-  color: "hsla(218, 5%, 47%, .6)",
+  color: 'hsla(218, 5%, 47%, .6)',
   fontSize: 14,
   fontWeight: 500,
-  position: "relative",
-  textAlign: "inherit",
-  float: "none",
+  position: 'relative',
+  textAlign: 'inherit',
+  float: 'none',
   margin: 0,
   padding: 0,
-  lineHeight: "normal"
+  lineHeight: 'normal',
 };
 
 const JoinFaction = ({ joined_faction }) => (
-  <p style={{ textAlign: "center" }}>
+  <p style={{ textAlign: 'center' }}>
     <p style={textStyle}>Join a faction to gain perks and work together.</p>
     <br />
     <h2>Join Private Faction:</h2>
@@ -34,9 +35,18 @@ const JoinFaction = ({ joined_faction }) => (
   </p>
 );
 
-const FactionModal = ({ joined_faction }) => (
+const CreateFaction = ({ created_faction }) => (
+  <p style={{ textAlign: 'center' }}>
+    <p style={textStyle}>Create and lead your own faction.</p>
+    <br />
+    <h2>Create Faction:</h2>
+    <CreateFactionForm created_faction={created_faction} />
+  </p>
+);
+
+const FactionModal = ({ joined_faction, created_faction }) => (
   <Modal title="Faction Area">
-    <p style={{ textAlign: "center" }}>
+    <p style={{ textAlign: 'center' }}>
       <Tabs>
         <div label="Info">{/* <FactionInfo /> */}</div>
         <div label="Templates">{/* <Templates /> */}</div>
@@ -44,10 +54,12 @@ const FactionModal = ({ joined_faction }) => (
         <div label="Join">
           <JoinFaction joined_faction={joined_faction} />
         </div>
-        <div label="Create">{/* <CreateFaction /> */}</div>
+        <div label="Create">
+          <CreateFaction created_faction={created_faction} />
+        </div>
       </Tabs>
       <p>
-        Expand your faction on our Discord:{" "}
+        Expand your faction on our Discord:{' '}
         <a href="./discord" target="_blank">
           pixelplanet.fun/discord
         </a>
@@ -60,7 +72,10 @@ function mapDispatchToProps(dispatch) {
   return {
     joined_faction(factionInfo) {
       dispatch(joinedFaction(factionInfo));
-    }
+    },
+    created_faction(factionInfo) {
+      dispatch(createdFaction(factionInfo));
+    },
   };
 }
 

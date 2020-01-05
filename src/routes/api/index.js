@@ -4,26 +4,18 @@
 
 import express from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors';
 
 import session from '../../core/session';
 import passport from '../../core/passport';
 import { User } from '../../data/models';
 import { getIPFromRequest, getIPv6Subnet } from '../../utils/ip';
 
-import {
-  MINUTE,
-  SECOND,
-  DAY,
-  BLANK_COOLDOWN,
-} from '../../core/constants';
-
 import me from './me';
 import mctp from './mctp';
 import pixel from './pixel';
 import auth from './auth';
 import ranking from './ranking';
-
+import factions from './factions';
 
 const router = express.Router();
 
@@ -41,7 +33,7 @@ router.use(session);
  */
 router.use(async (req, res, next) => {
   const { session } = req;
-  const id = (session.passport && session.passport.user) ? session.passport.user : null;
+  const id = session.passport && session.passport.user ? session.passport.user : null;
   const ip = await getIPFromRequest(req);
   const trueIp = ip || '0.0.0.1';
   req.trueIp = trueIp;
@@ -71,7 +63,8 @@ router.get('/me', me);
 
 router.post('/mctp', mctp);
 
-router.use('/auth', auth(passport));
+router.use('/factions', factions);
 
+router.use('/auth', auth(passport));
 
 export default router;
