@@ -1,7 +1,6 @@
 /* @flow */
 
-import type { Action } from '../actions/types';
-
+import type { Action } from "../actions/types";
 
 export type UserState = {
   name: string,
@@ -22,13 +21,13 @@ export type UserState = {
   totalRanking: Object,
   totalDailyRanking: Object,
   // user factions
-  userFactions: Array
+  userFactions: Array,
   // all factions
   factions: Array,
   // chat
   chatMessages: Array,
   // minecraft
-  minecraftname: string,
+  minecraftname: string
 };
 
 const initialState: UserState = {
@@ -44,101 +43,103 @@ const initialState: UserState = {
   totalDailyRanking: {},
   userFactions: [],
   factions: [],
-  chatMessages: [['info', 'Welcome to the PixelPlanet Chat']],
-  minecraftname: null,
+  chatMessages: [["info", "Welcome to the PixelPlanet Chat"]],
+  minecraftname: null
 };
 
 export default function user(
   state: UserState = initialState,
-  action: Action,
+  action: Action
 ): UserState {
   switch (action.type) {
-    case 'COOLDOWN_SET': {
+    case "COOLDOWN_SET": {
       const { coolDown } = action;
       return {
         ...state,
-        coolDown,
+        coolDown
       };
     }
 
-    case 'COOLDOWN_END': {
+    case "COOLDOWN_END": {
       return {
         ...state,
         coolDown: null,
-        wait: null,
+        wait: null
       };
     }
 
-    case 'SET_PLACE_ALLOWED': {
+    case "SET_PLACE_ALLOWED": {
       const { placeAllowed } = action;
       return {
         ...state,
-        placeAllowed,
+        placeAllowed
       };
     }
 
-    case 'SET_WAIT': {
+    case "SET_WAIT": {
       const { wait: duration } = action;
 
       const wait = duration ? new Date(Date.now() + duration) : null;
 
       return {
         ...state,
-        wait,
+        wait
       };
     }
 
-    case 'PLACE_PIXEL': {
+    case "PLACE_PIXEL": {
       let { totalPixels, dailyTotalPixels } = state;
       totalPixels += 1;
       dailyTotalPixels += 1;
       return {
         ...state,
         totalPixels,
-        dailyTotalPixels,
+        dailyTotalPixels
       };
     }
 
-    case 'RECEIVE_ONLINE': {
+    case "RECEIVE_ONLINE": {
       const { online } = action;
       return {
         ...state,
-        online,
+        online
       };
     }
 
-    case 'RECEIVE_CHAT_MESSAGE': {
+    case "RECEIVE_CHAT_MESSAGE": {
       const { name, text } = action;
       let { chatMessages } = state;
-      console.log('received chat message');
+      console.log("received chat message");
       if (chatMessages.length > 50) {
         chatMessages = chatMessages.slice(-50);
       }
       return {
         ...state,
-        chatMessages: chatMessages.concat([[name, text]]),
+        chatMessages: chatMessages.concat([[name, text]])
       };
     }
 
-    case 'RECEIVE_CHAT_HISTORY': {
+    case "RECEIVE_CHAT_HISTORY": {
       const { data: chatMessages } = action;
       return {
         ...state,
-        chatMessages,
+        chatMessages
       };
     }
 
-    case 'RECEIVE_COOLDOWN': {
+    case "RECEIVE_COOLDOWN": {
       const { waitSeconds } = action;
-      const wait = waitSeconds ? new Date(Date.now() + waitSeconds * 1000) : null;
+      const wait = waitSeconds
+        ? new Date(Date.now() + waitSeconds * 1000)
+        : null;
       return {
         ...state,
         wait,
-        coolDown: null,
+        coolDown: null
       };
     }
 
-    case 'RECEIVE_ME': {
+    case "RECEIVE_ME": {
       const {
         name,
         mailreg,
@@ -147,9 +148,9 @@ export default function user(
         ranking,
         dailyRanking,
         minecraftname,
-        factions,
+        factions
       } = action;
-      const messages = (action.messages) ? action.messages : [];
+      const messages = action.messages ? action.messages : [];
       return {
         ...state,
         name,
@@ -160,20 +161,20 @@ export default function user(
         ranking,
         dailyRanking,
         minecraftname,
-        userFactions: factions,
+        userFactions: factions
       };
     }
 
-    case 'RECEIVE_STATS': {
+    case "RECEIVE_STATS": {
       const { totalRanking, totalDailyRanking } = action;
       return {
         ...state,
         totalRanking,
-        totalDailyRanking,
+        totalDailyRanking
       };
     }
 
-    case 'RECIEVE_FACTIONS': {
+    case "RECIEVE_FACTIONS": {
       const { factions } = action;
       return {
         ...state,
@@ -181,23 +182,23 @@ export default function user(
       };
     }
 
-    case 'SET_NAME': {
+    case "SET_NAME": {
       const { name } = action;
       return {
         ...state,
-        name,
+        name
       };
     }
 
-    case 'SET_MINECRAFT_NAME': {
+    case "SET_MINECRAFT_NAME": {
       const { minecraftname } = action;
       return {
         ...state,
-        minecraftname,
+        minecraftname
       };
     }
 
-    case 'REM_FROM_MESSAGES': {
+    case "REM_FROM_MESSAGES": {
       const { message } = action;
       const messages = [...state.messages];
       const index = messages.indexOf(message);
@@ -206,15 +207,15 @@ export default function user(
       }
       return {
         ...state,
-        messages,
+        messages
       };
     }
 
-    case 'SET_MAILREG': {
+    case "SET_MAILREG": {
       const { mailreg } = action;
       return {
         ...state,
-        mailreg,
+        mailreg
       };
     }
 
