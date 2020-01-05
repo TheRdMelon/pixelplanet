@@ -126,6 +126,8 @@
     "http-proxy": "^1.16.2",
     "json-loader": "^0.5.4",
     "npm-check": "^5.9.0",
+    "prettier": "^1.19.1",
+    "prettier-eslint": "^9.0.1",
     "react-hot-loader": "^4.12.14",
     "react-svg-loader": "^3.0.3",
     "rimraf": "^3.0.0",

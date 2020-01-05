@@ -13,7 +13,9 @@ import logger from './core/logger';
 import rankings from './core/ranking';
 import models from './data/models';
 
-import { api, tiles, chunks, admintools, resetPassword } from './routes';
+import {
+  api, tiles, chunks, admintools, resetPassword,
+} from './routes';
 import globeHtml from './components/Globe';
 import generateMainPage from './components/Main';
 
@@ -146,7 +148,7 @@ app.get('/', async (req, res) => {
 // -----------------------------------------------------------------------------
 
 models.associate();
-const promise = models.sync().catch(err => logger.error(err.stack));
+const promise = models.sync().catch((err) => logger.error(err.stack));
 promise.then(() => {
   server.listen(PORT, () => {
     rankings.updateRanking();
