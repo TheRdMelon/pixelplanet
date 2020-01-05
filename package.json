@@ -123,7 +123,7 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.0.1",
     "flow-bin": "^0.115.0",
-    "http-proxy": "^1.16.2",
+    "generate-package-json-webpack-plugin": "^1.0.1",
     "json-loader": "^0.5.4",
     "npm-check": "^5.9.0",
     "react-hot-loader": "^4.12.14",

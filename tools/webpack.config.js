@@ -5,11 +5,26 @@ import path from 'path';
 import webpack from 'webpack';
 import AssetsPlugin from 'assets-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import GeneratePackageJsonPlugin from 'generate-package-json-webpack-plugin';
 import pkg from '../package.json';
 
 const isDebug = process.argv.includes('--debug');
 const isVerbose = process.argv.includes('--verbose');
 const isAnalyze = process.argv.includes('--analyze') || process.argv.includes('--analyse');
+
+const basePackageValues = {
+  name: pkg.name,
+  version: pkg.version,
+  private: true,
+  engines: pkg.engines,
+  scripts: {
+    start: 'node --nouse-idle-notification --expose-gc web.js',
+  },
+  dependencies: {
+    "mysql2": "^2.1.0",
+  }
+}
+const versionsPackageFilename = path.resolve(__dirname, '../package.json');
 
 const config = {
 
@@ -288,7 +303,8 @@ const webConfig = {
 
   output: {
     ...config.output,
-    filename: '../../web.js',
+    path: path.resolve(__dirname, '../build'),
+    filename: './web.js',
     libraryTarget: 'commonjs2',
   },
 
@@ -331,6 +347,8 @@ const webConfig = {
       'process.env.BROWSER': false,
       __DEV__: isDebug,
     }),
+    // create package.json for deployment
+    new GeneratePackageJsonPlugin(basePackageValues, versionsPackageFilename),
   ],
 
   node: {
