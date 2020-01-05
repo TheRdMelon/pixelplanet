@@ -159,6 +159,7 @@ class MailProvider {
 
   static clean_users() {
     // delete users that requier verification for more than 4 days
+    /*
     RegUser.destroy({
       where: {
         verificationReqAt: {
@@ -168,6 +169,7 @@ class MailProvider {
         verified: 0,
       },
     });
+    */
   }
 }
 
