@@ -18,7 +18,6 @@ class Ranks {
     this.resetDailyRanking = this.resetDailyRanking.bind(this);
 
     this.ranks = {};
-    this.updateRanking();
     setInterval(this.updateRanking, 5 * MINUTE);
     DailyCron.hook(this.resetDailyRanking);
   }
