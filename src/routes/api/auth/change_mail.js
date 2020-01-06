@@ -55,7 +55,7 @@ export default async (req: Request, res: Response) => {
     mailVerified: false,
   });
 
-  mailProvider.send_verify_mail(email, user.regUser.name);
+  mailProvider.sendVerifyMail(email, user.regUser.name);
 
   res.json({
     success: true,

@@ -54,7 +54,7 @@ router.post('/', async (req: Request, res: Response, next) => {
     return;
   }
 
-  const email = mailProvider.check_code(code);
+  const email = mailProvider.checkCode(code);
   if (!email) {
     const html = getPasswordResetHtml(null, null, "This password-reset link isn't valid anymore :(");
     res.status(401).send(html);
@@ -94,14 +94,14 @@ router.get('/', async (req: Request, res: Response, next) => {
     return;
   }
 
-  const email = mailProvider.check_code(token);
+  const email = mailProvider.checkCode(token);
   if (!email) {
     const html = getPasswordResetHtml(null, null, 'This passwort reset link is wrong or already expired, please request a new one (Note: you can use those links just once)');
     res.status(401).send(html);
     return;
   }
 
-  const code = mailProvider.set_code(email);
+  const code = mailProvider.setCode(email);
   const html = getPasswordResetHtml(email, code);
   res.status(200).send(html);
 });
