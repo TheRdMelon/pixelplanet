@@ -16,6 +16,7 @@ import {
   toggleCompactPalette,
   toggleChatNotify,
   togglePotatoMode,
+  toggleLightGrid,
 } from '../actions';
 
 import type { State } from '../reducers';
@@ -92,6 +93,7 @@ function SettingsModal({
   isGridShown,
   isPixelNotifyShown,
   isPotato,
+  isLightGrid,
   onMute,
   autoZoomIn,
   compactPalette,
@@ -101,6 +103,7 @@ function SettingsModal({
   onToggleCompactPalette,
   onToggleChatNotify,
   onTogglePotatoMode,
+  onToggleLightGrid,
   chatNotify,
 }) {
   return (
@@ -150,6 +153,12 @@ function SettingsModal({
         value={isPotato}
         onToggle={onTogglePotatoMode}
       />
+      <SettingsItem
+        title="lightGrid"
+        description="Show Grid in white instead of black."
+        value={isLightGrid}
+        onToggle={onToggleLightGrid}
+      />
     </Modal>
   );
 }
@@ -157,13 +166,25 @@ function SettingsModal({
 function mapStateToProps(state: State) {
   const { mute, chatNotify } = state.audio;
   const {
-    showGrid, showPixelNotify, autoZoomIn, compactPalette, isPotato,
+    showGrid,
+    showPixelNotify,
+    autoZoomIn,
+    compactPalette,
+    isPotato,
+    isLightGrid,
   } = state.gui;
   const isMuted = mute;
   const isGridShown = showGrid;
   const isPixelNotifyShown = showPixelNotify;
   return {
-    isMuted, isGridShown, isPixelNotifyShown, autoZoomIn, compactPalette, chatNotify, isPotato,
+    isMuted,
+    isGridShown,
+    isPixelNotifyShown,
+    autoZoomIn,
+    compactPalette,
+    chatNotify,
+    isPotato,
+    isLightGrid,
   };
 }
 
@@ -189,6 +210,9 @@ function mapDispatchToProps(dispatch) {
     },
     onTogglePotatoMode() {
       dispatch(togglePotatoMode());
+    },
+    onToggleLightGrid() {
+      dispatch(toggleLightGrid());
     },
   };
 }

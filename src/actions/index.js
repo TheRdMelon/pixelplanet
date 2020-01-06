@@ -66,6 +66,12 @@ export function togglePotatoMode(): Action {
   };
 }
 
+export function toggleLightGrid(): Action {
+  return {
+    type: 'TOGGLE_LIGHT_GRID',
+  };
+}
+
 export function toggleOpenPalette(): Action {
   return {
     type: 'TOGGLE_OPEN_PALETTE',
@@ -244,7 +250,7 @@ export function requestPlacePixel(
 
       if (response.status === 422) {
         window.pixel = { canvasId, coordinates, color };
-        grecaptcha.execute();
+        window.grecaptcha.execute();
         return;
       }
 
@@ -255,8 +261,6 @@ export function requestPlacePixel(
         icon: 'error',
         confirmButtonText: 'OK',
       });
-    } catch (e) {
-      throw e;
     } finally {
       dispatch(setPlaceAllowed(true));
     }

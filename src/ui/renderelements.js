@@ -77,6 +77,7 @@ export function renderGrid(
   state: State,
   $viewport: HTMLCanvasElement,
   scale: number,
+  isLightGrid: boolean,
 ) {
   const { width, height } = $viewport;
 
@@ -84,7 +85,7 @@ export function renderGrid(
   if (!viewportCtx) return;
 
   viewportCtx.globalAlpha = 0.5;
-  viewportCtx.fillStyle = '#222222';
+  viewportCtx.fillStyle = (isLightGrid) ? '#222222' : '#DDDDDD';
 
   let [xoff, yoff] = screenToWorld(state, $viewport, [0, 0]);
   let [x, y] = worldToScreen(state, $viewport, [xoff, yoff]);

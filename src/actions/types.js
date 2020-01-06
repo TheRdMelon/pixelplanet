@@ -16,6 +16,7 @@ export type Action =
   | { type: 'TOGGLE_COMPACT_PALETTE' }
   | { type: 'TOGGLE_CHAT_NOTIFY' }
   | { type: 'TOGGLE_POTATO_MODE' }
+  | { type: 'TOGGLE_LIGHT_GRID' }
   | { type: 'TOGGLE_OPEN_MENU' }
   | { type: 'SET_NOTIFICATION', notification: string }
   | { type: 'UNSET_NOTIFICATION' }
@@ -54,6 +55,6 @@ export type Action =
   | { type: 'RELOAD_URL' }
   | { type: 'ON_VIEW_FINISH_CHANGE' };
 export type PromiseAction = Promise<Action>;
-export type ThunkAction = (dispatch: Dispatch, getState: GetState) => any;
 export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
 export type GetState = () => State;
+export type ThunkAction = (dispatch: Dispatch, getState: GetState) => any;

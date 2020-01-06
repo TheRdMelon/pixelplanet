@@ -241,6 +241,7 @@ class Renderer {
       showPixelNotify,
       hover,
       isPotato,
+      isLightGrid,
     } = state.gui;
     const {
       placeAllowed,
@@ -340,7 +341,7 @@ class Renderer {
         Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE / this.tiledScale - canvasCenter - y) * viewscale));
     }
 
-    if (showGrid && viewscale >= 8) renderGrid(state, viewport, viewscale);
+    if (showGrid && viewscale >= 8) renderGrid(state, viewport, viewscale, isLightGrid);
 
     if (doRenderPixelnotify) pixelNotify.render(state, viewport);
 
