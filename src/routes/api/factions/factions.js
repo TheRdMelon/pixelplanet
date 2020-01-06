@@ -46,7 +46,7 @@ const newFaction = async (req: Request, res: Response) => {
 
   const newfaction = await Faction.create({
     name,
-    leader: user.regUser.name,
+    leader: user.regUser.id,
     private: priv,
     icon,
   })
@@ -69,6 +69,7 @@ const deleteFaction = async (req: Request, res: Response) => {
     res.json({
       errors: ['You are not authenticated.'],
     });
+    return;
   }
 
   const toDelete = await Faction.findOne({
@@ -81,6 +82,7 @@ const deleteFaction = async (req: Request, res: Response) => {
       success: false,
       errors: ['You do not own this faction or it does not exist.'],
     });
+    return;
   }
 
   toDelete.destroy().then(() => {
@@ -93,9 +95,9 @@ const deleteFaction = async (req: Request, res: Response) => {
 };
 
 const factionIcon = async (req: Request, res: Response) => {
-  const { f: factionIdParam } = req.params;
+  const { faction: factionIdParam } = req.params;
 
-  const faction = await Faction.findByPK(factionIdParam);
+  const faction = await Faction.findByPk(factionIdParam);
 
   if (!faction) {
     res.status(400);
@@ -103,6 +105,7 @@ const factionIcon = async (req: Request, res: Response) => {
       success: false,
       errors: ['This faction does not exist.'],
     });
+    return;
   }
 
   res.json({
@@ -111,8 +114,49 @@ const factionIcon = async (req: Request, res: Response) => {
   });
 };
 
+const joinFaction = async (req: Request, res: Response) => {
+  const { faction: factionIdParam } = req.params;
+  const { user } = req;
+
+  if (!user) {
+    res.status(401);
+    res.json({
+      errors: ['You are not authenticated.'],
+    });
+    return;
+  }
+
+  const faction = await Faction.findByPk(factionIdParam);
+
+  if (!faction || faction.private) {
+    res.status(400);
+    res.json({
+      success: false,
+      errors: ['This faction does not exist.'],
+    });
+    return;
+  }
+
+  if (faction.has(user.regUser)) {
+    res.status(400);
+    res.json({
+      success: false,
+      errors: ['You are already a member of this faction.'],
+    });
+    return;
+  }
+
+  faction.addUser(user.regUser);
+  res.json({
+    success: true,
+    info: factions.factionInfo,
+  });
+};
+
 export default async (req: Request, res: Response) => {
   res.json(factions.factions);
 };
 
-export { newFaction, deleteFaction, factionIcon };
+export {
+  newFaction, deleteFaction, factionIcon, joinFaction,
+};

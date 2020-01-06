@@ -185,11 +185,30 @@ export default function user(
     case 'RECIEVE_FACTION_ICON': {
       const { icon, factionFor } = action;
 
-      const newState = { ...state };
-      const forFaction = newState.factions.find((f) => f.id === factionFor);
+      const forFaction = state.factions.findIndex((f) => f.id === factionFor);
 
-      newState.factions[forFaction].icon = icon;
-      return newState;
+      return {
+        ...state,
+        factions: state.factions.map((faction, index) => (index === forFaction ? { ...faction, icon } : faction)),
+      };
+    }
+
+    case 'RECIEVE_FACTION_INFO': {
+      const { info } = action;
+      const { id, userlist } = info;
+
+      return {
+        ...state,
+        factions: state.factions
+          .filter((faction) => faction.id !== id)
+          .splice(0),
+        userFactions: [
+          ...state.userFactions,
+          state.factions.find((faction) => faction.id === id),
+        ]
+          .map((faction) => (faction.id === id ? { ...faction, userlist } : faction))
+          .splice(0),
+      };
     }
 
     case 'SET_NAME': {

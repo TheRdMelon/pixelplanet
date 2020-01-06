@@ -263,8 +263,7 @@ export function tryPlacePixel(
   return (dispatch, getState) => {
     const state = getState();
     const { canvasId } = state.canvas;
-    const selectedColor =
-      color === undefined || color === null ? state.gui.selectedColor : color;
+    const selectedColor = color === undefined || color === null ? state.gui.selectedColor : color;
 
     if (getColorIndexOfPixel(getState(), coordinates) !== selectedColor) {
       dispatch(requestPlacePixel(canvasId, coordinates, selectedColor));
@@ -490,6 +489,13 @@ export function recieveFactionIcon(icon: string, factionFor: string): Action {
   };
 }
 
+export function recieveFactionInfo(info: Object): Action {
+  return {
+    type: 'RECIEVE_FACTION_INFO',
+    info,
+  };
+}
+
 export function setName(name: string): Action {
   ProtocolClient.setName(name);
   return {
@@ -547,14 +553,28 @@ export function fetchFactionIcon(id): PromiseAction {
       credentials: 'include',
     });
     if (response.ok) {
-      const json = await response.json();
-      const { success, icon } = json;
+      const { success, icon } = await response.json();
 
       if (success) {
         dispatch(recieveFactionIcon(icon, id));
       }
     }
   };
+}
+
+export function fetchFactionInfo(id): PromiseAction {
+  return async (dispatch) => {
+    const response = await fetch(`/api/factions/${id}`, {
+      credentials: 'include',
+    });
+    if (response.ok) {
+      const { success, faction } = await response.json();
+
+      if (success) {
+        dispatch(recieveFactionInfo(faction));
+      }
+    }
+  }
 }
 
 export function fetchMe(): PromiseAction {

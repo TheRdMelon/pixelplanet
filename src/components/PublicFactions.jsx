@@ -10,33 +10,61 @@ import 'intersection-observer';
 import { withIsVisible } from 'react-is-visible';
 
 import type { State } from '../reducers';
-import { fetchFactionIcon } from '../actions';
+import { fetchFactionIcon, fetchFactionInfo } from '../actions';
+import { parseAPIresponse } from '../utils/validation';
 
 const iconStyle = {
   width: '32px',
+  maxHeight: '32px',
   display: 'block',
   margin: 'auto',
 };
 
-const FactionRow = ({ isVisible, faction, fetch_icon }) => {
+async function joinFaction(id) {
+  const response = await fetch(`./api/factions/join/${id}`, {
+    method: 'POST',
+  });
+
+  return parseAPIresponse(response);
+}
+
+const FactionRow = ({
+  isVisible,
+  dispatch,
+  faction,
+  fetch_icon: fetchIcon,
+}) => {
   if (isVisible && !faction.icon) {
-    fetch_icon(faction.id);
+    fetchIcon(faction.id);
   }
 
   return (
-    <tr>
+    <tr style={{ height: '32px' }}>
       <td>
         <img
           style={iconStyle}
           width={32}
-          src={`data:image/png;base64,${faction.icon}`}
+          src={
+            faction.icon
+              ? `data:image/png;base64,${faction.icon}`
+              : './loading0.png'
+          }
           alt=""
         />
       </td>
       <td>{faction.name}</td>
       <td>{faction.leader}</td>
       <td>
-        <a>Join</a>
+        <a
+          href={`./api/factions/join/${faction.id}`}
+          onClick={(e) => {
+            e.preventDefault();
+            joinFaction(faction.id);
+            dispatch(fetchFactionInfo(faction.id));
+          }}
+        >
+          Join
+        </a>
       </td>
     </tr>
   );
@@ -44,7 +72,7 @@ const FactionRow = ({ isVisible, faction, fetch_icon }) => {
 
 const VisibleFactionRow = withIsVisible(FactionRow);
 
-const PublicFactions = ({ factions, fetch_icon }) => (
+const PublicFactions = ({ factions, fetch_icon: fetchIcon }) => (
   <div style={{ overflowY: 'auto' }}>
     <table>
       <tr>
@@ -54,7 +82,7 @@ const PublicFactions = ({ factions, fetch_icon }) => (
         <th> </th>
       </tr>
       {factions.map((faction) => (
-        <VisibleFactionRow faction={faction} fetch_icon={fetch_icon} />
+        <VisibleFactionRow faction={faction} fetch_icon={fetchIcon} />
       ))}
     </table>
   </div>

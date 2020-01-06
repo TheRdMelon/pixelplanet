@@ -63,6 +63,7 @@ export type Action =
   | { type: 'RECEIVE_STATS', totalRanking: Object, totalDailyRanking: Object }
   | { type: 'RECIEVE_FACTIONS', factions: Array }
   | { type: 'RECIEVE_FACTION_ICON', icon: string, factionFor: string }
+  | { type: 'RECIEVE_FACTION_INFO', info: Object }
   | { type: 'SET_NAME', name: string }
   | { type: 'SET_MINECRAFT_NAME', minecraftname: string }
   | { type: 'SET_MAILREG', mailreg: boolean }
