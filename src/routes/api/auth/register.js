@@ -70,7 +70,7 @@ export default async (req: Request, res: Response) => {
       });
       return;
     }
-    mailProvider.send_verify_mail(email, name);
+    mailProvider.sendVerifyMail(email, name);
     res.status(200);
     res.json({
       success: true,

@@ -28,7 +28,7 @@ export default async (req: Request, res: Response) => {
     });
     return;
   }
-  const error = await mailProvider.send_passd_reset_mail(email, ip);
+  const error = await mailProvider.sendPasswdResetMail(email, ip);
   if (error) {
     res.status(400);
     res.json({

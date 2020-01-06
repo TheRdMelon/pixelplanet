@@ -3,50 +3,66 @@
  * @flow
  */
 
-// must use require for arguments
 import Sequelize from 'sequelize';
-import logger from './logger';
+import nodemailer from 'nodemailer';
 
+import logger from './logger';
 import { HOUR, MINUTE } from './constants';
 import { HOSTURL } from './config';
 import { DailyCron, HourlyCron } from '../utils/cron';
 
 import RegUser from '../data/models/RegUser';
 
-const sendmail = require('sendmail')({ silent: true });
+
+/*
+ * define mail transport
+ * using unix command sendmail
+ */
+const transporter = nodemailer.createTransport({
+  sendmail: true,
+  newline: 'unix',
+  path: '/usr/sbin/sendmail',
+});
 
 
 // TODO make code expire
 class MailProvider {
-  verify_codes: Object;
+  verifyCodes: Object;
 
   constructor() {
-    this.clear_codes = this.clear_codes.bind(this);
+    this.clearCodes = this.clearCodes.bind(this);
 
-    this.verify_codes = {};
-    HourlyCron.hook(this.clear_codes);
-    DailyCron.hook(MailProvider.clean_users);
+    this.verifyCodes = {};
+    HourlyCron.hook(this.clearCodes);
+    DailyCron.hook(MailProvider.cleanUsers);
   }
 
-  send_verify_mail(to, name) {
-    const past_mail = this.verify_codes[to];
-    if (past_mail) {
-      const min_left = Math.floor(past_mail.timestamp / MINUTE + 15 - Date.now() / MINUTE);
-      if (min_left > 0) {
-        logger.info(`Verify mail for ${to} - already sent, ${min_left} minutes left`);
-        return `We already sent you a verification mail, you can request another one in ${min_left} minutes.`;
+  sendVerifyMail(to, name) {
+    const pastMail = this.verifyCodes[to];
+    if (pastMail) {
+      const minLeft = Math.floor(
+        pastMail.timestamp / MINUTE + 15 - Date.now() / MINUTE,
+      );
+      if (minLeft > 0) {
+        logger.info(
+          `Verify mail for ${to} - already sent, ${minLeft} minutes left`,
+        );
+        // eslint-disable-next-line max-len
+        return `We already sent you a verification mail, you can request another one in ${minLeft} minutes.`;
       }
     }
     logger.info(`Sending verification mail to ${to} / ${name}`);
-    const code = this.set_code(to);
-    const verify_url = `${HOSTURL}/api/auth/verify?token=${code}`;
-    sendmail({
+    const code = this.setCode(to);
+    const verifyUrl = `${HOSTURL}/api/auth/verify?token=${code}`;
+    transporter.sendMail({
       from: 'donotreply@pixelplanet.fun',
       to,
       replyTo: 'donotreply@pixelplanet.fun',
+      // eslint-disable-next-line max-len
       subject: `Welcome ${name} to PixelPlanet, plese verify your mail`,
-      text: `Hello,\nwelcome to our little community of pixelplacers, to use your account, you have to verify your mail. You can do that here:\n ${verify_url} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nThanks`,
-    }, (err, reply) => {
+      // eslint-disable-next-line max-len
+      text: `Hello,\nwelcome to our little community of pixelplacers, to use your account, you have to verify your mail. You can do that here:\n ${verifyUrl} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nThanks`,
+    }, (err) => {
       if (err) {
         logger.error(err & err.stack);
       }
@@ -54,17 +70,22 @@ class MailProvider {
     return null;
   }
 
-  async send_passd_reset_mail(to, ip) {
-    const past_mail = this.verify_codes[to];
-    if (past_mail) {
-      if (Date.now() < past_mail.timestamp + 15 * MINUTE) {
-        logger.info(`Password reset mail for ${to} requested by ${ip} - already sent`);
+  async sendPasswdResetMail(to, ip) {
+    const pastMail = this.verifyCodes[to];
+    if (pastMail) {
+      if (Date.now() < pastMail.timestamp + 15 * MINUTE) {
+        logger.info(
+          `Password reset mail for ${to} requested by ${ip} - already sent`,
+        );
+        // eslint-disable-next-line max-len
         return 'We already sent you a mail with instructions. Please wait before requesting another mail.';
       }
     }
     const reguser = await RegUser.findOne({ where: { email: to } });
-    if (past_mail || !reguser) {
-      logger.info(`Password reset mail for ${to} requested by ${ip} - mail not found`);
+    if (pastMail || !reguser) {
+      logger.info(
+        `Password reset mail for ${to} requested by ${ip} - mail not found`,
+      );
       return "Couldn't find this mail in our database";
     }
     /*
@@ -78,15 +99,17 @@ class MailProvider {
     */
 
     logger.info(`Sending Password reset mail to ${to}`);
-    const code = this.set_code(to);
-    const restore_url = `${HOSTURL}/reset_password?token=${code}`;
-    sendmail({
+    const code = this.setCode(to);
+    const restoreUrl = `${HOSTURL}/reset_password?token=${code}`;
+    transporter.sendMail({
       from: 'donotreply@pixelplanet.fun',
       to,
       replyTo: 'donotreply@pixelplanet.fun',
+      // eslint-disable-next-line max-len
       subject: 'You forgot your password for PixelPlanet? Get a new one here',
-      text: `Hello,\nYou requested to get a new password. You can change your password within the next 30min here:\n ${restore_url} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nIf you did not request this mail, please just ignore it (the ip that requested this mail was ${ip}).\nThanks`,
-    }, (err, reply) => {
+      // eslint-disable-next-line max-len
+      text: `Hello,\nYou requested to get a new password. You can change your password within the next 30min here:\n ${restoreUrl} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nIf you did not request this mail, please just ignore it (the ip that requested this mail was ${ip}).\nThanks`,
+    }, (err) => {
       if (err) {
         logger.error(err & err.stack);
       }
@@ -94,34 +117,39 @@ class MailProvider {
     return null;
   }
 
-  set_code(email) {
-    const code = MailProvider.create_code();
-    this.verify_codes[email] = {
+  setCode(email) {
+    const code = MailProvider.createCode();
+    this.verifyCodes[email] = {
       code,
       timestamp: Date.now(),
     };
     return code;
   }
 
-  async clear_codes() {
-    const cur_time = Date.now();
-    const to_delete = [];
-    for (const iteremail in this.verify_codes) {
-      if (cur_time > this.verify_codes[iteremail].timestamp + HOUR) {
-        to_delete.push(iteremail);
+  async clearCodes() {
+    const curTime = Date.now();
+    const toDelete = [];
+
+    const mails = Object.keys(this.verifyCodes);
+    for (let i = 0; i < mails.length; i += 1) {
+      const iteremail = mails[i];
+      if (curTime > this.verifyCodes[iteremail].timestamp + HOUR) {
+        toDelete.push(iteremail);
       }
     }
-    to_delete.forEach((email) => {
+    toDelete.forEach((email) => {
       logger.info(`Mail Code for ${email} expired`);
-      delete this.verify_codes[email];
+      delete this.verifyCodes[email];
     });
   }
 
   // Note: code gets deleted on check
-  check_code(code) {
+  checkCode(code) {
     let email = null;
-    for (const iteremail in this.verify_codes) {
-      if (this.verify_codes[iteremail].code == code) {
+    const mails = Object.keys(this.verifyCodes);
+    for (let i = 0; i < mails.length; i += 1) {
+      const iteremail = mails[i];
+      if (this.verifyCodes[iteremail].code === code) {
         email = iteremail;
         break;
       }
@@ -131,12 +159,12 @@ class MailProvider {
       return false;
     }
     logger.info(`Got Mail Code from ${email}.`);
-    delete this.verify_codes[email];
+    delete this.verifyCodes[email];
     return email;
   }
 
   async verify(code) {
-    const email = this.check_code(code);
+    const email = this.checkCode(code);
     if (!email) return false;
 
     const reguser = await RegUser.findOne({ where: { email } });
@@ -151,19 +179,22 @@ class MailProvider {
     return true;
   }
 
-  static create_code() {
-    const part1 = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    const part2 = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  static createCode() {
+    const part1 = Math.random().toString(36).substring(2, 15)
+      + Math.random().toString(36).substring(2, 15);
+    const part2 = Math.random().toString(36).substring(2, 15)
+      + Math.random().toString(36).substring(2, 15);
     return `${part1}-${part2}`;
   }
 
-  static clean_users() {
+  static cleanUsers() {
     // delete users that requier verification for more than 4 days
     /*
     RegUser.destroy({
       where: {
         verificationReqAt: {
-          [Sequelize.Op.lt]: Sequelize.literal('CURRENT_TIMESTAMP - INTERVAL 4 DAY'),
+          [Sequelize.Op.lt]:
+            Sequelize.literal('CURRENT_TIMESTAMP - INTERVAL 4 DAY'),
         },
         // NOTE: this means that minecraft verified accounts do not get deleted
         verified: 0,
