@@ -11,6 +11,7 @@ import PublicFactions from './PublicFactions';
 
 import Modal from './Modal';
 import CreateFactionForm from './CreateFactionForm';
+import { fetchFactions } from '../actions';
 
 const textStyle = {
   color: 'hsla(218, 5%, 47%, .6)',
@@ -24,16 +25,19 @@ const textStyle = {
   lineHeight: 'normal',
 };
 
-const JoinFaction = ({ joined_faction }) => (
-  <p style={{ textAlign: 'center' }}>
-    <p style={textStyle}>Join a faction to gain perks and work together.</p>
-    <br />
-    <h2>Join Private Faction:</h2>
-    <JoinFactionForm joined_faction={joined_faction} />
-    <h2>Or Join a Public Faction:</h2>
-    <PublicFactions joined_faction={joined_faction} />
-  </p>
-);
+const JoinFaction = ({ joined_faction, fetch_factions }) => {
+  fetch_factions();
+  return (
+    <p style={{ textAlign: 'center' }}>
+      <p style={textStyle}>Join a faction to gain perks and work together.</p>
+      <br />
+      <h2>Join Private Faction:</h2>
+      <JoinFactionForm joined_faction={joined_faction} />
+      <h2>Or Join a Public Faction:</h2>
+      <PublicFactions joined_faction={joined_faction} />
+    </p>
+  );
+};
 
 const CreateFaction = ({ created_faction }) => (
   <p style={{ textAlign: 'center' }}>
@@ -44,7 +48,7 @@ const CreateFaction = ({ created_faction }) => (
   </p>
 );
 
-const FactionModal = ({ joined_faction, created_faction }) => (
+const FactionModal = ({ joined_faction, created_faction, fetch_factions }) => (
   <Modal title="Faction Area">
     <p style={{ textAlign: 'center' }}>
       <Tabs>
@@ -52,7 +56,10 @@ const FactionModal = ({ joined_faction, created_faction }) => (
         <div label="Templates">{/* <Templates /> */}</div>
         <div label="Admin">{/* <Admin /> */}</div>
         <div label="Join">
-          <JoinFaction joined_faction={joined_faction} />
+          <JoinFaction
+            joined_faction={joined_faction}
+            fetch_factions={fetch_factions}
+          />
         </div>
         <div label="Create">
           <CreateFaction created_faction={created_faction} />
@@ -75,6 +82,9 @@ function mapDispatchToProps(dispatch) {
     },
     created_faction(factionInfo) {
       dispatch(createdFaction(factionInfo));
+    },
+    fetch_factions() {
+      dispatch(fetchFactions());
     },
   };
 }

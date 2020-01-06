@@ -36,8 +36,9 @@ const getIconBase64 = (file) => new Promise((resolve, reject) => {
         canvas.height = canvas.width * (img.height / img.width);
       }
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      resolve(canvas.toDataURL('image/png'));
+      resolve(
+        canvas.toDataURL('image/png').replace('data:image/png;base64,', ''),
+      );
     };
 
     img.src = e.target.result;
@@ -87,9 +88,7 @@ class CreateFactionForm extends React.Component {
 
   async handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { errors } = this.state;
-    console.log(e.target.files);
     const result = await getIconBase64(e.target.files[0]).catch((e1) => e1);
-    console.log(result);
     if (result instanceof Error) {
       errors.push('Error loading icon file.');
     } else {
@@ -148,7 +147,9 @@ class CreateFactionForm extends React.Component {
           <input
             id="privateCheckbox"
             value={priv}
-            onChange={(e) => this.setState({ private: e.currentTarget.checked })}
+            onChange={
+              (e) => this.setState({ private: e.currentTarget.checked })
+            }
             type="checkbox"
           />
         </label>

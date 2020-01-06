@@ -16,7 +16,7 @@ class Factions {
 
   async updateFactions() {
     const dbFactions = await Faction.findAll({
-      attributes: ['id', 'name', 'leader', 'icon'],
+      attributes: ['id', 'name', 'leader'],
       where: { private: false },
       order: ['name'],
       raw: true,

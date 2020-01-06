@@ -10,6 +10,8 @@ import type { State } from '../reducers';
 
 const iconStyle = {
   width: '32px',
+  display: 'block',
+  margin: 'auto',
 };
 
 const PublicFactions = ({ factions }) => (
@@ -28,7 +30,7 @@ const PublicFactions = ({ factions }) => (
               style={iconStyle}
               width={32}
               src={`data:image/png;base64,${faction.icon}`}
-              alt="Faction Icon"
+              alt=""
             />
           </td>
           <td>{faction.name}</td>
