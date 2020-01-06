@@ -3,20 +3,13 @@
 import swal from 'sweetalert2';
 import 'sweetalert2/src/sweetalert2.scss';
 
-import type {
-  Action,
-  ThunkAction,
-  PromiseAction,
-} from './types';
+import type { Action, ThunkAction, PromiseAction } from './types';
 import type { Cell } from '../core/Cell';
 import type { ColorIndex } from '../core/Palette';
 
 import ProtocolClient from '../socket/ProtocolClient';
 import { loadImage } from '../ui/loadImage';
-import {
-  getColorIndexOfPixel,
-} from '../core/utils';
-
+import { getColorIndexOfPixel } from '../core/utils';
 
 export function toggleChatBox(): Action {
   return {
@@ -250,7 +243,7 @@ export function requestPlacePixel(
 
       dispatch(pixelFailure());
       swal.fire({
-        title: (errorTitle || `Error ${response.status}`),
+        title: errorTitle || `Error ${response.status}`,
         text: errors[0].msg,
         icon: 'error',
         confirmButtonText: 'OK',
@@ -270,9 +263,8 @@ export function tryPlacePixel(
   return (dispatch, getState) => {
     const state = getState();
     const { canvasId } = state.canvas;
-    const selectedColor = (color === undefined || color === null)
-      ? state.gui.selectedColor
-      : color;
+    const selectedColor =
+      color === undefined || color === null ? state.gui.selectedColor : color;
 
     if (getColorIndexOfPixel(getState(), coordinates) !== selectedColor) {
       dispatch(requestPlacePixel(canvasId, coordinates, selectedColor));
@@ -330,7 +322,6 @@ export function moveEast(): ThunkAction {
   };
 }
 
-
 export function setScale(scale: number, zoompoint: Cell): Action {
   return {
     type: 'SET_SCALE',
@@ -362,10 +353,7 @@ function requestBigChunk(center: Cell): Action {
   };
 }
 
-function receiveBigChunk(
-  center: Cell,
-  arrayBuffer: ArrayBuffer,
-): Action {
+function receiveBigChunk(center: Cell, arrayBuffer: ArrayBuffer): Action {
   return {
     type: 'RECEIVE_BIG_CHUNK',
     center,
@@ -373,17 +361,13 @@ function receiveBigChunk(
   };
 }
 
-function receiveImageTile(
-  center: Cell,
-  tile: Image,
-): Action {
+function receiveImageTile(center: Cell, tile: Image): Action {
   return {
     type: 'RECEIVE_IMAGE_TILE',
     center,
     tile,
   };
 }
-
 
 function receiveBigChunkFailure(center: Cell, error: Error): Action {
   return {
@@ -431,16 +415,12 @@ export function fetchChunk(canvasId, center: Cell): PromiseAction {
   };
 }
 
-
-export function receiveCoolDown(
-  waitSeconds: number,
-): Action {
+export function receiveCoolDown(waitSeconds: number): Action {
   return {
     type: 'RECEIVE_COOLDOWN',
     waitSeconds,
   };
 }
-
 
 export function receivePixelUpdate(
   i: number,
@@ -457,9 +437,7 @@ export function receivePixelUpdate(
   };
 }
 
-export function receiveMe(
-  me: Object,
-): Action {
+export function receiveMe(me: Object): Action {
   const {
     name,
     messages,
@@ -470,27 +448,25 @@ export function receiveMe(
     dailyRanking,
     minecraftname,
     canvases,
-    factions
+    factions,
   } = me;
   ProtocolClient.setName(name);
   return {
     type: 'RECEIVE_ME',
-    name: (name) || null,
-    messages: (messages) || [],
-    mailreg: (mailreg) || false,
+    name: name || null,
+    messages: messages || [],
+    mailreg: mailreg || false,
     totalPixels,
     dailyTotalPixels,
     ranking,
     dailyRanking,
     minecraftname,
     canvases,
-    factions: (factions) || []
+    factions: factions || [],
   };
 }
 
-export function receiveStats(
-  rankings: Object,
-): Action {
+export function receiveStats(rankings: Object): Action {
   const { ranking: totalRanking, dailyRanking: totalDailyRanking } = rankings;
   return {
     type: 'RECEIVE_STATS',
@@ -499,18 +475,22 @@ export function receiveStats(
   };
 }
 
-export function recieveFactions(
-  factions: Array,
-): Action {
+export function recieveFactions(factions: Array): Action {
   return {
     type: 'RECIEVE_FACTIONS',
-    factions
+    factions,
   };
 }
 
-export function setName(
-  name: string,
-): Action {
+export function recieveFactionIcon(icon: string, factionFor: string): Action {
+  return {
+    type: 'RECIEVE_FACTION_ICON',
+    icon,
+    factionFor,
+  };
+}
+
+export function setName(name: string): Action {
   ProtocolClient.setName(name);
   return {
     type: 'SET_NAME',
@@ -518,27 +498,21 @@ export function setName(
   };
 }
 
-export function setMinecraftName(
-  minecraftname: string,
-): Action {
+export function setMinecraftName(minecraftname: string): Action {
   return {
     type: 'SET_MINECRAFT_NAME',
     minecraftname,
   };
 }
 
-export function setMailreg(
-  mailreg: boolean,
-): Action {
+export function setMailreg(mailreg: boolean): Action {
   return {
     type: 'SET_MAILREG',
     mailreg,
   };
 }
 
-export function remFromMessages(
-  message: string,
-): Action {
+export function remFromMessages(message: string): Action {
   return {
     type: 'REM_FROM_MESSAGES',
     message,
@@ -562,7 +536,23 @@ export function fetchFactions(): PromiseAction {
     if (response.ok) {
       const factions = await response.json();
 
-      dispatch(recieveFactions(factions))
+      dispatch(recieveFactions(factions));
+    }
+  };
+}
+
+export function fetchFactionIcon(id): PromiseAction {
+  return async (dispatch) => {
+    const response = await fetch(`api/factions/icon/${id}`, {
+      credentials: 'include',
+    });
+    if (response.ok) {
+      const json = await response.json();
+      const { success, icon } = json;
+
+      if (success) {
+        dispatch(recieveFactionIcon(icon, id));
+      }
     }
   };
 }
@@ -659,7 +649,9 @@ export function showHelpModal(): Action {
 }
 
 export function showChatModal(): Action {
-  if (window.innerWidth > 604) { return toggleChatBox(); }
+  if (window.innerWidth > 604) {
+    return toggleChatBox();
+  }
   return showModal('CHAT');
 }
 

@@ -4,9 +4,8 @@ import type { Cell } from '../core/Cell';
 import type { ColorIndex } from '../core/Palette';
 import type { State } from '../reducers';
 
-
 export type Action =
-    { type: 'LOGGED_OUT' }
+  | { type: 'LOGGED_OUT' }
   // my actions
   | { type: 'TOGGLE_GRID' }
   | { type: 'TOGGLE_PIXEL_NOTIFY' }
@@ -37,15 +36,33 @@ export type Action =
   | { type: 'RECEIVE_IMAGE_TILE', center: Cell, tile: Image }
   | { type: 'RECEIVE_BIG_CHUNK_FAILURE', center: Cell, error: Error }
   | { type: 'RECEIVE_COOLDOWN', waitSeconds: number }
-  | { type: 'RECEIVE_PIXEL_UPDATE', i: number, j: number, offset: number, color: ColorIndex }
+  | {
+      type: 'RECEIVE_PIXEL_UPDATE',
+      i: number,
+      j: number,
+      offset: number,
+      color: ColorIndex,
+    }
   | { type: 'RECEIVE_ONLINE', online: number }
   | { type: 'RECEIVE_CHAT_MESSAGE', name: string, text: string }
   | { type: 'RECEIVE_CHAT_HISTORY', data: Array }
-  | { type: 'RECEIVE_ME', name: string, waitSeconds: number, messages: Array,
-      mailreg: boolean, totalPixels: number, dailyTotalPixels: number,
-      ranking: number, dailyRanking: number, minecraftname: string, canvases: Object, factions: Array}
+  | {
+      type: 'RECEIVE_ME',
+      name: string,
+      waitSeconds: number,
+      messages: Array,
+      mailreg: boolean,
+      totalPixels: number,
+      dailyTotalPixels: number,
+      ranking: number,
+      dailyRanking: number,
+      minecraftname: string,
+      canvases: Object,
+      factions: Array,
+    }
   | { type: 'RECEIVE_STATS', totalRanking: Object, totalDailyRanking: Object }
   | { type: 'RECIEVE_FACTIONS', factions: Array }
+  | { type: 'RECIEVE_FACTION_ICON', icon: string, factionFor: string }
   | { type: 'SET_NAME', name: string }
   | { type: 'SET_MINECRAFT_NAME', minecraftname: string }
   | { type: 'SET_MAILREG', mailreg: boolean }
@@ -56,5 +73,7 @@ export type Action =
   | { type: 'ON_VIEW_FINISH_CHANGE' };
 export type PromiseAction = Promise<Action>;
 export type ThunkAction = (dispatch: Dispatch, getState: GetState) => any;
-export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
+export type Dispatch = (
+  action: Action | ThunkAction | PromiseAction | Array<Action>,
+) => any;
 export type GetState = () => State;

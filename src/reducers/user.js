@@ -182,6 +182,16 @@ export default function user(
       };
     }
 
+    case 'RECIEVE_FACTION_ICON': {
+      const { icon, factionFor } = action;
+
+      const newState = { ...state };
+      const forFaction = newState.factions.find((f) => f.id === factionFor);
+
+      newState.factions[forFaction].icon = icon;
+      return newState;
+    }
+
     case 'SET_NAME': {
       const { name } = action;
       return {
