@@ -26,7 +26,7 @@ export default async (req: Request, res: Response) => {
     return;
   }
 
-  const error = mailProvider.send_verify_mail(email, name);
+  const error = mailProvider.sendVerifyMail(email, name);
   if (error) {
     res.status(400);
     res.json({

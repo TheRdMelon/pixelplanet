@@ -41,10 +41,11 @@ npm run build
 
 All needed files to run it got created in `./build`
 
-#### Note:
-If you run into problems, make sure that you have rights to g++ (if not, run as root and then chown username:username -R . after build)
+Notes:
 
-If `npm install` fails with "unable to connect to github.com" set:
+- If you run into problems, make sure that you have rights to g++ (if not, run as root and then chown username:username -R . after build)
+
+- If `npm install` fails with "unable to connect to github.com" set:
 
 ```
 git config --global url.https://github.com/.insteadOf git://github.com/
@@ -54,7 +55,7 @@ git config --global url.https://github.com/.insteadOf git://github.com/
 ### Requirements
 - nodejs environment with [npm](https://www.npmjs.com/get-npm)
 - [pm2](https://github.com/Unitech/pm2) (`npm install -g pm2`) as process manager and for logging
-- [redis](https://redis.io/) as database for storgìng the canvas
+- [redis](https://redis.io/) as database for storìng the canvas
 - mysql or mariadb ([setup own user](https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql) and [create database](https://www.w3schools.com/SQl/sql_create_db.asp) for pixelplanet) for storing additional data like IP blacklist
 
 ### Configuration
@@ -108,7 +109,7 @@ Notes:
 | REDDIT_CLIENT_ID      | Media                    |
 | REDDIT_CLIENT_SECRET  | Accounts                 |
 
-Note:
+Notes:
 
 - The HTML for SocialMedia logins is in src/componets/UserAreaModal.js , delete stuff from there if you don't need it
 - The HTML for the Help Screen is in src/components/HelpModal.js
@@ -124,20 +125,28 @@ The default configuration values can be seen in `src/core/config.js` and for the
 
 1. Make sure that mysql and redis are running
 3. Start with 
+
 ```
 pm2 start ecosystem.yml
 ```
-Note: It might be neccessary to change the charset and collate of the sql colum names of table Users to support special character names, which can be done with the SQL command:
+
+Notes:
+
+- pixelplanet uses the unix command sendmail for sending verification and password reset mails. If you are on windows, this might not work.
+- It might be neccessary to change the charset and collate of the sql colum names of table Users to support special character names, which can be done with the SQL command:
 ```
 ALTER TABLE Users CONVERT TO CHARACTER SET utf8mb4 COLLATE 'utf8mb4_unicode_ci';
 ```
 
 ### Logging
 logs are in ~/pm2/log/, you can view them with
+
 ```
 pm2 log web 
 ```
+
 you can flush the logs with 
+
 ```
 pm2 log flush
 ```
