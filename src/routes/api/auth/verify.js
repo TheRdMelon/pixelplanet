@@ -15,6 +15,7 @@ export default async (req: Request, res: Response) => {
     const index = getHtml('Mail verification', 'You are now verified :)');
     res.status(200).send(index);
   } else {
+    // eslint-disable-next-line max-len
     const index = getHtml('Mail verification', 'Your mail verification code is invalid or already expired :(, please request a new one.');
     res.status(400).send(index);
   }

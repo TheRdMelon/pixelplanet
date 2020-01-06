@@ -1,5 +1,6 @@
 /*
  * request password change
+ * @flow
  */
 
 
@@ -9,7 +10,7 @@ import { RegUser } from '../../../data/models';
 import { validateName } from '../../../utils/validation';
 
 async function validate(oldname, name) {
-  if (oldname == name) return 'You already have that name.';
+  if (oldname === name) return 'You already have that name.';
 
   const nameerror = validateName(name);
   if (nameerror) return nameerror;

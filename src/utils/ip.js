@@ -25,6 +25,7 @@ export async function getIPFromRequest(req): ?string {
   const conip = (connection ? connection.remoteAddress : socket.remoteAddress);
 
   if (!headers['x-forwarded-for'] || !isTrustedProxy(conip)) {
+    // eslint-disable-next-line max-len
     logger.warn(`Connection not going through nginx and cloudflare! IP: ${conip}`, headers);
     return conip;
   }
@@ -43,6 +44,7 @@ export async function getIPFromRequest(req): ?string {
 
 export function getIPv6Subnet(ip: string): string {
   if (ip.includes(':')) {
+    // eslint-disable-next-line max-len
     const ipv6sub = `${ip.split(':').slice(0, 4).join(':')}:0000:0000:0000:0000`;
     // logger.warn("IPv6 subnet: ", ipv6sub);
     return ipv6sub;

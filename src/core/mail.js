@@ -202,6 +202,6 @@ class MailProvider {
   }
 }
 
-export const mailProvider = new MailProvider();
+const mailProvider = new MailProvider();
 
 export default mailProvider;
