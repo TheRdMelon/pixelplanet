@@ -1,5 +1,6 @@
 /*
  * request passowrd reset mail
+ * @flow
  */
 
 

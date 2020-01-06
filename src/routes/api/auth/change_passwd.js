@@ -1,5 +1,6 @@
 /*
  * request password change
+ * @flow
  */
 
 
@@ -8,18 +9,18 @@ import type { Request, Response } from 'express';
 import { validatePassword } from '../../../utils/validation';
 import { compareToHash } from '../../../utils/hash';
 
-function validate(new_password, password) {
+function validate(newPassword) {
   const errors = [];
 
-  const newpassworderror = validatePassword(new_password);
+  const newpassworderror = validatePassword(newPassword);
   if (newpassworderror) errors.push(newpassworderror);
 
   return errors;
 }
 
 export default async (req: Request, res: Response) => {
-  const { new_password, password } = req.body;
-  const errors = validate(new_password, password);
+  const { new_password: newPassword, password } = req.body;
+  const errors = validate(newPassword);
   if (errors.length > 0) {
     res.status(400);
     res.json({
@@ -37,8 +38,8 @@ export default async (req: Request, res: Response) => {
     return;
   }
 
-  const current_password = user.regUser.password;
-  if (current_password && !compareToHash(password, current_password)) {
+  const currentPassword = user.regUser.password;
+  if (currentPassword && !compareToHash(password, currentPassword)) {
     res.status(400);
     res.json({
       errors: ['Incorrect password!'],
@@ -46,7 +47,7 @@ export default async (req: Request, res: Response) => {
     return;
   }
 
-  await user.regUser.update({ password: new_password });
+  await user.regUser.update({ password: newPassword });
 
   res.json({
     success: true,

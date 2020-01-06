@@ -1,5 +1,6 @@
 /*
  * request resend of verification mail
+ * @flow
  */
 
 

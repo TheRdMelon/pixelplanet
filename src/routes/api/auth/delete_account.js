@@ -1,5 +1,6 @@
 /*
  * request password change
+ * @flow
  */
 
 
@@ -19,7 +20,7 @@ function validate(password) {
 }
 
 export default async (req: Request, res: Response) => {
-  const { new_password, password } = req.body;
+  const { password } = req.body;
   const errors = await validate(password);
   if (errors.length > 0) {
     res.status(400);
@@ -39,8 +40,8 @@ export default async (req: Request, res: Response) => {
   }
   const { id } = user;
 
-  const current_password = user.regUser.password;
-  if (!current_password || !compareToHash(password, current_password)) {
+  const currentPassword = user.regUser.password;
+  if (!currentPassword || !compareToHash(password, currentPassword)) {
     res.status(400);
     res.json({
       errors: ['Incorrect password!'],

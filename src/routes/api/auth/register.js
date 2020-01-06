@@ -10,7 +10,11 @@ import Sequelize from 'sequelize';
 import { RegUser } from '../../../data/models';
 import mailProvider from '../../../core/mail';
 import getMe from '../../../core/me';
-import { validateEMail, validateName, validatePassword } from '../../../utils/validation';
+import {
+  validateEMail,
+  validateName,
+  validatePassword,
+} from '../../../utils/validation';
 
 async function validate(email, name, password) {
   const errors = [];
@@ -56,8 +60,7 @@ export default async (req: Request, res: Response) => {
     return;
   }
 
-  const { noauthUser } = req;
-  const user = (noauthUser) || new User(id);
+  const user = req.noauthUser;
   user.id = newuser.id;
   user.regUser = newuser;
   const me = await getMe(user);
