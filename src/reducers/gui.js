@@ -14,6 +14,7 @@ export type GUIState = {
   autoZoomIn: boolean,
   notification: string,
   isPotato: boolean,
+  isLightGrid: boolean,
   compactPalette: boolean,
   paletteOpen: boolean,
   menuOpen: boolean,
@@ -28,6 +29,7 @@ const initialState: GUIState = {
   autoZoomIn: false,
   notification: null,
   isPotato: false,
+  isLightGrid: false,
   compactPalette: false,
   paletteOpen: true,
   menuOpen: false,
@@ -64,6 +66,13 @@ export default function gui(
       return {
         ...state,
         isPotato: !state.isPotato,
+      };
+    }
+
+    case 'TOGGLE_LIGHT_GRID': {
+      return {
+        ...state,
+        isLightGrid: !state.isLightGrid,
       };
     }
 
