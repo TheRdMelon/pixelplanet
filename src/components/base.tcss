@@ -303,6 +303,10 @@ kbd {
     padding: 0;
 }
 
+:global(.actionbuttons:hover) {
+  background-color: #d2d2d2cc;
+}
+
 :global(.palettebox) {
     text-align: center; 
     line-height: 0; 

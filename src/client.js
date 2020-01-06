@@ -257,9 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cnt++;
         const [z, i, j] = value.cell;
         if (!renderer.isChunkInView(z, i, j)) {
-          console.log(value.cell);
           if (value.isBasechunk) {
-            console.log(`deregister chunk ${i},${j}`);
             ProtocolClient.deRegisterChunk([i, j]);
           }
           chunks.delete(key);
