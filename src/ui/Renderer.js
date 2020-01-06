@@ -26,8 +26,8 @@ import { loadingTiles } from './loadImage';
 import pixelNotify from './PixelNotify';
 
 // dimensions of offscreen canvas NOT whole canvas
-const CANVAS_WIDTH = screen.width * 2;
-const CANVAS_HEIGHT = screen.height * 2;
+const CANVAS_WIDTH = window.screen.width * 2;
+const CANVAS_HEIGHT = window.screen.height * 2;
 const SCALE_THREASHOLD = Math.min(
   CANVAS_WIDTH / TILE_SIZE / 3,
   CANVAS_HEIGHT / TILE_SIZE / 3,

@@ -85,7 +85,7 @@ export function renderGrid(
   if (!viewportCtx) return;
 
   viewportCtx.globalAlpha = 0.5;
-  viewportCtx.fillStyle = (isLightGrid) ? '#222222' : '#DDDDDD';
+  viewportCtx.fillStyle = (isLightGrid) ? '#DDDDDD' : '#222222';
 
   let [xoff, yoff] = screenToWorld(state, $viewport, [0, 0]);
   let [x, y] = worldToScreen(state, $viewport, [xoff, yoff]);
