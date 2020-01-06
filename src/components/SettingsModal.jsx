@@ -154,7 +154,7 @@ function SettingsModal({
         onToggle={onTogglePotatoMode}
       />
       <SettingsItem
-        title="lightGrid"
+        title="Light Grid"
         description="Show Grid in white instead of black."
         value={isLightGrid}
         onToggle={onToggleLightGrid}
