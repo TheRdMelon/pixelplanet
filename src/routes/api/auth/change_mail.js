@@ -1,10 +1,10 @@
 /*
  * request password change
+ * @flow
  */
 
 
 import type { Request, Response } from 'express';
-import Sequelize from 'sequelize';
 import mailProvider from '../../../core/mail';
 
 import { validatePassword, validateEMail } from '../../../utils/validation';
@@ -41,8 +41,8 @@ export default async (req: Request, res: Response) => {
     return;
   }
 
-  const current_password = user.regUser.password;
-  if (!compareToHash(password, current_password)) {
+  const currentPassword = user.regUser.password;
+  if (!compareToHash(password, currentPassword)) {
     res.status(400);
     res.json({
       errors: ['Incorrect password!'],

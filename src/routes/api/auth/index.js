@@ -4,18 +4,23 @@
 
 
 import express from 'express';
-import bodyParser from 'body-parser';
 
 import logger from '../../../core/logger';
 
 import register from './register';
 import verify from './verify';
 import logout from './logout';
+// eslint-disable-next-line camelcase
 import resend_verify from './resend_verify';
+// eslint-disable-next-line camelcase
 import change_passwd from './change_passwd';
+// eslint-disable-next-line camelcase
 import delete_account from './delete_account';
+// eslint-disable-next-line camelcase
 import change_name from './change_name';
+// eslint-disable-next-line camelcase
 import change_mail from './change_mail';
+// eslint-disable-next-line camelcase
 import restore_password from './restore_password';
 import mclink from './mclink';
 
@@ -97,8 +102,8 @@ export default (passport) => {
       }
       logger.info(`User ${user.id} logged in with mail/password.`);
 
-      req.logIn(user, async (err) => {
-        if (err) { res.json({ success: false, errors: ['Failed to establish session. Please try again later :('] }); return; }
+      req.logIn(user, async (e) => {
+        if (e) { res.json({ success: false, errors: ['Failed to establish session. Please try again later :('] }); return; }
 
         user.ip = req.user.ip;
         const me = await getMe(user);
