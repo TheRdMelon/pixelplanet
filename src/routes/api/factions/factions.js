@@ -6,7 +6,7 @@
 import type { Request, Response } from 'express';
 
 import factions from '../../../core/factions';
-import { Faction } from '../../../data/models';
+import { Faction, User } from '../../../data/models';
 
 const newFaction = async (req: Request, res: Response) => {
   const { name, icon, private: priv } = req.body;
@@ -20,18 +20,30 @@ const newFaction = async (req: Request, res: Response) => {
     return;
   }
 
-  const errors = [];
-
-  const existingFaction = await Faction.findOne({ where: { name } });
-  const userFaction = await Faction.findOne({
-    where: { leader: user.regUser.id },
+  const existingFaction = await Faction.findOne({
+    where: {
+      name,
+      private: false,
+    },
   });
 
-  if (userFaction) {
-    errors.push('You already lead a faction.');
+  const userFaction = await Faction.findOne({
+    where: {
+      leader: user.regUser.id,
+      private: priv,
+    },
+  });
+
+  // Validation
+  const errors = [];
+  const ownCheck = !userFaction;
+  const existCheck = !(existingFaction && !existingFaction.private && !priv);
+
+  if (!ownCheck) {
+    errors.push(`You already lead a ${priv ? 'private' : 'public'} faction.`);
   }
 
-  if (existingFaction && !existingFaction.private && !priv) {
+  if (!existCheck) {
     errors.push('A public faction already exists with that name.');
   }
 
@@ -49,13 +61,16 @@ const newFaction = async (req: Request, res: Response) => {
     leader: user.regUser.id,
     private: priv,
     icon,
-  }).then((faction) => {
-    faction.addUser(user.regUser).then(() => {
-      factions.update();
-    });
   });
 
-  res.json({ success: true, faction: newfaction });
+  await newFaction.addUser(user.regUser);
+  await factions.update();
+
+  res.json({
+    success: true,
+    faction: newfaction,
+    info: factions.factionInfo.find((faction) => faction.id === newFaction.id),
+  });
 };
 
 const deleteFaction = async (req: Request, res: Response) => {
@@ -72,18 +87,25 @@ const deleteFaction = async (req: Request, res: Response) => {
 
   const toDelete = await Faction.findByPk(factionIdParam);
 
-  if (!toDelete || toDelete.leader !== user.regUser.id) {
+  // Validation
+  const errors = [];
+  const validationCheck = !(!toDelete || toDelete.leader !== user.regUser.id);
+
+  if (!validationCheck) {
+    errors.push('You do not own this faction or it does not exist.');
+  }
+
+  if (errors.length > 0) {
     res.status(400);
     res.json({
       success: false,
-      errors: ['You do not own this faction or it does not exist.'],
+      errors,
     });
     return;
   }
 
-  toDelete.destroy().then(() => {
-    factions.update();
-  });
+  await toDelete.destroy();
+  await factions.update();
 
   res.json({
     success: true,
@@ -104,6 +126,56 @@ const transferFaction = async (req: Request, res: Response) => {
   }
 
   const toTransfer = await Faction.findByPk(factionIdParam);
+  const toUser = await User.findOne({ where: { name: to } });
+
+  // Validation
+  const errors = [];
+  const factionCheck = !(!toTransfer || toTransfer.leader !== user.regUser.id);
+  const userCheck = !!toUser;
+
+  if (!factionCheck) {
+    errors.push('You do not own this faction or it does not exist.');
+  }
+
+  if (!userCheck) {
+    errors.push('Target user does not exist.');
+  }
+
+  if (factionCheck && userCheck) {
+    if (
+      await Faction.findOne({
+        where: {
+          leader: toUser.id,
+          private: toTransfer.private,
+        },
+      })
+    ) {
+      errors.push(
+        `Target user already owns a ${
+          toTransfer.private ? 'private' : 'public'
+        } faction.`,
+      );
+    }
+  }
+
+  if (errors.length > 0) {
+    res.status(400);
+    res.json({
+      success: false,
+      errors,
+    });
+    return;
+  }
+
+  await toTransfer.update({
+    leader: toUser.id,
+  });
+  await factions.update();
+
+  res.json({
+    success: true,
+    faction: factions.factionInfo.find((faction) => faction === factionIdParam),
+  });
 };
 
 const factionIcon = async (req: Request, res: Response) => {
@@ -111,11 +183,19 @@ const factionIcon = async (req: Request, res: Response) => {
 
   const faction = await Faction.findByPk(factionIdParam);
 
-  if (!faction) {
+  // Validation
+  const errors = [];
+  const existCheck = !!faction;
+
+  if (!existCheck) {
+    errors.push('This faction does not exist.');
+  }
+
+  if (errors.length > 0) {
     res.status(400);
     res.json({
       success: false,
-      errors: ['This faction does not exist.'],
+      errors,
     });
     return;
   }
@@ -140,33 +220,35 @@ const joinFaction = async (req: Request, res: Response) => {
 
   const faction = await Faction.findByPk(factionIdParam);
 
-  if (!faction || faction.private) {
+  // Validation
+  const errors = [];
+  const existCheck = !(!faction || faction.private);
+
+  if (!existCheck) {
+    errors.push('This faction does not exist.');
+  }
+
+  if (existCheck) {
+    if (await faction.hasUser(user.regUser)) {
+      errors.push('You are already a member of this faction.');
+    }
+  }
+
+  if (errors.length > 0) {
     res.status(400);
     res.json({
       success: false,
-      errors: ['This faction does not exist.'],
+      errors,
     });
     return;
   }
 
-  faction.hasUser(user.regUser).then((hasUser) => {
-    if (hasUser) {
-      res.status(400);
-      res.json({
-        success: false,
-        errors: ['You are already a member of this faction.'],
-      });
-      return;
-    }
+  await faction.addUser(user.regUser);
+  await factions.update();
 
-    faction.addUser(user.regUser).then(() => {
-      factions.update();
-    });
-
-    res.json({
-      success: true,
-      info: factions.factionInfo,
-    });
+  res.json({
+    success: true,
+    info: factions.factionInfo.find((f) => f.id === faction.id),
   });
 };
 
@@ -175,5 +257,5 @@ export default async (req: Request, res: Response) => {
 };
 
 export {
-  newFaction, deleteFaction, factionIcon, joinFaction,
+  newFaction, deleteFaction, factionIcon, joinFaction, transferFaction,
 };
