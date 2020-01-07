@@ -6,31 +6,15 @@
  */
 
 import DataType from 'sequelize';
-import nodeIp from 'ip';
-
 import Model from '../sequelize';
 
 
 const Blacklist = Model.define('Blacklist', {
 
-  numIp: {
-    type: DataType.INTEGER.UNSIGNED,
+  ip: {
+    type: DataType.CHAR(39),
     allowNull: false,
     primaryKey: true,
-  },
-
-}, {
-
-  getterMethods: {
-    ip(): string {
-      return nodeIp.fromLong(this.numIp);
-    },
-  },
-
-  setterMethods: {
-    ip(value: string): number {
-      this.setDataValue('numIp', nodeIp.toLong(value));
-    },
   },
 
 });

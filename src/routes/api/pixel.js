@@ -4,7 +4,6 @@
  */
 
 import type { Request, Response } from 'express';
-import nodeIp from 'ip';
 
 import draw from '../../core/draw';
 import { blacklistDetector, cheapDetector, strongDetector } from '../../core/isProxy';
@@ -83,9 +82,8 @@ async function checkHuman(req: Request, res: Response, next) {
 
   try {
     const { token } = req.body;
-    const numIp = nodeIp.toLong(ip);
 
-    const key = `human:${ip}:${ip}`;
+    const key = `human:${ip}`;
 
     const ttl: number = await redis.ttlAsync(key);
     if (ttl > 0) {

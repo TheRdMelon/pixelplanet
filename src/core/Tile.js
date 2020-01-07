@@ -12,7 +12,6 @@ import type { Palette } from './Palette';
 import logger from './logger';
 import { getMaxTiledZoom } from './utils';
 import { TILE_SIZE, TILE_ZOOM_LEVEL } from './constants';
-import RedisCanvas from '../data/models/RedisCanvas';
 
 /*
  * Deletes a subtile from a tile (paints it in color 0), if we wouldn't do it, it would be black
@@ -110,6 +109,7 @@ function tileFileName(canvasTileFolder: string, cell: Cell): string {
 
 /*
  * @param canvasSize dimension of the canvas (pixels width/height)
+ * @param redisCanvas Redis Canvas object
  * @param canvasId id of the canvas
  * @param canvasTileFolder root folder where to save tiles
  * @param palette Palette to use
@@ -117,6 +117,7 @@ function tileFileName(canvasTileFolder: string, cell: Cell): string {
  * @return true if successfully created tile, false if tile empty
  */
 export async function createZoomTileFromChunk(
+  redisCanvas: Object,
   canvasSize: number,
   canvasId: number,
   canvasTileFolder: string,
@@ -135,7 +136,7 @@ export async function createZoomTileFromChunk(
   let chunk = null;
   for (let dy = 0; dy < TILE_ZOOM_LEVEL; dy += 1) {
     for (let dx = 0; dx < TILE_ZOOM_LEVEL; dx += 1) {
-      chunk = await RedisCanvas.getChunk(xabs + dx, yabs + dy, canvasId);
+      chunk = await redisCanvas.getChunk(xabs + dx, yabs + dy, canvasId);
       if (!chunk) {
         na.push([dx, dy]);
         continue;
@@ -264,6 +265,7 @@ export async function createEmptyTile(
 
 /*
  * created 4096x4096 texture of default canvas
+ * @param redisCanvas Redis Canvas object
  * @param canvasId numberical Id of canvas
  * @param canvasSize size of canvas
  * @param canvasTileFolder root folder where to save texture
@@ -271,6 +273,7 @@ export async function createEmptyTile(
  *
  */
 export async function createTexture(
+  redisCanvas: Object,
   canvasId: number,
   canvasSize: numbr,
   canvasTileFolder,
@@ -300,7 +303,7 @@ export async function createTexture(
   } else {
     for (let dy = 0; dy < amount; dy += 1) {
       for (let dx = 0; dx < amount; dx += 1) {
-        chunk = await RedisCanvas.getChunk(dx, dy, canvasId);
+        chunk = await redisCanvas.getChunk(dx, dy, canvasId);
         if (!chunk) {
           na.push([dx, dy]);
           continue;
@@ -338,6 +341,7 @@ export async function createTexture(
 
 /*
  * Create all tiles
+ * @param redisCanvas Redis Canvas object
  * @param canvasSize dimension of the canvas (pixels width/height)
  * @param canvasId id of the canvas
  * @param canvasTileFolder root foler where to save tiles
@@ -345,6 +349,7 @@ export async function createTexture(
  * @param force overwrite existing tiles
  */
 export async function initializeTiles(
+  redisCanvas: Object,
   canvasSize: number,
   canvasId: number,
   canvasTileFolder: string,
@@ -373,6 +378,7 @@ export async function initializeTiles(
       const filename = `${canvasTileFolder}/${zoom}/${cx}/${cy}.png`;
       if (force || !fs.existsSync(filename)) {
         const ret = await createZoomTileFromChunk(
+          redisCanvas,
           canvasSize,
           canvasId,
           canvasTileFolder,
@@ -416,7 +422,13 @@ export async function initializeTiles(
     );
   }
   // create snapshot texture
-  await createTexture(canvasId, canvasSize, canvasTileFolder, palette);
+  await createTexture(
+    redisCanvas,
+    canvasId,
+    canvasSize,
+    canvasTileFolder,
+    palette,
+  );
   //--
   logger.info(
     `Tiling: Elapsed Time: ${Math.round((Date.now() - startTime) / 1000)} for canvas${canvasId}`,
