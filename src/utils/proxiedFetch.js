@@ -17,7 +17,7 @@ function randomProxyURL() {
   return rand;
 }
 
-export function fetch(url, options = {}) {
+function fetch(url, options = {}) {
   if (proxylist.length === 0) {
     return isoFetch(url, options);
   }

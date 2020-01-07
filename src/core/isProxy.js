@@ -2,10 +2,10 @@
  * @flow
  * */
 
-import IP from 'ip';
-import fetch from '../utils/proxiedFetch.js';
+import fetch from '../utils/proxiedFetch';
 
 import redis from '../data/redis';
+import { getIPv6Subnet } from '../utils/ip';
 import { Blacklist, Whitelist } from '../data/models';
 import logger from './logger';
 
@@ -108,11 +108,10 @@ async function getCombined(ip: string): Promise<boolean> {
  * @return true if blacklisted
  */
 async function isBlacklisted(ip: string): Promise<boolean> {
-  const numIp = IP.toLong(ip);
   const count = await Blacklist
     .count({
       where: {
-        numIp,
+        ip,
       },
     });
   return count !== 0;
@@ -124,11 +123,10 @@ async function isBlacklisted(ip: string): Promise<boolean> {
  * @return true if whitelisted
  */
 async function isWhitelisted(ip: string): Promise<boolean> {
-  const numIp = IP.toLong(ip);
   const count = await Whitelist
     .count({
       where: {
-        numIp,
+        ip,
       },
     });
   return count !== 0;
@@ -137,7 +135,7 @@ async function isWhitelisted(ip: string): Promise<boolean> {
 /*
  * dummy function to include if you don't want any proxycheck
  */
-async function dummy(ip: string): Promise<boolean> {
+async function dummy(): Promise<boolean> {
   return false;
 }
 
@@ -149,7 +147,8 @@ async function dummy(ip: string): Promise<boolean> {
  */
 async function withoutCache(f, ip) {
   if (!ip) return true;
-  return !(await isWhitelisted(ip)) && (await isBlacklisted(ip) || await f(ip));
+  const ipKey = getIPv6Subnet(ip);
+  return !(await isWhitelisted(ipKey)) && (await isBlacklisted(ipKey) || await f(ip));
 }
 
 /*
@@ -160,11 +159,12 @@ async function withoutCache(f, ip) {
  * @return true if proxy or blacklisted, false if not or whitelisted
  */
 let lock = 4;
-const checking = new Array();
+const checking = [];
 async function withCache(f, ip) {
   if (!ip) return true;
   // get from cache, if there
-  const key = `isprox:${ip}`;
+  const ipKey = getIPv6Subnet(ip);
+  const key = `isprox:${ipKey}`;
   const cache = await redis.getAsync(key);
   if (cache) {
     const str = cache.toString('utf8');
@@ -176,20 +176,20 @@ async function withCache(f, ip) {
   // else make asynchronous ipcheck and assume no proxy in the meantime
   // use lock to just check three at a time
   // do not check ip that currently gets checked
-  if (checking.indexOf(ip) == -1 && lock > 0) {
+  if (checking.indexOf(ipKey) == -1 && lock > 0) {
     lock -= 1;
-    checking.push(ip);
+    checking.push(ipKey);
     withoutCache(f, ip)
       .then((result) => {
         const value = result ? 'y' : 'n';
         redis.setAsync(key, value, 'EX', 3 * 24 * 3600); // cache for three days
-        const pos = checking.indexOf(ip);
+        const pos = checking.indexOf(ipKey);
         if (~pos) checking.splice(pos, 1);
         lock += 1;
       })
       .catch((error) => {
         logger.error('PROXYCHECK withCache %s', error.message || error);
-        const pos = checking.indexOf(ip);
+        const pos = checking.indexOf(ipKey);
         if (~pos) checking.splice(pos, 1);
         lock += 1;
       });

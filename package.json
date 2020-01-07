@@ -41,7 +41,6 @@
     "global": "^4.3.2",
     "hammerjs": "^2.0.8",
     "http-proxy-agent": "^3.0.0",
-    "ip": "^1.1.5",
     "ip-address": "^6.2.0",
     "isomorphic-fetch": "^2.2.1",
     "keycode": "^2.1.9",

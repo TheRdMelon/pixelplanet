@@ -4,7 +4,6 @@
  * @flow
  */
 
-import nodeIp from 'ip';
 import express from 'express';
 import expressLimiter from 'express-limiter';
 import type { Request, Response } from 'express';
@@ -12,7 +11,7 @@ import bodyParser from 'body-parser';
 import sharp from 'sharp';
 import multer from 'multer';
 
-import { getIPFromRequest } from '../utils/ip';
+import { getIPFromRequest, getIPv6Subnet } from '../utils/ip';
 import { getIdFromObject } from '../core/utils';
 import redis from '../data/redis';
 import session from '../core/session';
@@ -64,17 +63,20 @@ router.use(passport.session());
 router.use(async (req, res, next) => {
   const ip = await getIPFromRequest(req);
   if (!req.user) {
-    logger.info(`${ip} tried to access admintools without login`);
+    logger.info(`ADMINTOOLS: ${ip} tried to access admintools without login`);
     res.status(403).send('You are not logged in');
     return;
   }
   if (!req.user.isAdmin()) {
     logger.info(
-      `${ip} / ${req.user.id} tried to access admintools but isn't Admin`,
+      `ADMINTOOLS: ${ip}/${req.user.id} wrongfully tried to access admintools`,
     );
     res.status(403).send('You are not allowed to access this page');
     return;
   }
+  logger.info(
+    `ADMINTOOLS: ${req.user.id} / ${req.user.regUser.name} is using admintools`,
+  );
   next();
 });
 
@@ -86,31 +88,32 @@ router.use(async (req, res, next) => {
  * @return true if successful
  */
 async function executeAction(action: string, ip: string): boolean {
-  const numIp = nodeIp.toLong(ip);
-  const key = `isprox:${ip}`;
+  const ipKey = getIPv6Subnet(ip);
+  const key = `isprox:${ipKey}`;
 
+  logger.info(`ADMINTOOLS: ${action} ${ip}`);
   switch (action) {
     case 'ban':
       await Blacklist.findOrCreate({
-        where: { numIp },
+        where: { ip: ipKey },
       });
       await redis.setAsync(key, 'y', 'EX', 24 * 3600);
       break;
     case 'unban':
       await Blacklist.destroy({
-        where: { numIp },
+        where: { ip: ipKey },
       });
       await redis.del(key);
       break;
     case 'whitelist':
       await Whitelist.findOrCreate({
-        where: { numIp },
+        where: { ip: ipKey },
       });
       await redis.setAsync(key, 'n', 'EX', 24 * 3600);
       break;
     case 'unwhitelist':
       await Whitelist.destroy({
-        where: { numIp },
+        where: { ip: ipKey },
       });
       await redis.del(key);
       break;

@@ -4,7 +4,6 @@
  * @flow
  */
 
-import nodeIp from 'ip';
 import express from 'express';
 import expressLimiter from 'express-limiter';
 import bodyParser from 'body-parser';
