@@ -1,7 +1,6 @@
 /* @flow */
 
 import { getChunkOfPixel, getOffsetOfPixel } from '../../core/utils';
-import { registerChunkChange } from '../../core/tileserver';
 import { TILE_SIZE } from '../../core/constants';
 import canvases from '../../canvases.json';
 import logger from '../../core/logger';
@@ -19,7 +18,14 @@ const chunks: Set<string> = new Set();
 
 
 class RedisCanvas {
+  // callback that gets informed about chunk changes
+  static registerChunkChange = () => undefined;
+  static setChunkChangeCallback(cb) {
+    RedisCanvas.registerChunkChange = cb;
+  }
+
   static getChunk(i: number, j: number, canvasId: number): Promise<Buffer> {
+    // this key is also hardcoded into core/tilesBackup.js
     return redis.getAsync(`ch:${canvasId}:${i}:${j}`);
   }
 
@@ -31,7 +37,7 @@ class RedisCanvas {
     }
     const key = `ch:${canvasId}:${i}:${j}`;
     await redis.setAsync(key, Buffer.from(chunk.buffer));
-    registerChunkChange(canvasId, [i, j]);
+    RedisCanvas.registerChunkChange(canvasId, [i, j]);
     return true;
   }
 
@@ -63,7 +69,7 @@ class RedisCanvas {
 
     const args = [key, 'SET', UINT_SIZE, `#${offset}`, color];
     await redis.sendCommandAsync('bitfield', args);
-    registerChunkChange(canvasId, [i, j]);
+    RedisCanvas.registerChunkChange(canvasId, [i, j]);
   }
 
   static async getPixel(

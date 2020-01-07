@@ -30,33 +30,4 @@ async function copyChunks() {
   }
 }
 
-/*
- * Creating new basechunk if the sizes are the same, just the colors chaned
- * @param x x coordinates of chunk (in chunk coordinates, not pixel coordinates)
- * @param y y coordinates of chunk (in chunk coordinates, not pixel coordinates)
- */
-async function createBasechunk(x: number, y: number): Uint8Array {
-  const key = `chunk:${x}:${y}`;
-  const newChunk = new Uint8Array(TILE_SIZE * TILE_SIZE);
-
-  const smallchunk = await oldredis.getAsync(key);
-  if (!smallchunk) {
-    return
-  }
-
-  const oldChunk = new Uint8Array(smallchunk);
-  if (oldChunk.length != newChunk.length || oldChunk.length != TILE_SIZE * TILE_SIZE) {
-    console.log(`ERROR: Chunk length ${oldChunk.length} of chunk ${x},${y} not of correct size!`);
-  }
-
-  for (let px = 0; px < oldChunk.length; px += 1) {
-    newChunk[px] = colorConvert(oldChunk[px]);
-  }
-
-  const setNXArgs = [key, Buffer.from(newChunk.buffer).toString('binary')]
-  await newredis.sendCommandAsync('SETNX', setNXArgs);
-  console.log("Created Chunk ", key);
-}
-
-
 copyChunks();

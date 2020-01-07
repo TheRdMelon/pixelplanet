@@ -10,6 +10,7 @@ import type { Cell } from './Cell';
 import logger from './logger';
 import canvases from '../canvases.json';
 import Palette from './Palette';
+import RedisCanvas from '../data/models/RedisCanvas';
 
 import { TILE_FOLDER } from './config';
 import {
@@ -64,6 +65,7 @@ class CanvasUpdater {
 
       if (zoom === this.maxTiledZoom - 1) {
         await createZoomTileFromChunk(
+          RedisCanvas,
           this.canvas.size,
           this.id,
           this.canvasTileFolder,
@@ -79,7 +81,13 @@ class CanvasUpdater {
       }
 
       if (zoom === 0) {
-        createTexture(this.id, this.canvas.size, this.canvasTileFolder, this.palette);
+        createTexture(
+          RedisCanvas,
+          this.id,
+          this.canvas.size,
+          this.canvasTileFolder,
+          this.palette,
+        );
       } else {
         const [ucx, ucy] = [cx, cy].map((z) => Math.floor(z / 4));
         const upperTile = ucx + ucy * (TILE_ZOOM_LEVEL ** (zoom - 1));
@@ -103,7 +111,9 @@ class CanvasUpdater {
     const chunkOffset = cx + cy * this.firstZoomtileWidth;
     if (~queue.indexOf(chunkOffset)) return;
     queue.push(chunkOffset);
-    logger.info(`Tiling: Enqueued ${cx}, ${cy} / ${this.id} for basezoom reload`);
+    logger.info(
+      `Tiling: Enqueued ${cx}, ${cy} / ${this.id} for basezoom reload`,
+    );
   }
 
   /*
@@ -128,6 +138,7 @@ class CanvasUpdater {
         'Tiling: tiledir empty, will initialize it, this can take some time',
       );
       await initializeTiles(
+        RedisCanvas,
         this.canvas.size,
         this.id,
         this.canvasTileFolder,
@@ -154,6 +165,7 @@ class CanvasUpdater {
 export function registerChunkChange(canvasId: number, chunk: Cell) {
   return CanvasUpdaters[canvasId].registerChunkChange(chunk);
 }
+RedisCanvas.setChunkChangeCallback(registerChunkChange);
 
 export function registerPixelChange(canvasId: number, pixel: Cell) {
   return CanvasUpdaters[canvasId].registerPixelChange(pixel);
