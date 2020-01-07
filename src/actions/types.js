@@ -63,6 +63,7 @@ export type Action =
     }
   | { type: 'RECEIVE_STATS', totalRanking: Object, totalDailyRanking: Object }
   | { type: 'RECIEVE_FACTIONS', factions: Array }
+  | { type: 'LOADING_ICON', id: string }
   | { type: 'RECIEVE_FACTION_ICON', icon: string, factionFor: string }
   | { type: 'RECIEVE_FACTION_INFO', info: Object }
   | { type: 'SET_NAME', name: string }
@@ -74,6 +75,8 @@ export type Action =
   | { type: 'RELOAD_URL' }
   | { type: 'ON_VIEW_FINISH_CHANGE' };
 export type PromiseAction = Promise<Action>;
-export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
+export type Dispatch = (
+  action: Action | ThunkAction | PromiseAction | Array<Action>,
+) => any;
 export type GetState = () => State;
 export type ThunkAction = (dispatch: Dispatch, getState: GetState) => any;

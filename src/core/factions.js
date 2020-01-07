@@ -14,14 +14,20 @@ class Factions {
   constructor() {
     this.updateFactions = this.updateFactions.bind(this);
     this.updateFactionInfo = this.updateFactionInfo.bind(this);
+    this.update = this.update.bind(this);
 
     this.factions = [];
     this.factionInfo = [];
   }
 
+  async update() {
+    await this.updateFactions();
+    await this.updateFactionInfo();
+  }
+
   async updateFactions() {
     const dbFactions = await Faction.findAll({
-      attributes: ['id', 'name', [Sequelize.col('users.name'), 'leader']],
+      attributes: ['id', 'name', [Sequelize.col('Users.name'), 'leader']],
       include: [
         {
           model: RegUser,
@@ -30,7 +36,6 @@ class Factions {
       ],
       where: { private: false },
       order: ['name'],
-      raw: true,
     });
 
     this.factions = dbFactions;
@@ -38,7 +43,7 @@ class Factions {
 
   async updateFactionInfo() {
     const dbFactions = await Faction.findAll({
-      attributes: ['id', 'name', [Sequelize.col('users.name'), 'leader']],
+      attributes: ['id', 'name', [Sequelize.col('Users.name'), 'leader']],
       include: [
         {
           model: RegUser,

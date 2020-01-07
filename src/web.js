@@ -153,7 +153,7 @@ const promise = models.sync().catch((err) => logger.error(err.stack));
 promise.then(() => {
   server.listen(PORT, () => {
     rankings.updateRanking();
-    factions.updateFactions();
+    factions.update();
     const address = server.address();
     logger.info('info', `web is running at http://localhost:${address.port}/`);
   });

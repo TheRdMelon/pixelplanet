@@ -485,6 +485,13 @@ export function recieveFactions(factions: Array): Action {
   };
 }
 
+export function loadingIcon(id: string): Action {
+  return {
+    type: 'LOADING_ICON',
+    id,
+  };
+}
+
 export function recieveFactionIcon(icon: string, factionFor: string): Action {
   return {
     type: 'RECIEVE_FACTION_ICON',
@@ -553,6 +560,7 @@ export function fetchFactions(): PromiseAction {
 
 export function fetchFactionIcon(id): PromiseAction {
   return async (dispatch) => {
+    dispatch(loadingIcon(id));
     const response = await fetch(`api/factions/icon/${id}`, {
       credentials: 'include',
     });

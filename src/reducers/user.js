@@ -182,14 +182,21 @@ export default function user(
       };
     }
 
-    case 'RECIEVE_FACTION_ICON': {
-      const { icon, factionFor } = action;
-
-      const forFaction = state.factions.findIndex((f) => f.id === factionFor);
+    case 'LOADING_ICON': {
+      const { id } = action;
 
       return {
         ...state,
-        factions: state.factions.map((faction, index) => (index === forFaction ? { ...faction, icon } : faction)),
+        factions: state.factions.map((faction) => (faction.id === id ? { ...faction, icon: null } : faction)),
+      };
+    }
+
+    case 'RECIEVE_FACTION_ICON': {
+      const { icon, factionFor } = action;
+
+      return {
+        ...state,
+        factions: state.factions.map((faction) => (faction.id === factionFor ? { ...faction, icon } : faction)),
       };
     }
 

@@ -10,14 +10,16 @@ import factions, {
   deleteFaction,
   factionIcon,
   joinFaction,
+  transferFaction,
 } from './factions';
 
 const router = express.Router();
 
 router.get('/', factions);
 router.post('/create', newFaction);
-router.post('/delete', deleteFaction);
 router.get('/icon/:faction', factionIcon);
-router.post('/join/:faction', joinFaction);
+router.patch('/:faction', joinFaction);
+router.delete('/:faction', deleteFaction);
+router.put('/:faction', transferFaction);
 
 export default router;

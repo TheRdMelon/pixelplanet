@@ -10,7 +10,7 @@ import 'intersection-observer';
 import { withIsVisible } from 'react-is-visible';
 
 import type { State } from '../reducers';
-import { fetchFactionIcon, fetchFactionInfo } from '../actions';
+import { fetchFactionIcon, recieveFactionInfo } from '../actions';
 import { parseAPIresponse } from '../utils/validation';
 
 const iconStyle = {
@@ -34,7 +34,7 @@ const FactionRow = ({
   faction,
   fetch_icon: fetchIcon,
 }) => {
-  if (isVisible && !faction.icon) {
+  if (isVisible && faction.icon === undefined) {
     fetchIcon(faction.id);
   }
 
@@ -56,11 +56,11 @@ const FactionRow = ({
       <td>{faction.leader}</td>
       <td>
         <a
-          href={`./api/factions/join/${faction.id}`}
+          href="/"
           onClick={(e) => {
             e.preventDefault();
-            joinFaction(faction.id);
-            dispatch(fetchFactionInfo(faction.id));
+            const factionInfo = joinFaction(faction.id);
+            dispatch(recieveFactionInfo(factionInfo));
           }}
         >
           Join
@@ -72,7 +72,7 @@ const FactionRow = ({
 
 const VisibleFactionRow = withIsVisible(FactionRow);
 
-const PublicFactions = ({ factions, fetch_icon: fetchIcon }) => (
+const PublicFactions = ({ factions, fetch_icon: fetchIcon, dispatch }) => (
   <div style={{ overflowY: 'auto' }}>
     <table>
       <tr>
@@ -82,7 +82,11 @@ const PublicFactions = ({ factions, fetch_icon: fetchIcon }) => (
         <th> </th>
       </tr>
       {factions.map((faction) => (
-        <VisibleFactionRow faction={faction} fetch_icon={fetchIcon} />
+        <VisibleFactionRow
+          faction={faction}
+          fetch_icon={fetchIcon}
+          dispatch={dispatch}
+        />
       ))}
     </table>
   </div>
@@ -98,6 +102,7 @@ function mapDispatchToProps(dispatch) {
     fetch_icon(id) {
       dispatch(fetchFactionIcon(id));
     },
+    dispatch,
   };
 }
 
