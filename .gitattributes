@@ -205,3 +205,5 @@ Procfile          text
 # Executables
 *.exe             binary
 *.pyc             binary
+
+*.*               text      eol=lf
