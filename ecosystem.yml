@@ -1,15 +1,15 @@
 apps:
-  - script   : ./build/web.js
-    name     : 'web'
-    node_args: --nouse-idle-notification --expose-gc
+  - script: ./build/web.js
+    name: 'web'
+    node_args: --nouse-idle-notification --expose-gc --inspect
     env:
-      HOSTURL: "http://localhost"
-      ASSET_SERVER: "http://localhost"
+      HOSTURL: 'http://localhost'
+      ASSET_SERVER: 'http://localhost'
       PORT: 80
       REDIS_URL: 'redis://localhost:6379'
-      MYSQL_HOST: "localhost"
-      MYSQL_USER: "pixelplanet"
-      MYSQL_DATABASE: "pixelplanet"
+      MYSQL_HOST: 'localhost'
+      MYSQL_USER: 'pixelplanet'
+      MYSQL_DATABASE: 'pixelplanet'
       LOG_MYSQL: 1
-      MYSQL_PW: "sqlpassword"
-      SESSION_SECRET: "ayyylmao"
+      MYSQL_PW: 'sqlpassword'
+      SESSION_SECRET: 'ayyylmao'

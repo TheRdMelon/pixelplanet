@@ -202,7 +202,7 @@ export default function user(
 
     case 'RECIEVE_FACTION_INFO': {
       const { info } = action;
-      const { id, userlist } = info;
+      const { id, users } = info;
 
       return {
         ...state,
@@ -213,7 +213,7 @@ export default function user(
           ...state.userFactions,
           state.factions.find((faction) => faction.id === id),
         ]
-          .map((faction) => (faction.id === id ? { ...faction, userlist } : faction))
+          .map((faction) => (faction.id === id ? { ...faction, users } : faction))
           .splice(0),
       };
     }

@@ -11,7 +11,7 @@ import PublicFactions from './PublicFactions';
 
 import Modal from './Modal';
 import CreateFactionForm from './CreateFactionForm';
-import { fetchFactions } from '../actions';
+import { fetchFactions, recieveFactionInfo } from '../actions';
 
 const textStyle = {
   color: 'hsla(218, 5%, 47%, .6)',
@@ -25,30 +25,36 @@ const textStyle = {
   lineHeight: 'normal',
 };
 
-const JoinFaction = ({ joined_faction, fetch_factions }) => {
-  fetch_factions();
+const JoinFaction = ({
+  recieve_faction_info: recieveFactionInfoDisp,
+  fetch_factions: fetchFactionsDisp,
+}) => {
+  fetchFactionsDisp();
   return (
     <p style={{ textAlign: 'center' }}>
       <p style={textStyle}>Join a faction to gain perks and work together.</p>
       <br />
       <h2>Join Private Faction:</h2>
-      <JoinFactionForm joined_faction={joined_faction} />
+      <JoinFactionForm recieve_faction_info={recieveFactionInfoDisp} />
       <h2>Or Join a Public Faction:</h2>
-      <PublicFactions joined_faction={joined_faction} />
+      <PublicFactions />
     </p>
   );
 };
 
-const CreateFaction = ({ created_faction }) => (
+const CreateFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
   <p style={{ textAlign: 'center' }}>
     <p style={textStyle}>Create and lead your own faction.</p>
     <br />
     <h2>Create Faction:</h2>
-    <CreateFactionForm created_faction={created_faction} />
+    <CreateFactionForm recieve_faction_info={recieveFactionInfoDisp} />
   </p>
 );
 
-const FactionModal = ({ joined_faction, created_faction, fetch_factions }) => (
+const FactionModal = ({
+  recieve_faction_info: recieveFactionInfoDisp,
+  fetch_factions: fetchFactionsDisp,
+}) => (
   <Modal title="Faction Area">
     <p style={{ textAlign: 'center' }}>
       <Tabs>
@@ -57,12 +63,12 @@ const FactionModal = ({ joined_faction, created_faction, fetch_factions }) => (
         <div label="Admin">{/* <Admin /> */}</div>
         <div label="Join">
           <JoinFaction
-            joined_faction={joined_faction}
-            fetch_factions={fetch_factions}
+            recieve_faction_info={recieveFactionInfoDisp}
+            fetch_factions={fetchFactionsDisp}
           />
         </div>
         <div label="Create">
-          <CreateFaction created_faction={created_faction} />
+          <CreateFaction recieve_faction_info={recieveFactionInfoDisp} />
         </div>
       </Tabs>
       <p>
@@ -77,11 +83,8 @@ const FactionModal = ({ joined_faction, created_faction, fetch_factions }) => (
 
 function mapDispatchToProps(dispatch) {
   return {
-    joined_faction(factionInfo) {
-      dispatch(joinedFaction(factionInfo));
-    },
-    created_faction(factionInfo) {
-      dispatch(createdFaction(factionInfo));
+    recieve_faction_info(factionInfo) {
+      dispatch(recieveFactionInfo(factionInfo));
     },
     fetch_factions() {
       dispatch(fetchFactions());
@@ -89,8 +92,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-function mapStateToProps(state: State) {
-  return {};
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(FactionModal);
+export default connect(null, mapDispatchToProps)(FactionModal);

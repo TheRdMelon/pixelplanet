@@ -122,8 +122,8 @@ class CreateFactionForm extends React.Component {
       });
       return;
     }
-    const { created_faction } = this.props;
-    created_faction(factionInfo);
+    const { recieve_faction_info: recieveFactionInfo } = this.props;
+    recieveFactionInfo(factionInfo);
   }
 
   render() {
@@ -147,9 +147,7 @@ class CreateFactionForm extends React.Component {
           <input
             id="privateCheckbox"
             value={priv}
-            onChange={
-              (e) => this.setState({ private: e.currentTarget.checked })
-            }
+            onChange={(e) => this.setState({ private: e.currentTarget.checked })}
             type="checkbox"
           />
         </label>

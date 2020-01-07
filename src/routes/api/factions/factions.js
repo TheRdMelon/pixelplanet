@@ -56,20 +56,22 @@ const newFaction = async (req: Request, res: Response) => {
     return;
   }
 
-  const newfaction = await Faction.create({
+  const createdFaction = await Faction.create({
     name,
     leader: user.regUser.id,
     private: priv,
     icon,
   });
 
-  await newFaction.addUser(user.regUser);
+  await createdFaction.addUser(user.regUser);
   await factions.update();
 
   res.json({
     success: true,
-    faction: newfaction,
-    info: factions.factionInfo.find((faction) => faction.id === newFaction.id),
+    faction: createdFaction,
+    info: factions.factionInfo.find(
+      (faction) => faction.id === createdFaction.id,
+    ),
   });
 };
 

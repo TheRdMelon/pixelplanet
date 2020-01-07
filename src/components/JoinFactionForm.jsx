@@ -14,7 +14,7 @@ function validate(password) {
   return errors;
 }
 
-async function join_faction(password) {
+async function joinFaction(password) {
   const body = JSON.stringify({
     password,
   });
@@ -50,7 +50,9 @@ class JoinFactionForm extends React.Component {
   async handleJoin(e) {
     e.preventDefault();
 
+    const { recieve_faction_info: recieveFactionInfoDisp } = this.props;
     const { password, joining } = this.state;
+
     if (joining) return;
 
     const errors = validate(password);
@@ -59,7 +61,7 @@ class JoinFactionForm extends React.Component {
     if (errors.length > 0) return;
 
     this.setState({ joining: true });
-    const { errors: resperrors, factionInfo } = await join_faction(password);
+    const { errors: resperrors, factionInfo } = await joinFaction(password);
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -67,11 +69,11 @@ class JoinFactionForm extends React.Component {
       });
       return;
     }
-    this.props.joined_faction(factionInfo);
+    recieveFactionInfoDisp(factionInfo);
   }
 
   render() {
-    const { errors } = this.state;
+    const { password, joining, errors } = this.state;
     return (
       <form onSubmit={this.handleJoin}>
         {errors.map((error) => (
@@ -79,13 +81,13 @@ class JoinFactionForm extends React.Component {
         ))}
         <input
           style={inputStyles}
-          value={this.state.password}
+          value={password}
           onChange={(e) => this.setState({ password: e.target.value })}
           type="text"
           placeholder="Join Password"
         />
 
-        <button type="submit">{this.state.joining ? '...' : 'Join'}</button>
+        <button type="submit">{joining ? '...' : 'Join'}</button>
       </form>
     );
   }

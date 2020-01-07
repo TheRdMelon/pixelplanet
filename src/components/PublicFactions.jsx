@@ -21,8 +21,8 @@ const iconStyle = {
 };
 
 async function joinFaction(id) {
-  const response = await fetch(`./api/factions/join/${id}`, {
-    method: 'POST',
+  const response = await fetch(`./api/factions/${id}`, {
+    method: 'PATCH',
   });
 
   return parseAPIresponse(response);
@@ -30,7 +30,7 @@ async function joinFaction(id) {
 
 const FactionRow = ({
   isVisible,
-  dispatch,
+  recieve_faction_info: recieveFactionInfoDisp,
   faction,
   fetch_icon: fetchIcon,
 }) => {
@@ -60,7 +60,7 @@ const FactionRow = ({
           onClick={(e) => {
             e.preventDefault();
             const factionInfo = joinFaction(faction.id);
-            dispatch(recieveFactionInfo(factionInfo));
+            recieveFactionInfoDisp(factionInfo);
           }}
         >
           Join
@@ -72,7 +72,11 @@ const FactionRow = ({
 
 const VisibleFactionRow = withIsVisible(FactionRow);
 
-const PublicFactions = ({ factions, fetch_icon: fetchIcon, dispatch }) => (
+const PublicFactions = ({
+  factions,
+  fetch_icon: fetchIcon,
+  recieve_faction_info: recieveFactionInfoDisp,
+}) => (
   <div style={{ overflowY: 'auto' }}>
     <table>
       <tr>
@@ -85,7 +89,7 @@ const PublicFactions = ({ factions, fetch_icon: fetchIcon, dispatch }) => (
         <VisibleFactionRow
           faction={faction}
           fetch_icon={fetchIcon}
-          dispatch={dispatch}
+          recieve_faction_info={recieveFactionInfoDisp}
         />
       ))}
     </table>
@@ -102,7 +106,9 @@ function mapDispatchToProps(dispatch) {
     fetch_icon(id) {
       dispatch(fetchFactionIcon(id));
     },
-    dispatch,
+    recieve_faction_info(info) {
+      dispatch(recieveFactionInfo(info));
+    },
   };
 }
 

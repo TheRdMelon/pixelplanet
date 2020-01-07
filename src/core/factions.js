@@ -47,7 +47,6 @@ class Factions {
       include: [
         {
           model: RegUser,
-          attributes: [],
         },
       ],
     });
