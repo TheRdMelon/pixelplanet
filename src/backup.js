@@ -35,7 +35,7 @@ proc.on('exit', (code) => {
   if (code !== 0) {
     console.log(`renice failed with code ${code}`);
   }
-  console.log('Useing low cpu priority');
+  console.log('Using low cpu priority');
 });
 // -------------------
 
@@ -84,10 +84,10 @@ function runCmd(cmd: string) {
     console.log(`${cmd} done in ${time}ms`);
   });
   cmdproc.stdout.on('data', (data) => {
-    console.log(data);
+    console.log(`${cmd}: ${data}`);
   });
   cmdproc.stderr.on('data', (data) => {
-    console.log(data);
+    console.log(`${cmd} error: ${data}`);
   });
 }
 
@@ -123,12 +123,12 @@ async function dailyBackup() {
   console.log('Daily full backup done');
 }
 
-function incrementialBackup() {
+async function incrementialBackup() {
   const backupDir = getDateFolder();
   if (!fs.existsSync(backupDir)) {
     fs.mkdirSync(backupDir);
   }
-  incrementialBackupRedis(
+  await incrementialBackupRedis(
     canvasRedis,
     backupRedis,
     canvases,
@@ -154,5 +154,4 @@ async function trigger() {
 }
 
 console.log('Starting backup...');
-console.log(`${CANVAS_REDIS_URL} - ${BACKUP_REDIS_URL} - ${BACKUP_DIR} - ${INTERVAL} - ${CMD}`)
 trigger();
