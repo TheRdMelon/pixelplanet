@@ -18,7 +18,6 @@ import bluebird from 'bluebird';
 import process from 'process';
 import { spawn } from 'child_process';
 
-import { DailyCron } from './utils/cron';
 import {
   updateBackupRedis,
   createPngBackup,
@@ -43,15 +42,18 @@ proc.on('exit', (code) => {
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 
-const {
+const [
   CANVAS_REDIS_URL,
   BACKUP_REDIS_URL,
   BACKUP_DIR,
-} = process.env;
+  INTERVAL,
+] = process.argv.slice(2);
+
 if (!CANVAS_REDIS_URL || !BACKUP_REDIS_URL || !BACKUP_DIR) {
-  throw new Error(
-    'You did not set CANVAS_REDIS_URL, BACKUP_REDIS_URL or BACKUP_DIR',
+  console.error(
+    'Usage: node backup.js original_canvas backup_canvas backup_directory',
   );
+  process.exit(1);
 }
 
 const canvasRedis = redis
@@ -77,7 +79,7 @@ function getDateFolder() {
   return backupDir;
 }
 
-function dailyBackup() {
+async function dailyBackup() {
   const backupDir = getDateFolder();
   if (!fs.existsSync(backupDir)) {
     fs.mkdirSync(backupDir);
@@ -89,7 +91,7 @@ function dailyBackup() {
     }
     await updateBackupRedis(canvasRedis, backupRedis, canvases);
     await createPngBackup(backupRedis, canvases, backupDir);
-    console.log('Daily backup done');
+    console.log('Daily full backup done');
   });
 }
 
@@ -106,20 +108,22 @@ function incrementialBackup() {
   );
 }
 
-async function startCronJobs() {
+async function trigger() {
   if (!fs.existsSync(BACKUP_DIR)) {
-    throw new Error(`Backup directory ${BACKUP_DIR} does not exist!`);
+    console.error(`Backup directory ${BACKUP_DIR} does not exist!`);
+    process.exit(1);
   }
   const backupDir = getDateFolder();
   if (!fs.existsSync(backupDir)) {
     await dailyBackup();
+  } else {
+    await incrementialBackup();
   }
-
-  console.log(
-    'Creating one full PNG backup per day and incremential backups every hour.',
-  );
-  DailyCron.hook(dailyBackup);
-  setInterval(incrementialBackup, 15 * 60 * 1000);
+  if (!INTERVAL) {
+    process.exit(0);
+  }
+  setTimeout(trigger, INTERVAL * 60 * 1000);
 }
 
-startCronJobs();
+console.log('Starting backup...');
+trigger();
