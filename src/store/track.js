@@ -26,12 +26,12 @@ import type { Action } from '../actions/types';
 
 
 export default function track(action: Action): void {
-  if (typeof ga === 'undefined') return;
+  if (typeof window.ga === 'undefined') return;
 
   switch (action.type) {
     case 'PLACE_PIXEL': {
       const [x, y] = action.coordinates;
-      ga('send', {
+      window.ga('send', {
         hitType: 'event',
         eventCategory: 'Place',
         eventAction: action.color,

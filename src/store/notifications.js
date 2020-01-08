@@ -5,7 +5,7 @@
  */
 
 
-export default (store) => (next) => (action) => {
+export default () => (next) => (action) => {
   try {
     switch (action.type) {
       case 'PLACE_PIXEL': {

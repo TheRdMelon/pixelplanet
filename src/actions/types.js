@@ -8,6 +8,12 @@ import type { State } from '../reducers';
 export type Action =
     { type: 'LOGGED_OUT' }
   // my actions
+  | { type: 'ALERT',
+    title: string,
+    text: string,
+    icon: string,
+    confirmButtonText: string,
+  }
   | { type: 'TOGGLE_GRID' }
   | { type: 'TOGGLE_PIXEL_NOTIFY' }
   | { type: 'TOGGLE_AUTO_ZOOM_IN' }
@@ -38,13 +44,27 @@ export type Action =
   | { type: 'RECEIVE_IMAGE_TILE', center: Cell, tile: Image }
   | { type: 'RECEIVE_BIG_CHUNK_FAILURE', center: Cell, error: Error }
   | { type: 'RECEIVE_COOLDOWN', waitSeconds: number }
-  | { type: 'RECEIVE_PIXEL_UPDATE', i: number, j: number, offset: number, color: ColorIndex }
+  | { type: 'RECEIVE_PIXEL_UPDATE',
+    i: number,
+    j: number,
+    offset: number,
+    color: ColorIndex,
+  }
   | { type: 'RECEIVE_ONLINE', online: number }
   | { type: 'RECEIVE_CHAT_MESSAGE', name: string, text: string }
   | { type: 'RECEIVE_CHAT_HISTORY', data: Array }
-  | { type: 'RECEIVE_ME', name: string, waitSeconds: number, messages: Array,
-      mailreg: boolean, totalPixels: number, dailyTotalPixels: number,
-      ranking: number, dailyRanking: number, minecraftname: string, canvases: Object}
+  | { type: 'RECEIVE_ME',
+    name: string,
+    waitSeconds: number,
+    messages: Array,
+    mailreg: boolean,
+    totalPixels: number,
+    dailyTotalPixels: number,
+    ranking: number,
+    dailyRanking: number,
+    minecraftname: string,
+    canvases: Object
+  }
   | { type: 'RECEIVE_STATS', totalRanking: Object, totalDailyRanking: Object }
   | { type: 'SET_NAME', name: string }
   | { type: 'SET_MINECRAFT_NAME', minecraftname: string }

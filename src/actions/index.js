@@ -1,8 +1,5 @@
 /* @flow */
 
-import swal from 'sweetalert2';
-import 'sweetalert2/src/sweetalert2.scss';
-
 import type {
   Action,
   ThunkAction,
@@ -11,12 +8,26 @@ import type {
 import type { Cell } from '../core/Cell';
 import type { ColorIndex } from '../core/Palette';
 
-import ProtocolClient from '../socket/ProtocolClient';
 import { loadImage } from '../ui/loadImage';
 import {
   getColorIndexOfPixel,
 } from '../core/utils';
 
+
+export function sweetAlert(
+  title: string,
+  text: string,
+  icon: string,
+  confirmButtonText: string,
+): Action {
+  return {
+    type: 'ALERT',
+    title,
+    text,
+    icon,
+    confirmButtonText,
+  };
+}
 
 export function toggleChatBox(): Action {
   return {
@@ -255,12 +266,12 @@ export function requestPlacePixel(
       }
 
       dispatch(pixelFailure());
-      swal.fire({
-        title: (errorTitle || `Error ${response.status}`),
-        text: errors[0].msg,
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
+      dispatch(sweetAlert(
+        (errorTitle || `Error ${response.status}`),
+        errors[0].msg,
+        'error',
+        'OK',
+      ));
     } finally {
       dispatch(setPlaceAllowed(true));
     }
@@ -418,7 +429,6 @@ export function fetchChunk(canvasId, center: Cell): PromiseAction {
   return async (dispatch) => {
     dispatch(requestBigChunk(center));
     try {
-      ProtocolClient.registerChunk([cx, cy]);
       const url = `/chunks/${canvasId}/${cx}/${cy}.bmp`;
       const response = await fetch(url);
       if (response.ok) {
@@ -475,7 +485,6 @@ export function receiveMe(
     minecraftname,
     canvases,
   } = me;
-  ProtocolClient.setName(name);
   return {
     type: 'RECEIVE_ME',
     name: (name) || null,
@@ -504,7 +513,6 @@ export function receiveStats(
 export function setName(
   name: string,
 ): Action {
-  ProtocolClient.setName(name);
   return {
     type: 'SET_NAME',
     name,
@@ -557,9 +565,7 @@ export function fetchMe(): PromiseAction {
 
     if (response.ok) {
       const me = await response.json();
-      await dispatch(receiveMe(me));
-      const state = getState();
-      ProtocolClient.setCanvas(state.canvas.canvasId);
+      dispatch(receiveMe(me));
     }
   };
 }
@@ -660,18 +666,14 @@ export function onViewFinishChange(): Action {
 }
 
 export function urlChange(): PromiseAction {
-  return async (dispatch, getState) => {
-    await dispatch(reloadUrl());
-    const state = getState();
-    ProtocolClient.setCanvas(state.canvas.canvasId);
+  return (dispatch, getState) => {
+    dispatch(reloadUrl());
   };
 }
 
 export function switchCanvas(canvasId: number): PromiseAction {
   return async (dispatch, getState) => {
     await dispatch(selectCanvas(canvasId));
-    const state = getState();
-    ProtocolClient.setCanvas(state.canvas.canvasId);
     dispatch(onViewFinishChange());
   };
 }

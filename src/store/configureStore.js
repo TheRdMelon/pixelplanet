@@ -3,11 +3,13 @@
 import { applyMiddleware, createStore, compose } from 'redux';
 import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
-import { persistStore, autoRehydrate } from 'redux-persist';
+import { persistStore } from 'redux-persist';
 
-import ads from './ads';
 import audio from './audio';
-import analytics from './analytics';
+import swal from './sweetAlert';
+import protocolClientHook from './protocolClientHook';
+// import ads from './ads';
+// import analytics from './analytics';
 import array from './array';
 import promise from './promise';
 import notifications from './notifications';
@@ -18,7 +20,7 @@ import reducers from '../reducers';
 const isDebuggingInChrome = __DEV__ && !!window.navigator.userAgent;
 
 const logger = createLogger({
-  predicate: (getState, action) => isDebuggingInChrome,
+  predicate: () => isDebuggingInChrome,
   collapsed: true,
   duration: true,
 });
@@ -31,11 +33,13 @@ const store = createStore(
       thunk,
       promise,
       array,
-      ads,
+      swal,
       audio,
       notifications,
       title,
-      analytics,
+      protocolClientHook,
+      // ads,
+      // analytics,
       logger,
     ),
   ),
