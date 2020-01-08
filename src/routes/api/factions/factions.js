@@ -183,7 +183,7 @@ const transferFaction = async (req: Request, res: Response) => {
 const factionIcon = async (req: Request, res: Response) => {
   const { faction: factionIdParam } = req.params;
 
-  const faction = await Faction.findByPk(factionIdParam);
+  const faction = factions.factions.find((f) => f.id === factionIdParam);
 
   // Validation
   const errors = [];
@@ -255,7 +255,9 @@ const joinFaction = async (req: Request, res: Response) => {
 };
 
 export default async (req: Request, res: Response) => {
-  res.json(factions.factions);
+  res.json(
+    factions.factions.map((faction) => ({ ...faction, icon: undefined })),
+  );
 };
 
 export {

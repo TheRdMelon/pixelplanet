@@ -59,8 +59,12 @@ const FactionRow = ({
           href="/"
           onClick={(e) => {
             e.preventDefault();
-            const factionInfo = joinFaction(faction.id);
-            recieveFactionInfoDisp(factionInfo);
+            joinFaction(faction.id).then((factionInfo) => {
+              console.log(factionInfo);
+              if (factionInfo.success) {
+                recieveFactionInfoDisp(factionInfo.info);
+              }
+            });
           }}
         >
           Join

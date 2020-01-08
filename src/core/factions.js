@@ -27,7 +27,12 @@ class Factions {
 
   async updateFactions() {
     const dbFactions = await Faction.findAll({
-      attributes: ['id', 'name', [Sequelize.col('Users.name'), 'leader']],
+      attributes: [
+        'id',
+        'name',
+        [Sequelize.col('Users.name'), 'leader'],
+        'icon',
+      ],
       include: [
         {
           model: RegUser,
@@ -47,6 +52,7 @@ class Factions {
       include: [
         {
           model: RegUser,
+          attributes: ['name'],
         },
       ],
     });

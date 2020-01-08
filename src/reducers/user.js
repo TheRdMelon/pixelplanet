@@ -201,7 +201,9 @@ export default function user(
     }
 
     case 'RECIEVE_FACTION_INFO': {
+      console.log(action);
       const { info } = action;
+      console.log(info);
       const { id, users } = info;
 
       return {
