@@ -299,12 +299,13 @@ const webConfig = {
 
   entry: {
     web: ['./src/web.js'],
+    backup: ['./src/backup.js'],
   },
 
   output: {
     ...config.output,
     path: path.resolve(__dirname, '../build'),
-    filename: './web.js',
+    filename: '[name].js',
     libraryTarget: 'commonjs2',
   },
 

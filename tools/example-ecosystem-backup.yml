@@ -1,0 +1,8 @@
+apps:
+  - script   : ./backup.js
+    name     : 'backup'
+    node_args: --nouse-idle-notification --expose-gc
+    env:
+      CANVAS_REDIS_URL: 'redis://localhost:6379'
+      BACKUP_REDIS_URL: 'redis://localhost:6380'
+      BACKUP_DIR: '/backups'

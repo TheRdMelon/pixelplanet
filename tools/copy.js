@@ -15,6 +15,7 @@ async function copy() {
     copyFile('LICENSE', 'build/LICENSE'),
     copyDir('public', 'build/public'),
     copyFile('tools/example-ecosystem.yml', 'build/ecosystem.example.yml'),
+    copyFile('tools/example-ecosystem-backup.yml', 'build/ecosystem-backup.example.yml'),
   ]);
 }
 

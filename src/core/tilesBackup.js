@@ -72,8 +72,8 @@ export async function incrementialBackupRedis(
     if (!fs.existsSync(canvasBackupDir)) {
       fs.mkdirSync(canvasBackupDir);
     }
-    const hourOfDay = new Date().getHours();
-    const canvasTileBackupDir = `${canvasBackupDir}/${hourOfDay}`;
+    const date = new Date();
+    const canvasTileBackupDir = `${canvasBackupDir}/${date.getHours()}${date.getMinutes()}`;
     if (!fs.existsSync(canvasTileBackupDir)) {
       fs.mkdirSync(canvasTileBackupDir);
     }
