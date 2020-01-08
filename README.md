@@ -183,3 +183,20 @@ We have enough warnings already, just don't produce too many additional ones.
 You can use `npm run babel-node ./your/script.js` to execute a script with local babel.
 
 `npm run upgrade` can be use for interactively upgrading npm packages.
+
+## Backups
+
+PixelPlanet includes a backup script that creates full canvas backups daily in the form of PNG tile files and incremential backups all 15min (or whatever you define) that saves PNG tiles with just the differences since the last full daily backup.
+
+It requires a [second running redis instance](https://www.digitalocean.com/community/questions/multiple-redis-instances-on-ubuntu-16-04).
+
+The backup script gets built when building pixelplanet and also gets copied to build/ directory. You can run it with:
+
+```
+node backup.js REDIS_URL_CANVAS REDIS_URL_BACKUP BACKUP_DIRECTORY [INTERVAL]
+```
+
+Make sure to get the order right, because the backup redis instance will be overwritten every hour.
+Interval is the time in minutes between incremential backups. If interval is undefined, it will just make one backup and then exit.
+
+Alternatively you can run it with pm2, just like pixelplanet. An example ecosystem-backup.example.yml file will be located in the build directory.
