@@ -114,14 +114,13 @@ async function dailyBackup() {
     fs.mkdirSync(backupDir);
   }
 
-  backupRedis.flushall('ASYNC', async () => {
-    if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir);
-    }
-    await updateBackupRedis(canvasRedis, backupRedis, canvases);
-    await createPngBackup(backupRedis, canvases, backupDir);
-    console.log('Daily full backup done');
-  });
+  await backupRedis.flushallAsync('ASYNC');
+  if (!fs.existsSync(backupDir)) {
+    fs.mkdirSync(backupDir);
+  }
+  await updateBackupRedis(canvasRedis, backupRedis, canvases);
+  await createPngBackup(backupRedis, canvases, backupDir);
+  console.log('Daily full backup done');
 }
 
 function incrementialBackup() {
@@ -155,4 +154,5 @@ async function trigger() {
 }
 
 console.log('Starting backup...');
+console.log(`${CANVAS_REDIS_URL} - ${BACKUP_REDIS_URL} - ${BACKUP_DIR} - ${INTERVAL} - ${CMD}`)
 trigger();
