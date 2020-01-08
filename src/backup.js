@@ -48,6 +48,7 @@ const [
   BACKUP_REDIS_URL,
   BACKUP_DIR,
   INTERVAL,
+  CMD,
 ] = process.argv.slice(2);
 
 if (!CANVAS_REDIS_URL || !BACKUP_REDIS_URL || !BACKUP_DIR) {
@@ -62,11 +63,33 @@ const canvasRedis = redis
 const backupRedis = redis
   .createClient(BACKUP_REDIS_URL, { return_buffers: true });
 canvasRedis.on('error', () => {
-  throw new Error('Could not connect to canvas redis');
+  console.error('Could not connect to canvas redis');
+  process.exit(1);
 });
 backupRedis.on('error', () => {
-  throw new Error('Could not connect to backup redis');
+  console.error('Could not connect to backup redis');
+  process.exit(1);
 });
+
+
+function runCmd(cmd: string) {
+  const startTime = Date.now();
+  console.log(`Executing ${cmd}`);
+  const cmdproc = spawn(cmd);
+  cmdproc.on('exit', (code) => {
+    if (code !== 0) {
+      console.log(`${cmd} failed with code ${code}`);
+    }
+    const time = Date.now() - startTime;
+    console.log(`${cmd} done in ${time}ms`);
+  });
+  cmdproc.stdout.on('data', (data) => {
+    console.log(data);
+  });
+  cmdproc.stderr.on('data', (data) => {
+    console.log(data);
+  });
+}
 
 
 function getDateFolder() {
@@ -76,8 +99,11 @@ function getDateFolder() {
     process.exit(1);
   }
   const date = new Date();
-  // eslint-disable-next-line max-len
-  const dayDir = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
+  let month = date.getMonth() + 1;
+  let day = date.getDate();
+  if (month < 10) month = `0${month}`;
+  if (day < 10) day = `0${day}`;
+  const dayDir = `${date.getFullYear()}${month}${day}`;
   const backupDir = `${dir}/${dayDir}`;
   return backupDir;
 }
@@ -117,6 +143,9 @@ async function trigger() {
     await dailyBackup();
   } else {
     await incrementialBackup();
+  }
+  if (CMD) {
+    runCmd(CMD);
   }
   if (!INTERVAL) {
     process.exit(0);

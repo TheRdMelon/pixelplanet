@@ -193,10 +193,11 @@ It requires a [second running redis instance](https://www.digitalocean.com/commu
 The backup script gets built when building pixelplanet and also gets copied to build/ directory. You can run it with:
 
 ```
-node backup.js REDIS_URL_CANVAS REDIS_URL_BACKUP BACKUP_DIRECTORY [INTERVAL]
+node backup.js REDIS_URL_CANVAS REDIS_URL_BACKUP BACKUP_DIRECTORY [INTERVAL] [COMMAND]
 ```
 
 Make sure to get the order right, because the backup redis instance will be overwritten every hour.
 Interval is the time in minutes between incremential backups. If interval is undefined, it will just make one backup and then exit.
+If command is defined, it will be executed after every backup (just one command, with no arguments, like "dosomething.sh"), this is useful for synchronisation with a storage server i.e..
 
 Alternatively you can run it with pm2, just like pixelplanet. An example ecosystem-backup.example.yml file will be located in the build directory.
