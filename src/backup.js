@@ -12,6 +12,7 @@
 /* eslint-disable no-console */
 
 import fs from 'fs';
+import path from 'path';
 import redis from 'redis';
 import bluebird from 'bluebird';
 
@@ -69,13 +70,15 @@ backupRedis.on('error', () => {
 
 
 function getDateFolder() {
-  if (!fs.existsSync(BACKUP_DIR)) {
-    throw new Error(`Backup directory ${BACKUP_DIR} does not exist!`);
+  const dir = path.resolve(__dirname, BACKUP_DIR);
+  if (!fs.existsSync(dir)) {
+    console.error(`Backup directory ${BACKUP_DIR} does not exist!`);
+    process.exit(1);
   }
   const date = new Date();
   // eslint-disable-next-line max-len
   const dayDir = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
-  const backupDir = `${BACKUP_DIR}/${dayDir}`;
+  const backupDir = `${dir}/${dayDir}`;
   return backupDir;
 }
 
@@ -109,10 +112,6 @@ function incrementialBackup() {
 }
 
 async function trigger() {
-  if (!fs.existsSync(BACKUP_DIR)) {
-    console.error(`Backup directory ${BACKUP_DIR} does not exist!`);
-    process.exit(1);
-  }
   const backupDir = getDateFolder();
   if (!fs.existsSync(backupDir)) {
     await dailyBackup();
@@ -122,6 +121,7 @@ async function trigger() {
   if (!INTERVAL) {
     process.exit(0);
   }
+  console.log(`Creating next backup in ${INTERVAL} minutes`);
   setTimeout(trigger, INTERVAL * 60 * 1000);
 }
 
