@@ -4,8 +4,7 @@
  */
 
 import Sequelize from 'sequelize';
-import Faction from '../data/models/Faction';
-import { RegUser } from '../data/models';
+import { Faction, RegUser } from '../data/models';
 
 class Factions {
   factions: Array;
@@ -43,10 +42,7 @@ class Factions {
       order: ['name'],
     });
 
-    this.factions = dbFactions.map((faction) => ({
-      ...faction.dataValues,
-      icon: undefined,
-    }));
+    this.factions = dbFactions;
   }
 
   async updateFactionInfo() {

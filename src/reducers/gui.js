@@ -4,7 +4,6 @@ import type { Action } from '../actions/types';
 import type { ColorIndex } from '../core/Palette';
 import type { Cell } from '../core/Cell';
 
-
 export type GUIState = {
   showGrid: boolean,
   showPixelNotify: boolean,
@@ -18,6 +17,7 @@ export type GUIState = {
   compactPalette: boolean,
   paletteOpen: boolean,
   menuOpen: boolean,
+  selectedFaction: string | undefined,
 };
 
 const initialState: GUIState = {
@@ -33,8 +33,8 @@ const initialState: GUIState = {
   compactPalette: false,
   paletteOpen: true,
   menuOpen: false,
+  selectedFaction: undefined,
 };
-
 
 export default function gui(
   state: GUIState = initialState,
@@ -98,7 +98,7 @@ export default function gui(
     }
 
     case 'SELECT_COLOR': {
-      const paletteOpen = (!state.compactPalette && window.innerWidth > 300);
+      const paletteOpen = !state.compactPalette && window.innerWidth > 300;
       return {
         ...state,
         paletteOpen,
@@ -141,6 +141,28 @@ export default function gui(
       return {
         ...state,
         hover: null,
+      };
+    }
+
+    case 'RECIEVE_OWN_FACTIONS': {
+      const { ownFactions } = action;
+
+      if (ownFactions.length > 0 && state.selectedFaction === undefined) {
+        return {
+          ...state,
+          selectedFaction: ownFactions[1].id,
+        };
+      }
+
+      return state;
+    }
+
+    case 'SELECT_FACTION': {
+      const { select } = action;
+
+      return {
+        ...state,
+        selectedFaction: select,
       };
     }
 

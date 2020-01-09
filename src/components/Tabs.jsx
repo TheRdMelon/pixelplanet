@@ -12,7 +12,8 @@ class Tabs extends Component {
     super(props);
 
     this.state = {
-      activeTab: this.props.children[0].props.label,
+      activeTab: this.props.children.filter((c) => c !== undefined)[0].props
+        .label,
     };
   }
 
@@ -35,6 +36,7 @@ class Tabs extends Component {
       <div className="tabs">
         <ol className="tab-list">
           {children.map((child) => {
+            if (!child) return undefined;
             const { label } = child.props;
 
             return (
@@ -49,6 +51,7 @@ class Tabs extends Component {
         </ol>
         <div className="tab-content">
           {children.map((child) => {
+            if (!child) return undefined;
             if (child.props.label !== activeTab) return undefined;
             return child.props.children;
           })}

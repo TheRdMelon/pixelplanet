@@ -499,6 +499,13 @@ export function recieveFactions(factions: Array): Action {
   };
 }
 
+export function selectFaction(select: string): Action {
+  return {
+    type: 'SELECT_FACTION',
+    select,
+  };
+}
+
 export function loadingIcon(id: string): Action {
   return {
     type: 'LOADING_ICON',
@@ -611,8 +618,9 @@ export function fetchFactionInfo(id): PromiseAction {
   };
 }
 
-export function fetchOwnFactions(id): PromiseAction {
-  return async (dispatch) => {
+export function fetchOwnFactions(id): ThunkAction {
+  return async (dispatch, getState) => {
+    if (getState().user.name === null) dispatch(recieveOwnFactions([]));
     const response = await fetch(`/api/factions/mine${id !== undefined ? `?selected=${id}` : ''}`, {
       credentials: 'include',
     });

@@ -21,8 +21,7 @@ export type UserState = {
   totalRanking: Object,
   totalDailyRanking: Object,
   // user factions
-  ownFactions: Array,
-  selectedFaction: string | undefined,
+  ownFactions: Array | undefined,
   // all factions
   factions: Array,
   // chat
@@ -42,8 +41,7 @@ const initialState: UserState = {
   mailreg: false,
   totalRanking: {},
   totalDailyRanking: {},
-  ownFactions: [],
-  selectedFaction: undefined,
+  ownFactions: undefined,
   factions: [],
   chatMessages: [['info', 'Welcome to the PixelPlanet Chat']],
   minecraftname: null,
@@ -198,9 +196,12 @@ export default function user(
 
       return {
         ...state,
-        factions: state.factions.map((faction) => (faction.id === factionFor ? {
-          ...faction, icon,
-        } : faction)),
+        factions: state.factions.map((faction) => (faction.id === factionFor
+          ? {
+            ...faction,
+            icon,
+          }
+          : faction)),
       };
     }
 
@@ -209,10 +210,7 @@ export default function user(
 
       return {
         ...state,
-        factions: state.factions.map((faction) => (faction.id === info.id
-          ? info
-          : faction
-        )),
+        factions: state.factions.map((faction) => (faction.id === info.id ? info : faction)),
       };
     }
 

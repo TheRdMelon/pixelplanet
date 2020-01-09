@@ -17,7 +17,6 @@ import ForgotPasswordModal from './ForgotPasswordModal';
 import MinecraftModal from './MinecraftModal';
 import FactionModal from './FactionModal';
 
-
 const MODAL_COMPONENTS = {
   HELP: HelpModal,
   SETTINGS: SettingsModal,
@@ -26,7 +25,7 @@ const MODAL_COMPONENTS = {
   FORGOT_PASSWORD: ForgotPasswordModal,
   CHAT: ChatModal,
   MINECRAFT: MinecraftModal,
-  FACTION: FactionModal
+  FACTION: FactionModal,
   /* other modals */
 };
 
@@ -39,6 +38,4 @@ const ModalRoot = ({ modalType, modalProps }) => {
   return <SpecificModal {...modalProps} />;
 };
 
-export default connect(
-  (state) => state.modal,
-)(ModalRoot);
+export default connect((state) => state.modal)(ModalRoot);

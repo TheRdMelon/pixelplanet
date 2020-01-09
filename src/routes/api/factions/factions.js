@@ -274,7 +274,12 @@ const ownFactions = async (req: Request, res: Response) => {
 };
 
 export default async (req: Request, res: Response) => {
-  res.json(factions.factions);
+  res.json(
+    factions.factions.map((f) => ({
+      ...f.dataValues,
+      icon: undefined,
+    })),
+  );
 };
 
 export {

@@ -69,6 +69,7 @@ export type Action =
     }
   | { type: 'RECEIVE_STATS', totalRanking: Object, totalDailyRanking: Object }
   | { type: 'RECIEVE_FACTIONS', factions: Array }
+  | { type: 'SELECT_FACTION', select: string }
   | { type: 'LOADING_ICON', id: string }
   | { type: 'RECIEVE_FACTION_ICON', icon: string, factionFor: string }
   | { type: 'RECIEVE_FACTION_INFO', info: Object }
