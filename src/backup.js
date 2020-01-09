@@ -12,6 +12,7 @@
 /* eslint-disable no-console */
 
 import fs from 'fs';
+import path from 'path';
 import redis from 'redis';
 import bluebird from 'bluebird';
 
@@ -34,7 +35,7 @@ proc.on('exit', (code) => {
   if (code !== 0) {
     console.log(`renice failed with code ${code}`);
   }
-  console.log('Useing low cpu priority');
+  console.log('Using low cpu priority');
 });
 // -------------------
 
@@ -47,6 +48,7 @@ const [
   BACKUP_REDIS_URL,
   BACKUP_DIR,
   INTERVAL,
+  CMD,
 ] = process.argv.slice(2);
 
 if (!CANVAS_REDIS_URL || !BACKUP_REDIS_URL || !BACKUP_DIR) {
@@ -61,21 +63,48 @@ const canvasRedis = redis
 const backupRedis = redis
   .createClient(BACKUP_REDIS_URL, { return_buffers: true });
 canvasRedis.on('error', () => {
-  throw new Error('Could not connect to canvas redis');
+  console.error('Could not connect to canvas redis');
+  process.exit(1);
 });
 backupRedis.on('error', () => {
-  throw new Error('Could not connect to backup redis');
+  console.error('Could not connect to backup redis');
+  process.exit(1);
 });
+
+
+function runCmd(cmd: string) {
+  const startTime = Date.now();
+  console.log(`Executing ${cmd}`);
+  const cmdproc = spawn(cmd);
+  cmdproc.on('exit', (code) => {
+    if (code !== 0) {
+      console.log(`${cmd} failed with code ${code}`);
+    }
+    const time = Date.now() - startTime;
+    console.log(`${cmd} done in ${time}ms`);
+  });
+  cmdproc.stdout.on('data', (data) => {
+    console.log(`${cmd}: ${data}`);
+  });
+  cmdproc.stderr.on('data', (data) => {
+    console.log(`${cmd} error: ${data}`);
+  });
+}
 
 
 function getDateFolder() {
-  if (!fs.existsSync(BACKUP_DIR)) {
-    throw new Error(`Backup directory ${BACKUP_DIR} does not exist!`);
+  const dir = path.resolve(__dirname, BACKUP_DIR);
+  if (!fs.existsSync(dir)) {
+    console.error(`Backup directory ${BACKUP_DIR} does not exist!`);
+    process.exit(1);
   }
   const date = new Date();
-  // eslint-disable-next-line max-len
-  const dayDir = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
-  const backupDir = `${BACKUP_DIR}/${dayDir}`;
+  let month = date.getMonth() + 1;
+  let day = date.getDate();
+  if (month < 10) month = `0${month}`;
+  if (day < 10) day = `0${day}`;
+  const dayDir = `${date.getFullYear()}${month}${day}`;
+  const backupDir = `${dir}/${dayDir}`;
   return backupDir;
 }
 
@@ -85,22 +114,21 @@ async function dailyBackup() {
     fs.mkdirSync(backupDir);
   }
 
-  backupRedis.flushall('ASYNC', async () => {
-    if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir);
-    }
-    await updateBackupRedis(canvasRedis, backupRedis, canvases);
-    await createPngBackup(backupRedis, canvases, backupDir);
-    console.log('Daily full backup done');
-  });
+  await backupRedis.flushallAsync('ASYNC');
+  if (!fs.existsSync(backupDir)) {
+    fs.mkdirSync(backupDir);
+  }
+  await updateBackupRedis(canvasRedis, backupRedis, canvases);
+  await createPngBackup(backupRedis, canvases, backupDir);
+  console.log('Daily full backup done');
 }
 
-function incrementialBackup() {
+async function incrementialBackup() {
   const backupDir = getDateFolder();
   if (!fs.existsSync(backupDir)) {
     fs.mkdirSync(backupDir);
   }
-  incrementialBackupRedis(
+  await incrementialBackupRedis(
     canvasRedis,
     backupRedis,
     canvases,
@@ -109,19 +137,19 @@ function incrementialBackup() {
 }
 
 async function trigger() {
-  if (!fs.existsSync(BACKUP_DIR)) {
-    console.error(`Backup directory ${BACKUP_DIR} does not exist!`);
-    process.exit(1);
-  }
   const backupDir = getDateFolder();
   if (!fs.existsSync(backupDir)) {
     await dailyBackup();
   } else {
     await incrementialBackup();
   }
+  if (CMD) {
+    runCmd(CMD);
+  }
   if (!INTERVAL) {
     process.exit(0);
   }
+  console.log(`Creating next backup in ${INTERVAL} minutes`);
   setTimeout(trigger, INTERVAL * 60 * 1000);
 }
 
