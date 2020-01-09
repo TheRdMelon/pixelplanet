@@ -110,8 +110,8 @@ class Renderer {
     this.tiledScale = tiledScale;
     this.tiledZoom = tiledZoom;
     this.relScale = relScale;
-    this.forceNextRender = true;
     this.updateView(view, canvasSize);
+    this.forceNextRender = true;
   }
 
   updateView(view, canvasSize) {
