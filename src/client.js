@@ -41,7 +41,7 @@ import onKeyPress from './ui/keypress';
 
 import App from './components/App';
 
-import Renderer from './ui/Renderer';
+import renderer from './ui/Renderer';
 import ProtocolClient from './socket/ProtocolClient';
 
 window.addEventListener('keydown', onKeyPress, false);
@@ -190,8 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
   );
 
   const viewport = initViewport();
-  const renderer = new Renderer();
-  renderer.setViewport(viewport);
+  renderer.setViewport(viewport, store);
 
   ProtocolClient.on('pixelUpdate', ({
     i, j, offset, color,

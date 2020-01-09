@@ -16,11 +16,15 @@ import pixel from './pixel';
 import auth from './auth';
 import ranking from './ranking';
 import factions from './factions';
+import history from './history';
+
 
 const router = express.Router();
 
 // this route doesn't need passport
 router.get('/ranking', ranking);
+
+router.get('/history', history);
 
 /*
  * get user session

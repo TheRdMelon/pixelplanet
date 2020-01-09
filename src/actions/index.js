@@ -427,7 +427,6 @@ export function fetchChunk(canvasId, center: Cell): PromiseAction {
         dispatch(receiveBigChunkFailure(center, error));
       }
     } catch (error) {
-      console.log(`Error at requesting chunk ${cx}/${cy}`);
       dispatch(receiveBigChunkFailure(center, error));
     }
   };

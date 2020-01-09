@@ -6,6 +6,7 @@
 import express from 'express';
 
 import logger from '../../../core/logger';
+import { getHostFromRequest } from '../../../utils/ip';
 
 import register from './register';
 import verify from './verify';
@@ -67,7 +68,8 @@ export default (passport) => {
     res.set({
       'Content-Type': 'text/html',
     });
-    const index = getHtml('OAuth Authentification', 'LogIn failed :(, please try again later or register a new account with Mail.');
+    const host = getHostFromRequest(req);
+    const index = getHtml('OAuth Authentification', 'LogIn failed :(, please try again later or register a new account with Mail.', host);
     res.status(200).send(index);
   });
 

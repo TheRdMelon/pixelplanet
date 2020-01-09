@@ -8,7 +8,6 @@ import nodemailer from 'nodemailer';
 
 import logger from './logger';
 import { HOUR, MINUTE } from './constants';
-import { HOSTURL } from './config';
 import { DailyCron, HourlyCron } from '../utils/cron';
 
 import RegUser from '../data/models/RegUser';
@@ -37,7 +36,7 @@ class MailProvider {
     DailyCron.hook(MailProvider.cleanUsers);
   }
 
-  sendVerifyMail(to, name) {
+  sendVerifyMail(to, name, host) {
     const pastMail = this.verifyCodes[to];
     if (pastMail) {
       const minLeft = Math.floor(
@@ -53,7 +52,7 @@ class MailProvider {
     }
     logger.info(`Sending verification mail to ${to} / ${name}`);
     const code = this.setCode(to);
-    const verifyUrl = `${HOSTURL}/api/auth/verify?token=${code}`;
+    const verifyUrl = `${host}/api/auth/verify?token=${code}`;
     transporter.sendMail({
       from: 'donotreply@pixelplanet.fun',
       to,
@@ -70,7 +69,7 @@ class MailProvider {
     return null;
   }
 
-  async sendPasswdResetMail(to, ip) {
+  async sendPasswdResetMail(to, ip, host) {
     const pastMail = this.verifyCodes[to];
     if (pastMail) {
       if (Date.now() < pastMail.timestamp + 15 * MINUTE) {
@@ -100,7 +99,7 @@ class MailProvider {
 
     logger.info(`Sending Password reset mail to ${to}`);
     const code = this.setCode(to);
-    const restoreUrl = `${HOSTURL}/reset_password?token=${code}`;
+    const restoreUrl = `${host}/reset_password?token=${code}`;
     transporter.sendMail({
       from: 'donotreply@pixelplanet.fun',
       to,

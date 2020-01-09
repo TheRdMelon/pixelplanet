@@ -7,6 +7,7 @@
 import type { Request, Response } from 'express';
 
 import mailProvider from '../../../core/mail';
+import { getHostFromRequest } from '../../../utils/ip';
 
 export default async (req: Request, res: Response) => {
   const { user } = req;
@@ -27,7 +28,9 @@ export default async (req: Request, res: Response) => {
     return;
   }
 
-  const error = mailProvider.sendVerifyMail(email, name);
+  const host = getHostFromRequest(req);
+
+  const error = mailProvider.sendVerifyMail(email, name, host);
   if (error) {
     res.status(400);
     res.json({

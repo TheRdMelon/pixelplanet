@@ -90,8 +90,10 @@ class ChunkRGB {
 
   empty() {
     this.ready = true;
-    const ctx = this.image.getContext('2d');
-    ctx.fillStyle = this.palette.colors[0];
+    const { image, palette } = this;
+    const ctx = image.getContext('2d');
+    // eslint-disable-next-line prefer-destructuring
+    ctx.fillStyle = palette.colors[0];
     ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
   }
 
