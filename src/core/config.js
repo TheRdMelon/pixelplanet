@@ -16,6 +16,9 @@ export const ASSET_SERVER = process.env.ASSET_SERVER || '.';
 
 export const USE_XREALIP = process.env.USE_XREALIP || false;
 
+export const BACKUP_URL = process.env.BACKUP_URL || null;
+export const BACKUP_DIR = process.env.BACKUP_DIR || null;
+
 // Proxycheck
 export const USE_PROXYCHECK = parseInt(process.env.USE_PROXYCHECK, 10) || false;
 

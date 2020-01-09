@@ -10,7 +10,7 @@ import ReactDOM from 'react-dom/server';
 
 import Html from './Html';
 import assets from './assets.json';
-import { ASSET_SERVER } from '../core/config';
+import { ASSET_SERVER, BACKUP_URL } from '../core/config';
 
 const data = {
   title: 'PixelPlanet.fun',
@@ -35,7 +35,10 @@ const data = {
  */
 function generateMainPage(countryCoords: Cell): string {
   const [x, y] = countryCoords;
-  const code = `window.coordx=${x};window.coordy=${y};window.assetserver="${ASSET_SERVER}";`;
+  let code = `window.coordx=${x};window.coordy=${y};window.assetserver="${ASSET_SERVER}";`;
+  if (BACKUP_URL) {
+    code += `window.backupurl="${BACKUP_URL}";`;
+  }
   const htmldata = { ...data, code };
   const html = ReactDOM.renderToStaticMarkup(<Html {...htmldata} />);
 

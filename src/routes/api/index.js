@@ -23,12 +23,15 @@ import mctp from './mctp';
 import pixel from './pixel';
 import auth from './auth';
 import ranking from './ranking';
+import history from './history';
 
 
 const router = express.Router();
 
 // this route doesn't need passport
 router.get('/ranking', ranking);
+
+router.get('/history', history);
 
 /*
  * get user session
