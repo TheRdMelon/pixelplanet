@@ -110,6 +110,7 @@ class Renderer {
     this.tiledScale = tiledScale;
     this.tiledZoom = tiledZoom;
     this.relScale = relScale;
+    this.forceNextRender = true;
     this.updateView(view, canvasSize);
   }
 
@@ -300,7 +301,6 @@ class Renderer {
   // keep in mind that everything we got here gets executed 60 times per second
   // avoiding unneccessary stuff is important
   render() {
-    try{
     const {
       viewport,
     } = this;
@@ -367,7 +367,6 @@ class Renderer {
     // If scale is so large that neighbouring chunks wouldn't fit in offscreen canvas,
     // do scale = 1 in renderChunks and scale in render()
     const canvasCenter = canvasSize / 2;
-    console.log("do render")
     if (viewscale > SCALE_THREASHOLD) {
       viewportCtx.save();
       viewportCtx.scale(viewscale, viewscale);
@@ -387,9 +386,6 @@ class Renderer {
 
     if (hover && doRenderPlaceholder) renderPlaceholder(state, viewport, viewscale);
     if (hover && doRenderPotatoPlaceholder) renderPotatoPlaceholder(state, viewport, viewscale);
-  } catch {
-    console.log("error");
-  }
   }
 }
 
