@@ -8,6 +8,7 @@ import type { Request, Response } from 'express';
 import mailProvider from '../../../core/mail';
 
 import { validatePassword, validateEMail } from '../../../utils/validation';
+import { getHostFromRequest } from '../../../utils/ip';
 import { compareToHash } from '../../../utils/hash';
 
 function validate(email, password) {
@@ -55,7 +56,8 @@ export default async (req: Request, res: Response) => {
     mailVerified: false,
   });
 
-  mailProvider.sendVerifyMail(email, user.regUser.name);
+  const host = getHostFromRequest(req);
+  mailProvider.sendVerifyMail(email, user.regUser.name, host);
 
   res.json({
     success: true,

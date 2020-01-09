@@ -8,6 +8,7 @@ import type { Request, Response } from 'express';
 
 import mailProvider from '../../../core/mail';
 import { validateEMail } from '../../../utils/validation';
+import { getHostFromRequest } from '../../../utils/ip';
 
 async function validate(email) {
   const errors = [];
@@ -29,7 +30,8 @@ export default async (req: Request, res: Response) => {
     });
     return;
   }
-  const error = await mailProvider.sendPasswdResetMail(email, ip);
+  const host = getHostFromRequest(req);
+  const error = await mailProvider.sendPasswdResetMail(email, ip, host);
   if (error) {
     res.status(400);
     res.json({

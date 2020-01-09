@@ -16,7 +16,7 @@ import { sanitizeName } from '../utils/validation';
 
 import logger from './logger';
 import { User, RegUser } from '../data/models';
-import { auth, HOSTURL } from './config';
+import { auth } from './config';
 import { compareToHash } from '../utils/hash';
 
 
@@ -105,7 +105,8 @@ async function oauth_login(email, name, discordid = null) {
  */
 passport.use(new FacebookStrategy({
   ...auth.facebook,
-  callbackURL: `${HOSTURL}/api/auth/facebook/return`,
+  callbackURL: `/api/auth/facebook/return`,
+  proxy: true,
   profileFields: ['displayName', 'email'],
 }, async (req, accessToken, refreshToken, profile, done) => {
   const { displayName: name, emails } = profile;
@@ -119,7 +120,8 @@ passport.use(new FacebookStrategy({
  */
 passport.use(new DiscordStrategy({
   ...auth.discord,
-  callbackURL: `${HOSTURL}/api/auth/discord/return`,
+  callbackURL: `/api/auth/discord/return`,
+  proxy: true,
 }, async (accessToken, refreshToken, profile, done) => {
   // TODO get discord id
   console.log({ profile, refreshToken, accessToken });
@@ -133,7 +135,8 @@ passport.use(new DiscordStrategy({
  */
 passport.use(new GoogleStrategy({
   ...auth.google,
-  callbackURL: `${HOSTURL}/api/auth/google/return`,
+  callbackURL: `/api/auth/google/return`,
+  proxy: true,
 }, async (accessToken, refreshToken, profile, done) => {
   const { displayName: name, emails } = profile;
   const email = emails[0].value;
@@ -146,7 +149,8 @@ passport.use(new GoogleStrategy({
  */
 passport.use(new RedditStrategy({
   ...auth.reddit,
-  callbackURL: `${HOSTURL}/api/auth/reddit/return`,
+  callbackURL: `/api/auth/reddit/return`,
+  proxy: true,
 }, async (accessToken, refreshToken, profile, done) => {
   console.log({ profile, refreshToken, accessToken });
   const redditid = profile.id;
@@ -177,7 +181,8 @@ passport.use(new RedditStrategy({
  */
 passport.use(new VkontakteStrategy({
   ...auth.vk,
-  callbackURL: `${HOSTURL}/api/auth/vk/return`,
+  callbackURL: `/api/auth/vk/return`,
+  proxy: true,
   scope: ['email'],
   profileFields: ['displayName', 'email'],
 }, async (accessToken, refreshToken, params, profile, done) => {

@@ -65,8 +65,6 @@ Configuration takes place in the environment variables that are defined in ecosy
 
 | Variable       | Description              |  Example                |
 |----------------|:-------------------------|------------------------:|
-| HOSTURL        | URL of the canvas        | "http://localhost"      |
-| ASSET_SERVER   | URL for assets           | "http://localhost"      |
 | PORT           | Port                     |  80                     |
 | REDIS_URL      | URL:PORT of redis server | "http://localhost:6379" |
 | MYSQL_HOST     | MySql Host               | "localhost"             |
@@ -76,16 +74,18 @@ Configuration takes place in the environment variables that are defined in ecosy
 
 #### Optional Configuration
 
-| Variable          | Description                           | Example     |
-|-------------------|:--------------------------------------|-------------|
-| USE_PROXYCHECK    | Check users for Proxies               | 0           |
-| APISOCKET_KEY     | Key for API Socket for SpecialAccess™ | "SDfasife3" |
-| ADMIN_IDS         | Ids of users with Admin rights        | "1,12,3"    |
-| RECAPTCHA_SECRET  | reCaptcha secret key                  | "asdieewff" |
-| RECAPTCHA_SITEKEY | reCaptcha site key                    | "23ksdfssd" |
-| RECAPTCHA_TIME    | time in minutes between captchas      | 30          |
-| SESSION_SECRET    | random sting for expression sessions  | "ayylmao"   |
-| LOG_MYSQL         | if sql queries should get logged      | 0           |
+| Variable          | Description                           | Example            |
+|-------------------|:--------------------------------------|--------------------|
+| ASSET_SERVER      | URL for assets                        | "http://localhost" |
+| USE_PROXYCHECK    | Check users for Proxies               | 0                  |
+| APISOCKET_KEY     | Key for API Socket for SpecialAccess™ | "SDfasife3"        |
+| ADMIN_IDS         | Ids of users with Admin rights        | "1,12,3"           |
+| RECAPTCHA_SECRET  | reCaptcha secret key                  | "asdieewff"        |
+| RECAPTCHA_SITEKEY | reCaptcha site key                    | "23ksdfssd"        |
+| RECAPTCHA_TIME    | time in minutes between captchas      | 30                 |
+| SESSION_SECRET    | random sting for expression sessions  | "ayylmao"          |
+| LOG_MYSQL         | if sql queries should get logged      | 0                  |
+| USE_XREALIP       | see cloudflare section                | 1                  |
 
 Notes:
 
@@ -156,9 +156,11 @@ pm2 log flush
 pm2 stop web
 ```
 
-### If using Cloudflare
+### If using Cloudflare / Reverse Proxy
 In order to get the real IP and not use the cloudflare Proxy IP for placing pixels, we filter those out. The cloudflare IPs are in src/utils/cloudflareip.js and used in src/utils/ip.js. If for some reason cloudflare ads more IPs to it, you can see them at https://www.cloudflare.com/ips/ and add them.
 If you use any other Reverse Proxy, you can define it's IPs there too.
+
+If USE\_XREALIP is set, we take the IP from the X-Real-Ip header without checking for cloudflare IPs. Use this if you have pixelplanet running behind nginx use the nginx set\_realip module to give us the client ip on the X-Real-Ip header. And be sure to also forward X-Forwarded-Port and set X-Forwarded-Proto.
 
 ### Auto-Start
 To have the canvas with all it's components autostart at systemstart,

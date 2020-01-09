@@ -10,6 +10,7 @@ import Sequelize from 'sequelize';
 import { RegUser } from '../../../data/models';
 import mailProvider from '../../../core/mail';
 import getMe from '../../../core/me';
+import { getHostFromRequest } from '../../../utils/ip';
 import {
   validateEMail,
   validateName,
@@ -73,7 +74,8 @@ export default async (req: Request, res: Response) => {
       });
       return;
     }
-    mailProvider.sendVerifyMail(email, name);
+    const host = getHostFromRequest(req);
+    mailProvider.sendVerifyMail(email, name, host);
     res.status(200);
     res.json({
       success: true,
