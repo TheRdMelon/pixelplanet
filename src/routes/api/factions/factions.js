@@ -3,7 +3,6 @@
  * @flow
  */
 
-import Sequelize from 'sequelize';
 import type { Request, Response } from 'express';
 
 import factions from '../../../core/factions';
@@ -256,6 +255,7 @@ const joinFaction = async (req: Request, res: Response) => {
 };
 
 const ownFactions = async (req: Request, res: Response) => {
+  const { selected } = req.query;
   const { user } = req;
 
   if (!user) {
@@ -265,12 +265,33 @@ const ownFactions = async (req: Request, res: Response) => {
     });
   }
 
-  res.json(
-    await user.regUser.getFactions({
-      attributes: ['id', 'name'],
-      order: ['name'],
-    }),
-  );
+  const userFactions = await user.regUser.getFactions({
+    attributes: ['id', 'name'],
+    order: ['name'],
+  });
+
+  if (selected === undefined) {
+    res.json(userFactions);
+    return;
+  }
+
+  let getDetailedInfoFor;
+
+  if (userFactions.find((f) => f.id === selected)) {
+    getDetailedInfoFor = selected;
+  } else if (userFactions.length === 0) {
+    getDetailedInfoFor = undefined;
+  } else {
+    getDetailedInfoFor = userFactions[0].id;
+  }
+
+  res.json({
+    ownFactions: userFactions,
+    selected:
+      getDetailedInfoFor !== undefined
+        ? factions.factionInfo.find((f) => f.id === getDetailedInfoFor)
+        : undefined,
+  });
 };
 
 export default async (req: Request, res: Response) => {

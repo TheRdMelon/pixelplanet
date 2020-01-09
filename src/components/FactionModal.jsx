@@ -20,7 +20,7 @@ import {
 
 import type { State } from '../reducers';
 
-const textStyle = {
+const textStyle: CSSStyleDeclaration = {
   color: 'hsla(218, 5%, 47%, .6)',
   fontSize: 14,
   fontWeight: 500,
@@ -30,6 +30,23 @@ const textStyle = {
   margin: 0,
   padding: 0,
   lineHeight: 'normal',
+};
+
+const squareParentStyle: CSSStyleDeclaration = {
+  width: '40%',
+  position: 'relative',
+};
+
+const squareStretcherStyle: CSSStyleDeclaration = {
+  paddingBottom: '100%',
+};
+
+const squareChildStyle: CSSStyleDeclaration = {
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
 };
 
 const JoinFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
@@ -63,26 +80,35 @@ const FactionInfo = ({
     <select
       style={{ display: 'inline', fontWeight: 'bold', fontSize: '26px' }}
       value={selectedFaction}
-      onChange={(e) => selectFactionDisp(e.target.value)}
     >
       {ownFactions.map((f) => (
         <option key={`f_opt_${f.id}`} value={f.id}>
-          {f.name}
+          <div onChange={(e) => selectFactionDisp(e.target.value)}>
+            {f.name}
+          </div>
         </option>
       ))}
     </select>
-    <div style={{ height: '120px', width: '100%' }}>
-      <img
-        style={{ imageRendering: 'crisp-edges', objectFit: 'contain' }}
-        src={
-          factions.find((f) => f.id === selectedFaction).icon
-            ? `data:image/png;base64,${
-              factions.find((f) => f.id === selectedFaction).icon
-            }`
-            : './loading0.png'
-        }
-        alt="Faction Icon"
-      />
+    <div style={squareParentStyle}>
+      <div style={squareStretcherStyle} />
+      <div style={squareChildStyle}>
+        <img
+          style={{
+            imageRendering: 'pixelated',
+            objectFit: 'contain',
+            width: '100%',
+            height: '100%',
+          }}
+          src={
+            factions.find((f) => f.id === selectedFaction).icon
+              ? `data:image/png;base64,${
+                factions.find((f) => f.id === selectedFaction).icon
+              }`
+              : './loading0.png'
+          }
+          alt="Faction Icon"
+        />
+      </div>
     </div>
   </>
 );
@@ -101,7 +127,7 @@ const FactionModal = ({
     fetchOwnFactionsDisp();
   }, []);
 
-  if (ownFactions === undefined) return undefined;
+  if (ownFactions === undefined) return null;
 
   return (
     <Modal title="Faction Area">

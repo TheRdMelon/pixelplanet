@@ -150,7 +150,7 @@ export default function gui(
       if (ownFactions.length > 0 && state.selectedFaction === undefined) {
         return {
           ...state,
-          selectedFaction: ownFactions[1].id,
+          selectedFaction: ownFactions[0].id,
         };
       }
 

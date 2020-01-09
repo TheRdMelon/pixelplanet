@@ -148,7 +148,6 @@ export default function user(
         ranking,
         dailyRanking,
         minecraftname,
-        factions,
       } = action;
       const messages = action.messages ? action.messages : [];
       return {
@@ -161,7 +160,6 @@ export default function user(
         ranking,
         dailyRanking,
         minecraftname,
-        userFactions: factions,
       };
     }
 
@@ -208,9 +206,14 @@ export default function user(
     case 'RECIEVE_FACTION_INFO': {
       const { info } = action;
 
+      console.log(state.factions);
+      console.log(info);
+
       return {
         ...state,
-        factions: state.factions.map((faction) => (faction.id === info.id ? info : faction)),
+        factions: state.factions.find((f) => f.id === info.id)
+          ? state.factions.map((faction) => (faction.id === info.id ? info : faction))
+          : [...state.factions, info],
       };
     }
 

@@ -621,11 +621,16 @@ export function fetchFactionInfo(id): PromiseAction {
 export function fetchOwnFactions(id): ThunkAction {
   return async (dispatch, getState) => {
     if (getState().user.name === null) dispatch(recieveOwnFactions([]));
+    id = id !== undefined ? id : 'first';
     const response = await fetch(`/api/factions/mine${id !== undefined ? `?selected=${id}` : ''}`, {
       credentials: 'include',
     });
     if (response.ok) {
-      const ownFactions = await response.json();
+      const { ownFactions, selected } = await response.json();
+
+      if (selected) {
+        dispatch(recieveFactionInfo(selected));
+      }
 
       dispatch(recieveOwnFactions(ownFactions));
     }
