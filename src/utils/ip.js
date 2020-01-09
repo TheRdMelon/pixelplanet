@@ -19,7 +19,7 @@ function isTrustedProxy(ip: string): boolean {
 
 export function getHostFromRequest(req): ?string {
   const { headers } = req;
-  const host = headers['x-forwarded-host'] || headers['host'];
+  const host = headers['x-forwarded-host'] || headers.host;
   const proto = headers['x-forwarded-proto'] || 'http';
 
   return `${proto}://${host}`;

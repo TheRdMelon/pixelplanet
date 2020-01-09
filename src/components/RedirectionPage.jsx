@@ -19,7 +19,7 @@ export function getHtml(description, text, host) {
   const data = {
     title: 'PixelPlanet.fun Accounts',
     description,
-    body: <RedirectionPage text={text} host ={host} />,
+    body: <RedirectionPage text={text} host={host} />,
     code: `window.setTimeout(function(){window.location.href="${host}";},4000)`,
   };
   const index = `<!doctype html>${ReactDOM.renderToStaticMarkup(<Html {...data} />)}`;

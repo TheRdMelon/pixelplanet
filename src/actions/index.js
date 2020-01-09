@@ -439,7 +439,6 @@ export function fetchChunk(canvasId, center: Cell): PromiseAction {
         dispatch(receiveBigChunkFailure(center, error));
       }
     } catch (error) {
-      console.log(`Error at requesting chunk ${cx}/${cy}`);
       dispatch(receiveBigChunkFailure(center, error));
     }
   };
@@ -558,7 +557,7 @@ export function fetchStats(): PromiseAction {
 }
 
 export function fetchMe(): PromiseAction {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     const response = await fetch('/api/me', {
       credentials: 'include',
     });
@@ -666,13 +665,13 @@ export function onViewFinishChange(): Action {
 }
 
 export function urlChange(): PromiseAction {
-  return (dispatch, getState) => {
+  return (dispatch) => {
     dispatch(reloadUrl());
   };
 }
 
 export function switchCanvas(canvasId: number): PromiseAction {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     await dispatch(selectCanvas(canvasId));
     dispatch(onViewFinishChange());
   };

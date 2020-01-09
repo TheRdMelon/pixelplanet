@@ -1,5 +1,6 @@
 /*
  * timers and cron for account related actions
+ * @flow
  */
 
 import Sequelize from 'sequelize';
@@ -7,7 +8,7 @@ import Model from '../data/sequelize';
 import RegUser from '../data/models/RegUser';
 import logger from './logger';
 
-import { HOUR, MINUTE } from './constants';
+import { MINUTE } from './constants';
 import { DailyCron } from '../utils/cron';
 
 class Ranks {
@@ -53,5 +54,5 @@ class Ranks {
 }
 
 
-export const rankings = new Ranks();
+const rankings = new Ranks();
 export default rankings;

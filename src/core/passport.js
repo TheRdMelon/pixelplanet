@@ -105,7 +105,7 @@ async function oauth_login(email, name, discordid = null) {
  */
 passport.use(new FacebookStrategy({
   ...auth.facebook,
-  callbackURL: `/api/auth/facebook/return`,
+  callbackURL: '/api/auth/facebook/return',
   proxy: true,
   profileFields: ['displayName', 'email'],
 }, async (req, accessToken, refreshToken, profile, done) => {
@@ -120,7 +120,7 @@ passport.use(new FacebookStrategy({
  */
 passport.use(new DiscordStrategy({
   ...auth.discord,
-  callbackURL: `/api/auth/discord/return`,
+  callbackURL: '/api/auth/discord/return',
   proxy: true,
 }, async (accessToken, refreshToken, profile, done) => {
   // TODO get discord id
@@ -135,7 +135,7 @@ passport.use(new DiscordStrategy({
  */
 passport.use(new GoogleStrategy({
   ...auth.google,
-  callbackURL: `/api/auth/google/return`,
+  callbackURL: '/api/auth/google/return',
   proxy: true,
 }, async (accessToken, refreshToken, profile, done) => {
   const { displayName: name, emails } = profile;
@@ -149,7 +149,7 @@ passport.use(new GoogleStrategy({
  */
 passport.use(new RedditStrategy({
   ...auth.reddit,
-  callbackURL: `/api/auth/reddit/return`,
+  callbackURL: '/api/auth/reddit/return',
   proxy: true,
 }, async (accessToken, refreshToken, profile, done) => {
   console.log({ profile, refreshToken, accessToken });
@@ -181,7 +181,7 @@ passport.use(new RedditStrategy({
  */
 passport.use(new VkontakteStrategy({
   ...auth.vk,
-  callbackURL: `/api/auth/vk/return`,
+  callbackURL: '/api/auth/vk/return',
   proxy: true,
   scope: ['email'],
   profileFields: ['displayName', 'email'],
