@@ -21,7 +21,8 @@ export type UserState = {
   totalRanking: Object,
   totalDailyRanking: Object,
   // user factions
-  userFactions: Array,
+  ownFactions: Array,
+  selectedFaction: string | undefined,
   // all factions
   factions: Array,
   // chat
@@ -41,7 +42,8 @@ const initialState: UserState = {
   mailreg: false,
   totalRanking: {},
   totalDailyRanking: {},
-  userFactions: [],
+  ownFactions: [],
+  selectedFaction: undefined,
   factions: [],
   chatMessages: [['info', 'Welcome to the PixelPlanet Chat']],
   minecraftname: null,
@@ -196,27 +198,30 @@ export default function user(
 
       return {
         ...state,
-        factions: state.factions.map((faction) => (faction.id === factionFor ? { ...faction, icon } : faction)),
+        factions: state.factions.map((faction) => (faction.id === factionFor ? {
+          ...faction, icon,
+        } : faction)),
       };
     }
 
     case 'RECIEVE_FACTION_INFO': {
-      console.log(action);
       const { info } = action;
-      console.log(info);
-      const { id, users } = info;
 
       return {
         ...state,
-        factions: state.factions
-          .filter((faction) => faction.id !== id)
-          .splice(0),
-        userFactions: [
-          ...state.userFactions,
-          state.factions.find((faction) => faction.id === id),
-        ]
-          .map((faction) => (faction.id === id ? { ...faction, users } : faction))
-          .splice(0),
+        factions: state.factions.map((faction) => (faction.id === info.id
+          ? info
+          : faction
+        )),
+      };
+    }
+
+    case 'RECIEVE_OWN_FACTIONS': {
+      const { ownFactions } = action;
+
+      return {
+        ...state,
+        ownFactions,
       };
     }
 

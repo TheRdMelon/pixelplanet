@@ -72,6 +72,7 @@ export type Action =
   | { type: 'LOADING_ICON', id: string }
   | { type: 'RECIEVE_FACTION_ICON', icon: string, factionFor: string }
   | { type: 'RECIEVE_FACTION_INFO', info: Object }
+  | { type: 'RECIEVE_OWN_FACTIONS', ownFactions: Array }
   | { type: 'SET_NAME', name: string }
   | { type: 'SET_MINECRAFT_NAME', minecraftname: string }
   | { type: 'SET_MAILREG', mailreg: boolean }

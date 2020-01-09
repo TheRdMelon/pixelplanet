@@ -521,6 +521,13 @@ export function recieveFactionInfo(info: Object): Action {
   };
 }
 
+export function recieveOwnFactions(ownFactions: Array): Action {
+  return {
+    type: 'RECIEVE_OWN_FACTIONS',
+    ownFactions,
+  };
+}
+
 export function setName(
   name: string,
 ): Action {
@@ -600,6 +607,19 @@ export function fetchFactionInfo(id): PromiseAction {
       if (success) {
         dispatch(recieveFactionInfo(faction));
       }
+    }
+  };
+}
+
+export function fetchOwnFactions(id): PromiseAction {
+  return async (dispatch) => {
+    const response = await fetch(`/api/factions/mine${id !== undefined ? `?selected=${id}` : ''}`, {
+      credentials: 'include',
+    });
+    if (response.ok) {
+      const ownFactions = await response.json();
+
+      dispatch(recieveOwnFactions(ownFactions));
     }
   };
 }

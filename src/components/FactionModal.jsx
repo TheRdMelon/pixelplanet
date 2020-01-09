@@ -11,7 +11,9 @@ import PublicFactions from './PublicFactions';
 
 import Modal from './Modal';
 import CreateFactionForm from './CreateFactionForm';
-import { fetchFactions, recieveFactionInfo } from '../actions';
+import { fetchFactions, recieveFactionInfo, fetchOwnFactions } from '../actions';
+
+import type { State } from '../reducers';
 
 const textStyle = {
   color: 'hsla(218, 5%, 47%, .6)',
@@ -25,22 +27,16 @@ const textStyle = {
   lineHeight: 'normal',
 };
 
-const JoinFaction = ({
-  recieve_faction_info: recieveFactionInfoDisp,
-  fetch_factions: fetchFactionsDisp,
-}) => {
-  fetchFactionsDisp();
-  return (
-    <p style={{ textAlign: 'center' }}>
-      <p style={textStyle}>Join a faction to gain perks and work together.</p>
-      <br />
-      <h2>Join Private Faction:</h2>
-      <JoinFactionForm recieve_faction_info={recieveFactionInfoDisp} />
-      <h2>Or Join a Public Faction:</h2>
-      <PublicFactions />
-    </p>
-  );
-};
+const JoinFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
+  <p style={{ textAlign: 'center' }}>
+    <p style={textStyle}>Join a faction to gain perks and work together.</p>
+    <br />
+    <h2>Join Private Faction:</h2>
+    <JoinFactionForm recieve_faction_info={recieveFactionInfoDisp} />
+    <h2>Or Join a Public Faction:</h2>
+    <PublicFactions />
+  </p>
+);
 
 const CreateFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
   <p style={{ textAlign: 'center' }}>
@@ -54,10 +50,11 @@ const CreateFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
 const FactionModal = ({
   recieve_faction_info: recieveFactionInfoDisp,
   fetch_factions: fetchFactionsDisp,
+  fetch_own_factions: fetchOwnFactionsDisp,
 }) => (
   <Modal title="Faction Area">
     <p style={{ textAlign: 'center' }}>
-      <Tabs>
+      <Tabs on_tab_click={(tab) => (tab === 'Join' ? fetchFactionsDisp() : tab !== 'Create' && fetchOwnFactionsDisp())}>
         <div label="Info">{/* <FactionInfo /> */}</div>
         <div label="Templates">{/* <Templates /> */}</div>
         <div label="Admin">{/* <Admin /> */}</div>
@@ -81,6 +78,12 @@ const FactionModal = ({
   </Modal>
 );
 
+function mapStateToProps(state: State) {
+  return {
+    selected_faction: state.user.selectedFaction,
+  };
+}
+
 function mapDispatchToProps(dispatch) {
   return {
     recieve_faction_info(factionInfo) {
@@ -89,7 +92,20 @@ function mapDispatchToProps(dispatch) {
     fetch_factions() {
       dispatch(fetchFactions());
     },
+    fetch_own_factions_dispatch(id) {
+      dispatch(fetchOwnFactions(id));
+    },
   };
 }
 
-export default connect(null, mapDispatchToProps)(FactionModal);
+function mergeProps(propsFromState, propsFromDispatch) {
+  return {
+    fetch_own_factions() {
+      propsFromDispatch.fetch_own_factions_dispatch(propsFromState.selected_faction);
+    },
+    fetch_factions: propsFromDispatch.fetch_factions,
+  };
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(FactionModal);

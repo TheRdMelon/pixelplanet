@@ -43,7 +43,10 @@ class Factions {
       order: ['name'],
     });
 
-    this.factions = dbFactions;
+    this.factions = dbFactions.map((faction) => ({
+      ...faction.dataValues,
+      icon: undefined,
+    }));
   }
 
   async updateFactionInfo() {
@@ -57,7 +60,10 @@ class Factions {
       ],
     });
 
-    this.factionInfo = dbFactions;
+    this.factionInfo = dbFactions.map((faction) => ({
+      ...faction.dataValues,
+      Users: faction.dataValues.Users.map((users) => users.name),
+    }));
   }
 }
 

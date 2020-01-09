@@ -3,10 +3,11 @@
  * @flow
  */
 
+import Sequelize from 'sequelize';
 import type { Request, Response } from 'express';
 
 import factions from '../../../core/factions';
-import { Faction, User } from '../../../data/models';
+import { Faction, RegUser } from '../../../data/models';
 
 const newFaction = async (req: Request, res: Response) => {
   const { name, icon, private: priv } = req.body;
@@ -128,7 +129,7 @@ const transferFaction = async (req: Request, res: Response) => {
   }
 
   const toTransfer = await Faction.findByPk(factionIdParam);
-  const toUser = await User.findOne({ where: { name: to } });
+  const toUser = await RegUser.findOne({ where: { name: to } });
 
   // Validation
   const errors = [];
@@ -254,12 +255,33 @@ const joinFaction = async (req: Request, res: Response) => {
   });
 };
 
-export default async (req: Request, res: Response) => {
+const ownFactions = async (req: Request, res: Response) => {
+  const { user } = req;
+
+  if (!user) {
+    res.status(401);
+    res.json({
+      errors: ['You are not authenticated.'],
+    });
+  }
+
   res.json(
-    factions.factions.map((faction) => ({ ...faction, icon: undefined })),
+    await user.regUser.getFactions({
+      attributes: ['id', 'name'],
+      order: ['name'],
+    }),
   );
 };
 
+export default async (req: Request, res: Response) => {
+  res.json(factions.factions);
+};
+
 export {
-  newFaction, deleteFaction, factionIcon, joinFaction, transferFaction,
+  newFaction,
+  deleteFaction,
+  factionIcon,
+  joinFaction,
+  transferFaction,
+  ownFactions,
 };

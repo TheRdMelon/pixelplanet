@@ -60,7 +60,6 @@ const FactionRow = ({
           onClick={(e) => {
             e.preventDefault();
             joinFaction(faction.id).then((factionInfo) => {
-              console.log(factionInfo);
               if (factionInfo.success) {
                 recieveFactionInfoDisp(factionInfo.info);
               }

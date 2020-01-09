@@ -6,7 +6,7 @@ import Tab from './Tab';
 class Tabs extends Component {
   static propTypes = {
     children: PropTypes.instanceOf(Array).isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -17,18 +17,18 @@ class Tabs extends Component {
   }
 
   onClickTabItem = (tab) => {
+    const { on_tab_click: onTabClick } = this.props;
     this.setState({ activeTab: tab });
-  }
+    if (onTabClick !== undefined) {
+      onTabClick(tab);
+    }
+  };
 
   render() {
     const {
       onClickTabItem,
-      props: {
-        children,
-      },
-      state: {
-        activeTab,
-      },
+      props: { children },
+      state: { activeTab },
     } = this;
 
     return (
