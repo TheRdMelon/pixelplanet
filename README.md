@@ -66,7 +66,7 @@ Configuration takes place in the environment variables that are defined in ecosy
 | Variable       | Description              |  Example                |
 |----------------|:-------------------------|------------------------:|
 | PORT           | Port                     |  80                     |
-| REDIS_URL      | URL:PORT of redis server | "http://localhost:6379" |
+| REDIS_URL      | URL:PORT of redis server | "redis://localhost:6379" |
 | MYSQL_HOST     | MySql Host               | "localhost"             |
 | MYSQL_USER     | MySql User               | "user"                  |
 | MYSQL_PW       | MySql Password           | "password"              |
