@@ -7,7 +7,6 @@
 
 import React from 'react';
 
-import type { State } from '../reducers';
 import store from '../ui/store';
 import { requestPlacePixel } from '../actions';
 
@@ -18,7 +17,7 @@ function onCaptcha(token: string) {
   const { canvasId, coordinates, color } = window.pixel;
 
   store.dispatch(requestPlacePixel(canvasId, coordinates, color, token));
-  grecaptcha.reset();
+  window.grecaptcha.reset();
 }
 // https://stackoverflow.com/questions/41717304/recaptcha-google-data-callback-with-angularjs
 window.onCaptcha = onCaptcha;

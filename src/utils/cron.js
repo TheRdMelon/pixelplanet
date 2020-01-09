@@ -9,27 +9,27 @@ import { HOUR } from '../core/constants';
 import logger from '../core/logger';
 
 class Cron {
-  last_run: number;
+  lastRun: number;
   interval: number;
   functions: Array;
   timeout;
 
   // interval = how many hours between runs
-  // last_run = when this cron job was last run
-  constructor(interval: number, last_run: number = 0) {
-    this.check_for_execution = this.check_for_execution.bind(this);
+  // lastRun = when this cron job was last run
+  constructor(interval: number, lastRun: number = 0) {
+    this.checkForExecution = this.checkForExecution.bind(this);
     this.interval = interval;
-    this.last_run = last_run;
+    this.lastRun = lastRun;
     this.functions = [];
 
-    this.timeout = setInterval(this.check_for_execution, HOUR);
+    this.timeout = setInterval(this.checkForExecution, HOUR);
   }
 
-  check_for_execution() {
-    const cur_time = Date.now();
-    if (cur_time > this.last_run + this.interval * HOUR) {
+  checkForExecution() {
+    const curTime = Date.now();
+    if (curTime > this.lastRun + this.interval * HOUR) {
       logger.info(`Run cron events for interval: ${this.interval}h`);
-      this.last_run = cur_time;
+      this.lastRun = curTime;
       this.functions.forEach(async (item) => {
         item();
       });
@@ -42,19 +42,19 @@ class Cron {
 }
 
 
-function initialize_daily_cron() {
+function initializeDailyCron() {
   const now = new Date();
   // make it first run at midnight
-  const last_run = now.getTime() - now.getHours() * HOUR;
-  const cron = new Cron(24, last_run);
+  const lastRun = now.getTime() - now.getHours() * HOUR;
+  const cron = new Cron(24, lastRun);
   return cron;
 }
 
-function initialize_hourly_cron() {
+function initializeHourlyCron() {
   const cron = new Cron(1, Date.now());
   return cron;
 }
 
-export const DailyCron = initialize_daily_cron();
+export const DailyCron = initializeDailyCron();
 
-export const HourlyCron = initialize_hourly_cron();
+export const HourlyCron = initializeHourlyCron();

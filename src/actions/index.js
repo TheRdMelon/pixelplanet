@@ -1,15 +1,30 @@
 /* @flow */
 
-import swal from 'sweetalert2';
-import 'sweetalert2/src/sweetalert2.scss';
-
-import type { Action, ThunkAction, PromiseAction } from './types';
+import type {
+  Action,
+  ThunkAction,
+  PromiseAction,
+} from './types';
 import type { Cell } from '../core/Cell';
 import type { ColorIndex } from '../core/Palette';
 
-import ProtocolClient from '../socket/ProtocolClient';
 import { loadImage } from '../ui/loadImage';
 import { getColorIndexOfPixel } from '../core/utils';
+
+export function sweetAlert(
+  title: string,
+  text: string,
+  icon: string,
+  confirmButtonText: string,
+): Action {
+  return {
+    type: 'ALERT',
+    title,
+    text,
+    icon,
+    confirmButtonText,
+  };
+}
 
 export function toggleChatBox(): Action {
   return {
@@ -248,12 +263,12 @@ export function requestPlacePixel(
       }
 
       dispatch(pixelFailure());
-      swal.fire({
-        title: errorTitle || `Error ${response.status}`,
-        text: errors[0].msg,
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
+      dispatch(sweetAlert(
+        (errorTitle || `Error ${response.status}`),
+        errors[0].msg,
+        'error',
+        'OK',
+      ));
     } finally {
       dispatch(setPlaceAllowed(true));
     }
@@ -267,7 +282,8 @@ export function tryPlacePixel(
   return (dispatch, getState) => {
     const state = getState();
     const { canvasId } = state.canvas;
-    const selectedColor = color === undefined || color === null ? state.gui.selectedColor : color;
+    const selectedColor = color === undefined || color === null
+      ? state.gui.selectedColor : color;
 
     if (getColorIndexOfPixel(getState(), coordinates) !== selectedColor) {
       dispatch(requestPlacePixel(canvasId, coordinates, selectedColor));
@@ -401,7 +417,6 @@ export function fetchChunk(canvasId, center: Cell): PromiseAction {
   return async (dispatch) => {
     dispatch(requestBigChunk(center));
     try {
-      ProtocolClient.registerChunk([cx, cy]);
       const url = `/chunks/${canvasId}/${cx}/${cy}.bmp`;
       const response = await fetch(url);
       if (response.ok) {
@@ -453,7 +468,6 @@ export function receiveMe(me: Object): Action {
     canvases,
     factions,
   } = me;
-  ProtocolClient.setName(name);
   return {
     type: 'RECEIVE_ME',
     name: name || null,
@@ -507,8 +521,9 @@ export function recieveFactionInfo(info: Object): Action {
   };
 }
 
-export function setName(name: string): Action {
-  ProtocolClient.setName(name);
+export function setName(
+  name: string,
+): Action {
   return {
     type: 'SET_NAME',
     name,
@@ -586,20 +601,18 @@ export function fetchFactionInfo(id): PromiseAction {
         dispatch(recieveFactionInfo(faction));
       }
     }
-  }
+  };
 }
 
 export function fetchMe(): PromiseAction {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     const response = await fetch('/api/me', {
       credentials: 'include',
     });
 
     if (response.ok) {
       const me = await response.json();
-      await dispatch(receiveMe(me));
-      const state = getState();
-      ProtocolClient.setCanvas(state.canvas.canvasId);
+      dispatch(receiveMe(me));
     }
   };
 }
@@ -706,18 +719,14 @@ export function onViewFinishChange(): Action {
 }
 
 export function urlChange(): PromiseAction {
-  return async (dispatch, getState) => {
-    await dispatch(reloadUrl());
-    const state = getState();
-    ProtocolClient.setCanvas(state.canvas.canvasId);
+  return (dispatch) => {
+    dispatch(reloadUrl());
   };
 }
 
 export function switchCanvas(canvasId: number): PromiseAction {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     await dispatch(selectCanvas(canvasId));
-    const state = getState();
-    ProtocolClient.setCanvas(state.canvas.canvasId);
     dispatch(onViewFinishChange());
   };
 }

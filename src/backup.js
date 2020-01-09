@@ -15,16 +15,24 @@ import fs from 'fs';
 import redis from 'redis';
 import bluebird from 'bluebird';
 
+import process from 'process';
+import { spawn } from 'child_process';
+
+import {
+  updateBackupRedis,
+  createPngBackup,
+  incrementialBackupRedis,
+} from './core/tilesBackup';
+import canvases from './canvases.json';
+
 /*
  * use low cpu priority
  */
-import process from 'process';
-import { spawn } from 'child_process';
-const priority  = 15;
-const proc= spawn("renice", [priority, process.pid]);
-proc.on('exit', function (code) {
-  if (code !== 0){
-    console.log("renice failed with code - " +code);
+const priority = 15;
+const proc = spawn('renice', [priority, process.pid]);
+proc.on('exit', (code) => {
+  if (code !== 0) {
+    console.log(`renice failed with code ${code}`);
   }
   console.log('Useing low cpu priority');
 });
@@ -34,22 +42,18 @@ proc.on('exit', function (code) {
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 
-import canvases from './canvases.json';
-import {
-  updateBackupRedis,
-  createPngBackup,
-  incrementialBackupRedis,
-} from './core/tilesBackup';
-
-const {
+const [
   CANVAS_REDIS_URL,
   BACKUP_REDIS_URL,
   BACKUP_DIR,
-} = process.env;
+  INTERVAL,
+] = process.argv.slice(2);
+
 if (!CANVAS_REDIS_URL || !BACKUP_REDIS_URL || !BACKUP_DIR) {
-  throw new Error(
-    'You did not set CANVAS_REDIS_URL, BACKUP_REDIS_URL or BACKUP_DIR',
+  console.error(
+    'Usage: node backup.js original_canvas backup_canvas backup_directory',
   );
+  process.exit(1);
 }
 
 const canvasRedis = redis
@@ -64,23 +68,62 @@ backupRedis.on('error', () => {
 });
 
 
-function dailyBackup() {
+function getDateFolder() {
   if (!fs.existsSync(BACKUP_DIR)) {
-    throw new Error(`Backup directory ${backupDir} does not exist!`);
+    throw new Error(`Backup directory ${BACKUP_DIR} does not exist!`);
+  }
+  const date = new Date();
+  // eslint-disable-next-line max-len
+  const dayDir = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
+  const backupDir = `${BACKUP_DIR}/${dayDir}`;
+  return backupDir;
+}
+
+async function dailyBackup() {
+  const backupDir = getDateFolder();
+  if (!fs.existsSync(backupDir)) {
+    fs.mkdirSync(backupDir);
   }
 
   backupRedis.flushall('ASYNC', async () => {
-    const date = new Date();
-    const dayDir = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
-    const backupDir = `${BACKUP_DIR}/${dayDir}`;
     if (!fs.existsSync(backupDir)) {
       fs.mkdirSync(backupDir);
     }
     await updateBackupRedis(canvasRedis, backupRedis, canvases);
     await createPngBackup(backupRedis, canvases, backupDir);
-    await incrementialBackupRedis(canvasRedis, backupRedis, canvases, backupDir);
-    console.log(`Daily backup ${dayDir} done`);
+    console.log('Daily full backup done');
   });
 }
 
-dailyBackup();
+function incrementialBackup() {
+  const backupDir = getDateFolder();
+  if (!fs.existsSync(backupDir)) {
+    fs.mkdirSync(backupDir);
+  }
+  incrementialBackupRedis(
+    canvasRedis,
+    backupRedis,
+    canvases,
+    backupDir,
+  );
+}
+
+async function trigger() {
+  if (!fs.existsSync(BACKUP_DIR)) {
+    console.error(`Backup directory ${BACKUP_DIR} does not exist!`);
+    process.exit(1);
+  }
+  const backupDir = getDateFolder();
+  if (!fs.existsSync(backupDir)) {
+    await dailyBackup();
+  } else {
+    await incrementialBackup();
+  }
+  if (!INTERVAL) {
+    process.exit(0);
+  }
+  setTimeout(trigger, INTERVAL * 60 * 1000);
+}
+
+console.log('Starting backup...');
+trigger();

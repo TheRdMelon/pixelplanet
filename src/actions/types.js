@@ -7,6 +7,13 @@ import type { State } from '../reducers';
 export type Action =
   | { type: 'LOGGED_OUT' }
   // my actions
+  | {
+      type: 'ALERT',
+      title: string,
+      text: string,
+      icon: string,
+      confirmButtonText: string,
+    }
   | { type: 'TOGGLE_GRID' }
   | { type: 'TOGGLE_PIXEL_NOTIFY' }
   | { type: 'TOGGLE_AUTO_ZOOM_IN' }
@@ -59,7 +66,6 @@ export type Action =
       dailyRanking: number,
       minecraftname: string,
       canvases: Object,
-      factions: Array,
     }
   | { type: 'RECEIVE_STATS', totalRanking: Object, totalDailyRanking: Object }
   | { type: 'RECIEVE_FACTIONS', factions: Array }
