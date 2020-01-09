@@ -28,6 +28,7 @@ export default (store) => (next) => (action) => {
       break;
     }
 
+    case 'TOGGLE_HISTORICAL_VIEW':
     case 'SET_SCALE': {
       const {
         viewscale,

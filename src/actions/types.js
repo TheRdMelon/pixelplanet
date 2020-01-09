@@ -24,6 +24,7 @@ export type Action =
   | { type: 'TOGGLE_POTATO_MODE' }
   | { type: 'TOGGLE_LIGHT_GRID' }
   | { type: 'TOGGLE_OPEN_MENU' }
+  | { type: 'TOGGLE_HISTORICAL_VIEW' }
   | { type: 'SET_NOTIFICATION', notification: string }
   | { type: 'UNSET_NOTIFICATION' }
   | { type: 'SET_PLACE_ALLOWED', placeAllowed: boolean }

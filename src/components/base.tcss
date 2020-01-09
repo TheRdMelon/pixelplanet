@@ -150,11 +150,11 @@ kbd {
     top: 139px;
 }
 :global(#globebutton) {
-    left: 57px;
+    left: 98px;
     top: 16px;
 }
 :global(#canvasbutton) {
-    left: 98px;
+    left: 57px;
     top: 16px;
 }
 :global(#minecrafttpbutton) {
@@ -168,6 +168,27 @@ kbd {
 :global(#chatbutton) {
   bottom: 16px;
   right: 57px;
+}
+
+:global(#historyselect) {
+    position: absolute;
+    top: 16px;
+    left: 0px;
+    right: 0px;
+    height: 70px;
+    width: 140px;
+    background-color: rgba(226, 226, 226, 0.80);
+    color: black;
+    font-size: 14px;
+    line-height: 30px;
+    text-align: center;
+    vertical-align: middle;
+    border: solid black;
+    border-width: thin;
+    padding: 0 24px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 2;
 }
 
 :global(.Modal) {

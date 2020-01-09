@@ -35,6 +35,12 @@ export function toggleChatBox(): Action {
   };
 }
 
+export function toggleHistoricalView(): Action {
+  return {
+    type: 'TOGGLE_HISTORICAL_VIEW',
+  };
+}
+
 export function toggleGrid(): Action {
   return {
     type: 'TOGGLE_GRID',

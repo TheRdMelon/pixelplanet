@@ -17,6 +17,7 @@ import {
   toggleChatNotify,
   togglePotatoMode,
   toggleLightGrid,
+  toggleHistoricalView,
 } from '../actions';
 
 import type { State } from '../reducers';
@@ -94,6 +95,7 @@ function SettingsModal({
   isPixelNotifyShown,
   isPotato,
   isLightGrid,
+  isHistoricalView,
   onMute,
   autoZoomIn,
   compactPalette,
@@ -104,6 +106,7 @@ function SettingsModal({
   onToggleChatNotify,
   onTogglePotatoMode,
   onToggleLightGrid,
+  onToggleHistoricalView,
   chatNotify,
 }) {
   return (
@@ -159,6 +162,15 @@ function SettingsModal({
         value={isLightGrid}
         onToggle={onToggleLightGrid}
       />
+      { (window.backupurl)
+        ? (
+          <SettingsItem
+            title="Historical View"
+            description="Check out past versions of the canvas."
+            value={isHistoricalView}
+            onToggle={onToggleHistoricalView}
+          />
+        ) : null }
     </Modal>
   );
 }
@@ -174,6 +186,9 @@ function mapStateToProps(state: State) {
     isLightGrid,
   } = state.gui;
   const isMuted = mute;
+  const {
+    isHistoricalView,
+  } = state.canvas;
   const isGridShown = showGrid;
   const isPixelNotifyShown = showPixelNotify;
   return {
@@ -185,6 +200,7 @@ function mapStateToProps(state: State) {
     chatNotify,
     isPotato,
     isLightGrid,
+    isHistoricalView,
   };
 }
 
@@ -213,6 +229,9 @@ function mapDispatchToProps(dispatch) {
     },
     onToggleLightGrid() {
       dispatch(toggleLightGrid());
+    },
+    onToggleHistoricalView() {
+      dispatch(toggleHistoricalView());
     },
   };
 }
