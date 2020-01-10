@@ -208,6 +208,8 @@ Alternatively you can run it with pm2, just like pixelplanet. An example ecosyst
 
 ### Historical view
 
+![historicalview](promotion/historicalview.gif)
+
 Pixelplanet is able to let the user browse through the past with those backups. For this you need to define `BACKUP_URL` and `BACKUP_DIR` in your ecosystem.yml for pixelplanet.
 `BACKUP_URL` is the URL where the backup folder is available. It's best to let another server serve those files or at least use nginx.
 `BACKUP_DIR` is the full path of the local directory where the backup is located (whats set as `BACKUP_DIRECTORY` in the command of the backup.js).
