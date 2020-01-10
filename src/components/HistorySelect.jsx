@@ -21,7 +21,8 @@ async function getTimes(day, canvasId) {
       return [];
     }
     const times = await response.json();
-    const parsedTimes = times.map((a) => `${a.substr(0, 2)}:${a.substr(-2, 2)}`);
+    const parsedTimes = times
+      .map((a) => `${a.substr(0, 2)}:${a.substr(-2, 2)}`);
     return parsedTimes;
   } catch {
     return [];
@@ -41,7 +42,7 @@ class HistorySelect extends React.Component {
 
     this.state = {
       submitting: false,
-      selectedDate: new Date(),
+      selectedDate: null,
       max,
     };
 
@@ -59,6 +60,7 @@ class HistorySelect extends React.Component {
 
     this.setState({
       submitting: true,
+      times: [],
     });
     const {
       canvasId,
@@ -99,14 +101,15 @@ class HistorySelect extends React.Component {
         <div>
           { (times && times.length > 0)
             ? (
-              <select onChange={(evt) => setTime(selectedDate, evt.target.value)}>
+              <select onChange={(e) => setTime(selectedDate, e.target.value)}>
                 {times.map((value) => (
                   <option value={value}>{value}</option>
                 ))}
               </select>
             )
-            : <p>Select Date</p> }
+            : null }
           { (submitting) ? <p>Loading...</p> : null }
+          { (!selectedDate && !submitting) ? <p>Select Date above</p> : null }
         </div>
       </div>
     );

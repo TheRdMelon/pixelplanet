@@ -180,9 +180,8 @@ kbd {
     background-color: rgba(226, 226, 226, 0.80);
     color: black;
     font-size: 14px;
-    line-height: 30px;
+    line-height: 26px;
     text-align: center;
-    vertical-align: middle;
     border: solid black;
     border-width: thin;
     padding: 0 24px;
