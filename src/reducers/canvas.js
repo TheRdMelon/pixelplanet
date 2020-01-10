@@ -291,6 +291,8 @@ export default function gui(
 
       const key = ChunkRGB.getKey(...center);
       const chunk = chunks.get(key);
+      if (!chunk) return state;
+
       chunk.isBasechunk = true;
       if (arrayBuffer.byteLength) {
         const chunkArray = new Uint8Array(arrayBuffer);
@@ -312,6 +314,8 @@ export default function gui(
 
       const key = ChunkRGB.getKey(...center);
       const chunk = chunks.get(key);
+      if (!chunk) return state;
+
       chunk.empty();
 
       return {
@@ -326,6 +330,8 @@ export default function gui(
 
       const key = ChunkRGB.getKey(...center);
       const chunk = chunks.get(key);
+      if (!chunk) return state;
+
       chunk.fromImage(tile);
 
       return {
