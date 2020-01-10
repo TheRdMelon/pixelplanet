@@ -105,7 +105,12 @@ function initViewport() {
     const { autoZoomIn } = state.gui;
     const { placeAllowed } = state.user;
 
-    const { scale } = state.canvas;
+    const {
+      scale,
+      isHistoricalView,
+    } = state.canvas;
+    if (isHistoricalView) return;
+
     const { x, y } = center;
     const cell = screenToWorld(state, viewport, [x, y]);
 

@@ -11,7 +11,11 @@ import {
   getTileOfPixel,
   getPixelFromChunkOffset,
 } from '../core/utils';
-import { fetchChunk, fetchTile } from '../actions';
+import {
+  fetchChunk,
+  fetchTile,
+  fetchHistoricalChunk,
+} from '../actions';
 
 import {
   renderGrid,
@@ -46,6 +50,8 @@ class Renderer {
   forceNextSubrender: boolean;
   canvas: HTMLCanvasElement;
   lastFetch: number;
+  //--
+  oldHistoricalTime: string;
 
   constructor() {
     this.centerChunk = [null, null];
@@ -56,6 +62,7 @@ class Renderer {
     this.forceNextRender = true;
     this.forceNextSubrender = true;
     this.lastFetch = 0;
+    this.oldHistoricalTime = null;
     //--
     this.canvas = document.createElement('canvas');
     this.canvas.width = CANVAS_WIDTH;
@@ -91,8 +98,11 @@ class Renderer {
       view,
       canvasSize,
     } = state.canvas;
-    this.tiledZoom = canvasMaxTiledZoom + Math.log2(this.tiledScale) / 2;
     this.updateScale(viewscale, canvasMaxTiledZoom, view, canvasSize);
+  }
+
+  updateOldHistoricalTime(historicalTime: string) {
+    this.oldHistoricalTime = historicalTime;
   }
 
   updateScale(
@@ -229,7 +239,6 @@ class Renderer {
     const CHUNK_RENDER_RADIUS_Y = Math.ceil(height / TILE_SIZE / 2 / relScale);
     // If scale is so large that neighbouring chunks wouldn't fit in canvas,
     // do scale = 1 and scale in render()
-    // TODO this is not working
     if (scale > SCALE_THREASHOLD) relScale = 1.0;
     // scale
     context.save();
@@ -298,13 +307,22 @@ class Renderer {
   }
 
 
+  render() {
+    const state: State = this.store.getState();
+    return (state.canvas.isHistoricalView)
+      ? this.renderHistorical(state)
+      : this.renderMain(state);
+  }
+
+
   // keep in mind that everything we got here gets executed 60 times per second
   // avoiding unneccessary stuff is important
-  render() {
+  renderMain(
+    state: State,
+  ) {
     const {
       viewport,
     } = this;
-    const state: State = this.store.getState();
     const {
       showGrid,
       showPixelNotify,
@@ -386,6 +404,204 @@ class Renderer {
 
     if (hover && doRenderPlaceholder) renderPlaceholder(state, viewport, viewscale);
     if (hover && doRenderPotatoPlaceholder) renderPotatoPlaceholder(state, viewport, viewscale);
+  }
+
+
+  renderHistoricalChunks(
+    state: State,
+  ) {
+    const context = this.canvas.getContext('2d');
+    if (!context) return;
+
+    const {
+      centerChunk: chunkPosition,
+      viewport,
+      oldHistoricalTime,
+    } = this;
+    const {
+      viewscale,
+      canvasId,
+      canvasSize,
+      chunks,
+      historicalDate,
+      historicalTime,
+    } = state.canvas;
+
+
+    // clear rect is just needed for Google Chrome, else it would flash regularly
+    context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    // Disable smoothing
+    // making it dependent on the scale is needed for Google Chrome, else scale <1 would look shit
+    if (viewscale >= 1) {
+      context.msImageSmoothingEnabled = false;
+      context.webkitImageSmoothingEnabled = false;
+      context.imageSmoothingEnabled = false;
+    } else {
+      context.msImageSmoothingEnabled = true;
+      context.webkitImageSmoothingEnabled = true;
+      context.imageSmoothingEnabled = true;
+    }
+
+    const scale =  (viewscale > SCALE_THREASHOLD) ? 1.0 : viewscale;
+    // define how many chunks we will render
+    // don't render chunks outside of viewport
+    const { width, height } = viewport;
+    const CHUNK_RENDER_RADIUS_X = Math.ceil(width / TILE_SIZE / 2 / scale);
+    const CHUNK_RENDER_RADIUS_Y = Math.ceil(height / TILE_SIZE / 2 / scale);
+
+    context.save();
+    context.fillStyle = '#C4C4C4';
+    // clear canvas and do nothing if no time selected
+    if (!historicalDate || !historicalTime) {
+      context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      context.restore();
+      return;
+    }
+    // scale
+    context.scale(scale, scale);
+    // decide if we will fetch missing chunks
+    // and update the timestamps of accessed chunks
+    const curTime = Date.now();
+    let fetch = false;
+    if (curTime > this.lastFetch + 150) {
+      this.lastFetch = curTime;
+      fetch = true;
+    }
+
+    const xOffset = CANVAS_WIDTH / 2 / scale - TILE_SIZE / 2;
+    const yOffset = CANVAS_HEIGHT / 2 / scale - TILE_SIZE / 2;
+
+    const [xc, yc] = chunkPosition; // center chunk
+    // CLEAN margin
+    // draw  chunks. If not existing, just clear.
+    let chunk: ChunkRGB;
+    let key: string;
+    for (let dx = -CHUNK_RENDER_RADIUS_X; dx <= CHUNK_RENDER_RADIUS_X; dx += 1) {
+      for (let dy = -CHUNK_RENDER_RADIUS_Y; dy <= CHUNK_RENDER_RADIUS_Y; dy += 1) {
+        const cx = xc + dx;
+        const cy = yc + dy;
+        const x = xOffset + dx * TILE_SIZE;
+        const y = yOffset + dy * TILE_SIZE;
+
+        const chunkMaxXY = canvasSize / TILE_SIZE;
+        if (cx < 0 || cx >= chunkMaxXY || cy < 0 || cy >= chunkMaxXY) {
+          // if out of bounds
+          context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        } else {
+          // full chunks
+          key = ChunkRGB.getKey(historicalDate, cx, cy);
+          chunk = chunks.get(key);
+          if (chunk) {
+            // render new chunk
+            if (chunk.ready) {
+              context.drawImage(chunk.image, x, y);
+              if (fetch) chunk.timestamp = curTime;
+            } else if (loadingTiles.hasTiles) {
+              context.drawImage(loadingTiles.getTile(canvasId), x, y);
+            } else {
+              context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            }
+          } else {
+            // we don't have that chunk
+            if (fetch) {
+              this.store.dispatch(fetchHistoricalChunk(canvasId, [cx, cy], historicalDate, null));
+            }
+            if (loadingTiles.hasTiles) {
+              context.drawImage(loadingTiles.getTile(canvasId), x, y);
+            } else {
+              context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            }
+          }
+          // incremential chunks
+          key = ChunkRGB.getKey(`${historicalDate}${historicalTime}`, cx, cy);
+          chunk = chunks.get(key);
+          if (chunk) {
+            // render new chunk
+            if (!chunk.ready && oldHistoricalTime) {
+              // redraw previous incremential chunk if new one is not there yet
+              key = ChunkRGB.getKey(`${historicalDate}${oldHistoricalTime}`, cx, cy);
+              chunk = chunks.get(key);
+            }
+            if (chunk && chunk.ready && !chunk.isEmpty) {
+              context.drawImage(chunk.image, x, y);
+              if (fetch) chunk.timestamp = curTime;
+            }
+          } else {
+            if (fetch) {
+              // we don't have that chunk
+              this.store.dispatch(fetchHistoricalChunk(canvasId, [cx, cy], historicalDate, historicalTime));
+            }
+            if (oldHistoricalTime) {
+              key = ChunkRGB.getKey(`${historicalDate}${oldHistoricalTime}`, cx, cy);
+              chunk = chunks.get(key);
+              if (chunk && chunk.ready && !chunk.isEmpty) {
+                context.drawImage(chunk.image, x, y);
+              }
+            }
+          }
+        }
+      }
+    }
+    context.restore();
+  }
+
+
+  // keep in mind that everything we got here gets executed 60 times per second
+  // avoiding unneccessary stuff is important
+  renderHistorical(
+    state: State,
+  ) {
+    const {
+      viewport,
+    } = this;
+    const {
+      showGrid,
+      isLightGrid,
+    } = state.gui;
+    const {
+      view,
+      viewscale,
+      canvasSize,
+    } = state.canvas;
+
+    const [x, y] = view;
+    const [cx, cy] = this.centerChunk;
+
+    if (!this.forceNextRender && !this.forceNextSubrender) {
+      return;
+    }
+
+    if (this.forceNextRender) {
+      this.renderHistoricalChunks(state);
+    }
+    this.forceNextRender = false;
+    this.forceNextSubrender = false;
+
+    const { width, height } = viewport;
+    const viewportCtx = viewport.getContext('2d');
+    if (!viewportCtx) return;
+
+    // canvas optimization: https://www.html5rocks.com/en/tutorials/canvas/performance/
+    viewportCtx.msImageSmoothingEnabled = false;
+    viewportCtx.webkitImageSmoothingEnabled = false;
+    viewportCtx.imageSmoothingEnabled = false;
+    // If scale is so large that neighbouring chunks wouldn't fit in offscreen canvas,
+    // do scale = 1 in renderChunks and scale in render()
+    const canvasCenter = canvasSize / 2;
+    if (viewscale > SCALE_THREASHOLD) {
+      viewportCtx.save();
+      viewportCtx.scale(viewscale, viewscale);
+      viewportCtx.drawImage(this.canvas,
+        width / 2 / viewscale - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE - canvasCenter - x),
+        height / 2 / viewscale - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y));
+      viewportCtx.restore();
+    } else {
+      viewportCtx.drawImage(this.canvas,
+        Math.floor(width / 2 - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE - canvasCenter - x) * viewscale),
+        Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y) * viewscale));
+    }
+
+    if (showGrid && viewscale >= 8) renderGrid(state, viewport, viewscale, isLightGrid);
   }
 }
 

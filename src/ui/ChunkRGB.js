@@ -28,6 +28,7 @@ class ChunkRGB {
     this.cell = cell;
     this.key = ChunkRGB.getKey(...cell);
     this.ready = false;
+    this.isEmpty = false;
     this.timestamp = Date.now();
   }
 
@@ -90,6 +91,7 @@ class ChunkRGB {
 
   empty() {
     this.ready = true;
+    this.isEmpty = true;
     const { image, palette } = this;
     const ctx = image.getContext('2d');
     // eslint-disable-next-line prefer-destructuring

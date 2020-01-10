@@ -86,6 +86,8 @@ Configuration takes place in the environment variables that are defined in ecosy
 | SESSION_SECRET    | random sting for expression sessions  | "ayylmao"          |
 | LOG_MYSQL         | if sql queries should get logged      | 0                  |
 | USE_XREALIP       | see cloudflare section                | 1                  |
+| BACKUP_URL        | url of backup server (see Backup)     | "http://localhost" |
+| BACKUP_DIR        | mounted directory of backup server    | "/mnt/backup/"     |
 
 Notes:
 
@@ -186,7 +188,7 @@ You can use `npm run babel-node ./your/script.js` to execute a script with local
 
 `npm run upgrade` can be use for interactively upgrading npm packages.
 
-## Backups
+## Backups and Historical View
 
 PixelPlanet includes a backup script that creates full canvas backups daily in the form of PNG tile files and incremential backups all 15min (or whatever you define) that saves PNG tiles with just the differences since the last full daily backup.
 
@@ -203,3 +205,9 @@ Interval is the time in minutes between incremential backups. If interval is und
 If command is defined, it will be executed after every backup (just one command, with no arguments, like "dosomething.sh"), this is useful for synchronisation with a storage server i.e..
 
 Alternatively you can run it with pm2, just like pixelplanet. An example ecosystem-backup.example.yml file will be located in the build directory.
+
+### Historical view
+
+Pixelplanet is able to let the user browse through the past with those backups. For this you need to define `BACKUP_URL` and `BACKUP_DIR` in your ecosystem.yml for pixelplanet.
+`BACKUP_URL` is the URL where the backup folder is available. It's best to let another server serve those files or at least use nginx.
+`BACKUP_DIR` is the full path of the local directory where the backup is located (whats set as `BACKUP_DIRECTORY` in the command of the backup.js).

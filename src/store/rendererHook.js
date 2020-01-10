@@ -7,12 +7,19 @@
 import renderer from '../ui/Renderer';
 
 export default (store) => (next) => (action) => {
+  const { type } = action;
+
+  if (type == 'SET_HISTORICAL_TIME') {
+    const state = store.getState();
+    renderer.updateOldHistoricalTime(state.canvas.historicalTime);
+  }
+
   // executed after reducers
   const ret = next(action);
 
   const state = store.getState();
 
-  switch (action.type) {
+  switch (type) {
     case 'RELOAD_URL':
     case 'SELECT_CANVAS':
     case 'RECEIVE_ME': {
@@ -20,6 +27,7 @@ export default (store) => (next) => (action) => {
       break;
     }
 
+    case 'SET_HISTORICAL_TIME':
     case 'REQUEST_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK_FAILURE':

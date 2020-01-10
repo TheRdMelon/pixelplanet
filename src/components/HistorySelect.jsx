@@ -6,8 +6,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import type { State } from '../reducers';
+import { selectHistoricalTime } from '../actions';
 
 function dateToString(date) {
+  // YYYY-MM-DD
   const timeString = date.substr(0, 4) + date.substr(5, 2) + date.substr(8, 2);
   return timeString;
 }
@@ -60,9 +62,13 @@ class HistorySelect extends React.Component {
     });
     const {
       canvasId,
+      setTime,
     } = this.props;
-    const date = dateToString(evt.target.value)
+    const date = dateToString(evt.target.value);
     const times = await getTimes(date, canvasId);
+    if (times.length > 0) {
+      setTime(date, times[0]);
+    }
     this.setState({
       submitting: false,
       selectedDate: date,
@@ -111,9 +117,7 @@ function mapDispatchToProps(dispatch) {
   return {
     setTime(date: string, time: string) {
       const timeString = time.substr(0, 2) + time.substr(-2, 2);
-      const dateString = dateToString(date);
-      console.log(`${timeString} - ${dateString}`);
-      // dispatch(selectHistoricalTime(dateString, timeString));
+      dispatch(selectHistoricalTime(date, timeString));
     },
   };
 }

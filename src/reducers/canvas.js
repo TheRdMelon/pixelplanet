@@ -34,6 +34,8 @@ export type CanvasState = {
   requested: Set<string>,
   fetchs: number,
   isHistoricalView: boolean,
+  historicalDate: string,
+  historicalTime: string,
   // object with all canvas informations from all canvases like colors and size
   canvases: Object,
 };
@@ -108,6 +110,8 @@ const initialState: CanvasState = {
   requested: new Set(),
   fetchs: 0,
   isHistoricalView: false,
+  historicalDate: null,
+  historicalTime: null,
 };
 
 
@@ -180,11 +184,27 @@ export default function gui(
       };
     }
 
-    case 'TOGGLE_HISTORICAL_VIEW': {
+    case 'SET_HISTORICAL_TIME': {
+      const {
+        date,
+        time,
+      } = action;
       return {
         ...state,
-        scale: 1.0,
-        viewscale: 1.0,
+        historicalDate: date,
+        historicalTime: time,
+      };
+    }
+
+    case 'TOGGLE_HISTORICAL_VIEW': {
+      const {
+        scale,
+        viewscale,
+      } = state;
+      return {
+        ...state,
+        scale: (scale < 1.0) ? 1.0 : scale,
+        viewscale: (viewscale < 1.0) ? 1.0 : viewscale,
         isHistoricalView: !state.isHistoricalView,
       };
     }
@@ -280,7 +300,6 @@ export default function gui(
 
       return {
         ...state,
-        chunks,
         fetchs: fetchs + 1,
       };
     }

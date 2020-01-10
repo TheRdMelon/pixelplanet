@@ -74,6 +74,7 @@ export type Action =
   | { type: 'SHOW_MODAL', modalType: string, modalProps: obj }
   | { type: 'HIDE_MODAL' }
   | { type: 'RELOAD_URL' }
+  | { type: 'SET_HISTORICAL_TIME', date: string, time: string }
   | { type: 'ON_VIEW_FINISH_CHANGE' };
 export type PromiseAction = Promise<Action>;
 export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
