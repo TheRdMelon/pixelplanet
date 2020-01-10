@@ -150,9 +150,10 @@ class Renderer {
       canvasSize,
       palette,
       scale,
+      isHistoricalView,
     } = state.canvas;
 
-    if (scale < 0.8) return;
+    if (scale < 0.8 || isHistoricalView) return;
     const scaleM = (scale > SCALE_THREASHOLD) ? 1 : scale;
 
     const context = this.canvas.getContext('2d');
