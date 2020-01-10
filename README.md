@@ -118,7 +118,7 @@ Notes:
 
 Canvas specific configuartion like colors and cooldown is in `src/canvases.json` for all canvases.
 The CanvasSize is expected to be a power of 4 (4096, 16384, 65536,...) and not smaller than 256.
-bcd is base cooldown for unset pixels, pcd is cooldown for placing on top of others, cds is stacktime, req is the requirement to be allowed to set on canvas in total pixels placed. All the cooldown values are in ms.
+bcd is base cooldown for unset pixels, pcd is cooldown for placing on top of others, cds is stacktime, req is the requirement to be allowed to set on canvas in total pixels placed (or -1 for no requirement or 0 for having to be registered). `sd` is the start-date of the canvas, its used to know the oldest available backup (see Backup & Historical View section). All the cooldown values are in ms.
 If you want to add a new canvas, be sure that you additionally create `public/loading${canvasId}.png` and `public/assets3d/normal${canvasId}.jpg` and `public/assets3d/specular${canvasId}.jpg`, check out the existing ones to see what those files are for.
 
 The default configuration values can be seen in `src/core/config.js` and for the canvases in `src/core/constats.js`
@@ -205,6 +205,9 @@ Interval is the time in minutes between incremential backups. If interval is und
 If command is defined, it will be executed after every backup (just one command, with no arguments, like "dosomething.sh"), this is useful for synchronisation with a storage server i.e..
 
 Alternatively you can run it with pm2, just like pixelplanet. An example ecosystem-backup.example.yml file will be located in the build directory.
+
+Note:
+- You do not have to run backups or historical view, it's optional.
 
 ### Historical view
 

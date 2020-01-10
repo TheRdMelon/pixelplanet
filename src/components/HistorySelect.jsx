@@ -79,6 +79,7 @@ class HistorySelect extends React.Component {
   render() {
     const {
       setTime,
+      canvasStartDate,
     } = this.props;
     const {
       submitting,
@@ -91,7 +92,7 @@ class HistorySelect extends React.Component {
         <input
           type="date"
           requiredPattern="\d{4}-\d{2}-\d{2}"
-          min="2020-01-08"
+          min={canvasStartDate}
           max={max}
           onChange={this.handleDateChange}
         />
@@ -125,8 +126,9 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state: State) {
   const {
     canvasId,
+    canvasStartDate,
   } = state.canvas;
-  return { canvasId };
+  return { canvasId, canvasStartDate };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(HistorySelect);

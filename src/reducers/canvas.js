@@ -26,6 +26,7 @@ export type CanvasState = {
   canvasIdent: string,
   canvasSize: number,
   canvasMaxTiledZoom: number,
+  canvasStartDate: string,
   palette: Palette,
   chunks: Map<string, ChunkRGB>,
   view: Cell,
@@ -62,9 +63,22 @@ function getViewFromURL(canvases: Object) {
     const canvasIdent = almost[0];
     // will be null if not in DEFAULT_CANVASES
     const canvasId = getIdFromObject(canvases, almost[0]);
-    const colors = (canvasId !== null)
-      ? canvases[canvasId].colors : canvases[DEFAULT_CANVAS_ID].colors;
-    const canvasSize = (canvasId !== null) ? canvases[canvasId].size : 1024;
+
+    let colors;
+    let canvasSize;
+    let canvasStartDate;
+    if (canvasId == null) {
+      // if canvas informations are not available yet
+      // aka /api/me didn't load yet
+      colors = canvases[DEFAULT_CANVAS_ID].colors;
+      canvasSize = 1024;
+      canvasStartDate = null;
+    } else {
+      const canvas = canvases[canvasId];
+      colors = canvas.colors;
+      canvasSize = canvas.size;
+      canvasStartDate = canvas.sd;
+    }
 
     const x = parseInt(almost[1], 10);
     const y = parseInt(almost[2], 10);
@@ -83,6 +97,7 @@ function getViewFromURL(canvases: Object) {
       canvasId,
       canvasIdent,
       canvasSize,
+      canvasStartDate,
       canvasMaxTiledZoom: getMaxTiledZoom(canvasSize),
       palette: new Palette(colors, 0),
       view: [x, y],
@@ -95,6 +110,7 @@ function getViewFromURL(canvases: Object) {
       canvasId: DEFAULT_CANVAS_ID,
       canvasIdent: canvases[DEFAULT_CANVAS_ID].ident,
       canvasSize: canvases[DEFAULT_CANVAS_ID].size,
+      canvasStartDate: null,
       canvasMaxTiledZoom: getMaxTiledZoom(canvases[DEFAULT_CANVAS_ID].size),
       palette: new Palette(canvases[DEFAULT_CANVAS_ID].colors, 0),
       view: getGivenCoords(),
@@ -344,15 +360,23 @@ export default function gui(
     }
 
     case 'SELECT_CANVAS': {
-      const { canvasId } = action;
+      let { canvasId } = action;
       const { canvases, chunks } = state;
 
       chunks.clear();
-      const canvas = canvases[canvasId];
-      const canvasIdent = canvas.ident;
-      const canvasSize = canvases[canvasId].size;
+      let canvas = canvases[canvasId];
+      if (!canvas) {
+        canvasId = DEFAULT_CANVAS_ID;
+        canvas = canvases[DEFAULT_CANVAS_ID];
+      }
+      const {
+        size: canvasSize,
+        sd: canvasStartDate,
+        ident: canvasIdent,
+        colors,
+      } = canvas;
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
-      const palette = new Palette(canvas.colors, 0);
+      const palette = new Palette(colors, 0);
       const view = (canvasId === 0) ? getGivenCoords() : [0, 0];
       chunks.clear();
       return {
@@ -360,6 +384,7 @@ export default function gui(
         canvasId,
         canvasIdent,
         canvasSize,
+        canvasStartDate,
         canvasMaxTiledZoom,
         palette,
         view,
@@ -377,15 +402,20 @@ export default function gui(
         canvasId = DEFAULT_CANVAS_ID;
         canvasIdent = canvases[DEFAULT_CANVAS_ID].ident;
       }
-      const canvasSize = canvases[canvasId].size;
+      const {
+        size: canvasSize,
+        sd: canvasStartDate,
+        colors,
+      } = canvases[canvasId];
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
-      const palette = new Palette(canvases[canvasId].colors, 0);
+      const palette = new Palette(colors, 0);
 
       return {
         ...state,
         canvasId,
         canvasIdent,
         canvasSize,
+        canvasStartDate,
         canvasMaxTiledZoom,
         palette,
         canvases,
