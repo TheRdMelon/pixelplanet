@@ -47,7 +47,7 @@ export async function imageABGR2Canvas(
   let chunk;
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
-      chunk = await RedisCanvas.getChunk(cx, cy);
+      chunk = await RedisCanvas.getChunk(cx, cy, canvasId);
       chunk = (chunk) ? new Uint8Array(chunk) : new Uint8Array(TILE_SIZE * TILE_SIZE);
       // offset of chunk in image
       const cOffX = cx * TILE_SIZE + canvasMinXY - x;
@@ -120,7 +120,7 @@ export async function imagemask2Canvas(
   let chunk;
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
-      chunk = await RedisCanvas.getChunk(cx, cy);
+      chunk = await RedisCanvas.getChunk(cx, cy, canvasId);
       chunk = (chunk) ? new Uint8Array(chunk) : new Uint8Array(TILE_SIZE * TILE_SIZE);
       // offset of chunk in image
       const cOffX = cx * TILE_SIZE + canvasMinXY - x;
