@@ -69,7 +69,10 @@ export default (passport) => {
       'Content-Type': 'text/html',
     });
     const host = getHostFromRequest(req);
-    const index = getHtml('OAuth Authentification', 'LogIn failed :(, please try again later or register a new account with Mail.', host);
+    // eslint-disable-next-line max-len
+    const text = 'LogIn failed :(, please try again later or register a new account with mail.';
+    const message = (req.session) ? req.session.flash : text;
+    const index = getHtml('OAuth Authentification', message, host);
     res.status(200).send(index);
   });
 
@@ -105,7 +108,13 @@ export default (passport) => {
       logger.info(`User ${user.id} logged in with mail/password.`);
 
       req.logIn(user, async (e) => {
-        if (e) { res.json({ success: false, errors: ['Failed to establish session. Please try again later :('] }); return; }
+        if (e) {
+          res.json({
+            success: false,
+            errors: ['Failed to establish session. Please try again later :('],
+          });
+          return;
+        }
 
         user.ip = req.user.ip;
         const me = await getMe(user);
