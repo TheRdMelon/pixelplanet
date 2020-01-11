@@ -34,33 +34,43 @@ const router = express.Router();
 export default (passport) => {
   router.get('/logout', logout);
 
-  router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+  router.get('/facebook', passport.authenticate('facebook',
+    { scope: ['email'] }));
   router.get('/facebook/return', passport.authenticate('facebook', {
     failureRedirect: '/api/auth/failure',
+    failureFlash: true,
     successRedirect: '/',
   }));
 
-  router.get('/discord', passport.authenticate('discord', { scope: ['identify', 'email'] }));
+  router.get('/discord', passport.authenticate('discord',
+    { scope: ['identify', 'email'] }));
   router.get('/discord/return', passport.authenticate('discord', {
     failureRedirect: '/api/auth/failure',
+    failureFlash: true,
     successRedirect: '/',
   }));
 
-  router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
+  router.get('/google', passport.authenticate('google',
+    { scope: ['email', 'profile'] }));
   router.get('/google/return', passport.authenticate('google', {
     failureRedirect: '/api/auth/failure',
+    failureFlash: true,
     successRedirect: '/',
   }));
 
-  router.get('/vk', passport.authenticate('vkontakte', { scope: ['email'] }));
+  router.get('/vk', passport.authenticate('vkontakte',
+    { scope: ['email'] }));
   router.get('/vk/return', passport.authenticate('vkontakte', {
     failureRedirect: '/api/auth/failure',
+    failureFlash: true,
     successRedirect: '/',
   }));
 
-  router.get('/reddit', passport.authenticate('reddit', { duration: 'temporary', state: 'foo' }));
+  router.get('/reddit', passport.authenticate('reddit',
+    { duration: 'temporary', state: 'foo' }));
   router.get('/reddit/return', passport.authenticate('reddit', {
     failureRedirect: '/api/auth/failure',
+    failureFlash: true,
     successRedirect: '/',
   }));
 
@@ -68,11 +78,18 @@ export default (passport) => {
     res.set({
       'Content-Type': 'text/html',
     });
+    let text = null;
+    if (req.session && req.session.flash) {
+      // eslint-disable-next-line prefer-destructuring
+      text = req.session.flash.error[0];
+      req.session.flash = {};
+    }
+    if (!text) {
+      // eslint-disable-next-line max-len
+      text = 'LogIn failed :(, please try again later or register a new account with mail.';
+    }
     const host = getHostFromRequest(req);
-    // eslint-disable-next-line max-len
-    const text = 'LogIn failed :(, please try again later or register a new account with mail.';
-    const message = (req.session) ? req.session.flash : text;
-    const index = getHtml('OAuth Authentification', message, host);
+    const index = getHtml('OAuth Authentification', text, host);
     res.status(200).send(index);
   });
 
