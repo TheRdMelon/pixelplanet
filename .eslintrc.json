@@ -30,6 +30,7 @@
     "react/jsx-one-expression-per-line": "off",
     "react/jsx-closing-tag-location":"off",
     "jsx-a11y/click-events-have-key-events":"off",
+    "no-continue": "off",
     "lines-between-class-members":["warn", "always",{"exceptAfterSingleLine": true}]
   }
 }

@@ -102,7 +102,11 @@ class Renderer {
   }
 
   updateOldHistoricalTime(historicalTime: string) {
-    this.oldHistoricalTime = historicalTime;
+    if (historicalTime === '0000') {
+      this.oldHistoricalTime = null;
+    } else {
+      this.oldHistoricalTime = historicalTime;
+    }
   }
 
   updateScale(
@@ -443,7 +447,7 @@ class Renderer {
       context.imageSmoothingEnabled = true;
     }
 
-    const scale =  (viewscale > SCALE_THREASHOLD) ? 1.0 : viewscale;
+    const scale = (viewscale > SCALE_THREASHOLD) ? 1.0 : viewscale;
     // define how many chunks we will render
     // don't render chunks outside of viewport
     const { width, height } = viewport;
@@ -514,6 +518,7 @@ class Renderer {
             }
           }
           // incremential chunks
+          if (historicalTime === '0000') continue;
           key = ChunkRGB.getKey(`${historicalDate}${historicalTime}`, cx, cy);
           chunk = chunks.get(key);
           if (chunk) {
