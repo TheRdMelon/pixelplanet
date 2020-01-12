@@ -5,14 +5,10 @@
 
 import api from './api';
 import tiles from './tiles';
-import chunks from './chunks';
+import chunks, { templateChunks } from './chunks';
 import admintools from './admintools';
 import resetPassword from './reset_password';
 
 export {
-  api,
-  tiles,
-  chunks,
-  admintools,
-  resetPassword,
+  api, tiles, chunks, admintools, resetPassword, templateChunks,
 };

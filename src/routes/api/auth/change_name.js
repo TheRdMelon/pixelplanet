@@ -3,11 +3,11 @@
  * @flow
  */
 
-
 import type { Request, Response } from 'express';
 
 import { RegUser } from '../../../data/models';
 import { validateName } from '../../../utils/validation';
+import factions from '../../../core/factions';
 
 async function validate(oldname, name) {
   if (oldname === name) return 'You already have that name.';
@@ -43,6 +43,7 @@ export default async (req: Request, res: Response) => {
   }
 
   await user.regUser.update({ name });
+  factions.update();
 
   res.json({
     success: true,

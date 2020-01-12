@@ -3,12 +3,12 @@
  * @flow
  */
 
-
 import type { Request, Response } from 'express';
 
 import { RegUser } from '../../../data/models';
 import { validatePassword } from '../../../utils/validation';
 import { compareToHash } from '../../../utils/hash';
+import factions from '../../../core/factions';
 
 function validate(password) {
   const errors = [];
@@ -51,6 +51,7 @@ export default async (req: Request, res: Response) => {
 
   req.logout();
   RegUser.destroy({ where: { id } });
+  factions.update();
 
   res.json({
     success: true,

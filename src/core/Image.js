@@ -11,7 +11,6 @@ import { TILE_SIZE } from './constants';
 import canvases from '../canvases.json';
 import Palette from './Palette';
 
-
 /*
  * Load iamge from ABGR buffer onto canvas
  * (be aware that tis function does no validation of arguments)
@@ -31,24 +30,35 @@ export async function imageABGR2Canvas(
   height: number,
   wipe?: boolean,
   protect?: boolean,
+  templateId?: number,
 ) {
-  logger.info(
-    `Loading image with dim ${width}/${height} to ${x}/${y}/${canvasId}`,
-  );
+  if (templateId === undefined) {
+    logger.info(
+      `Loading image with dim ${width}/${height} to ${x}/${y}/${canvasId}`,
+    );
+  }
   const canvas = canvases[canvasId];
   const palette = new Palette(canvas.colors, canvas.alpha);
   const canvasMinXY = -(canvas.size / 2);
   const imageData = new Uint32Array(data.buffer);
 
   const [ucx, ucy] = getChunkOfPixel([x, y], canvas.size);
-  const [lcx, lcy] = getChunkOfPixel([(x + width), (y + height)], canvas.size);
+  const [lcx, lcy] = getChunkOfPixel([x + width, y + height], canvas.size);
 
-  logger.info(`Loading to chunks from ${ucx} / ${ucy} to ${lcx} / ${lcy} ...`);
+  if (templateId === undefined) {
+    logger.info(
+      `Loading to chunks from ${ucx} / ${ucy} to ${lcx} / ${lcy} ...`,
+    );
+  }
   let chunk;
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
-      chunk = await RedisCanvas.getChunk(cx, cy);
-      chunk = (chunk) ? new Uint8Array(chunk) : new Uint8Array(TILE_SIZE * TILE_SIZE);
+      chunk = templateId === undefined
+        ? await RedisCanvas.getChunk(cx, cy, canvasId, templateId)
+        : null;
+      chunk = chunk
+        ? new Uint8Array(chunk)
+        : new Uint8Array(TILE_SIZE * TILE_SIZE);
       // offset of chunk in image
       const cOffX = cx * TILE_SIZE + canvasMinXY - x;
       const cOffY = cy * TILE_SIZE + canvasMinXY - y;
@@ -60,9 +70,11 @@ export async function imageABGR2Canvas(
           const clrY = cOffY + py;
           if (clrX >= 0 && clrY >= 0 && clrX < width && clrY < height) {
             const clr = imageData[clrX + clrY * width];
-            const clrIndex = (wipe) ? palette.abgr.indexOf(clr) : palette.abgr.indexOf(clr, 2);
+            const clrIndex = wipe
+              ? palette.abgr.indexOf(clr)
+              : palette.abgr.indexOf(clr, 2);
             if (~clrIndex) {
-              const pixel = (protect) ? (clrIndex | 0x20) : clrIndex;
+              const pixel = protect ? clrIndex | 0x20 : clrIndex;
               chunk[cOff] = pixel;
               pxlCnt += 1;
             }
@@ -71,17 +83,24 @@ export async function imageABGR2Canvas(
         }
       }
       if (pxlCnt) {
-        const ret = await RedisCanvas.setChunk(cx, cy, chunk, canvasId);
-        if (ret) {
+        const ret = await RedisCanvas.setChunk(
+          cx,
+          cy,
+          chunk,
+          canvasId,
+          templateId,
+        );
+        if (ret && templateId === undefined) {
           logger.info(`Loaded ${pxlCnt} pixels into chunk ${cx}, ${cy}.`);
         }
       }
       chunk = null;
     }
   }
-  logger.info('Image loading done.');
+  if (templateId === undefined) {
+    logger.info('Image loading done.');
+  }
 }
-
 
 /*
  * Load iamgemask from ABGR buffer and execute function for each black pixel
@@ -114,14 +133,16 @@ export async function imagemask2Canvas(
   const imageData = new Uint8Array(data.buffer);
 
   const [ucx, ucy] = getChunkOfPixel([x, y], canvas.size);
-  const [lcx, lcy] = getChunkOfPixel([(x + width), (y + height)], canvas.size);
+  const [lcx, lcy] = getChunkOfPixel([x + width, y + height], canvas.size);
 
   logger.info(`Loading to chunks from ${ucx} / ${ucy} to ${lcx} / ${lcy} ...`);
   let chunk;
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
       chunk = await RedisCanvas.getChunk(cx, cy);
-      chunk = (chunk) ? new Uint8Array(chunk) : new Uint8Array(TILE_SIZE * TILE_SIZE);
+      chunk = chunk
+        ? new Uint8Array(chunk)
+        : new Uint8Array(TILE_SIZE * TILE_SIZE);
       // offset of chunk in image
       const cOffX = cx * TILE_SIZE + canvasMinXY - x;
       const cOffY = cy * TILE_SIZE + canvasMinXY - y;
@@ -133,7 +154,11 @@ export async function imagemask2Canvas(
           const clrY = cOffY + py;
           if (clrX >= 0 && clrY >= 0 && clrX < width && clrY < height) {
             let offset = (clrX + clrY * width) * 3;
-            if (!imageData[offset++] && !imageData[offset++] && !imageData[offset]) {
+            if (
+              !imageData[offset++]
+              && !imageData[offset++]
+              && !imageData[offset]
+            ) {
               chunk[cOff] = filter(palette.abgr[chunk[cOff]]);
               pxlCnt += 1;
             }

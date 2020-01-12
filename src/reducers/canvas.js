@@ -29,6 +29,7 @@ export type CanvasState = {
   minScale: number,
   palette: Palette,
   chunks: Map<string, ChunkRGB>,
+  templateChunks: Map<string, ChunkRGB>,
   view: Cell,
   scale: number,
   viewscale: number,
@@ -104,6 +105,7 @@ function getViewFromURL(canvases: Object) {
 
 const initialState: CanvasState = {
   chunks: new Map(),
+  templateChunks: new Map(),
   ...getViewFromURL(DEFAULT_CANVASES),
   requested: new Set(),
   fetchs: 0,
@@ -184,10 +186,13 @@ export default function gui(
     }
 
     case 'RELOAD_URL': {
-      const { canvasId, chunks, canvases } = state;
+      const {
+        canvasId, chunks, templateChunks, canvases,
+      } = state;
       const nextstate = getViewFromURL(canvases);
       if (nextstate.canvasId != canvasId) {
         chunks.clear();
+        templateChunks.clear();
       }
       return {
         ...state,
@@ -231,6 +236,25 @@ export default function gui(
       };
     }
 
+    case 'REQUEST_BIG_TEMPLATE_CHUNK': {
+      const {
+        palette, templateChunks, fetchs, requested,
+      } = state;
+      const { center } = action;
+
+      const chunkRGB = new ChunkRGB(palette, center);
+      const { key } = chunkRGB;
+      templateChunks.set(key, chunkRGB);
+
+      requested.add(key);
+      return {
+        ...state,
+        templateChunks,
+        fetchs: fetchs + 1,
+        requested,
+      };
+    }
+
     case 'RECEIVE_BIG_CHUNK': {
       const { chunks, fetchs } = state;
       const { center, arrayBuffer } = action;
@@ -252,6 +276,27 @@ export default function gui(
       };
     }
 
+    case 'RECIEVE_BIG_TEMPLATE_CHUNK': {
+      const { templateChunks, fetchs } = state;
+      const { center, arrayBuffer } = action;
+
+      const key = ChunkRGB.getKey(...center);
+      const chunk = templateChunks.get(key);
+      chunk.isBasechunk = true;
+      if (arrayBuffer.byteLength) {
+        const chunkArray = new Uint8Array(arrayBuffer);
+        chunk.fromBuffer(chunkArray, true);
+      } else {
+        chunk.empty();
+      }
+
+      return {
+        ...state,
+        templateChunks,
+        fetchs: fetchs + 1,
+      };
+    }
+
     case 'RECEIVE_BIG_CHUNK_FAILURE': {
       const { chunks, fetchs } = state;
       const { center } = action;
@@ -267,6 +312,21 @@ export default function gui(
       };
     }
 
+    case 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE': {
+      const { templateChunks, fetchs } = state;
+      const { center } = action;
+
+      const key = ChunkRGB.getKey(...center);
+      const chunk = templateChunks.get(key);
+      chunk.empty();
+
+      return {
+        ...state,
+        templateChunks,
+        fetchs: fetchs + 1,
+      };
+    }
+
     case 'RECEIVE_IMAGE_TILE': {
       const { chunks, fetchs } = state;
       const { center, tile } = action;
@@ -278,6 +338,21 @@ export default function gui(
       return {
         ...state,
         chunks,
+        fetchs: fetchs + 1,
+      };
+    }
+
+    case 'RECEIVE_IMAGE_TEMPLATE_TILE': {
+      const { templateChunks, fetchs } = state;
+      const { center, tile } = action;
+
+      const key = ChunkRGB.getKey(...center);
+      const chunk = templateChunks.get(key);
+      chunk.fromImage(tile);
+
+      return {
+        ...state,
+        templateChunks,
         fetchs: fetchs + 1,
       };
     }

@@ -3,7 +3,7 @@
  * @flow
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useReducer, useRef } from 'react';
 import { connect } from 'react-redux';
 import Tabs from './Tabs';
 import JoinFactionForm from './JoinFactionForm';
@@ -19,6 +19,8 @@ import {
 } from '../actions';
 
 import type { State } from '../reducers';
+
+const stateReducer = (oldState, newState) => ({ ...oldState, ...newState });
 
 const textStyle: CSSStyleDeclaration = {
   color: 'hsla(218, 5%, 47%, .6)',
@@ -113,6 +115,87 @@ const FactionInfo = ({
   </>
 );
 
+const Admin = ({ selected_faction: selectedFaction }) => {
+  const [formState, setFormState] = useReducer(stateReducer, {});
+  const formRef = useRef(null);
+
+  const inputChange = (e) => setFormState({ [e.target.name]: e.target.value });
+
+  return (
+    <>
+      <form
+        encType="multipart/form-data"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const req = new XMLHttpRequest();
+          const formData = new FormData(formRef.current);
+
+          req.open('POST', `./api/factions/${selectedFaction}/templates`);
+          req.send(formData);
+        }}
+        ref={formRef}
+      >
+        <input type="file" name="image" />
+        <br />
+        <label htmlFor="radio-d" style={{ display: 'inline' }}>
+          <input
+            type="radio"
+            name="canvasindent"
+            id="radio-d"
+            value="d"
+            style={{ display: 'inline' }}
+            /* onSelect={inputChange} */
+          />
+          Default
+        </label>
+        <label htmlFor="radio-m" style={{ dispatch: 'inline' }}>
+          <input
+            type="radio"
+            name="canvasindent"
+            id="radio-m"
+            value="m"
+            style={{ display: 'inline' }}
+            /* onSelect={inputChange} */
+          />
+          Moon
+        </label>
+        <br />
+        <label htmlFor="x-input">
+          Top Left X:
+          <br />
+          <input
+            type="number"
+            name="x"
+            id="x-input"
+            min={-32768}
+            max={32768}
+            /* value={formState.x}
+            onChange={inputChange} */
+          />
+        </label>
+        <br />
+        <label htmlFor="y-input">
+          Top Left Y:
+          <br />
+          <input
+            type="number"
+            name="y"
+            id="y-input"
+            min={-32768}
+            max={32768}
+            /* value={formState.y}
+            onChange={inputChange} */
+          />
+        </label>
+        <br />
+        <button type="submit" name="upload">
+          Create
+        </button>
+      </form>
+    </>
+  );
+};
+
 const FactionModal = ({
   recieve_faction_info: recieveFactionInfoDisp,
   fetch_factions: fetchFactionsDisp,
@@ -155,7 +238,9 @@ const FactionModal = ({
             undefined
           )}
           {ownFactions.length > 0 ? (
-            <div label="Admin">{/* <Admin /> */}</div>
+            <div label="Admin">
+              <Admin selected_faction={selectedFaction} />
+            </div>
           ) : (
             undefined
           )}

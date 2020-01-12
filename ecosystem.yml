@@ -13,3 +13,4 @@ apps:
       LOG_MYSQL: 1
       MYSQL_PW: 'sqlpassword'
       SESSION_SECRET: 'ayyylmao'
+      ADMIN_IDS: '1,2'

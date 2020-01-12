@@ -4,7 +4,7 @@ import type { Cell } from '../core/Cell';
 import type { Palette } from '../core/Palette';
 
 import { TILE_SIZE } from '../core/constants';
-
+import colourUtils from './colourUtils';
 
 class ChunkRGB {
   cell: Cell;
@@ -70,13 +70,20 @@ class ChunkRGB {
   }
   */
 
-  fromBuffer(chunkBuffer: Uint8Array) {
+  fromBuffer(chunkBuffer: Uint8Array, template?: boolean) {
     this.ready = true;
     const imageData = new ImageData(TILE_SIZE, TILE_SIZE);
     const imageView = new Uint32Array(imageData.data.buffer);
     const colors = this.palette.buffer2ABGR(chunkBuffer);
     colors.forEach((color, index) => {
-      imageView[index] = color;
+      if (template) {
+        const r = (color >> 16) & 255;
+        const g = (color >> 8) & 255;
+        const b = (color >> 0) & 255;
+        imageView[index] = (255 << 24) | (r << 16) | (g << 8) | (b << 0);
+      } else {
+        imageView[index] = color;
+      }
     });
     const ctx = this.image.getContext('2d');
     ctx.putImageData(imageData, 0, 0);
@@ -105,7 +112,7 @@ class ChunkRGB {
   }
 
   static getIndexFromCell([x, y]: Cell): number {
-    return x + (TILE_SIZE * y);
+    return x + TILE_SIZE * y;
   }
 
   getColorIndex(cell: Cell): ColorIndex {
@@ -123,7 +130,7 @@ class ChunkRGB {
     const imageData = ctx.getImageData(0, 0, TILE_SIZE, TILE_SIZE);
     const intView = new Uint32Array(imageData.data.buffer);
 
-    return (intView[index] === this.palette.abgr[color]);
+    return intView[index] === this.palette.abgr[color];
   }
 
   setColor(cell: Cell, color: ColorIndex): boolean {

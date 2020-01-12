@@ -15,7 +15,12 @@ import factions from './core/factions';
 import models from './data/models';
 
 import {
-  api, tiles, chunks, admintools, resetPassword,
+  api,
+  tiles,
+  chunks,
+  admintools,
+  resetPassword,
+  templateChunks,
 } from './routes';
 import globeHtml from './components/Globe';
 import generateMainPage from './components/Main';
@@ -87,6 +92,10 @@ app.use('/discord', (req, res) => {
 //
 // Serving Chunks
 // -----------------------------------------------------------------------------
+app.get(
+  '/chunks/templates/:c([0-9]+)/:x([0-9]+)/:y([0-9]+).bmp',
+  templateChunks,
+);
 app.get('/chunks/:c([0-9]+)/:x([0-9]+)/:y([0-9]+).bmp', chunks);
 
 //

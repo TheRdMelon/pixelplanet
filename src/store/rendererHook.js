@@ -23,17 +23,18 @@ export default (store) => (next) => (action) => {
     case 'REQUEST_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK_FAILURE':
-    case 'RECEIVE_IMAGE_TILE': {
+    case 'RECEIVE_IMAGE_TILE':
+    case 'REQUEST_BIG_TEMPLATE_CHUNK':
+    case 'RECIEVE_BIG_TEMPLATE_CHUNK':
+    case 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE':
+    case 'RECEIVE_IMAGE_TEMPLATE_TILE': {
       renderer.forceNextRender = true;
       break;
     }
 
     case 'SET_SCALE': {
       const {
-        viewscale,
-        canvasMaxTiledZoom,
-        view,
-        canvasSize,
+        viewscale, canvasMaxTiledZoom, view, canvasSize,
       } = state.canvas;
       renderer.updateScale(viewscale, canvasMaxTiledZoom, view, canvasSize);
       break;
@@ -46,7 +47,7 @@ export default (store) => (next) => (action) => {
     }
 
     default:
-      // nothing
+    // nothing
   }
 
   return ret;

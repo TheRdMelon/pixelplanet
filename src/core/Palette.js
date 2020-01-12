@@ -1,11 +1,39 @@
 /* @flow */
 
-export type ColorIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-  8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
-  16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 |
-  24 | 25 | 26 | 27 | 28 | 29 | 30 | 31;
+export type ColorIndex =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15
+  | 16
+  | 17
+  | 18
+  | 19
+  | 20
+  | 21
+  | 22
+  | 23
+  | 24
+  | 25
+  | 26
+  | 27
+  | 28
+  | 29
+  | 30
+  | 31;
 export type Color = string;
-
 
 class Palette {
   length: number;
@@ -30,22 +58,22 @@ class Palette {
       this.rgb[cnt++] = g;
       this.rgb[cnt++] = b;
       this.colors[index] = `rgb(${r}, ${g}, ${b})`;
-      this.abgr[index] = (0xFF000000) | (b << 16) | (g << 8) | (r);
+      this.abgr[index] = 0xff000000 | (b << 16) | (g << 8) | r;
     }
   }
 
   /*
-  * Check if a color is light (closer to white) or dark (closer to black)
-  * @param color Index of color in palette
-  * @return dark True if color is dark
-  */
+   * Check if a color is light (closer to white) or dark (closer to black)
+   * @param color Index of color in palette
+   * @return dark True if color is dark
+   */
   isDark(color: number) {
     color *= 3;
     const r = this.rgb[color++];
     const g = this.rgb[color++];
     const b = this.rgb[color];
     const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    return (luminance < 128);
+    return luminance < 128;
   }
 
   /*
@@ -59,11 +87,8 @@ class Palette {
     const { rgb } = this;
     let i = rgb.length;
     while (i >= 0) {
-      if (rgb[--i] === b
-          && rgb[--i] === g
-          && rgb[--i] === r
-      ) {
-        return (i / 3);
+      if (rgb[--i] === b && rgb[--i] === g && rgb[--i] === r) {
+        return i / 3;
       }
     }
     return null;
@@ -82,7 +107,7 @@ class Palette {
 
     let pos = 0;
     for (let i = 0; i < length; i++) {
-      value = (buffer[i] & 0x1F);
+      value = buffer[i] & 0x1f;
       colors[pos++] = this.abgr[value];
     }
     return colors;
@@ -104,7 +129,7 @@ class Palette {
     for (let i = 0; i < length; i++) {
       value = buffer[i];
 
-      color = (value & 0x1F) * 3;
+      color = (value & 0x1f) * 3;
       colors[c++] = this.rgb[color++];
       colors[c++] = this.rgb[color++];
       colors[c++] = this.rgb[color];
@@ -135,44 +160,107 @@ class Palette {
 }
 
 export const COLORS_RGB: Uint8Array = new Uint8Array([
-  202, 227, 255, // first color is unset pixel in ocean
-  255, 255, 255, // second color is unset pixel on land
-  255, 255, 255, // white
-  228, 228, 228, // light gray
-  196, 196, 196, // silver
-  136, 136, 136, // dark gray
-  78, 78, 78, // darker gray
-  0, 0, 0, // black
-  244, 179, 174, // skin
-  255, 167, 209, // light pink
-  255, 84, 178, // pink
-  255, 101, 101, // peach
-  229, 0, 0, // red
-  154, 0, 0, // dark red
-  254, 164, 96, // light brown
-  229, 149, 0, // orange
-  160, 106, 66, // brown
-  96, 64, 40, // dark brown
-  245, 223, 176, // sand
-  255, 248, 137, // khaki
-  229, 217, 0, // yellow
-  148, 224, 68, // light green
-  2, 190, 1, // green
-  104, 131, 56, // olive
-  0, 101, 19, // dark green
-  202, 227, 255, // sky blue
-  0, 211, 221, // light blue
-  0, 131, 199, // dark blue
-  0, 0, 234, // blue
-  25, 25, 115, // darker blue
-  207, 110, 228, // light violette
-  130, 0, 128, // violette
+  202,
+  227,
+  255, // first color is unset pixel in ocean
+  255,
+  255,
+  255, // second color is unset pixel on land
+  255,
+  255,
+  255, // white
+  228,
+  228,
+  228, // light gray
+  196,
+  196,
+  196, // silver
+  136,
+  136,
+  136, // dark gray
+  78,
+  78,
+  78, // darker gray
+  0,
+  0,
+  0, // black
+  244,
+  179,
+  174, // skin
+  255,
+  167,
+  209, // light pink
+  255,
+  84,
+  178, // pink
+  255,
+  101,
+  101, // peach
+  229,
+  0,
+  0, // red
+  154,
+  0,
+  0, // dark red
+  254,
+  164,
+  96, // light brown
+  229,
+  149,
+  0, // orange
+  160,
+  106,
+  66, // brown
+  96,
+  64,
+  40, // dark brown
+  245,
+  223,
+  176, // sand
+  255,
+  248,
+  137, // khaki
+  229,
+  217,
+  0, // yellow
+  148,
+  224,
+  68, // light green
+  2,
+  190,
+  1, // green
+  104,
+  131,
+  56, // olive
+  0,
+  101,
+  19, // dark green
+  202,
+  227,
+  255, // sky blue
+  0,
+  211,
+  221, // light blue
+  0,
+  131,
+  199, // dark blue
+  0,
+  0,
+  234, // blue
+  25,
+  25,
+  115, // darker blue
+  207,
+  110,
+  228, // light violette
+  130,
+  0,
+  128, // violette
 ]);
 
 export const COLORS_AMOUNT = COLORS_RGB.length / 3;
 export const COLORS: Array<Color> = new Array(COLORS_AMOUNT);
 export const COLORS_ABGR: Uint32Array = new Uint32Array(COLORS_AMOUNT);
 export const TRANSPARENT: ColorIndex = 0;
-
 
 export default Palette;
