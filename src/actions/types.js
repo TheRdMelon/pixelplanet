@@ -24,6 +24,7 @@ export type Action =
   | { type: 'TOGGLE_POTATO_MODE' }
   | { type: 'TOGGLE_LIGHT_GRID' }
   | { type: 'TOGGLE_OPEN_MENU' }
+  | { type: 'TOGGLE_HISTORICAL_VIEW' }
   | { type: 'SET_NOTIFICATION', notification: string }
   | { type: 'UNSET_NOTIFICATION' }
   | { type: 'SET_PLACE_ALLOWED', placeAllowed: boolean }
@@ -90,7 +91,9 @@ export type Action =
   | { type: 'HIDE_MODAL' }
   | { type: 'RELOAD_URL' }
   | { type: 'ON_VIEW_FINISH_CHANGE' }
-  | { type: 'CHANGE_TEMPLATE_ALPHA', alpha: number };
+  | { type: 'CHANGE_TEMPLATE_ALPHA', alpha: number }
+  | { type: 'SET_HISTORICAL_TIME', date: string, time: string }
+  | { type: 'ON_VIEW_FINISH_CHANGE' };
 export type PromiseAction = Promise<Action>;
 export type Dispatch = (
   action: Action | ThunkAction | PromiseAction | Array<Action>,

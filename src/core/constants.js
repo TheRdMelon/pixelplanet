@@ -55,6 +55,8 @@ export const DEFAULT_CANVASES = {
     bcd: 4000,
     pcd: 7000,
     cds: 60000,
+    req: -1,
+    sd: "2020-01-08",
   },
 };
 

@@ -26,7 +26,7 @@ export type CanvasState = {
   canvasIdent: string,
   canvasSize: number,
   canvasMaxTiledZoom: number,
-  minScale: number,
+  canvasStartDate: string,
   palette: Palette,
   chunks: Map<string, ChunkRGB>,
   templateChunks: Map<string, ChunkRGB>,
@@ -35,6 +35,9 @@ export type CanvasState = {
   viewscale: number,
   requested: Set<string>,
   fetchs: number,
+  isHistoricalView: boolean,
+  historicalDate: string,
+  historicalTime: string,
   // object with all canvas informations from all canvases like colors and size
   canvases: Object,
 };
@@ -61,9 +64,22 @@ function getViewFromURL(canvases: Object) {
     const canvasIdent = almost[0];
     // will be null if not in DEFAULT_CANVASES
     const canvasId = getIdFromObject(canvases, almost[0]);
-    const colors = (canvasId !== null)
-      ? canvases[canvasId].colors : canvases[DEFAULT_CANVAS_ID].colors;
-    const canvasSize = (canvasId !== null) ? canvases[canvasId].size : 1024;
+
+    let colors;
+    let canvasSize;
+    let canvasStartDate;
+    if (canvasId == null) {
+      // if canvas informations are not available yet
+      // aka /api/me didn't load yet
+      colors = canvases[DEFAULT_CANVAS_ID].colors;
+      canvasSize = 1024;
+      canvasStartDate = null;
+    } else {
+      const canvas = canvases[canvasId];
+      colors = canvas.colors;
+      canvasSize = canvas.size;
+      canvasStartDate = canvas.sd;
+    }
 
     const x = parseInt(almost[1], 10);
     const y = parseInt(almost[2], 10);
@@ -82,6 +98,7 @@ function getViewFromURL(canvases: Object) {
       canvasId,
       canvasIdent,
       canvasSize,
+      canvasStartDate,
       canvasMaxTiledZoom: getMaxTiledZoom(canvasSize),
       palette: new Palette(colors, 0),
       view: [x, y],
@@ -94,6 +111,7 @@ function getViewFromURL(canvases: Object) {
       canvasId: DEFAULT_CANVAS_ID,
       canvasIdent: canvases[DEFAULT_CANVAS_ID].ident,
       canvasSize: canvases[DEFAULT_CANVAS_ID].size,
+      canvasStartDate: null,
       canvasMaxTiledZoom: getMaxTiledZoom(canvases[DEFAULT_CANVAS_ID].size),
       palette: new Palette(canvases[DEFAULT_CANVAS_ID].colors, 0),
       view: getGivenCoords(),
@@ -109,6 +127,9 @@ const initialState: CanvasState = {
   ...getViewFromURL(DEFAULT_CANVASES),
   requested: new Set(),
   fetchs: 0,
+  isHistoricalView: false,
+  historicalDate: null,
+  historicalTime: null,
 };
 
 
@@ -143,12 +164,20 @@ export default function gui(
     }
 
     case 'SET_SCALE': {
-      let { view, viewscale } = state;
-      const { canvasSize } = state;
+      let {
+        view,
+        viewscale,
+      } = state;
+      const {
+        canvasSize,
+        isHistoricalView,
+      } = state;
+
       let [hx, hy] = view;
       let { scale } = action;
       const { zoompoint } = action;
-      scale = clamp(scale, TILE_SIZE / canvasSize, MAX_SCALE);
+      const minScale = (isHistoricalView) ? 0.7 : TILE_SIZE / canvasSize;
+      scale = clamp(scale, minScale, MAX_SCALE);
       if (zoompoint) {
         let scalediff = viewscale;
         // clamp to 1.0 (just do this when zoompoint is given, or it would mess with phones)
@@ -173,6 +202,31 @@ export default function gui(
       };
     }
 
+    case 'SET_HISTORICAL_TIME': {
+      const {
+        date,
+        time,
+      } = action;
+      return {
+        ...state,
+        historicalDate: date,
+        historicalTime: time,
+      };
+    }
+
+    case 'TOGGLE_HISTORICAL_VIEW': {
+      const {
+        scale,
+        viewscale,
+      } = state;
+      return {
+        ...state,
+        scale: (scale < 1.0) ? 1.0 : scale,
+        viewscale: (viewscale < 1.0) ? 1.0 : viewscale,
+        isHistoricalView: !state.isHistoricalView,
+      };
+    }
+
     case 'SET_VIEW_COORDINATES': {
       const { view } = action;
       const { canvasSize } = state;
@@ -190,7 +244,7 @@ export default function gui(
         canvasId, chunks, templateChunks, canvases,
       } = state;
       const nextstate = getViewFromURL(canvases);
-      if (nextstate.canvasId != canvasId) {
+      if (nextstate.canvasId !== canvasId) {
         chunks.clear();
         templateChunks.clear();
       }
@@ -210,7 +264,7 @@ export default function gui(
       y = Math.round(y);
       const scale = Math.round(Math.log2(viewscale) * 10);
       const newhash = `#${canvasIdent},${x},${y},${scale}`;
-      history.replaceState(undefined, undefined, newhash);
+      window.history.replaceState(undefined, undefined, newhash);
       return {
         ...state,
       };
@@ -261,6 +315,8 @@ export default function gui(
 
       const key = ChunkRGB.getKey(...center);
       const chunk = chunks.get(key);
+      if (!chunk) return state;
+
       chunk.isBasechunk = true;
       if (arrayBuffer.byteLength) {
         const chunkArray = new Uint8Array(arrayBuffer);
@@ -303,11 +359,12 @@ export default function gui(
 
       const key = ChunkRGB.getKey(...center);
       const chunk = chunks.get(key);
+      if (!chunk) return state;
+
       chunk.empty();
 
       return {
         ...state,
-        chunks,
         fetchs: fetchs + 1,
       };
     }
@@ -333,6 +390,8 @@ export default function gui(
 
       const key = ChunkRGB.getKey(...center);
       const chunk = chunks.get(key);
+      if (!chunk) return state;
+
       chunk.fromImage(tile);
 
       return {
@@ -382,22 +441,31 @@ export default function gui(
     }
 
     case 'SELECT_CANVAS': {
-      const { canvasId } = action;
+      let { canvasId } = action;
       const { canvases, chunks } = state;
 
       chunks.clear();
-      const canvas = canvases[canvasId];
-      const canvasIdent = canvas.ident;
-      const canvasSize = canvases[canvasId].size;
+      let canvas = canvases[canvasId];
+      if (!canvas) {
+        canvasId = DEFAULT_CANVAS_ID;
+        canvas = canvases[DEFAULT_CANVAS_ID];
+      }
+      const {
+        size: canvasSize,
+        sd: canvasStartDate,
+        ident: canvasIdent,
+        colors,
+      } = canvas;
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
-      const palette = new Palette(canvas.colors, 0);
-      const view = (canvasId == 0) ? getGivenCoords() : [0, 0];
+      const palette = new Palette(colors, 0);
+      const view = (canvasId === 0) ? getGivenCoords() : [0, 0];
       chunks.clear();
       return {
         ...state,
         canvasId,
         canvasIdent,
         canvasSize,
+        canvasStartDate,
         canvasMaxTiledZoom,
         palette,
         view,
@@ -415,15 +483,20 @@ export default function gui(
         canvasId = DEFAULT_CANVAS_ID;
         canvasIdent = canvases[DEFAULT_CANVAS_ID].ident;
       }
-      const canvasSize = canvases[canvasId].size;
+      const {
+        size: canvasSize,
+        sd: canvasStartDate,
+        colors,
+      } = canvases[canvasId];
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
-      const palette = new Palette(canvases[canvasId].colors, 0);
+      const palette = new Palette(colors, 0);
 
       return {
         ...state,
         canvasId,
         canvasIdent,
         canvasSize,
+        canvasStartDate,
         canvasMaxTiledZoom,
         palette,
         canvases,

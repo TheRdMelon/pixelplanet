@@ -32,6 +32,12 @@ export function toggleChatBox(): Action {
   };
 }
 
+export function toggleHistoricalView(): Action {
+  return {
+    type: 'TOGGLE_HISTORICAL_VIEW',
+  };
+}
+
 export function toggleGrid(): Action {
   return {
     type: 'TOGGLE_GRID',
@@ -457,6 +463,37 @@ export function fetchTemplateTile(canvasId, center: Cell): PromiseAction {
   };
 }
 
+export function fetchHistoricalChunk(
+  canvasId: number,
+  center: Cell,
+  historicalDate: string,
+  historicalTime: string,
+): PromiseAction {
+  const [cx, cy] = center;
+
+  return async (dispatch) => {
+    let url = `${window.backupurl}/${historicalDate}/`;
+    let zkey;
+    if (historicalTime) {
+      // incremential tiles
+      zkey = `${historicalDate}${historicalTime}`;
+      url += `${canvasId}/${historicalTime}/${cx}/${cy}.png`;
+    } else {
+      // full tiles
+      zkey = historicalDate;
+      url += `${canvasId}/tiles/${cx}/${cy}.png`;
+    }
+    const keyValues = [zkey, cx, cy];
+    dispatch(requestBigChunk(keyValues));
+    try {
+      const img = await loadImage(url);
+      dispatch(receiveImageTile(keyValues, img));
+    } catch (error) {
+      dispatch(receiveBigChunkFailure(keyValues, error));
+    }
+  };
+}
+
 export function fetchChunk(canvasId, center: Cell): PromiseAction {
   const [, cx, cy] = center;
 
@@ -814,6 +851,14 @@ export function reloadUrl(): Action {
 export function onViewFinishChange(): Action {
   return {
     type: 'ON_VIEW_FINISH_CHANGE',
+  };
+}
+
+export function selectHistoricalTime(date: string, time: string) {
+  return {
+    type: 'SET_HISTORICAL_TIME',
+    date,
+    time,
   };
 }
 

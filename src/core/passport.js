@@ -12,9 +12,9 @@ import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { Strategy as VkontakteStrategy } from 'passport-vkontakte';
 import { OAuth2Strategy as GoogleStrategy } from 'passport-google-oauth';
 
+import logger from './logger';
 import { sanitizeName } from '../utils/validation';
 
-import logger from './logger';
 import { User, RegUser } from '../data/models';
 import { auth } from './config';
 import { compareToHash } from '../utils/hash';
@@ -50,37 +50,44 @@ passport.use(new JsonStrategy({
   usernameProp: 'nameoremail',
   passwordProp: 'password',
 }, (nameoremail, password, done) => {
-  // Decide if email or name by the occurance of @
-  // this is why we don't allow @ in usernames
-  // NOTE: could allow @ in the future by making an OR query,
-  // but i guess nobody really cares.
-  //  https://sequelize.org/master/manual/querying.html
-  const query = (nameoremail.indexOf('@') !== -1) ? { email: nameoremail } : { name: nameoremail };
-  RegUser.findOne({ where: query }).then((reguser) => {
-    if (!reguser) {
-      return done(null, false, { message: 'Name or Email does not exist!' });
-    }
-    if (!compareToHash(password, reguser.password)) {
-      return done(null, false, { message: 'Incorrect password!' });
-    }
-    const user = new User(reguser.id);
-    user.regUser = reguser;
-    user.updateLogInTimestamp();
-    return done(null, user);
-  });
+  try {
+    // Decide if email or name by the occurance of @
+    // this is why we don't allow @ in usernames
+    // NOTE: could allow @ in the future by making an OR query,
+    // but i guess nobody really cares.
+    //  https://sequelize.org/master/manual/querying.html
+    const query = (nameoremail.indexOf('@') !== -1)
+      ? { email: nameoremail }
+      : { name: nameoremail };
+    RegUser.findOne({ where: query }).then((reguser) => {
+      if (!reguser) {
+        return done(null, false, { message: 'Name or Email does not exist!' });
+      }
+      if (!compareToHash(password, reguser.password)) {
+        return done(null, false, { message: 'Incorrect password!' });
+      }
+      const user = new User(reguser.id);
+      user.regUser = reguser;
+      user.updateLogInTimestamp();
+      return done(null, user);
+    });
+  } catch (err) {
+    done(err);
+  }
 }));
 
 /*
  * OAuth SignIns, mail based
  *
  */
-async function oauth_login(email, name, discordid = null) {
+async function oauthLogin(email, name, discordid = null) {
   name = sanitizeName(name);
   let reguser = await RegUser.findOne({ where: { email } });
   if (!reguser) {
     reguser = await RegUser.findOne({ where: { name } });
     while (reguser) {
       // name is taken by someone else
+      // eslint-disable-next-line max-len
       name = `${name.substring(0, 15)}-${Math.random().toString(36).substring(2, 10)}`;
       // eslint-disable-next-line no-await-in-loop
       reguser = await RegUser.findOne({ where: { name } });
@@ -109,10 +116,14 @@ passport.use(new FacebookStrategy({
   proxy: true,
   profileFields: ['displayName', 'email'],
 }, async (req, accessToken, refreshToken, profile, done) => {
-  const { displayName: name, emails } = profile;
-  const email = emails[0].value;
-  const user = await oauth_login(email, name);
-  done(null, user);
+  try {
+    const { displayName: name, emails } = profile;
+    const email = emails[0].value;
+    const user = await oauthLogin(email, name);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
 }));
 
 /**
@@ -123,11 +134,20 @@ passport.use(new DiscordStrategy({
   callbackURL: '/api/auth/discord/return',
   proxy: true,
 }, async (accessToken, refreshToken, profile, done) => {
-  // TODO get discord id
-  console.log({ profile, refreshToken, accessToken });
-  const { id, email, username: name } = profile;
-  const user = await oauth_login(email, name, id);
-  done(null, user);
+  try {
+    logger.info({ profile, refreshToken, accessToken });
+    const { id, email, username: name } = profile;
+    if (!email) {
+      done(null, false, {
+        // eslint-disable-next-line max-len
+        message: 'Sorry, you can not use discord login with an discord account that does not have email set.',
+      });
+    }
+    const user = await oauthLogin(email, name, id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
 }));
 
 /**
@@ -138,10 +158,14 @@ passport.use(new GoogleStrategy({
   callbackURL: '/api/auth/google/return',
   proxy: true,
 }, async (accessToken, refreshToken, profile, done) => {
-  const { displayName: name, emails } = profile;
-  const email = emails[0].value;
-  const user = await oauth_login(email, name);
-  done(null, user);
+  try {
+    const { displayName: name, emails } = profile;
+    const email = emails[0].value;
+    const user = await oauthLogin(email, name);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
 }));
 
 /*
@@ -152,28 +176,34 @@ passport.use(new RedditStrategy({
   callbackURL: '/api/auth/reddit/return',
   proxy: true,
 }, async (accessToken, refreshToken, profile, done) => {
-  console.log({ profile, refreshToken, accessToken });
-  const redditid = profile.id;
-  let name = sanitizeName(profile.name);
-  // reddit needs an own login strategy based on its id,
-  // because we can not access it's mail
-  let reguser = await RegUser.findOne({ where: { redditid } });
-  if (!reguser) {
-    reguser = await RegUser.findOne({ where: { name } });
-    while (reguser) {
-      // name is taken by someone else
-      name = `${name.substring(0, 15)}-${Math.random().toString(36).substring(2, 10)}`;
+  try {
+    logger.info({ profile, refreshToken, accessToken });
+    const redditid = profile.id;
+    let name = sanitizeName(profile.name);
+    // reddit needs an own login strategy based on its id,
+    // because we can not access it's mail
+    let reguser = await RegUser.findOne({ where: { redditid } });
+    if (!reguser) {
       reguser = await RegUser.findOne({ where: { name } });
+      while (reguser) {
+        // name is taken by someone else
+        // eslint-disable-next-line max-len
+        name = `${name.substring(0, 15)}-${Math.random().toString(36).substring(2, 10)}`;
+        // eslint-disable-next-line no-await-in-loop
+        reguser = await RegUser.findOne({ where: { name } });
+      }
+      reguser = await RegUser.create({
+        name,
+        verified: 1,
+        redditid,
+      });
     }
-    reguser = await RegUser.create({
-      name,
-      verified: 1,
-      redditid,
-    });
+    const user = new User(reguser.id);
+    user.regUser = reguser;
+    done(null, user);
+  } catch (err) {
+    done(err);
   }
-  const user = new User(reguser.id);
-  user.regUser = reguser;
-  done(null, user);
 }));
 
 /**
@@ -186,11 +216,15 @@ passport.use(new VkontakteStrategy({
   scope: ['email'],
   profileFields: ['displayName', 'email'],
 }, async (accessToken, refreshToken, params, profile, done) => {
-  console.log(profile);
-  const { displayName: name } = profile;
-  const { email } = params;
-  const user = await oauth_login(email, name);
-  done(null, user);
+  try {
+    logger.info(profile);
+    const { displayName: name } = profile;
+    const { email } = params;
+    const user = await oauthLogin(email, name);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
 }));
 
 
