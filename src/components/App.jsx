@@ -23,6 +23,7 @@ import ReCaptcha from './ReCaptcha';
 import ExpandMenuButton from './ExpandMenuButton';
 import ModalRoot from './ModalRoot';
 import HistorySelect from './HistorySelect';
+import TemplateSettings from './TemplateSettings';
 
 import baseCss from './base.tcss';
 
@@ -53,6 +54,7 @@ const App = ({ isHistoricalView }) => (
             </div>
           )
       }
+      <TemplateSettings />
       <ModalRoot />
     </IconContext.Provider>
   </div>

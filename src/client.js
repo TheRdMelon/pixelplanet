@@ -86,10 +86,11 @@ function initViewport() {
       return;
     }
     const coords = screenToWorld(state, viewport, [clientX, clientY]);
-    const clrIndex = getColorIndexOfPixel(state, coords);
-    if (clrIndex === null) {
-      return;
+    let clrIndex = getColorIndexOfPixel(state, coords, true);
+    if (clrIndex === null || clrIndex === 0) {
+      clrIndex = getColorIndexOfPixel(state, coords);
     }
+    if (clrIndex === null) return;
     store.dispatch(selectColor(clrIndex));
   };
 

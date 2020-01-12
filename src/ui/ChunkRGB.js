@@ -4,7 +4,6 @@ import type { Cell } from '../core/Cell';
 import type { Palette } from '../core/Palette';
 
 import { TILE_SIZE } from '../core/constants';
-import colourUtils from './colourUtils';
 
 class ChunkRGB {
   cell: Cell;
@@ -71,19 +70,16 @@ class ChunkRGB {
   }
   */
 
-  fromBuffer(chunkBuffer: Uint8Array, template?: boolean) {
+  fromBuffer(chunkBuffer: Uint8Array, template: boolean = false) {
     this.ready = true;
     const imageData = new ImageData(TILE_SIZE, TILE_SIZE);
     const imageView = new Uint32Array(imageData.data.buffer);
-    const colors = this.palette.buffer2ABGR(chunkBuffer);
+    const colors = this.palette.buffer2ABGR(chunkBuffer, template);
     colors.forEach((color, index) => {
-      if (template) {
-        const r = (color >> 16) & 255;
-        const g = (color >> 8) & 255;
-        const b = (color >> 0) & 255;
-        imageView[index] = (255 << 24) | (r << 16) | (g << 8) | (b << 0);
-      } else {
-        imageView[index] = color;
+      imageView[index] = color;
+      if (color === 0x00000000) {
+        const ai = index * 4 + 3;
+        imageData[ai] = 0;
       }
     });
     const ctx = this.image.getContext('2d');
@@ -96,13 +92,13 @@ class ChunkRGB {
     ctx.drawImage(img, 0, 0);
   }
 
-  empty() {
+  empty(template: boolean = false) {
     this.ready = true;
     this.isEmpty = true;
     const { image, palette } = this;
     const ctx = image.getContext('2d');
     // eslint-disable-next-line prefer-destructuring
-    ctx.fillStyle = palette.colors[0];
+    ctx.fillStyle = template ? 'rgba(0, 0, 0, 0)' : palette.colors[0];
     ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
   }
 
@@ -117,11 +113,12 @@ class ChunkRGB {
     return x + TILE_SIZE * y;
   }
 
-  getColorIndex(cell: Cell): ColorIndex {
+  getColorIndex(cell: Cell, template: boolean = false): ColorIndex {
     const [x, y] = cell;
     const ctx = this.image.getContext('2d');
 
     const rgb = ctx.getImageData(x, y, 1, 1).data;
+    if (template && rgb[3] === 0) return 0;
     return this.palette.getIndexOfColor(rgb[0], rgb[1], rgb[2]);
   }
 

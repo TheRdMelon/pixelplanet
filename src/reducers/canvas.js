@@ -11,7 +11,6 @@ import {
   getIdFromObject,
 } from '../core/utils';
 
-
 import {
   MAX_SCALE,
   DEFAULT_SCALE,
@@ -58,8 +57,7 @@ function getGivenCoords() {
 function getViewFromURL(canvases: Object) {
   const { hash } = window.location;
   try {
-    const almost = hash.substring(1)
-      .split(',');
+    const almost = hash.substring(1).split(',');
 
     const canvasIdent = almost[0];
     // will be null if not in DEFAULT_CANVASES
@@ -132,7 +130,6 @@ const initialState: CanvasState = {
   historicalTime: null,
 };
 
-
 export default function gui(
   state: CanvasState = initialState,
   action: Action,
@@ -153,10 +150,7 @@ export default function gui(
       }
 
       // redis prediction
-      chunk.setColor(
-        getCellInsideChunk(coordinates),
-        color,
-      );
+      chunk.setColor(getCellInsideChunk(coordinates), color);
       return {
         ...state,
         chunks,
@@ -164,24 +158,18 @@ export default function gui(
     }
 
     case 'SET_SCALE': {
-      let {
-        view,
-        viewscale,
-      } = state;
-      const {
-        canvasSize,
-        isHistoricalView,
-      } = state;
+      let { view, viewscale } = state;
+      const { canvasSize, isHistoricalView } = state;
 
       let [hx, hy] = view;
       let { scale } = action;
       const { zoompoint } = action;
-      const minScale = (isHistoricalView) ? 0.7 : TILE_SIZE / canvasSize;
+      const minScale = isHistoricalView ? 0.7 : TILE_SIZE / canvasSize;
       scale = clamp(scale, minScale, MAX_SCALE);
       if (zoompoint) {
         let scalediff = viewscale;
         // clamp to 1.0 (just do this when zoompoint is given, or it would mess with phones)
-        viewscale = (scale > 0.85 && scale < 1.20) ? 1.0 : scale;
+        viewscale = scale > 0.85 && scale < 1.2 ? 1.0 : scale;
         // make sure that zoompoint is on the same space
         // after zooming
         scalediff /= viewscale;
@@ -203,10 +191,7 @@ export default function gui(
     }
 
     case 'SET_HISTORICAL_TIME': {
-      const {
-        date,
-        time,
-      } = action;
+      const { date, time } = action;
       return {
         ...state,
         historicalDate: date,
@@ -215,14 +200,11 @@ export default function gui(
     }
 
     case 'TOGGLE_HISTORICAL_VIEW': {
-      const {
-        scale,
-        viewscale,
-      } = state;
+      const { scale, viewscale } = state;
       return {
         ...state,
-        scale: (scale < 1.0) ? 1.0 : scale,
-        viewscale: (viewscale < 1.0) ? 1.0 : viewscale,
+        scale: scale < 1.0 ? 1.0 : scale,
+        viewscale: viewscale < 1.0 ? 1.0 : viewscale,
         isHistoricalView: !state.isHistoricalView,
       };
     }
@@ -343,7 +325,7 @@ export default function gui(
         const chunkArray = new Uint8Array(arrayBuffer);
         chunk.fromBuffer(chunkArray, true);
       } else {
-        chunk.empty();
+        chunk.empty(true);
       }
 
       return {
@@ -375,7 +357,7 @@ export default function gui(
 
       const key = ChunkRGB.getKey(...center);
       const chunk = templateChunks.get(key);
-      chunk.empty();
+      chunk.empty(true);
 
       return {
         ...state,
@@ -458,7 +440,7 @@ export default function gui(
       } = canvas;
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
       const palette = new Palette(colors, 0);
-      const view = (canvasId === 0) ? getGivenCoords() : [0, 0];
+      const view = canvasId === 0 ? getGivenCoords() : [0, 0];
       chunks.clear();
       return {
         ...state,
@@ -483,11 +465,9 @@ export default function gui(
         canvasId = DEFAULT_CANVAS_ID;
         canvasIdent = canvases[DEFAULT_CANVAS_ID].ident;
       }
-      const {
-        size: canvasSize,
-        sd: canvasStartDate,
-        colors,
-      } = canvases[canvasId];
+      const { size: canvasSize, sd: canvasStartDate, colors } = canvases[
+        canvasId
+      ];
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
       const palette = new Palette(colors, 0);
 

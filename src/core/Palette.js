@@ -99,7 +99,7 @@ class Palette {
    * @param chunkBuffer Buffer of indexed pixels
    * @return ABRG Buffer
    */
-  buffer2ABGR(chunkBuffer: Buffer): Uint32Array {
+  buffer2ABGR(chunkBuffer: Buffer, template: boolean = false): Uint32Array {
     const { length } = chunkBuffer;
     const colors = new Uint32Array(length);
     let value: number;
@@ -108,7 +108,11 @@ class Palette {
     let pos = 0;
     for (let i = 0; i < length; i++) {
       value = buffer[i] & 0x1f;
-      colors[pos++] = this.abgr[value];
+      if (template && value === 0) {
+        colors[pos++] = 0x00000000;
+      } else {
+        colors[pos++] = this.abgr[value];
+      }
     }
     return colors;
   }

@@ -35,7 +35,8 @@ export default (store) => (next) => (action) => {
     case 'REQUEST_BIG_TEMPLATE_CHUNK':
     case 'RECIEVE_BIG_TEMPLATE_CHUNK':
     case 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE':
-    case 'RECEIVE_IMAGE_TEMPLATE_TILE': {
+    case 'RECEIVE_IMAGE_TEMPLATE_TILE':
+    case 'CHANGE_TEMPLATE_ALPHA': {
       renderer.forceNextRender = true;
       break;
     }

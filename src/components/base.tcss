@@ -194,6 +194,25 @@ kbd {
     z-index: 2;
 }
 
+:global(#templatesettings) {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    z-index: 2;
+    padding: 0 24px;
+    border: solid black;
+    border-width: thin;
+    text-align: center;
+    background-color: rgba(226, 226, 226, 0.80);
+    width: fit-content;
+
+    input {
+      padding: 0 12px;
+    }
+}
+
 :global(.Modal) {
     position: absolute;
     top: 50%;
