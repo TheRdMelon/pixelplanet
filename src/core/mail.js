@@ -40,7 +40,7 @@ class MailProvider {
     const pastMail = this.verifyCodes[to];
     if (pastMail) {
       const minLeft = Math.floor(
-        pastMail.timestamp / MINUTE + 15 - Date.now() / MINUTE,
+        pastMail.timestamp / MINUTE + 2 - Date.now() / MINUTE,
       );
       if (minLeft > 0) {
         logger.info(
