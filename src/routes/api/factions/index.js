@@ -12,6 +12,7 @@ import factions, {
   joinFaction,
   transferFaction,
   ownFactions,
+  factionInfo,
 } from './factions';
 
 const router = express.Router();
@@ -23,5 +24,6 @@ router.patch('/:faction', joinFaction);
 router.delete('/:faction', deleteFaction);
 router.put('/:faction', transferFaction);
 router.get('/mine', ownFactions);
+router.get('/:faction', factionInfo);
 
 export default router;

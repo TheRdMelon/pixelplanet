@@ -3,8 +3,11 @@
  * @flow
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
+
+import { FaCrown } from 'react-icons/fa';
+
 import Tabs from './Tabs';
 import JoinFactionForm from './JoinFactionForm';
 import PublicFactions from './PublicFactions';
@@ -16,6 +19,7 @@ import {
   recieveFactionInfo,
   fetchOwnFactions,
   selectFaction,
+  fetchFactionInfo,
 } from '../actions';
 
 import type { State } from '../reducers';
@@ -74,44 +78,96 @@ const FactionInfo = ({
   selected_faction: selectedFaction,
   select_faction: selectFactionDisp,
   factions,
-}) => (
-  <>
-    <p style={{ display: 'inline', fontSize: '32px' }}>Faction: </p>
-    <select
-      style={{ display: 'inline', fontWeight: 'bold', fontSize: '26px' }}
-      value={selectedFaction}
-    >
-      {ownFactions.map((f) => (
-        <option key={`f_opt_${f.id}`} value={f.id}>
-          <div onChange={(e) => selectFactionDisp(e.target.value)}>
+  fetch_faction_info: fetchFactionInfoDisp,
+}) => {
+  // useRef - local storage, persistant between renders, updating doesn't cause re-render
+  const lastSelected = useRef<string>(selectFaction);
+  // useState - local storage, requires render to update to new value, causes re-render
+  const [selectedFactionInfo, setSelectedFactionInfo] = useState(
+    factions.find((f) => f.id === selectedFaction),
+  );
+
+  // Run every re-render that either of the elements of the 2nd parameter change (only works on states, refs(?), props I believe).
+  useEffect(() => {
+    // See if new faction info is available
+    const selectedFactionInfo1 = factions.find((f) => f.id === selectedFaction);
+    if (selectedFactionInfo1) {
+      // If available
+      lastSelected.current = selectedFaction;
+      setSelectedFactionInfo(selectedFactionInfo1);
+    } else {
+      // Unavaiable, use last faction info until it comes through
+      setSelectedFactionInfo(
+        factions.find((f) => f.id === lastSelected.current),
+      );
+    }
+  }, [selectedFaction, factions]);
+
+  return (
+    <>
+      <h3 style={{ display: 'inline', fontSize: '32px' }}>Faction: </h3>
+      <select
+        style={{ display: 'inline', fontWeight: 'bold', fontSize: '26px' }}
+        value={selectedFaction}
+        onChange={(e) => {
+          fetchFactionInfoDisp(e.target.value);
+          selectFactionDisp(e.target.value);
+        }}
+      >
+        {ownFactions.map((f) => (
+          <option key={`f_opt_${f.id}`} value={f.id}>
             {f.name}
+          </option>
+        ))}
+      </select>
+
+      <div>
+        <div style={squareParentStyle}>
+          <div style={squareStretcherStyle} />
+          <div style={squareChildStyle}>
+            <img
+              style={{
+                imageRendering: 'pixelated',
+                objectFit: 'contain',
+                width: '100%',
+                height: '100%',
+              }}
+              src={
+                selectedFactionInfo.icon
+                  ? `data:image/png;base64,${selectedFactionInfo.icon}`
+                  : './loading0.png'
+              }
+              alt="Faction Icon"
+            />
           </div>
-        </option>
-      ))}
-    </select>
-    <div style={squareParentStyle}>
-      <div style={squareStretcherStyle} />
-      <div style={squareChildStyle}>
-        <img
-          style={{
-            imageRendering: 'pixelated',
-            objectFit: 'contain',
-            width: '100%',
-            height: '100%',
-          }}
-          src={
-            factions.find((f) => f.id === selectedFaction).icon
-              ? `data:image/png;base64,${
-                factions.find((f) => f.id === selectedFaction).icon
-              }`
-              : './loading0.png'
-          }
-          alt="Faction Icon"
-        />
+        </div>
+        <div>
+          <h4>Leader</h4>
+          <p>{selectedFactionInfo.leader}</p>
+          <h4>Members</h4>
+          <p>{selectedFactionInfo.Users.length}</p>
+        </div>
       </div>
-    </div>
-  </>
-);
+      <h3>Member List</h3>
+      <table>
+        <tr>
+          <th style={{ maxWidth: 0 }}>Admin</th>
+          <th style={{ textAlign: 'left' }}>Name</th>
+        </tr>
+        {selectedFactionInfo.Users.map((user) => (
+          <>
+            <tr>
+              <td>
+                {user === selectedFactionInfo.leader ? <FaCrown /> : null}
+              </td>
+              <td style={{ textAlign: 'left' }}>{user}</td>
+            </tr>
+          </>
+        ))}
+      </table>
+    </>
+  );
+};
 
 const FactionModal = ({
   recieve_faction_info: recieveFactionInfoDisp,
@@ -121,6 +177,7 @@ const FactionModal = ({
   selected_faction: selectedFaction,
   select_faction: selectFactionDisp,
   factions,
+  fetch_faction_info: fetchFactionInfoDisp,
 }) => {
   // New react hook, 2nd parameter of empty array makes it equivelant to componentDidMount
   useEffect(() => {
@@ -144,6 +201,7 @@ const FactionModal = ({
                 selected_faction={selectedFaction}
                 select_faction={selectFactionDisp}
                 factions={factions}
+                fetch_faction_info={fetchFactionInfoDisp}
               />
             </div>
           ) : (
@@ -202,6 +260,9 @@ function mapDispatchToProps(dispatch) {
     select_faction(select) {
       dispatch(selectFaction(select));
     },
+    fetch_faction_info(id) {
+      dispatch(fetchFactionInfo(id));
+    },
   };
 }
 
@@ -218,6 +279,7 @@ function mergeProps(propsFromState, propsFromDispatch) {
     own_factions: propsFromState.own_factions,
     select_faction: propsFromDispatch.select_faction,
     factions: propsFromState.factions,
+    fetch_faction_info: propsFromDispatch.fetch_faction_info,
   };
 }
 

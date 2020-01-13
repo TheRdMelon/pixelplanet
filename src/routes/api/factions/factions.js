@@ -294,6 +294,42 @@ const ownFactions = async (req: Request, res: Response) => {
   });
 };
 
+const factionInfo = async (req: Request, res: Response) => {
+  const { faction: factionIdParam } = req.params;
+  const { user } = req;
+
+  if (!user) {
+    res.status(401);
+    res.json({
+      errors: ['You are not authenticated.'],
+    });
+  }
+
+  // Validation
+  const errors = [];
+  const ownFactionCheck = await user.regUser.hasFaction(factionIdParam);
+
+  if (!ownFactionCheck) {
+    errors.push('You do not belong to this faction, or it does not exist.');
+  }
+
+  if (errors.length > 0) {
+    res.status(400);
+    res.json({
+      success: false,
+      errors,
+    });
+    return;
+  }
+
+  const info = factions.factionInfo.find((f) => f.id === factionIdParam);
+
+  res.json({
+    success: true,
+    faction: info,
+  });
+};
+
 export default async (req: Request, res: Response) => {
   res.json(
     factions.factions.map((f) => ({
@@ -310,4 +346,5 @@ export {
   joinFaction,
   transferFaction,
   ownFactions,
+  factionInfo,
 };
