@@ -45,8 +45,8 @@ export type CanvasState = {
  * check if we got coords from index.html
  */
 function getGivenCoords() {
-  if (window.coordx && window.coordy) return [window.coordx, window.coordy];
-  return [1749, -8283];
+  // if (window.coordx && window.coordy) return [window.coordx, window.coordy];
+  return [0, 0];
 }
 
 /*
