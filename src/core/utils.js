@@ -18,7 +18,7 @@ export function mod(n: number, m: number): number {
 export function sum(values: Array<number>): number {
   let total = 0;
   // TODO map reduce
-  values.forEach((value) => total += value);
+  values.forEach((value) => (total += value));
   return total;
 }
 
@@ -31,18 +31,22 @@ export function clamp(n: number, min: number, max: number): number {
 }
 
 export function getChunkOfPixel(pixel: Cell, canvasSize: number = null): Cell {
-  const target = pixel.map((x) => Math.floor((x + (canvasSize / 2)) / TILE_SIZE));
+  const target = pixel.map((x) => Math.floor((x + canvasSize / 2) / TILE_SIZE));
   return target;
 }
 
-export function getTileOfPixel(tileScale: number, pixel: Cell, canvasSize: number = null): Cell {
-  const target = pixel.map((x) => Math.floor((x + canvasSize / 2) / TILE_SIZE * tileScale));
+export function getTileOfPixel(
+  tileScale: number,
+  pixel: Cell,
+  canvasSize: number = null,
+): Cell {
+  const target = pixel.map((x) => Math.floor(((x + canvasSize / 2) / TILE_SIZE) * tileScale));
   return target;
 }
 
 export function getMaxTiledZoom(canvasSize: number): number {
   if (!canvasSize) return 0;
-  return Math.log2(canvasSize / TILE_SIZE) / TILE_ZOOM_LEVEL * 2;
+  return (Math.log2(canvasSize / TILE_SIZE) / TILE_ZOOM_LEVEL) * 2;
 }
 
 export function getCanvasBoundaries(canvasSize: number): number {
@@ -51,11 +55,15 @@ export function getCanvasBoundaries(canvasSize: number): number {
   return [canvasMinXY, canvasMaxXY];
 }
 
-export function getOffsetOfPixel(x: number, y: number, canvasSize: number = null): number {
-  const modOffset = mod((canvasSize / 2), TILE_SIZE);
+export function getOffsetOfPixel(
+  x: number,
+  y: number,
+  canvasSize: number = null,
+): number {
+  const modOffset = mod(canvasSize / 2, TILE_SIZE);
   const cx = mod(x + modOffset, TILE_SIZE);
   const cy = mod(y + modOffset, TILE_SIZE);
-  return (cy * TILE_SIZE) + cx;
+  return cy * TILE_SIZE + cx;
 }
 
 /*
@@ -85,8 +93,8 @@ export function getPixelFromChunkOffset(
   const cx = mod(offset, TILE_SIZE);
   const cy = Math.floor(offset / TILE_SIZE);
   const devOffset = canvasSize / 2 / TILE_SIZE;
-  const x = ((i - devOffset) * TILE_SIZE) + cx;
-  const y = ((j - devOffset) * TILE_SIZE) + cy;
+  const x = (i - devOffset) * TILE_SIZE + cx;
+  const y = (j - devOffset) * TILE_SIZE + cy;
   return [x, y];
 }
 
@@ -104,8 +112,8 @@ export function screenToWorld(
   const [viewX, viewY] = view;
   const { width, height } = $viewport;
   return [
-    Math.floor(((x - (width / 2)) / viewscale) + viewX),
-    Math.floor(((y - (height / 2)) / viewscale) + viewY),
+    Math.floor((x - width / 2) / viewscale + viewX),
+    Math.floor((y - height / 2) / viewscale + viewY),
   ];
 }
 
@@ -118,9 +126,13 @@ export function worldToScreen(
   const [viewX, viewY] = view;
   const { width, height } = $viewport;
   return [
-    ((x - viewX) * viewscale) + (width / 2),
-    ((y - viewY) * viewscale) + (height / 2),
+    (x - viewX) * viewscale + width / 2,
+    (y - viewY) * viewscale + height / 2,
   ];
+}
+
+function getKey(canvasMaxTiledZoom, cx, cy) {
+  return `${canvasMaxTiledZoom}:${cx}:${cy}`;
 }
 
 /*
@@ -133,17 +145,19 @@ export function worldToScreen(
 export function getColorIndexOfPixel(
   state: State,
   coordinates: Cell,
+  template: boolean = false,
 ): number {
-  const { chunks, canvasSize, canvasMaxTiledZoom } = state.canvas;
+  const {
+    canvasSize, canvasMaxTiledZoom, chunks, templateChunks,
+  } = state.canvas;
   const [cx, cy] = getChunkOfPixel(coordinates, canvasSize);
-  const key = `${canvasMaxTiledZoom}:${cx}:${cy}`;
-  const chunk = chunks.get(key);
+  const key = getKey(canvasMaxTiledZoom, cx, cy);
+  const chunk = (template ? templateChunks : chunks).get(key);
   if (!chunk) {
     return 0;
   }
-  return chunk.getColorIndex(
-    getCellInsideChunk(coordinates),
-  );
+  const cell = getCellInsideChunk(coordinates);
+  return chunk.getColorIndex(cell, template);
 }
 
 export function durationToString(
@@ -155,7 +169,7 @@ export function durationToString(
   if (seconds < 60 && smallest) {
     timestring = seconds;
   } else {
-    timestring = `${Math.floor(seconds / 60)}:${(`0${seconds % 60}`).slice(-2)}`;
+    timestring = `${Math.floor(seconds / 60)}:${`0${seconds % 60}`.slice(-2)}`;
   }
   return timestring;
 }
@@ -171,10 +185,16 @@ export function numberToString(num: number): string {
   let postfixNum = 0;
   while (postfixNum < postfix.length) {
     if (num < 10000) {
-      return `${Math.floor(num / 1000)}.${Math.floor((num % 1000) / 10)}${postfix[postfixNum]}`;
-    } if (num < 100000) {
-      return `${Math.floor(num / 1000)}.${Math.floor((num % 1000) / 100)}${postfix[postfixNum]}`;
-    } if (num < 1000000) {
+      return `${Math.floor(num / 1000)}.${Math.floor((num % 1000) / 10)}${
+        postfix[postfixNum]
+      }`;
+    }
+    if (num < 100000) {
+      return `${Math.floor(num / 1000)}.${Math.floor((num % 1000) / 100)}${
+        postfix[postfixNum]
+      }`;
+    }
+    if (num < 1000000) {
       return Math.floor(num / 1000) + postfix[postfixNum];
     }
     postfixNum += 1;
@@ -186,13 +206,17 @@ export function numberToString(num: number): string {
 export function numberToStringFull(num: number): string {
   if (num < 0) {
     return `${num} :-(`;
-  } if (num < 1000) {
+  }
+  if (num < 1000) {
     return num;
-  } if (num < 1000000) {
-    return `${Math.floor(num / 1000)}.${(`00${num % 1000}`).slice(-3)}`;
+  }
+  if (num < 1000000) {
+    return `${Math.floor(num / 1000)}.${`00${num % 1000}`.slice(-3)}`;
   }
 
-  return `${Math.floor(num / 1000000)}.${(`00${Math.floor(num / 1000)}`).slice(-3)}.${(`00${num % 1000}`).slice(-3)}`;
+  return `${Math.floor(num / 1000000)}.${`00${Math.floor(num / 1000)}`.slice(
+    -3,
+  )}.${`00${num % 1000}`.slice(-3)}`;
 }
 
 export function colorFromText(str: string) {
@@ -203,17 +227,13 @@ export function colorFromText(str: string) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  const c = (hash & 0x00FFFFFF)
-    .toString(16)
-    .toUpperCase();
+  const c = (hash & 0x00ffffff).toString(16).toUpperCase();
 
   return `#${'00000'.substring(0, 6 - c.length)}${c}`;
 }
 
 const linkRegExp = /(#[a-z]*,-?[0-9]*,-?[0-9]*(,-?[0-9]+)?)/gi;
 export function splitCoordsInString(text) {
-  const arr = text
-    .split(linkRegExp)
-    .filter((val, ind) => ((ind % 3) !== 2));
+  const arr = text.split(linkRegExp).filter((val, ind) => ind % 3 !== 2);
   return arr;
 }

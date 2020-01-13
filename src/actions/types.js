@@ -24,6 +24,7 @@ export type Action =
   | { type: 'TOGGLE_POTATO_MODE' }
   | { type: 'TOGGLE_LIGHT_GRID' }
   | { type: 'TOGGLE_OPEN_MENU' }
+  | { type: 'TOGGLE_HISTORICAL_VIEW' }
   | { type: 'SET_NOTIFICATION', notification: string }
   | { type: 'UNSET_NOTIFICATION' }
   | { type: 'SET_PLACE_ALLOWED', placeAllowed: boolean }
@@ -40,9 +41,17 @@ export type Action =
   | { type: 'SET_VIEW_COORDINATES', view: Cell }
   | { type: 'SET_SCALE', scale: number, zoompoint: Cell }
   | { type: 'REQUEST_BIG_CHUNK', center: Cell }
+  | { type: 'REQUEST_BIG_TEMPLATE_CHUNK', center: Cell }
   | { type: 'RECEIVE_BIG_CHUNK', center: Cell, arrayBuffer: ArrayBuffer }
+  | {
+      type: 'RECIEVE_BIG_TEMPLATE_CHUNK',
+      center: Cell,
+      arrayBuffer: ArrayBuffer,
+    }
   | { type: 'RECEIVE_IMAGE_TILE', center: Cell, tile: Image }
+  | { type: 'RECEIVE_IMAGE_TEMPLATE_TILE', center: Cell, tile: Image }
   | { type: 'RECEIVE_BIG_CHUNK_FAILURE', center: Cell, error: Error }
+  | { type: 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE', center: Cell, error: Error }
   | { type: 'RECEIVE_COOLDOWN', waitSeconds: number }
   | {
       type: 'RECEIVE_PIXEL_UPDATE',
@@ -81,6 +90,9 @@ export type Action =
   | { type: 'SHOW_MODAL', modalType: string, modalProps: obj }
   | { type: 'HIDE_MODAL' }
   | { type: 'RELOAD_URL' }
+  | { type: 'ON_VIEW_FINISH_CHANGE' }
+  | { type: 'CHANGE_TEMPLATE_ALPHA', alpha: number }
+  | { type: 'SET_HISTORICAL_TIME', date: string, time: string }
   | { type: 'ON_VIEW_FINISH_CHANGE' };
 export type PromiseAction = Promise<Action>;
 export type Dispatch = (

@@ -20,13 +20,12 @@ async function history(req: Request, res: Response) {
       res.status(404).end();
     }
 
-    const dirs = fs.readdirSync(path)
-    const filteredDir = dirs.filter(item => item !== 'tiles')
+    const dirs = fs.readdirSync(path);
+    const filteredDir = dirs.filter((item) => item !== 'tiles');
     res.set({
       'Cache-Control': `public, max-age=${60 * 60}`, // seconds
     });
     res.json(filteredDir);
-
   } catch {
     res.status(404).end();
   }

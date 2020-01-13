@@ -66,7 +66,7 @@ async function draw(
     };
   }
 
-  if (canvas.req) {
+  if (canvas.req !== -1) {
     if (user.id === null) {
       return {
         errorTitle: 'Not Logged In',

@@ -86,10 +86,11 @@ function initViewport() {
       return;
     }
     const coords = screenToWorld(state, viewport, [clientX, clientY]);
-    const clrIndex = getColorIndexOfPixel(state, coords);
-    if (clrIndex === null) {
-      return;
+    let clrIndex = getColorIndexOfPixel(state, coords, true);
+    if (clrIndex === null || clrIndex === 0) {
+      clrIndex = getColorIndexOfPixel(state, coords);
     }
+    if (clrIndex === null) return;
     store.dispatch(selectColor(clrIndex));
   };
 
@@ -105,7 +106,12 @@ function initViewport() {
     const { autoZoomIn } = state.gui;
     const { placeAllowed } = state.user;
 
-    const { scale } = state.canvas;
+    const {
+      scale,
+      isHistoricalView,
+    } = state.canvas;
+    if (isHistoricalView) return;
+
     const { x, y } = center;
     const cell = screenToWorld(state, viewport, [x, y]);
 

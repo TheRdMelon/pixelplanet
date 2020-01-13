@@ -11,7 +11,6 @@ import {
   getIdFromObject,
 } from '../core/utils';
 
-
 import {
   MAX_SCALE,
   DEFAULT_SCALE,
@@ -26,14 +25,18 @@ export type CanvasState = {
   canvasIdent: string,
   canvasSize: number,
   canvasMaxTiledZoom: number,
-  minScale: number,
+  canvasStartDate: string,
   palette: Palette,
   chunks: Map<string, ChunkRGB>,
+  templateChunks: Map<string, ChunkRGB>,
   view: Cell,
   scale: number,
   viewscale: number,
   requested: Set<string>,
   fetchs: number,
+  isHistoricalView: boolean,
+  historicalDate: string,
+  historicalTime: string,
   // object with all canvas informations from all canvases like colors and size
   canvases: Object,
 };
@@ -54,15 +57,27 @@ function getGivenCoords() {
 function getViewFromURL(canvases: Object) {
   const { hash } = window.location;
   try {
-    const almost = hash.substring(1)
-      .split(',');
+    const almost = hash.substring(1).split(',');
 
     const canvasIdent = almost[0];
     // will be null if not in DEFAULT_CANVASES
     const canvasId = getIdFromObject(canvases, almost[0]);
-    const colors = (canvasId !== null)
-      ? canvases[canvasId].colors : canvases[DEFAULT_CANVAS_ID].colors;
-    const canvasSize = (canvasId !== null) ? canvases[canvasId].size : 1024;
+
+    let colors;
+    let canvasSize;
+    let canvasStartDate;
+    if (canvasId == null) {
+      // if canvas informations are not available yet
+      // aka /api/me didn't load yet
+      colors = canvases[DEFAULT_CANVAS_ID].colors;
+      canvasSize = 1024;
+      canvasStartDate = null;
+    } else {
+      const canvas = canvases[canvasId];
+      colors = canvas.colors;
+      canvasSize = canvas.size;
+      canvasStartDate = canvas.sd;
+    }
 
     const x = parseInt(almost[1], 10);
     const y = parseInt(almost[2], 10);
@@ -81,6 +96,7 @@ function getViewFromURL(canvases: Object) {
       canvasId,
       canvasIdent,
       canvasSize,
+      canvasStartDate,
       canvasMaxTiledZoom: getMaxTiledZoom(canvasSize),
       palette: new Palette(colors, 0),
       view: [x, y],
@@ -93,6 +109,7 @@ function getViewFromURL(canvases: Object) {
       canvasId: DEFAULT_CANVAS_ID,
       canvasIdent: canvases[DEFAULT_CANVAS_ID].ident,
       canvasSize: canvases[DEFAULT_CANVAS_ID].size,
+      canvasStartDate: null,
       canvasMaxTiledZoom: getMaxTiledZoom(canvases[DEFAULT_CANVAS_ID].size),
       palette: new Palette(canvases[DEFAULT_CANVAS_ID].colors, 0),
       view: getGivenCoords(),
@@ -104,11 +121,14 @@ function getViewFromURL(canvases: Object) {
 
 const initialState: CanvasState = {
   chunks: new Map(),
+  templateChunks: new Map(),
   ...getViewFromURL(DEFAULT_CANVASES),
   requested: new Set(),
   fetchs: 0,
+  isHistoricalView: false,
+  historicalDate: null,
+  historicalTime: null,
 };
-
 
 export default function gui(
   state: CanvasState = initialState,
@@ -130,10 +150,7 @@ export default function gui(
       }
 
       // redis prediction
-      chunk.setColor(
-        getCellInsideChunk(coordinates),
-        color,
-      );
+      chunk.setColor(getCellInsideChunk(coordinates), color);
       return {
         ...state,
         chunks,
@@ -142,15 +159,17 @@ export default function gui(
 
     case 'SET_SCALE': {
       let { view, viewscale } = state;
-      const { canvasSize } = state;
+      const { canvasSize, isHistoricalView } = state;
+
       let [hx, hy] = view;
       let { scale } = action;
       const { zoompoint } = action;
-      scale = clamp(scale, TILE_SIZE / canvasSize, MAX_SCALE);
+      const minScale = isHistoricalView ? 0.7 : TILE_SIZE / canvasSize;
+      scale = clamp(scale, minScale, MAX_SCALE);
       if (zoompoint) {
         let scalediff = viewscale;
         // clamp to 1.0 (just do this when zoompoint is given, or it would mess with phones)
-        viewscale = (scale > 0.85 && scale < 1.20) ? 1.0 : scale;
+        viewscale = scale > 0.85 && scale < 1.2 ? 1.0 : scale;
         // make sure that zoompoint is on the same space
         // after zooming
         scalediff /= viewscale;
@@ -171,6 +190,25 @@ export default function gui(
       };
     }
 
+    case 'SET_HISTORICAL_TIME': {
+      const { date, time } = action;
+      return {
+        ...state,
+        historicalDate: date,
+        historicalTime: time,
+      };
+    }
+
+    case 'TOGGLE_HISTORICAL_VIEW': {
+      const { scale, viewscale } = state;
+      return {
+        ...state,
+        scale: scale < 1.0 ? 1.0 : scale,
+        viewscale: viewscale < 1.0 ? 1.0 : viewscale,
+        isHistoricalView: !state.isHistoricalView,
+      };
+    }
+
     case 'SET_VIEW_COORDINATES': {
       const { view } = action;
       const { canvasSize } = state;
@@ -184,10 +222,13 @@ export default function gui(
     }
 
     case 'RELOAD_URL': {
-      const { canvasId, chunks, canvases } = state;
+      const {
+        canvasId, chunks, templateChunks, canvases,
+      } = state;
       const nextstate = getViewFromURL(canvases);
-      if (nextstate.canvasId != canvasId) {
+      if (nextstate.canvasId !== canvasId) {
         chunks.clear();
+        templateChunks.clear();
       }
       return {
         ...state,
@@ -205,7 +246,7 @@ export default function gui(
       y = Math.round(y);
       const scale = Math.round(Math.log2(viewscale) * 10);
       const newhash = `#${canvasIdent},${x},${y},${scale}`;
-      history.replaceState(undefined, undefined, newhash);
+      window.history.replaceState(undefined, undefined, newhash);
       return {
         ...state,
       };
@@ -231,12 +272,33 @@ export default function gui(
       };
     }
 
+    case 'REQUEST_BIG_TEMPLATE_CHUNK': {
+      const {
+        palette, templateChunks, fetchs, requested,
+      } = state;
+      const { center } = action;
+
+      const chunkRGB = new ChunkRGB(palette, center);
+      const { key } = chunkRGB;
+      templateChunks.set(key, chunkRGB);
+
+      requested.add(key);
+      return {
+        ...state,
+        templateChunks,
+        fetchs: fetchs + 1,
+        requested,
+      };
+    }
+
     case 'RECEIVE_BIG_CHUNK': {
       const { chunks, fetchs } = state;
       const { center, arrayBuffer } = action;
 
       const key = ChunkRGB.getKey(...center);
       const chunk = chunks.get(key);
+      if (!chunk) return state;
+
       chunk.isBasechunk = true;
       if (arrayBuffer.byteLength) {
         const chunkArray = new Uint8Array(arrayBuffer);
@@ -252,17 +314,54 @@ export default function gui(
       };
     }
 
+    case 'RECIEVE_BIG_TEMPLATE_CHUNK': {
+      const { templateChunks, fetchs } = state;
+      const { center, arrayBuffer } = action;
+
+      const key = ChunkRGB.getKey(...center);
+      const chunk = templateChunks.get(key);
+      chunk.isBasechunk = true;
+      if (arrayBuffer.byteLength) {
+        const chunkArray = new Uint8Array(arrayBuffer);
+        chunk.fromBuffer(chunkArray, true);
+      } else {
+        chunk.empty(true);
+      }
+
+      return {
+        ...state,
+        templateChunks,
+        fetchs: fetchs + 1,
+      };
+    }
+
     case 'RECEIVE_BIG_CHUNK_FAILURE': {
       const { chunks, fetchs } = state;
       const { center } = action;
 
       const key = ChunkRGB.getKey(...center);
       const chunk = chunks.get(key);
+      if (!chunk) return state;
+
       chunk.empty();
 
       return {
         ...state,
-        chunks,
+        fetchs: fetchs + 1,
+      };
+    }
+
+    case 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE': {
+      const { templateChunks, fetchs } = state;
+      const { center } = action;
+
+      const key = ChunkRGB.getKey(...center);
+      const chunk = templateChunks.get(key);
+      chunk.empty(true);
+
+      return {
+        ...state,
+        templateChunks,
         fetchs: fetchs + 1,
       };
     }
@@ -273,11 +372,28 @@ export default function gui(
 
       const key = ChunkRGB.getKey(...center);
       const chunk = chunks.get(key);
+      if (!chunk) return state;
+
       chunk.fromImage(tile);
 
       return {
         ...state,
         chunks,
+        fetchs: fetchs + 1,
+      };
+    }
+
+    case 'RECEIVE_IMAGE_TEMPLATE_TILE': {
+      const { templateChunks, fetchs } = state;
+      const { center, tile } = action;
+
+      const key = ChunkRGB.getKey(...center);
+      const chunk = templateChunks.get(key);
+      chunk.fromImage(tile);
+
+      return {
+        ...state,
+        templateChunks,
         fetchs: fetchs + 1,
       };
     }
@@ -307,22 +423,31 @@ export default function gui(
     }
 
     case 'SELECT_CANVAS': {
-      const { canvasId } = action;
+      let { canvasId } = action;
       const { canvases, chunks } = state;
 
       chunks.clear();
-      const canvas = canvases[canvasId];
-      const canvasIdent = canvas.ident;
-      const canvasSize = canvases[canvasId].size;
+      let canvas = canvases[canvasId];
+      if (!canvas) {
+        canvasId = DEFAULT_CANVAS_ID;
+        canvas = canvases[DEFAULT_CANVAS_ID];
+      }
+      const {
+        size: canvasSize,
+        sd: canvasStartDate,
+        ident: canvasIdent,
+        colors,
+      } = canvas;
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
-      const palette = new Palette(canvas.colors, 0);
-      const view = (canvasId == 0) ? getGivenCoords() : [0, 0];
+      const palette = new Palette(colors, 0);
+      const view = canvasId === 0 ? getGivenCoords() : [0, 0];
       chunks.clear();
       return {
         ...state,
         canvasId,
         canvasIdent,
         canvasSize,
+        canvasStartDate,
         canvasMaxTiledZoom,
         palette,
         view,
@@ -340,15 +465,18 @@ export default function gui(
         canvasId = DEFAULT_CANVAS_ID;
         canvasIdent = canvases[DEFAULT_CANVAS_ID].ident;
       }
-      const canvasSize = canvases[canvasId].size;
+      const { size: canvasSize, sd: canvasStartDate, colors } = canvases[
+        canvasId
+      ];
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
-      const palette = new Palette(canvases[canvasId].colors, 0);
+      const palette = new Palette(colors, 0);
 
       return {
         ...state,
         canvasId,
         canvasIdent,
         canvasSize,
+        canvasStartDate,
         canvasMaxTiledZoom,
         palette,
         canvases,

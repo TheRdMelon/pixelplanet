@@ -1,6 +1,6 @@
 /* @flow */
 
-import { persistCombineReducers } from 'redux-persist';
+import { persistCombineReducers, persistStore } from 'redux-persist';
 import localForage from 'localforage';
 import audio from './audio';
 import canvas from './canvas';

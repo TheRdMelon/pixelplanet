@@ -169,6 +169,66 @@ const FactionInfo = ({
   );
 };
 
+const Admin = ({ selected_faction: selectedFaction }) => {
+  const formRef = useRef(null);
+
+  return (
+    <>
+      <form
+        encType="multipart/form-data"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const req = new XMLHttpRequest();
+          const formData = new FormData(formRef.current);
+
+          req.open('POST', `./api/factions/${selectedFaction}/templates`);
+          req.send(formData);
+        }}
+        ref={formRef}
+      >
+        <input type="file" name="image" />
+        <br />
+        <label htmlFor="radio-d" style={{ display: 'inline' }}>
+          <input
+            type="radio"
+            name="canvasindent"
+            id="radio-d"
+            value="d"
+            style={{ display: 'inline' }}
+          />
+          Default
+        </label>
+        <label htmlFor="radio-m" style={{ dispatch: 'inline' }}>
+          <input
+            type="radio"
+            name="canvasindent"
+            id="radio-m"
+            value="m"
+            style={{ display: 'inline' }}
+          />
+          Moon
+        </label>
+        <br />
+        <label htmlFor="x-input">
+          Top Left X:
+          <br />
+          <input type="number" name="x" id="x-input" min={-32768} max={32768} />
+        </label>
+        <br />
+        <label htmlFor="y-input">
+          Top Left Y:
+          <br />
+          <input type="number" name="y" id="y-input" min={-32768} max={32768} />
+        </label>
+        <br />
+        <button type="submit" name="upload">
+          Create
+        </button>
+      </form>
+    </>
+  );
+};
+
 const FactionModal = ({
   recieve_faction_info: recieveFactionInfoDisp,
   fetch_factions: fetchFactionsDisp,
@@ -213,7 +273,9 @@ const FactionModal = ({
             undefined
           )}
           {ownFactions.length > 0 ? (
-            <div label="Admin">{/* <Admin /> */}</div>
+            <div label="Admin">
+              <Admin selected_faction={selectedFaction} />
+            </div>
           ) : (
             undefined
           )}

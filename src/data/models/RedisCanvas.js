@@ -7,7 +7,6 @@ import logger from '../../core/logger';
 
 import redis from '../redis';
 
-
 const UINT_SIZE = 'u8';
 
 const EMPTY_CACA = new Uint8Array(TILE_SIZE * TILE_SIZE);
@@ -15,7 +14,6 @@ const EMPTY_CHUNK_BUFFER = Buffer.from(EMPTY_CACA.buffer);
 
 // cache existence of chunks
 const chunks: Set<string> = new Set();
-
 
 class RedisCanvas {
   // callback that gets informed about chunk changes
@@ -29,24 +27,32 @@ class RedisCanvas {
     return redis.getAsync(`ch:${canvasId}:${i}:${j}`);
   }
 
-  static async setChunk(i: number, j: number, chunk: Uint8Array,
-    canvasId: number) {
+  static getTemplateChunk(i: number, j: number): Promise<Buffer> {
+    return redis.getAsync(`tp:0:${i}:${j}`);
+  }
+
+  static async setChunk(
+    i: number,
+    j: number,
+    chunk: Uint8Array,
+    canvasId: number,
+    templateId?: number,
+  ) {
     if (chunk.length !== TILE_SIZE * TILE_SIZE) {
       logger.error(`Tried to set chunk with invalid length ${chunk.length}!`);
       return false;
     }
-    const key = `ch:${canvasId}:${i}:${j}`;
+    const key = templateId === undefined
+      ? `ch:${canvasId}:${i}:${j}`
+      : `tp:${templateId}:${i}:${j}`;
     await redis.setAsync(key, Buffer.from(chunk.buffer));
-    RedisCanvas.registerChunkChange(canvasId, [i, j]);
+    if (templateId === undefined) {
+      RedisCanvas.registerChunkChange(canvasId, [i, j]);
+    }
     return true;
   }
 
-  static async setPixel(
-    x: number,
-    y: number,
-    color: number,
-    canvasId: number,
-  ) {
+  static async setPixel(x: number, y: number, color: number, canvasId: number) {
     const canvasSize = canvases[canvasId].size;
     const [i, j] = getChunkOfPixel([x, y], canvasSize);
     const offset = getOffsetOfPixel(x, y, canvasSize);
@@ -84,12 +90,7 @@ class RedisCanvas {
     const canvasAlpha = canvases[canvasId].alpha;
     const [i, j] = getChunkOfPixel([x, y], canvasSize);
     const offset = getOffsetOfPixel(x, y, canvasSize);
-    const args = [
-      `ch:${canvasId}:${i}:${j}`,
-      'GET',
-      UINT_SIZE,
-      `#${offset}`,
-    ];
+    const args = [`ch:${canvasId}:${i}:${j}`, 'GET', UINT_SIZE, `#${offset}`];
     const result: ?number = await redis.sendCommandAsync('bitfield', args);
     if (!result) return canvasAlpha;
     const color = result[0];

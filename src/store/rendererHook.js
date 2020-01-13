@@ -7,12 +7,19 @@
 import renderer from '../ui/Renderer';
 
 export default (store) => (next) => (action) => {
+  const { type } = action;
+
+  if (type == 'SET_HISTORICAL_TIME') {
+    const state = store.getState();
+    renderer.updateOldHistoricalTime(state.canvas.historicalTime);
+  }
+
   // executed after reducers
   const ret = next(action);
 
   const state = store.getState();
 
-  switch (action.type) {
+  switch (type) {
     case 'RELOAD_URL':
     case 'SELECT_CANVAS':
     case 'RECEIVE_ME': {
@@ -20,20 +27,24 @@ export default (store) => (next) => (action) => {
       break;
     }
 
+    case 'SET_HISTORICAL_TIME':
     case 'REQUEST_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK_FAILURE':
-    case 'RECEIVE_IMAGE_TILE': {
+    case 'RECEIVE_IMAGE_TILE':
+    case 'REQUEST_BIG_TEMPLATE_CHUNK':
+    case 'RECIEVE_BIG_TEMPLATE_CHUNK':
+    case 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE':
+    case 'RECEIVE_IMAGE_TEMPLATE_TILE':
+    case 'CHANGE_TEMPLATE_ALPHA': {
       renderer.forceNextRender = true;
       break;
     }
 
+    case 'TOGGLE_HISTORICAL_VIEW':
     case 'SET_SCALE': {
       const {
-        viewscale,
-        canvasMaxTiledZoom,
-        view,
-        canvasSize,
+        viewscale, canvasMaxTiledZoom, view, canvasSize,
       } = state.canvas;
       renderer.updateScale(viewscale, canvasMaxTiledZoom, view, canvasSize);
       break;
@@ -46,7 +57,7 @@ export default (store) => (next) => (action) => {
     }
 
     default:
-      // nothing
+    // nothing
   }
 
   return ret;

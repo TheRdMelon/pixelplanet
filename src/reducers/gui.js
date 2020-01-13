@@ -18,6 +18,7 @@ export type GUIState = {
   paletteOpen: boolean,
   menuOpen: boolean,
   selectedFaction: string | undefined,
+  templateAlpha: number,
 };
 
 const initialState: GUIState = {
@@ -34,6 +35,7 @@ const initialState: GUIState = {
   paletteOpen: true,
   menuOpen: false,
   selectedFaction: undefined,
+  templateAlpha: 50,
 };
 
 export default function gui(
@@ -163,6 +165,15 @@ export default function gui(
       return {
         ...state,
         selectedFaction: select,
+      };
+    }
+
+    case 'CHANGE_TEMPLATE_ALPHA': {
+      const { alpha } = action;
+
+      return {
+        ...state,
+        templateAlpha: alpha,
       };
     }
 
