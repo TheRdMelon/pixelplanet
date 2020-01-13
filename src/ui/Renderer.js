@@ -7,7 +7,11 @@ import type { Cell } from '../core/Cell';
 import type { State } from '../reducers';
 import { TILE_SIZE } from '../core/constants';
 
-import { getTileOfPixel, getPixelFromChunkOffset } from '../core/utils';
+import {
+  getTileOfPixel,
+  getPixelFromChunkOffset,
+  getCellInsideChunk,
+} from '../core/utils';
 
 import {
   fetchChunk,
@@ -74,13 +78,6 @@ class Renderer {
 
     context.fillStyle = '#000000';
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    /* this.overlayCanvas = document.createElement('canvas');
-    this.overlayCanvas.width = CANVAS_WIDTH;
-    this.overlayCanvas.height = CANVAS_HEIGHT;
-
-    const overlayContext = this.overlayCanvas.getContext('2d');
-    overlayContext.globalAlpha = 0.5; */
   }
 
   // HAS to be set before any rendering can happen
@@ -88,14 +85,21 @@ class Renderer {
     this.viewport = viewport;
     this.store = store;
     const state = store.getState();
-    const { canvasMaxTiledZoom, viewscale, view, canvasSize } = state.canvas;
+    const {
+      canvasMaxTiledZoom, viewscale, view, canvasSize,
+    } = state.canvas;
     this.updateCanvasData(state);
     this.updateScale(viewscale, canvasMaxTiledZoom, view, canvasSize);
     this.forceNextRender = true;
   }
 
   updateCanvasData(state: State) {
-    const { canvasMaxTiledZoom, viewscale, view, canvasSize } = state.canvas;
+    const {
+      canvasMaxTiledZoom,
+      viewscale,
+      view,
+      canvasSize,
+    } = state.canvas;
     this.updateScale(viewscale, canvasMaxTiledZoom, view, canvasSize);
   }
 
@@ -172,25 +176,16 @@ class Renderer {
     const key = ChunkRGB.getKey(tiledZoom, i, j);
     const templateChunk = templateChunks.get(key);
     if (templateChunk) {
-      const templateCtx: CanvasRenderingContext2D = templateChunk.image.getContext('2d');
-      console.log(templateCtx);
-      const templateData = templateCtx.getImageData(0, 0, templateChunk.image.width, templateChunk.image.height);
-      console.log(templateData);
-
-      const rx = (x + canvasSize / 2) % TILE_SIZE;
-      const ry = (y + canvasSize / 2) % TILE_SIZE;
-      console.log(`rx: ${rx}, ry: ${ry}`);
-      let colPos = ((ry * templateData.width) + rx) * 4;
-      console.log(colPos);
-      const r = templateData.data[colPos++];
-      const g = templateData.data[colPos++];
-      const b = templateData.data[colPos++];
-      const a = templateData.data[colPos];
-      console.log(`rgba(${r}, ${g}, ${b}, ${a})`);
-      if (a === 255) {
-        console.log("in");
-        const col = `rgba(${r}, ${g}, ${b}, ${a})`;
-        context.fillStyle = col;
+      const templateCtx: CanvasRenderingContext2D = templateChunk
+        .image.getContext('2d');
+      const [rx, ry] = getCellInsideChunk([x, y]);
+      const pixelData = templateCtx.getImageData(rx, ry, 1, 1);
+      const a = pixelData.data[3];
+      if (a > 0) {
+        const r = pixelData.data[0];
+        const g = pixelData.data[1];
+        const b = pixelData.data[2];
+        context.fillStyle = `rgb(${r}, ${g}, ${b})`;
         context.globalAlpha = (templateAlpha / 100);
         context.fillRect(px, py, scaleM, scaleM);
         context.globalAlpha = 1;
@@ -213,8 +208,8 @@ class Renderer {
     );
     const [xc, yc] = this.centerChunk;
     if (
-      Math.abs(cx - xc) <= CHUNK_RENDER_RADIUS_X &&
-      Math.abs(cy - yc) <= CHUNK_RENDER_RADIUS_Y
+      Math.abs(cx - xc) <= CHUNK_RENDER_RADIUS_X
+      && Math.abs(cy - yc) <= CHUNK_RENDER_RADIUS_Y
     ) {
       return true;
     }
@@ -328,10 +323,10 @@ class Renderer {
 
         const chunkMaxXY = canvasSize / TILE_SIZE;
         if (
-          cx < 0 ||
-          cx >= chunkMaxXY * tiledScale ||
-          cy < 0 ||
-          cy >= chunkMaxXY * tiledScale
+          cx < 0
+          || cx >= chunkMaxXY * tiledScale
+          || cy < 0
+          || cy >= chunkMaxXY * tiledScale
         ) {
           // if out of bounds
           if (template) {
@@ -350,15 +345,6 @@ class Renderer {
               context.globalAlpha = templateAlpha / 100;
               context.drawImage(templateChunk.image, x, y);
               context.globalAlpha = 1;
-              /* if (!template) {
-                context.drawImage(
-                  this.overlayCanvas,
-                  x,
-                  y,
-                  chunk.image.width,
-                  chunk.image.height,
-                );
-              } */
               if (fetch) chunk.timestamp = curTime;
               if (fetch) templateChunk.timestamp = curTime;
             } else if (loadingTiles.hasTiles) {
@@ -414,7 +400,12 @@ class Renderer {
       isLightGrid,
     } = state.gui;
     const { placeAllowed } = state.user;
-    const { view, viewscale, canvasSize, canvasId } = state.canvas;
+    const {
+      view,
+      viewscale,
+      canvasSize,
+      canvasId,
+    } = state.canvas;
 
     if (!view || canvasId === null) return;
 
@@ -422,32 +413,31 @@ class Renderer {
     const [cx, cy] = this.centerChunk;
 
     // if we have to render pixelnotify
-    const doRenderPixelnotify =
-      viewscale >= 0.5 && showPixelNotify && pixelNotify.doRender();
+    const doRenderPixelnotify = viewscale >= 0.5
+      && showPixelNotify && pixelNotify.doRender();
     // if we have to render placeholder
-    const doRenderPlaceholder =
-      viewscale >= 3 && placeAllowed && (hover || this.hover) && !isPotato;
-    const doRenderPotatoPlaceholder =
-      viewscale >= 3 &&
-      placeAllowed &&
-      (hover !== this.hover ||
-        this.forceNextRender ||
-        this.forceNextSubrender ||
-        doRenderPixelnotify) &&
-      isPotato;
+    const doRenderPlaceholder = viewscale >= 3
+      && placeAllowed && (hover || this.hover) && !isPotato;
+    const doRenderPotatoPlaceholder = viewscale >= 3
+      && placeAllowed
+      && (hover !== this.hover
+        || this.forceNextRender
+        || this.forceNextSubrender
+        || doRenderPixelnotify)
+      && isPotato;
     //--
     // if we have nothing to render, return
     // note: this.hover is used to, to render without the placeholder one last time when cursor leaves window
     if (
       // no full rerender
-      !this.forceNextRender &&
+      !this.forceNextRender
       // no render placeholder under cursor
-      !doRenderPlaceholder &&
-      !doRenderPotatoPlaceholder &&
+      && !doRenderPlaceholder
+      && !doRenderPotatoPlaceholder
       // no pixelnotification
-      !doRenderPixelnotify &&
+      && !doRenderPixelnotify
       // no forced just-viewscale render (i.e. when just a pixel got set)
-      !this.forceNextSubrender
+      && !this.forceNextSubrender
     ) {
       return;
     }
@@ -476,41 +466,44 @@ class Renderer {
       viewportCtx.scale(viewscale, viewscale);
       viewportCtx.drawImage(
         this.canvas,
-        width / 2 / viewscale -
-          CANVAS_WIDTH / 2 +
-          ((cx + 0.5) * TILE_SIZE - canvasCenter - x),
-        height / 2 / viewscale -
-          CANVAS_HEIGHT / 2 +
-          ((cy + 0.5) * TILE_SIZE - canvasCenter - y),
+        width / 2 / viewscale
+          - CANVAS_WIDTH / 2
+          + ((cx + 0.5) * TILE_SIZE - canvasCenter - x),
+        height / 2 / viewscale
+          - CANVAS_HEIGHT / 2
+          + ((cy + 0.5) * TILE_SIZE - canvasCenter - y),
       );
       viewportCtx.restore();
     } else {
       viewportCtx.drawImage(
         this.canvas,
         Math.floor(
-          width / 2 -
-            CANVAS_WIDTH / 2 +
-            (((cx + 0.5) * TILE_SIZE) / this.tiledScale - canvasCenter - x) *
-              viewscale,
+          width / 2
+            - CANVAS_WIDTH / 2
+            + (((cx + 0.5) * TILE_SIZE) / this.tiledScale - canvasCenter - x)
+              * viewscale,
         ),
         Math.floor(
-          height / 2 -
-            CANVAS_HEIGHT / 2 +
-            (((cy + 0.5) * TILE_SIZE) / this.tiledScale - canvasCenter - y) *
-              viewscale,
+          height / 2
+            - CANVAS_HEIGHT / 2
+            + (((cy + 0.5) * TILE_SIZE) / this.tiledScale - canvasCenter - y)
+              * viewscale,
         ),
       );
     }
 
-    if (showGrid && viewscale >= 8)
+    if (showGrid && viewscale >= 8) {
       renderGrid(state, viewport, viewscale, isLightGrid);
+    }
 
     if (doRenderPixelnotify) pixelNotify.render(state, viewport);
 
-    if (hover && doRenderPlaceholder)
+    if (hover && doRenderPlaceholder) {
       renderPlaceholder(state, viewport, viewscale);
-    if (hover && doRenderPotatoPlaceholder)
+    }
+    if (hover && doRenderPotatoPlaceholder) {
       renderPotatoPlaceholder(state, viewport, viewscale);
+    }
   }
 
   renderHistoricalChunks(state: State) {
@@ -706,32 +699,33 @@ class Renderer {
       viewportCtx.scale(viewscale, viewscale);
       viewportCtx.drawImage(
         this.canvas,
-        width / 2 / viewscale -
-          CANVAS_WIDTH / 2 +
-          ((cx + 0.5) * TILE_SIZE - canvasCenter - x),
-        height / 2 / viewscale -
-          CANVAS_HEIGHT / 2 +
-          ((cy + 0.5) * TILE_SIZE - canvasCenter - y),
+        width / 2 / viewscale
+          - CANVAS_WIDTH / 2
+          + ((cx + 0.5) * TILE_SIZE - canvasCenter - x),
+        height / 2 / viewscale
+          - CANVAS_HEIGHT / 2
+          + ((cy + 0.5) * TILE_SIZE - canvasCenter - y),
       );
       viewportCtx.restore();
     } else {
       viewportCtx.drawImage(
         this.canvas,
         Math.floor(
-          width / 2 -
-            CANVAS_WIDTH / 2 +
-            ((cx + 0.5) * TILE_SIZE - canvasCenter - x) * viewscale,
+          width / 2
+            - CANVAS_WIDTH / 2
+            + ((cx + 0.5) * TILE_SIZE - canvasCenter - x) * viewscale,
         ),
         Math.floor(
-          height / 2 -
-            CANVAS_HEIGHT / 2 +
-            ((cy + 0.5) * TILE_SIZE - canvasCenter - y) * viewscale,
+          height / 2
+            - CANVAS_HEIGHT / 2
+            + ((cy + 0.5) * TILE_SIZE - canvasCenter - y) * viewscale,
         ),
       );
     }
 
-    if (showGrid && viewscale >= 8)
+    if (showGrid && viewscale >= 8) {
       renderGrid(state, viewport, viewscale, isLightGrid);
+    }
   }
 }
 
