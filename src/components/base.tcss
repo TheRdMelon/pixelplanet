@@ -196,7 +196,6 @@ kbd {
 
 :global(#templatesettings) {
     height: 36px;
-    padding-right: 10px;
     position: absolute;
     bottom: 16px;
     left: 0;
@@ -208,7 +207,10 @@ kbd {
     text-align: center;
     background-color: rgba(226, 226, 226, 0.8);
     width: fit-content;
-    transition: width: 0.5s ease-out;
+    transition: max-width 0.5s ease-out;
+    max-width: 415px;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 :global(.templatebutton) {
@@ -219,10 +221,12 @@ kbd {
   display: inline-block;
   cursor: pointer;
   width: 36px;
-  padding 0;
+  padding: 0;
   color: black;
   text-align: center;
   line-height: 36px;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
 }
 
 :global(.templatetoggle) {
@@ -230,8 +234,7 @@ kbd {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 10px;
   margin: auto;
   transition: opacity 0.5s ease-out;
 }
@@ -239,6 +242,22 @@ kbd {
 :global(#templatealphaslider) {
   margin: auto;
   height: 100%;
+  margin: 0 10px;
+}
+
+:global(.templatesettingstext) {
+  display: inline-block;
+  height: 100%;
+  margin: 0;
+  line-height: 36px;
+  vertical-align: top;
+}
+
+:global(#templateenable) {
+  display: inline-flex;
+  height: 100%;
+  margin: 0 21px 0 21px;
+  vertical-align: top;
 }
 
 :global(.Modal) {

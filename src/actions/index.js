@@ -1,10 +1,6 @@
 /* @flow */
 
-import type {
-  Action,
-  ThunkAction,
-  PromiseAction,
-} from './types';
+import type { Action, ThunkAction, PromiseAction } from './types';
 import type { Cell } from '../core/Cell';
 import type { ColorIndex } from '../core/Palette';
 
@@ -269,12 +265,14 @@ export function requestPlacePixel(
       }
 
       dispatch(pixelFailure());
-      dispatch(sweetAlert(
-        (errorTitle || `Error ${response.status}`),
-        errors[0].msg,
-        'error',
-        'OK',
-      ));
+      dispatch(
+        sweetAlert(
+          errorTitle || `Error ${response.status}`,
+          errors[0].msg,
+          'error',
+          'OK',
+        ),
+      );
     } finally {
       dispatch(setPlaceAllowed(true));
     }
@@ -288,8 +286,8 @@ export function tryPlacePixel(
   return (dispatch, getState) => {
     const state = getState();
     const { canvasId } = state.canvas;
-    const selectedColor = color === undefined || color === null
-      ? state.gui.selectedColor : color;
+    const selectedColor =
+      color === undefined || color === null ? state.gui.selectedColor : color;
 
     if (getColorIndexOfPixel(getState(), coordinates) !== selectedColor) {
       dispatch(requestPlacePixel(canvasId, coordinates, selectedColor));
@@ -393,7 +391,10 @@ function receiveBigChunk(center: Cell, arrayBuffer: ArrayBuffer): Action {
   };
 }
 
-function recieveBigTemplateChunk(center: Cell, arrayBuffer: ArrayBuffer): Action {
+function recieveBigTemplateChunk(
+  center: Cell,
+  arrayBuffer: ArrayBuffer,
+): Action {
   return {
     type: 'RECIEVE_BIG_TEMPLATE_CHUNK',
     center,
@@ -638,9 +639,7 @@ export function recieveOwnFactions(ownFactions: Array): Action {
   };
 }
 
-export function setName(
-  name: string,
-): Action {
+export function setName(name: string): Action {
   return {
     type: 'SET_NAME',
     name,
@@ -725,9 +724,12 @@ export function fetchOwnFactions(id): ThunkAction {
   return async (dispatch, getState) => {
     if (getState().user.name === null) dispatch(recieveOwnFactions([]));
     id = id !== undefined ? id : 'first';
-    const response = await fetch(`/api/factions/mine${id !== undefined ? `?selected=${id}` : ''}`, {
-      credentials: 'include',
-    });
+    const response = await fetch(
+      `/api/factions/mine${id !== undefined ? `?selected=${id}` : ''}`,
+      {
+        credentials: 'include',
+      },
+    );
     if (response.ok) {
       const { ownFactions, selected } = await response.json();
 
@@ -885,5 +887,11 @@ export function changeTemplateAlpha(alpha: number): Action {
 export function toggleTemplateOpen(): Action {
   return {
     type: 'TOGGLE_TEMPLATE_OPEN',
+  };
+}
+
+export function toggleTemplateEnable(): Action {
+  return {
+    type: 'TOGGLE_TEMPLATE_ENABLE',
   };
 }

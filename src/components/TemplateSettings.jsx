@@ -6,7 +6,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { MdCompare, MdCancel } from 'react-icons/md';
-import { changeTemplateAlpha, toggleTemplateOpen } from '../actions';
+import MdToggleButtonHover from './MdToggleButtonHover';
+import {
+  changeTemplateAlpha,
+  toggleTemplateOpen,
+  toggleTemplateEnable,
+} from '../actions';
 
 class TemplateSettings extends React.Component {
   constructor() {
@@ -23,17 +28,17 @@ class TemplateSettings extends React.Component {
     const {
       template_alpha: templateAlpha,
       template_open: templateOpen,
+      template_enable: templateEnable,
       toggle_template_open: dispatchToggleTemplateOpen,
+      toggle_template_enable: dispatchToggleTemplateEnable,
     } = this.props;
     return (
       <>
-        <div id="templatesettings">
-          <div
-            className="templatebutton"
-            style={{ position: 'relative' }}
-            onClick={dispatchToggleTemplateOpen}
-            style={{ border: 'none', backgroundColor: 'rgba(0, 0, 0, 0)' }}
-          >
+        <div
+          id="templatesettings"
+          style={templateOpen ? {} : { maxWidth: '36px' }}
+        >
+          <div className="templatebutton" onClick={dispatchToggleTemplateOpen}>
             <MdCompare
               className="templatetoggle"
               style={templateOpen ? { opacity: 0 } : { opacity: 1 }}
@@ -43,6 +48,7 @@ class TemplateSettings extends React.Component {
               style={templateOpen ? { opacity: 1 } : { opacity: 0 }}
             />
           </div>
+          <p className="templatesettingstext">Opacity:</p>
           <input
             id="templatealphaslider"
             value={templateAlpha}
@@ -51,6 +57,13 @@ class TemplateSettings extends React.Component {
             min={0}
             max={100}
           />
+          <p className="templatesettingstext">Enabled:</p>
+          <div id="templateenable">
+            <MdToggleButtonHover
+              value={templateEnable}
+              onToggle={dispatchToggleTemplateEnable}
+            />
+          </div>
         </div>
       </>
     );
@@ -58,9 +71,13 @@ class TemplateSettings extends React.Component {
 }
 
 function mapStateToProps(state: State) {
-  const { templateAlpha, templateOpen } = state.gui;
+  const { templateAlpha, templateOpen, templateEnabled } = state.gui;
 
-  return { template_alpha: templateAlpha, template_open: templateOpen };
+  return {
+    template_alpha: templateAlpha,
+    template_open: templateOpen,
+    template_enable: templateEnabled,
+  };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -70,6 +87,9 @@ function mapDispatchToProps(dispatch) {
     },
     toggle_template_open() {
       dispatch(toggleTemplateOpen());
+    },
+    toggle_template_enable() {
+      dispatch(toggleTemplateEnable());
     },
   };
 }

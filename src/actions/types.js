@@ -94,7 +94,8 @@ export type Action =
   | { type: 'CHANGE_TEMPLATE_ALPHA', alpha: number }
   | { type: 'SET_HISTORICAL_TIME', date: string, time: string }
   | { type: 'ON_VIEW_FINISH_CHANGE' }
-  | { type: 'TOGGLE_TEMPLATE_OPEN' };
+  | { type: 'TOGGLE_TEMPLATE_OPEN' }
+  | { type: 'TOGGLE_TEMPLATE_ENABLE' };
 export type PromiseAction = Promise<Action>;
 export type Dispatch = (
   action: Action | ThunkAction | PromiseAction | Array<Action>,

@@ -20,6 +20,7 @@ export type GUIState = {
   selectedFaction: string | undefined,
   templateAlpha: number,
   templateOpen: boolean,
+  templateEnabled: boolean,
 };
 
 const initialState: GUIState = {
@@ -38,6 +39,7 @@ const initialState: GUIState = {
   selectedFaction: undefined,
   templateAlpha: 50,
   templateOpen: false,
+  templateEnabled: false,
 };
 
 export default function gui(
@@ -185,6 +187,15 @@ export default function gui(
       return {
         ...state,
         templateOpen: !templateOpen,
+      };
+    }
+
+    case 'TOGGLE_TEMPLATE_ENABLE': {
+      const { templateEnabled } = state;
+
+      return {
+        ...state,
+        templateEnabled: !templateEnabled,
       };
     }
 
