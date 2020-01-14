@@ -22,6 +22,17 @@ export function sum(values: Array<number>): number {
   return total;
 }
 
+/*
+ * returns random integer
+ * @param min Minimum of random integer
+ * @param max Maximum of random integer
+ * @return random integer between min and max (min <= ret <= max)
+ */
+export function getRandomInt(min, max) {
+  const range = max - min + 1;
+  return min + (Math.floor(Math.random() * range));
+}
+
 export function distMax([x1, y1]: Cell, [x2, y2]: Cell): number {
   return Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2));
 }

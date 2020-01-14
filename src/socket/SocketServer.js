@@ -1,7 +1,6 @@
 /* @flow */
 
 
-import EventEmitter from 'events';
 import WebSocket from 'ws';
 
 import logger from '../core/logger';
@@ -16,12 +15,12 @@ import DeRegisterChunk from './packets/DeRegisterChunk';
 import DeRegisterMultipleChunks from './packets/DeRegisterMultipleChunks';
 import RequestChatHistory from './packets/RequestChatHistory';
 import CoolDownPacket from './packets/CoolDownPacket';
-import PixelUpdate from './packets/PixelUpdate';
 import ChangedMe from './packets/ChangedMe';
 
 import ChatHistory from './ChatHistory';
 import authenticateClient from './verifyClient';
-import { broadcastChatMessage } from './websockets';
+import WebSocketEvents from './WebSocketEvents';
+import webSockets from './websockets';
 
 
 const ipCounter: Counter<string> = new Counter();
@@ -46,7 +45,7 @@ async function verifyClient(info, done) {
 }
 
 
-class SocketServer extends EventEmitter {
+class SocketServer extends WebSocketEvents {
   wss: WebSocket.Server;
   CHUNK_CLIENTS: Map<number, Array>;
 
@@ -55,6 +54,7 @@ class SocketServer extends EventEmitter {
     super();
     this.CHUNK_CLIENTS = new Map();
     logger.info('Starting websocket server');
+    webSockets.addListener(this);
 
     const wss = new WebSocket.Server({
       perMessageDeflate: false,
@@ -92,14 +92,20 @@ class SocketServer extends EventEmitter {
         this.deleteAllChunks(ws);
       });
       ws.on('message', (message) => {
-        if (typeof message === 'string') { this.onTextMessage(message, ws); } else { this.onBinaryMessage(message, ws); }
+        if (typeof message === 'string') {
+          this.onTextMessage(message, ws);
+        } else {
+          this.onBinaryMessage(message, ws);
+        }
       });
     });
 
+    this.onlineCounterBroadcast = this.onlineCounterBroadcast.bind(this);
     this.ping = this.ping.bind(this);
     this.killOld = this.killOld.bind(this);
 
     setInterval(this.killOld, 10 * 60 * 1000);
+    setInterval(this.onlineCounterBroadcast, 10 * 1000);
     // https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
     setInterval(this.ping, 45 * 1000);
   }
@@ -130,7 +136,12 @@ class SocketServer extends EventEmitter {
     });
   }
 
-  broadcastText(text: string) {
+  broadcastOnlineCounter(buffer: Buffer) {
+    this.broadcast(buffer);
+  }
+
+  broadcastChatMessage(name: string, message: string) {
+    const text = JSON.stringify([name, message]);
     this.wss.clients.forEach((ws) => {
       if (ws.readyState == WebSocket.OPEN) {
         ws.send(text);
@@ -171,10 +182,6 @@ class SocketServer extends EventEmitter {
     });
   }
 
-  getConnections(): number {
-    return this.wss.clients.size || 0;
-  }
-
   killOld() {
     const now = Date.now();
     this.wss.clients.forEach((ws) => {
@@ -192,13 +199,18 @@ class SocketServer extends EventEmitter {
     });
   }
 
+  onlineCounterBroadcast() {
+    const online = this.wss.clients.size || 0;
+    webSockets.broadcastOnlineCounter(online);
+  }
+
   onTextMessage(message, ws) {
     if (ws.name && message) {
       const waitLeft = ws.rateLimiter.tick();
       if (waitLeft) {
         ws.send(JSON.stringify(['info', `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`]));
       } else {
-        broadcastChatMessage(ws.name, message);
+        webSockets.broadcastChatMessage(ws.name, message);
       }
     } else {
       logger.info('Got empty message or message from unidentified ws');
@@ -256,7 +268,7 @@ class SocketServer extends EventEmitter {
 
   pushChunk(chunkid, ws) {
     if (!this.CHUNK_CLIENTS.has(chunkid)) {
-      this.CHUNK_CLIENTS.set(chunkid, new Array());
+      this.CHUNK_CLIENTS.set(chunkid, []);
     }
     const clients = this.CHUNK_CLIENTS.get(chunkid);
     const pos = clients.indexOf(ws);

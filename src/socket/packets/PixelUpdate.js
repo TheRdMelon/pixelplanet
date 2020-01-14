@@ -2,12 +2,6 @@
 
 
 import type { ColorIndex } from '../../core/Palette';
-import {
-  getChunkOfPixel,
-  getOffsetOfPixel,
-  getPixelFromChunkOffset,
-} from '../../core/utils';
-
 
 type PixelUpdatePacket = {
   x: number,
@@ -42,5 +36,6 @@ export default {
 
       return buffer;
     }
+    return null;
   },
 };

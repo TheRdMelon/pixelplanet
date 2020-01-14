@@ -5,7 +5,7 @@ import { using } from 'bluebird';
 import type { User } from '../data/models';
 import { redlock } from '../data/redis';
 import { getChunkOfPixel, getOffsetOfPixel } from './utils';
-import { broadcastPixel } from '../socket/websockets';
+import webSockets from '../socket/websockets';
 import logger from './logger';
 import RedisCanvas from '../data/models/RedisCanvas';
 import { registerPixelChange } from './tileserver';
@@ -29,7 +29,7 @@ export function setPixel(
   const [i, j] = getChunkOfPixel([x, y], canvasSize);
   const offset = getOffsetOfPixel(x, y, canvasSize);
   RedisCanvas.setPixelInChunk(i, j, offset, color, canvasId);
-  broadcastPixel(canvasId, i, j, offset, color);
+  webSockets.broadcastPixel(canvasId, i, j, offset, color);
 }
 
 /**

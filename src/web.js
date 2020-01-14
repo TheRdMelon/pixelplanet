@@ -1,5 +1,6 @@
 /* @flow */
 
+import url from 'url';
 import path from 'path';
 import compression from 'compression';
 import express from 'express';
@@ -13,6 +14,9 @@ import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import logger from './core/logger';
 import rankings from './core/ranking';
 import models from './data/models';
+
+import SocketServer from './socket/SocketServer';
+import APISocketServer from './socket/APISocketServer';
 
 import {
   api,
@@ -28,7 +32,6 @@ import { SECOND, MONTH } from './core/constants';
 import { PORT, DISCORD_INVITE } from './core/config';
 
 import { ccToCoords } from './utils/location';
-import { wsupgrade } from './socket/websockets';
 import { startAllCanvasLoops } from './core/tileserver';
 
 startAllCanvasLoops();
@@ -41,8 +44,30 @@ app.disable('x-powered-by');
 // Call Garbage Collector every 30 seconds
 setInterval(forceGC, 15 * 60 * SECOND);
 
-// create websocket
+// create http server
 const server = http.createServer(app);
+
+
+//
+// websockets
+// -----------------------------------------------------------------------------
+const usersocket = new SocketServer();
+const apisocket = new APISocketServer();
+function wsupgrade(request, socket, head) {
+  const { pathname } = url.parse(request.url);
+
+  if (pathname === '/ws') {
+    usersocket.wss.handleUpgrade(request, socket, head, (ws) => {
+      usersocket.wss.emit('connection', ws, request);
+    });
+  } else if (pathname === '/mcws') {
+    apisocket.wss.handleUpgrade(request, socket, head, (ws) => {
+      apisocket.wss.emit('connection', ws, request);
+    });
+  } else {
+    socket.destroy();
+  }
+}
 server.on('upgrade', wsupgrade);
 
 
