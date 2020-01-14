@@ -24,7 +24,7 @@ async function getTimes(day, canvasId) {
     const parsedTimes = times
       .map((a) => `${a.substr(0, 2)}:${a.substr(-2, 2)}`);
     return [
-      "00:00",
+      '00:00',
       ...parsedTimes,
     ];
   } catch {
