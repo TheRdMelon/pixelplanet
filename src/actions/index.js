@@ -881,3 +881,9 @@ export function changeTemplateAlpha(alpha: number): Action {
     alpha,
   };
 }
+
+export function toggleTemplateOpen(): Action {
+  return {
+    type: 'TOGGLE_TEMPLATE_OPEN',
+  };
+}

@@ -19,6 +19,7 @@ export type GUIState = {
   menuOpen: boolean,
   selectedFaction: string | undefined,
   templateAlpha: number,
+  templateOpen: boolean,
 };
 
 const initialState: GUIState = {
@@ -36,6 +37,7 @@ const initialState: GUIState = {
   menuOpen: false,
   selectedFaction: undefined,
   templateAlpha: 50,
+  templateOpen: false,
 };
 
 export default function gui(
@@ -174,6 +176,15 @@ export default function gui(
       return {
         ...state,
         templateAlpha: alpha,
+      };
+    }
+
+    case 'TOGGLE_TEMPLATE_OPEN': {
+      const { templateOpen } = state;
+
+      return {
+        ...state,
+        templateOpen: !templateOpen,
       };
     }
 

@@ -5,7 +5,8 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { changeTemplateAlpha } from '../actions';
+import { MdCompare, MdCancel } from 'react-icons/md';
+import { changeTemplateAlpha, toggleTemplateOpen } from '../actions';
 
 class TemplateSettings extends React.Component {
   constructor() {
@@ -19,11 +20,31 @@ class TemplateSettings extends React.Component {
   }
 
   render() {
-    const { templateAlpha } = this.props;
+    const {
+      template_alpha: templateAlpha,
+      template_open: templateOpen,
+      toggle_template_open: dispatchToggleTemplateOpen,
+    } = this.props;
     return (
       <>
         <div id="templatesettings">
+          <div
+            className="templatebutton"
+            style={{ position: 'relative' }}
+            onClick={dispatchToggleTemplateOpen}
+            style={{ border: 'none', backgroundColor: 'rgba(0, 0, 0, 0)' }}
+          >
+            <MdCompare
+              className="templatetoggle"
+              style={templateOpen ? { opacity: 0 } : { opacity: 1 }}
+            />
+            <MdCancel
+              className="templatetoggle"
+              style={templateOpen ? { opacity: 1 } : { opacity: 0 }}
+            />
+          </div>
           <input
+            id="templatealphaslider"
             value={templateAlpha}
             onChange={this.onAlphaChange}
             type="range"
@@ -37,15 +58,18 @@ class TemplateSettings extends React.Component {
 }
 
 function mapStateToProps(state: State) {
-  const { templateAlpha } = state.gui;
+  const { templateAlpha, templateOpen } = state.gui;
 
-  return { templateAlpha };
+  return { template_alpha: templateAlpha, template_open: templateOpen };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     change_template_alpha(alpha) {
       dispatch(changeTemplateAlpha(alpha));
+    },
+    toggle_template_open() {
+      dispatch(toggleTemplateOpen());
     },
   };
 }

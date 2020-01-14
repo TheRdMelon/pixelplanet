@@ -93,7 +93,8 @@ export type Action =
   | { type: 'ON_VIEW_FINISH_CHANGE' }
   | { type: 'CHANGE_TEMPLATE_ALPHA', alpha: number }
   | { type: 'SET_HISTORICAL_TIME', date: string, time: string }
-  | { type: 'ON_VIEW_FINISH_CHANGE' };
+  | { type: 'ON_VIEW_FINISH_CHANGE' }
+  | { type: 'TOGGLE_TEMPLATE_OPEN' };
 export type PromiseAction = Promise<Action>;
 export type Dispatch = (
   action: Action | ThunkAction | PromiseAction | Array<Action>,
