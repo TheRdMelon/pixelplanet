@@ -61,7 +61,7 @@ async function draw(
   if (x < canvasMinXY || y < canvasMinXY
       || x >= canvasMaxXY || y >= canvasMaxXY) {
     return {
-      error: 'Coordinates not withing canvas',
+      error: 'Coordinates not within canvas',
       success: false,
     };
   }
