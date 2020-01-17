@@ -11,6 +11,7 @@ import { selectHistoricalTime } from '../actions';
 function dateToString(date) {
   // YYYY-MM-DD
   const timeString = date.substr(0, 4) + date.substr(5, 2) + date.substr(8, 2);
+  // YYYYMMDD
   return timeString;
 }
 
@@ -24,7 +25,7 @@ async function getTimes(day, canvasId) {
     const parsedTimes = times
       .map((a) => `${a.substr(0, 2)}:${a.substr(-2, 2)}`);
     return [
-      "00:00",
+      '00:00',
       ...parsedTimes,
     ];
   } catch {
@@ -46,10 +47,14 @@ class HistorySelect extends React.Component {
     this.state = {
       submitting: false,
       selectedDate: null,
+      selectedTime: null,
       max,
     };
+    this.dateSelect = null;
 
     this.handleDateChange = this.handleDateChange.bind(this);
+    this.handleTimeChange = this.handleTimeChange.bind(this);
+    this.changeTime = this.changeTime.bind(this);
   }
 
   async handleDateChange(evt) {
@@ -64,6 +69,7 @@ class HistorySelect extends React.Component {
     this.setState({
       submitting: true,
       times: [],
+      selectedTime: null,
     });
     const {
       canvasId,
@@ -71,25 +77,96 @@ class HistorySelect extends React.Component {
     } = this.props;
     const date = dateToString(evt.target.value);
     const times = await getTimes(date, canvasId);
-    if (times.length > 0) {
-      setTime(date, times[0]);
+    if (times.length === 0) {
+      this.setState({
+        submitting: false,
+        selectedDate: null,
+      });
+      return;
     }
+    setTime(date, times[0]);
     this.setState({
       submitting: false,
       selectedDate: date,
+      selectedTime: (times) ? times[0] : null,
       times,
     });
   }
 
-  render() {
+  handleTimeChange(evt) {
     const {
       setTime,
+    } = this.props;
+    const {
+      selectedDate,
+    } = this.state;
+
+    const selectedTime = evt.target.value;
+    this.setState({
+      selectedTime,
+    });
+    setTime(selectedDate, selectedTime);
+  }
+
+  async changeTime(diff) {
+    let {
+      times,
+      selectedDate,
+      selectedTime,
+    } = this.state;
+    if (!selectedTime || times.length === 0) {
+      return;
+    }
+    const {
+      setTime,
+      canvasId,
+    } = this.props;
+
+    let newPos = times.indexOf(selectedTime) + diff;
+    if (newPos >= times.length || newPos < 0) {
+      if (newPos < 0) {
+        this.dateSelect.stepDown(1);
+      } else {
+        this.dateSelect.stepUp(1);
+      }
+      selectedDate = dateToString(this.dateSelect.value);
+      this.setState({
+        submitting: true,
+        times: [],
+        selectedTime: null,
+      });
+      times = await getTimes(selectedDate, canvasId);
+      if (times.length === 0) {
+        this.setState({
+          submitting: false,
+          selectedDate: null,
+        });
+        return;
+      }
+      this.setState({
+        submitting: false,
+        selectedDate,
+      });
+      newPos = (newPos < 0) ? (times.length - 1) : 0;
+    }
+
+    selectedTime = times[newPos];
+    this.setState({
+      times,
+      selectedTime,
+    });
+    setTime(selectedDate, selectedTime);
+  }
+
+  render() {
+    const {
       canvasStartDate,
     } = this.props;
     const {
       submitting,
       times,
       selectedDate,
+      selectedTime,
       max,
     } = this.state;
     return (
@@ -99,16 +176,32 @@ class HistorySelect extends React.Component {
           requiredPattern="\d{4}-\d{2}-\d{2}"
           min={canvasStartDate}
           max={max}
+          ref={(ref) => { this.dateSelect = ref; }}
           onChange={this.handleDateChange}
         />
         <div>
-          { (times && times.length > 0)
+          { (selectedTime)
             ? (
-              <select onChange={(e) => setTime(selectedDate, e.target.value)}>
-                {times.map((value) => (
-                  <option value={value}>{value}</option>
-                ))}
-              </select>
+              <div>
+                <button
+                  type="button"
+                  className="hsar"
+                  onClick={() => this.changeTime(-1)}
+                >←</button>
+                <select
+                  value={selectedTime}
+                  onChange={this.handleTimeChange}
+                >
+                  {times.map((value) => (
+                    <option value={value}>{value}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className="hsar"
+                  onClick={() => this.changeTime(+1)}
+                >→</button>
+              </div>
             )
             : null }
           { (submitting) ? <p>Loading...</p> : null }

@@ -5,7 +5,7 @@
 
 import type { Request, Response } from 'express';
 
-import { broadcastMinecraftLink } from '../../../socket/websockets';
+import webSockets from '../../../socket/websockets';
 
 
 export default async (req: Request, res: Response) => {
@@ -40,5 +40,5 @@ export default async (req: Request, res: Response) => {
   } else {
     return;
   }
-  broadcastMinecraftLink(name, minecraftid, accepted);
+  webSockets.broadcastMinecraftLink(name, minecraftid, accepted);
 };

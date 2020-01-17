@@ -10,7 +10,7 @@
 import type { Request, Response } from 'express';
 
 import canvases from '../../canvases.json';
-import { broadcastMinecraftTP } from '../../socket/websockets';
+import webSockets from '../../socket/websockets';
 
 const CANVAS_MAX_XY = (canvases[0].size / 2);
 const CANVAS_MIN_XY = -CANVAS_MAX_XY;
@@ -47,7 +47,7 @@ export default async (req: Request, res: Response) => {
     return;
   }
 
-  await broadcastMinecraftTP(minecraftid, x, y);
+  webSockets.broadcastMinecraftTP(minecraftid, x, y);
 
   res.json({
     success: true,

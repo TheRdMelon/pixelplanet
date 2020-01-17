@@ -8,17 +8,15 @@
  * @flow */
 
 
-import EventEmitter from 'events';
 import WebSocket from 'ws';
 
 
+import WebSocketEvents from './WebSocketEvents';
+import webSockets from './websockets';
 import { getIPFromRequest } from '../utils/ip';
 import Minecraft from '../core/minecraft';
 import { drawUnsafe, setPixel } from '../core/draw';
 import logger from '../core/logger';
-import redis from '../data/redis';
-import ChatHistory from './ChatHistory';
-import { broadcastChatMessage, notifyChangedMe } from './websockets';
 import { APISOCKET_KEY } from '../core/config';
 
 function heartbeat() {
@@ -39,13 +37,14 @@ async function verifyClient(info, done) {
 }
 
 
-class APISocketServer extends EventEmitter {
+class APISocketServer extends WebSocketEvents {
   wss: WebSocket.Server;
   mc: Minecraft;
 
   constructor() {
     super();
     logger.info('Starting API websocket server');
+    webSockets.addListener(this);
 
     const wss = new WebSocket.Server({
       perMessageDeflate: false,
@@ -79,7 +78,9 @@ class APISocketServer extends EventEmitter {
     setInterval(this.ping, 45 * 1000);
   }
 
-  broadcastChatMessage(name, msg, ws = null) {
+  broadcastChatMessage(name, msg, sendapi, ws = null) {
+    if (!sendapi) return;
+
     const sendmsg = JSON.stringify(['msg', name, msg]);
     this.wss.clients.forEach((client) => {
       if (client !== ws && client.subChat && client.readyState === WebSocket.OPEN) {
@@ -127,7 +128,8 @@ class APISocketServer extends EventEmitter {
     });
   }
 
-  broadcastPixelBuffer(chunkid, buffer) {
+  broadcastPixelBuffer(canvasId, chunkid, buffer) {
+    if (canvasId !== 0) return;
     const frame = WebSocket.Sender.frame(buffer, {
       readOnly: true,
       mask: false,
@@ -228,21 +230,21 @@ class APISocketServer extends EventEmitter {
         const [minecraftname, msg] = packet;
         const user = this.mc.minecraftname2User(minecraftname);
         const chatname = (user.id) ? `[MC] ${user.regUser.name}` : `[MC] ${minecraftname}`;
-        broadcastChatMessage(chatname, msg, false);
-        this.broadcastChatMessage(chatname, msg, ws);
+        webSockets.broadcastChatMessage(chatname, msg, false);
+        this.broadcastChatMessage(chatname, msg, true, ws);
         return;
       }
       if (command == 'chat') {
         const [name, msg] = packet;
-        broadcastChatMessage(name, msg, false);
-        this.broadcastChatMessage(name, msg, ws);
+        webSockets.broadcastChatMessage(name, msg, false);
+        this.broadcastChatMessage(name, msg, true, ws);
         return;
       }
       if (command == 'linkacc') {
         const [minecraftid, minecraftname, name] = packet;
         const ret = await this.mc.linkacc(minecraftid, minecraftname, name);
         if (!ret) {
-          notifyChangedMe(name);
+          webSockets.notifyChangedMe(name);
         }
         ws.send(JSON.stringify([
           'linkret',

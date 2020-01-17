@@ -56,7 +56,7 @@ export const DEFAULT_CANVASES = {
     pcd: 7000,
     cds: 60000,
     req: -1,
-    sd: "2020-01-08",
+    sd: '2020-01-08',
   },
 };
 

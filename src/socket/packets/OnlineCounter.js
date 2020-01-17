@@ -23,5 +23,6 @@ export default {
 
       return buffer;
     }
+    return 0;
   },
 };
