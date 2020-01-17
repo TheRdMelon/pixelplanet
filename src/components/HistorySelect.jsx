@@ -143,13 +143,16 @@ class HistorySelect extends React.Component {
         });
         return;
       }
+      this.setState({
+        submitting: false,
+        selectedDate,
+      });
       newPos = (newPos < 0) ? (times.length - 1) : 0;
     }
 
     selectedTime = times[newPos];
     this.setState({
       times,
-      selectedDate,
       selectedTime,
     });
     setTime(selectedDate, selectedTime);
