@@ -24,6 +24,7 @@ import ExpandMenuButton from './ExpandMenuButton';
 import ModalRoot from './ModalRoot';
 import HistorySelect from './HistorySelect';
 import TemplateSettings from './TemplateSettings';
+import FactionSelector from './FactionSelector';
 
 import baseCss from './base.tcss';
 
@@ -54,6 +55,7 @@ const App = ({ isHistoricalView }) => (
             </div>
           )
       }
+      <FactionSelector />
       <TemplateSettings />
       <ModalRoot />
     </IconContext.Provider>

@@ -101,7 +101,7 @@ kbd {
   border-width: thin;
 }
 
-:global(.actionbuttons), :global(.coorbox), :global(.onlinebox), :global(.cooldownbox), :global(.palettebox) {
+:global(.actionbuttons), :global(.coorbox), :global(.onlinebox), :global(.cooldownbox), :global(.palettebox), :global(#factionselector) {
     position: absolute;
     background-color: rgba(226, 226, 226, 0.80);
     color: black;
@@ -387,6 +387,11 @@ kbd {
     margin-left: auto;
     margin-right: auto;
     z-index: 2;
+}
+
+:global(#factionselector) {
+    position: absolute;
+    bottom: 94px;
 }
 
 :global(.actionbuttons) {
