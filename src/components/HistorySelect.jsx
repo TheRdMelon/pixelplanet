@@ -11,6 +11,7 @@ import { selectHistoricalTime } from '../actions';
 function dateToString(date) {
   // YYYY-MM-DD
   const timeString = date.substr(0, 4) + date.substr(5, 2) + date.substr(8, 2);
+  // YYYYMMDD
   return timeString;
 }
 
@@ -46,10 +47,13 @@ class HistorySelect extends React.Component {
     this.state = {
       submitting: false,
       selectedDate: null,
+      selectedTime: null,
       max,
     };
 
     this.handleDateChange = this.handleDateChange.bind(this);
+    this.handleTimeChange = this.handleTimeChange.bind(this);
+    this.changeTime = this.changeTime.bind(this);
   }
 
   async handleDateChange(evt) {
@@ -64,6 +68,7 @@ class HistorySelect extends React.Component {
     this.setState({
       submitting: true,
       times: [],
+      selectedTime: null,
     });
     const {
       canvasId,
@@ -77,19 +82,57 @@ class HistorySelect extends React.Component {
     this.setState({
       submitting: false,
       selectedDate: date,
+      selectedTime: (times) ? times[0] : null,
       times,
     });
   }
 
-  render() {
+  handleTimeChange(evt) {
     const {
       setTime,
+    } = this.props;
+    const {
+      selectedDate,
+    } = this.state;
+
+    const selectedTime = evt.target.value;
+    this.setState({
+      selectedTime,
+    });
+    setTime(selectedDate, selectedTime);
+  }
+
+  changeTime(diff) {
+    const {
+      times,
+      selectedTime,
+      selectedDate,
+    } = this.state;
+    if (!selectedTime || times.length === 0) return;
+    const {
+      setTime,
+    } = this.props;
+
+    const newPos = times.indexOf(selectedTime) + diff;
+    if (newPos >= times.length || newPos < 0) {
+      return;
+    }
+    const newTime = times[newPos];
+    this.setState({
+      selectedTime: newTime,
+    });
+    setTime(selectedDate, newTime);
+  }
+
+  render() {
+    const {
       canvasStartDate,
     } = this.props;
     const {
       submitting,
       times,
       selectedDate,
+      selectedTime,
       max,
     } = this.state;
     return (
@@ -102,13 +145,28 @@ class HistorySelect extends React.Component {
           onChange={this.handleDateChange}
         />
         <div>
-          { (times && times.length > 0)
+          { (selectedTime)
             ? (
-              <select onChange={(e) => setTime(selectedDate, e.target.value)}>
-                {times.map((value) => (
-                  <option value={value}>{value}</option>
-                ))}
-              </select>
+              <div>
+                <button
+                  type="button"
+                  className="hsar"
+                  onClick={() => this.changeTime(-1)}
+                >←</button>
+                <select
+                  value={selectedTime}
+                  onChange={this.handleTimeChange}
+                >
+                  {times.map((value) => (
+                    <option value={value}>{value}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className="hsar"
+                  onClick={() => this.changeTime(+1)}
+                >→</button>
+              </div>
             )
             : null }
           { (submitting) ? <p>Loading...</p> : null }

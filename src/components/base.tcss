@@ -189,6 +189,9 @@ kbd {
     margin-right: auto;
     z-index: 2;
 }
+:global(.hsar) {
+  padding: 0;
+}
 
 :global(.Modal) {
     position: absolute;
