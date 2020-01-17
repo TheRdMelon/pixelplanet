@@ -50,6 +50,7 @@ class HistorySelect extends React.Component {
       selectedTime: null,
       max,
     };
+    this.dateSelect = null;
 
     this.handleDateChange = this.handleDateChange.bind(this);
     this.handleTimeChange = this.handleTimeChange.bind(this);
@@ -76,9 +77,14 @@ class HistorySelect extends React.Component {
     } = this.props;
     const date = dateToString(evt.target.value);
     const times = await getTimes(date, canvasId);
-    if (times.length > 0) {
-      setTime(date, times[0]);
+    if (times.length === 0) {
+      this.setState({
+        submitting: false,
+        selectedDate: null,
+      });
+      return;
     }
+    setTime(date, times[0]);
     this.setState({
       submitting: false,
       selectedDate: date,
@@ -102,26 +108,51 @@ class HistorySelect extends React.Component {
     setTime(selectedDate, selectedTime);
   }
 
-  changeTime(diff) {
-    const {
+  async changeTime(diff) {
+    let {
       times,
-      selectedTime,
       selectedDate,
+      selectedTime,
     } = this.state;
-    if (!selectedTime || times.length === 0) return;
-    const {
-      setTime,
-    } = this.props;
-
-    const newPos = times.indexOf(selectedTime) + diff;
-    if (newPos >= times.length || newPos < 0) {
+    if (!selectedTime || times.length === 0) {
       return;
     }
-    const newTime = times[newPos];
+    const {
+      setTime,
+      canvasId,
+    } = this.props;
+
+    let newPos = times.indexOf(selectedTime) + diff;
+    if (newPos >= times.length || newPos < 0) {
+      if (newPos < 0) {
+        this.dateSelect.stepDown(1);
+      } else {
+        this.dateSelect.stepUp(1);
+      }
+      selectedDate = dateToString(this.dateSelect.value);
+      this.setState({
+        submitting: true,
+        times: [],
+        selectedTime: null,
+      });
+      times = await getTimes(selectedDate, canvasId);
+      if (times.length === 0) {
+        this.setState({
+          submitting: false,
+          selectedDate: null,
+        });
+        return;
+      }
+      newPos = (newPos < 0) ? (times.length - 1) : 0;
+    }
+
+    selectedTime = times[newPos];
     this.setState({
-      selectedTime: newTime,
+      times,
+      selectedDate,
+      selectedTime,
     });
-    setTime(selectedDate, newTime);
+    setTime(selectedDate, selectedTime);
   }
 
   render() {
@@ -142,6 +173,7 @@ class HistorySelect extends React.Component {
           requiredPattern="\d{4}-\d{2}-\d{2}"
           min={canvasStartDate}
           max={max}
+          ref={(ref) => { this.dateSelect = ref; }}
           onChange={this.handleDateChange}
         />
         <div>
