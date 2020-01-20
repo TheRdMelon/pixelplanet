@@ -7,7 +7,8 @@ body {
   background: white;
 }
 
-html, body {
+html,
+body {
   position: fixed;
   top: 0;
   left: 0;
@@ -23,12 +24,12 @@ kbd {
   padding: 0.1em 0.6em;
   border: 1px solid #ccc;
   font-size: 11px;
-  font-family: Arial,Helvetica,sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   background-color: #f7f7f7;
   color: #333;
-  -moz-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
-  -webkit-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
-  box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
+  -moz-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
+  -webkit-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
+  box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   display: inline-block;
@@ -43,7 +44,7 @@ kbd {
   color: #428bca;
   cursor: pointer;
 }
-:global(.modallink:hover){
+:global(.modallink:hover) {
   font-weight: bold;
   color: #226baa;
 }
@@ -101,73 +102,77 @@ kbd {
   border-width: thin;
 }
 
-:global(.actionbuttons), :global(.coorbox), :global(.onlinebox), :global(.cooldownbox), :global(.palettebox), :global(#factionselector) {
-    position: absolute;
-    background-color: rgba(226, 226, 226, 0.80);
-    color: black;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 36px;
-    height: 36px;
-    width: auto;
-    padding: 0 16px;
-    border: solid black;
-    border-width: thin;
+:global(.actionbuttons),
+:global(.coorbox),
+:global(.onlinebox),
+:global(.cooldownbox),
+:global(.palettebox) {
+  position: absolute;
+  background-color: rgba(226, 226, 226, 0.8);
+  color: black;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 36px;
+  height: 36px;
+  width: auto;
+  padding: 0 16px;
+  border: solid black;
+  border-width: thin;
 }
 :global(.coorbox) {
-    left: 16px;
-    bottom: 16px;
+  left: 16px;
+  bottom: 16px;
 }
 :global(.onlinebox) {
-    left: 16px;
-    bottom: 57px;
-    white-space: nowrap;
+  left: 16px;
+  bottom: 57px;
+  white-space: nowrap;
 }
 
 :global(#menubutton) {
-    left: 16px;
-    top: 16px;
+  left: 16px;
+  top: 16px;
 }
 
 :global(#helpbutton) {
-    left: 16px;
-    top: 262px;
+  left: 16px;
+  top: 262px;
 }
 :global(#minecraftbutton) {
-    left: 16px;
-    top: 221px;
+  left: 16px;
+  top: 221px;
 }
 :global(#settingsbutton) {
-    left: 16px;
-    top: 57px;
+  left: 16px;
+  top: 57px;
 }
 :global(#loginbutton) {
-    left: 16px;
-    top: 98px;
+  left: 16px;
+  top: 98px;
 }
 :global(#factionbutton) {
-    left: 16px;
-    top: 139px;
+  left: 16px;
+  top: 139px;
 }
 :global(#downloadbutton) {
-    left: 16px;
-    top: 180px;
+  left: 16px;
+  top: 180px;
 }
 :global(#globebutton) {
-    left: 98px;
-    top: 16px;
+  left: 98px;
+  top: 16px;
 }
 :global(#canvasbutton) {
-    left: 57px;
-    top: 16px;
+  left: 57px;
+  top: 16px;
 }
 :global(#minecrafttpbutton) {
   top: 16px;
   right: 16px;
 }
 :global(#palselbutton) {
-    bottom: 16px;
-    right: 16px;
+  bottom: 16px;
+  right: 16px;
 }
 :global(#chatbutton) {
   bottom: 16px;
@@ -175,45 +180,45 @@ kbd {
 }
 
 :global(#historyselect) {
-    position: absolute;
-    top: 16px;
-    left: 0px;
-    right: 0px;
-    height: 70px;
-    width: 140px;
-    background-color: rgba(226, 226, 226, 0.80);
-    color: black;
-    font-size: 14px;
-    line-height: 26px;
-    text-align: center;
-    border: solid black;
-    border-width: thin;
-    padding: 0 24px;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 2;
+  position: absolute;
+  top: 16px;
+  left: 0px;
+  right: 0px;
+  height: 70px;
+  width: 140px;
+  background-color: rgba(226, 226, 226, 0.8);
+  color: black;
+  font-size: 14px;
+  line-height: 26px;
+  text-align: center;
+  border: solid black;
+  border-width: thin;
+  padding: 0 24px;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 2;
 }
 :global(.hsar) {
   padding: 0;
 }
 
 :global(#templatesettings) {
-    height: 36px;
-    position: absolute;
-    bottom: 16px;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    z-index: 2;
-    border: solid black;
-    border-width: thin;
-    text-align: center;
-    background-color: rgba(226, 226, 226, 0.8);
-    width: fit-content;
-    transition: max-width 0.5s ease-out;
-    max-width: 415px;
-    overflow: hidden;
-    white-space: nowrap;
+  height: 36px;
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  z-index: 2;
+  border: solid black;
+  border-width: thin;
+  text-align: center;
+  background-color: rgba(226, 226, 226, 0.8);
+  width: fit-content;
+  transition: max-width 0.5s ease-out;
+  max-width: 415px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 :global(.templatebutton) {
@@ -264,21 +269,21 @@ kbd {
 }
 
 :global(.Modal) {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    right: auto;
-    bottom: auto;
-    border: 1px solid rgb(204, 204, 204);
-    background: rgb(255, 255, 255) none repeat scroll 0% 0%;
-    overflow-y: auto;
-    border-radius: 4px;
-    outline: currentcolor none medium;
-    padding: 20px 40px;
-    transform: translate(-50%, -50%);
-    height: 80%;
-    max-height: 700px;
-    transition: all 0.5s ease 0s;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  border: 1px solid rgb(204, 204, 204);
+  background: rgb(255, 255, 255) none repeat scroll 0% 0%;
+  overflow-y: auto;
+  border-radius: 4px;
+  outline: currentcolor none medium;
+  padding: 20px 40px;
+  transform: translate(-50%, -50%);
+  height: 80%;
+  max-height: 700px;
+  transition: all 0.5s ease 0s;
 }
 @media (max-width: 604px) {
   :global(.Modal) {
@@ -294,16 +299,16 @@ kbd {
   }
 }
 :global(.Overlay) {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    background-color: rgba(255, 255, 255, 0.75);
-    z-index: 2;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background-color: rgba(255, 255, 255, 0.75);
+  z-index: 2;
 }
 
-:global(.chatbox div .chatarea ) {
+:global(.chatbox div .chatarea) {
   height: 174px;
 }
 :global(.chatarea) {
@@ -321,7 +326,7 @@ kbd {
   white-space: nowrap;
 }
 :global(.chatname) {
-  color: #4B0000;
+  color: #4b0000;
   font-size: 13px;
 }
 :global(.chatmsg) {
@@ -345,60 +350,239 @@ kbd {
 }
 
 :global(.pressed) {
-    box-shadow:0 0 3px 2px rgba(0,0,0,.6);
+  box-shadow: 0 0 3px 2px rgba(0, 0, 0, 0.6);
 }
 
-:global(.notifyboxvis), :global(.notifyboxhid) {
-    position: absolute;
-    top: 57px;
-    left: 0px;
-    right: 0px;
-    height: 30px;
-    width: 20px;
-    color: black;
-    font-size: 14px;
-    line-height: 30px;
-    text-align: center;
-    vertical-align: middle;
-    border: solid black;
-    border-width: thin;
-    padding: 0 24px;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 2;
+:global(.notifyboxvis),
+:global(.notifyboxhid) {
+  position: absolute;
+  top: 57px;
+  left: 0px;
+  right: 0px;
+  height: 30px;
+  width: 20px;
+  color: black;
+  font-size: 14px;
+  line-height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  border: solid black;
+  border-width: thin;
+  padding: 0 24px;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 2;
 }
 
 :global(.notifyboxvis) {
-    visibility: visible;
-    opacity: 1;
-    transition: visibility 0s, opacity 0.5s linear;
+  visibility: visible;
+  opacity: 1;
+  transition: visibility 0s, opacity 0.5s linear;
 }
 :global(.notifyboxhid) {
-    visibility: hidden;
-    opacity: 0;
-    transition: visibility 0.5s, opacity 0.5s linear;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.5s, opacity 0.5s linear;
 }
 
 :global(.cooldownbox) {
-    top: 16px;
-    width: 48px;
-    left: 0px;
-    right: 0px;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 2;
+  top: 16px;
+  width: 48px;
+  left: 0px;
+  right: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 2;
+}
+
+:global(#factionselectorcontainer) {
+  position: absolute;
+  bottom: 98px;
+  margin: 0 16px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  background-color: rgba(226, 226, 226, 0.8);
+  transition: left 0.75s ease-out;
+  left: 0;
+}
+
+:global(#factionselectorwrapper) {
+  margin-right: -100px;
 }
 
 :global(#factionselector) {
-    position: absolute;
-    bottom: 94px;
+  flex-direction: column;
+  display: flex;
+  max-width: 192px;
+  direction: rtl;
+  padding-right: 100px;
+  overflow-y: auto;
+  padding-bottom: 1px;
+  margin-bottom: -1px;
+  margin-top: -1px;
+}
+
+:global(.factionselectorrow) {
+  border-right: black solid 1px;
+  min-height: 97px;
+  display: inline-flex;
+  position: relative;
+  border-left: black solid 1px;
+  direction: ltr;
+  outline: none;
+}
+
+:global(.factionselectorname) {
+  display: flex;
+  align-self: center;
+  flex-basis: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  -ms-word-break: break-all;
+  word-break: break-word;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  text-align: left;
+  padding: 0 10px;
+}
+
+:global(.factionselectorlogocontainer) {
+  display: flex;
+  padding: 15px 16px 16px 20px;
+  position: absolute;
+  right: 0;
+  height: calc(100% - 32px);
+  margin-right: -1px;
+  border-top: 1px black solid;
+  border-right: 1px black solid;
+  border-bottom: 1px black solid;
+}
+
+:global(.factionselectorlogobackground) {
+  position: absolute;
+  top: 0;
+  left: 1px;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(226, 226, 226, 0.8);
+}
+
+:global(.factionselectorlogo) {
+  margin: auto;
+  z-index: 1;
+}
+
+:global(.factionselectorrowselected) {
+  margin-right: -99px;
+  border-right: none;
+}
+
+:global(#factionselectorcontainer:not(.factionselectorclosed)
+    .factionselectorrowselected:not(:last-child)) {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+:global(.factionselectorrowselected .factionselectorname) {
+  padding-right: 110px;
+}
+
+:global(.transitioning .factionselectorrowselected .factionselectorname) {
+  transition: padding-right 0.75s ease-out;
+}
+
+:global(.transitioning .factionselectorrowselected) {
+  transition: margin-right 0.75s ease-out, background-color 0.75s ease-out;
+}
+
+:global(.transitioning .factionselectorlogocontainer) {
+  transition: padding 0.75s ease-out;
+}
+
+:global(.transitioning #factionselector) {
+  transition: padding-right 0.75s ease-out;
+}
+
+:global(.transitioning #factionselectorwrapper) {
+  transition: margin-right 0.75s ease-out;
+}
+
+:global(#factionselector::-webkit-scrollbar) {
+  width: 4px;
+}
+
+:global(#factionselector::-webkit-scrollbar-track) {
+  border-left: black 1px solid;
+}
+
+:global(#factionselector::-webkit-scrollbar-thumb) {
+  background: #000000;
+}
+
+@supports (-moz-appearance: meterbar) {
+  /* Firefox Only */
+
+  :global(.factionselectorrowselected) {
+    padding-bottom: 15px;
+  }
+
+  :global(#factionselector) {
+    scrollbar-color: black rgba(226, 226, 226, 0.8);
+    scrollbar-width: thin;
+  }
+}
+
+:global(.factionselectorclosed #factionselectorwrapper) {
+  margin-right: -116px;
+}
+
+:global(.factionselectorclosed #factionselector) {
+  padding-right: 116px;
+}
+
+:global(.factionselectorclosed .factionselectorrowselected) {
+  margin-right: -115px;
+}
+
+:global(.factionselectorclosed
+    .factionselectorrowselected
+    .factionselectorname) {
+  padding-right: 126px;
+}
+
+:global(.factionselectorrow:last-child) {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-top: solid 2px black;
+}
+
+:global(.factionselectorrow:last-child .factionselectorname) {
+  font-weight: bold;
+}
+
+:global(.factionselectorrow:last-child .factionselectorlogocontainer) {
+  margin-top: -2px;
+  padding: 16px 16px 16px 20px;
+  border-top-width: 2px;
+}
+
+:global(.factionselectorclosed
+    .factionselectorrow:not(:last-child)
+    .factionselectorlogocontainer) {
+  padding: 15px 16px 16px 36px;
+}
+
+:global(.factionselectorclosed
+    .factionselectorrow:last-child
+    .factionselectorlogocontainer) {
+  padding: 16px 16px 16px 36px;
 }
 
 :global(.actionbuttons) {
-    vertical-align: text-bottom;
-    cursor: pointer;
-    width: 36px;
-    padding: 0;
+  vertical-align: text-bottom;
+  cursor: pointer;
+  width: 36px;
+  padding: 0;
 }
 
 :global(.actionbuttons:hover) {
@@ -406,61 +590,64 @@ kbd {
 }
 
 :global(.palettebox) {
-    text-align: center; 
-    line-height: 0; 
-    z-index: 1;
-    bottom: 59px;
-    padding: 3px; 
-    position: fixed; 
-    right: 16px; 
-    margin-left: auto; 
-    margin-right: auto; 
-    display: flex; 
-    flex-wrap: wrap;
+  text-align: center;
+  line-height: 0;
+  z-index: 1;
+  bottom: 59px;
+  padding: 3px;
+  position: fixed;
+  right: 16px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 :global(.widpalette) {
-    height: 720px; 
-    width: 24px;
-    flex-direction: column;
+  height: 720px;
+  width: 24px;
+  flex-direction: column;
 }
 :global(.widpalette) > span {
-    width: 24px;
-    height: 24px;
-    margin: 0px;
+  width: 24px;
+  height: 24px;
+  margin: 0px;
 }
 
 @media (max-height: 801px) {
   :global(.widpalette) {
     height: 360px;
-    width: 48px; 
+    width: 48px;
   }
 }
 
-:global(.selected), :global(.unselected) {
-    display: block;
-    cursor: pointer;
-    padding: 0;
+:global(.selected),
+:global(.unselected) {
+  display: block;
+  cursor: pointer;
+  padding: 0;
 }
 
 :global(.compalette) {
-    flex-direction: row;
-    width: 140px;
-    height: 168px;
+  flex-direction: row;
+  width: 140px;
+  height: 168px;
 }
 :global(.compalette) > span {
-    width: 28px;
-    height: 28px;
-    margin: 0px;
+  width: 28px;
+  height: 28px;
+  margin: 0px;
 }
 
-@media (max-width: 300px),  (max-height: 432px) {
-  :global(.widpalette), :global(.compalette) {
+@media (max-width: 300px), (max-height: 432px) {
+  :global(.widpalette),
+  :global(.compalette) {
     flex-direction: row;
     width: 120px;
     height: 144px;
   }
-  :global(.widpalette) > span, :global(.compalette) > span {
+  :global(.widpalette) > span,
+  :global(.compalette) > span {
     width: 24px;
     height: 24px;
     margin: 0px;
@@ -471,25 +658,25 @@ kbd {
 :global(#colors) span:hover {
   z-index: 2 !important;
   outline: rgb(234, 234, 234) solid 1px;
-  box-shadow: rgba(0, 0, 0, 0.80) 0px 0px 5px 2px;
-  -ms-transform: scale(1.10,1.10); /* IE 9 */
-  -webkit-transform: scale(1.10,1.10); /* Safari */
-  transform: scale(1.10,1.10); /* Standard syntax */
+  box-shadow: rgba(0, 0, 0, 0.8) 0px 0px 5px 2px;
+  -ms-transform: scale(1.1, 1.1); /* IE 9 */
+  -webkit-transform: scale(1.1, 1.1); /* Safari */
+  transform: scale(1.1, 1.1); /* Standard syntax */
 }
 
 :global(#outstreamContainer) {
-    position: fixed;
-    display: none;
-    width: 100%;
-    height: 100%;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    background-color: black;
-    z-index: 9000;
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background-color: black;
+  z-index: 9000;
 }
 
 :global(.grecaptcha-badge) {
-    visibility: hidden;
+  visibility: hidden;
 }
