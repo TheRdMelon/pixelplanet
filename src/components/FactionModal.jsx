@@ -38,6 +38,9 @@ const textStyle: CSSStyleDeclaration = {
 
 const squareParentStyle: CSSStyleDeclaration = {
   width: '40%',
+  flexBasis: '40%',
+  flexShrink: 0,
+  flexGrow: 1,
   position: 'relative',
 };
 
@@ -51,6 +54,13 @@ const squareChildStyle: CSSStyleDeclaration = {
   bottom: 0,
   left: 0,
   right: 0,
+};
+
+const factionNameStyle: CSSStyleDeclaration = {
+  wordBreak: 'break-word',
+  display: 'block',
+  paddingTop: '10px',
+  paddingLeft: '0',
 };
 
 const JoinFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
@@ -121,7 +131,7 @@ const FactionInfo = ({
         ))}
       </select>
 
-      <div>
+      <div style={{ display: 'flex' }}>
         <div style={squareParentStyle}>
           <div style={squareStretcherStyle} />
           <div style={squareChildStyle}>
@@ -141,11 +151,14 @@ const FactionInfo = ({
             />
           </div>
         </div>
-        <div>
-          <h4>Leader</h4>
-          <p>{selectedFactionInfo.leader}</p>
-          <h4>Members</h4>
-          <p>{selectedFactionInfo.Users.length}</p>
+        <div className="factioninfobox">
+          <h4>
+            Leader:<span style={factionNameStyle}>{selectedFactionInfo.leader}</span>
+          </h4>
+          <div className="hr" />
+          <h4>
+            Members:<span>{selectedFactionInfo.Users.length}</span>
+          </h4>
         </div>
       </div>
       <h3>Member List</h3>

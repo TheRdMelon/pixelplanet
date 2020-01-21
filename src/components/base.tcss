@@ -578,6 +578,11 @@ kbd {
   padding: 16px 16px 16px 36px;
 }
 
+:global(#factionselector) {
+  position: absolute;
+  bottom: 94px;
+}
+
 :global(.actionbuttons) {
   vertical-align: text-bottom;
   cursor: pointer;
@@ -679,4 +684,28 @@ kbd {
 
 :global(.grecaptcha-badge) {
   visibility: hidden;
+}
+
+:global(.factioninfobox) {
+  flex-grow: 1;
+  align-self: center;
+  border: black solid 1px;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.75);
+  padding: 5px;
+  flex-basis: 60%;
+  margin: 0 40px;
+}
+
+:global(.factioninfobox h4) {
+  margin: 12px 0;
+}
+
+:global(.factioninfobox h4 span) {
+  font-weight: normal;
+  padding-left: 10px;
+}
+
+:global(.hr) {
+  border-bottom: solid 1px black;
+  margin: 5px 12px;
 }
