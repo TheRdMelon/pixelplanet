@@ -37,6 +37,7 @@ export default function modal(
       };
     }
 
+    case 'SELECT_CANVAS':
     case 'HIDE_MODAL':
       return {
         ...state,

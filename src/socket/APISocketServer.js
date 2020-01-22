@@ -28,7 +28,8 @@ async function verifyClient(info, done) {
   const { headers } = req;
   const ip = await getIPFromRequest(req);
 
-  if (!headers.authorization || headers.authorization != `Bearer ${APISOCKET_KEY}`) {
+  if (!headers.authorization
+    || headers.authorization != `Bearer ${APISOCKET_KEY}`) {
     logger.warn(`API ws request from ${ip} authenticated`);
     return done(false);
   }
@@ -83,7 +84,9 @@ class APISocketServer extends WebSocketEvents {
 
     const sendmsg = JSON.stringify(['msg', name, msg]);
     this.wss.clients.forEach((client) => {
-      if (client !== ws && client.subChat && client.readyState === WebSocket.OPEN) {
+      if (client !== ws
+        && client.subChat
+        && client.readyState === WebSocket.OPEN) {
         client.send(sendmsg);
       }
     });
@@ -117,9 +120,9 @@ class APISocketServer extends WebSocketEvents {
     });
     this.wss.clients.forEach((client) => {
       if (client.subOnline && client.readyState === WebSocket.OPEN) {
-        frame.forEach((buffer) => {
+        frame.forEach((data) => {
           try {
-            client._socket.write(buffer);
+            client._socket.write(data);
           } catch (error) {
             logger.error('(!) Catched error on write apisocket:', error);
           }
@@ -139,9 +142,9 @@ class APISocketServer extends WebSocketEvents {
     });
     this.wss.clients.forEach((client) => {
       if (client.subPxl && client.readyState === WebSocket.OPEN) {
-        frame.forEach((buffer) => {
+        frame.forEach((data) => {
           try {
-            client._socket.write(buffer);
+            client._socket.write(data);
           } catch (error) {
             logger.error('(!) Catched error on write apisocket:', error);
           }
@@ -177,7 +180,7 @@ class APISocketServer extends WebSocketEvents {
         if (clr < 0 || clr > 32) return;
         // be aware that user null has no cd
         if (!minecraftid && !ip) {
-          setPixel(0, x, y, clr);
+          setPixel(0, clr, x, y);
           ws.send(JSON.stringify(['retpxl', null, null, true, 0, 0]));
           return;
         }
@@ -185,7 +188,7 @@ class APISocketServer extends WebSocketEvents {
         user.ip = ip;
         const {
           error, success, waitSeconds, coolDownSeconds,
-        } = await drawUnsafe(user, 0, x, y, clr);
+        } = await drawUnsafe(user, 0, clr, x, y, null);
         ws.send(JSON.stringify([
           'retpxl',
           (minecraftid) || ip,
@@ -229,7 +232,9 @@ class APISocketServer extends WebSocketEvents {
       if (command == 'mcchat') {
         const [minecraftname, msg] = packet;
         const user = this.mc.minecraftname2User(minecraftname);
-        const chatname = (user.id) ? `[MC] ${user.regUser.name}` : `[MC] ${minecraftname}`;
+        const chatname = (user.id)
+          ? `[MC] ${user.regUser.name}`
+          : `[MC] ${minecraftname}`;
         webSockets.broadcastChatMessage(chatname, msg, false);
         this.broadcastChatMessage(chatname, msg, true, ws);
         return;
@@ -265,6 +270,7 @@ class APISocketServer extends WebSocketEvents {
 
       ws.isAlive = false;
       ws.ping(() => {});
+      return null;
     });
   }
 }

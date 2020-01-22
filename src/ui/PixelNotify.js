@@ -47,7 +47,7 @@ class PixelNotify {
 
 
   doRender() {
-    return (this.pixelList.length != 0);
+    return (this.pixelList.length !== 0);
   }
 
 
@@ -75,13 +75,18 @@ class PixelNotify {
         continue;
       }
       const [sx, sy] = worldToScreen(state, $viewport, [x, y])
-        .map((x) => x + this.scale / 2);
+        .map((z) => z + this.scale / 2);
 
+      // eslint-disable-next-line max-len
       const notRadius = timePasseded / PixelNotify.NOTIFICATION_TIME * this.notificationRadius;
       const circleScale = notRadius / 100;
       viewportCtx.save();
       viewportCtx.scale(circleScale, circleScale);
-      viewportCtx.drawImage(this.notifcircle, sx / circleScale - 100, sy / circleScale - 100);
+      viewportCtx.drawImage(
+        this.notifcircle,
+        sx / circleScale - 100,
+        sy / circleScale - 100,
+      );
       viewportCtx.restore();
     }
   }

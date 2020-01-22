@@ -41,8 +41,7 @@ export type Action =
   | { type: 'SET_VIEW_COORDINATES', view: Cell }
   | { type: 'SET_SCALE', scale: number, zoompoint: Cell }
   | { type: 'REQUEST_BIG_CHUNK', center: Cell }
-  | { type: 'RECEIVE_BIG_CHUNK', center: Cell, arrayBuffer: ArrayBuffer }
-  | { type: 'RECEIVE_IMAGE_TILE', center: Cell, tile: Image }
+  | { type: 'RECEIVE_BIG_CHUNK', center: Cell }
   | { type: 'RECEIVE_BIG_CHUNK_FAILURE', center: Cell, error: Error }
   | { type: 'RECEIVE_COOLDOWN', waitSeconds: number }
   | { type: 'RECEIVE_PIXEL_UPDATE',

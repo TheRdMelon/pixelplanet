@@ -1,4 +1,5 @@
 /*
+ * Renders 2D canvases
  *
  * @flow
  */
@@ -11,21 +12,19 @@ import {
   getTileOfPixel,
   getPixelFromChunkOffset,
 } from '../core/utils';
-import {
-  fetchChunk,
-  fetchTile,
-  fetchHistoricalChunk,
-} from '../actions';
 
 import {
   renderGrid,
   renderPlaceholder,
   renderPotatoPlaceholder,
-} from './renderelements';
-import ChunkRGB from './ChunkRGB';
-import { loadingTiles } from './loadImage';
+} from './render2Delements';
+import {
+  initControls,
+  removeControls,
+} from '../controls/PixelPainterControls';
 
 
+import ChunkLoader from './ChunkLoader2D';
 import pixelNotify from './PixelNotify';
 
 // dimensions of offscreen canvas NOT whole canvas
@@ -38,6 +37,11 @@ const SCALE_THREASHOLD = Math.min(
 
 
 class Renderer {
+  is3D: false;
+  //
+  canvasId: number = null;
+  chunkLoader: Object = null;
+  //--
   centerChunk: Cell;
   tiledScale: number;
   tiledZoom: number;
@@ -53,7 +57,7 @@ class Renderer {
   //--
   oldHistoricalTime: string;
 
-  constructor() {
+  constructor(store) {
     this.centerChunk = [null, null];
     this.tiledScale = 0;
     this.tiledZoom = 4;
@@ -64,20 +68,44 @@ class Renderer {
     this.lastFetch = 0;
     this.oldHistoricalTime = null;
     //--
+    const viewport = document.createElement('canvas');
+    viewport.width = window.innerWidth;
+    viewport.height = window.innerHeight;
+    this.viewport = viewport;
+    document.body.appendChild(this.viewport);
+    //--
+    this.resizeHandle = this.resizeHandle.bind(this);
+    window.addEventListener('resize', this.resizeHandle);
+    //--
     this.canvas = document.createElement('canvas');
     this.canvas.width = CANVAS_WIDTH;
     this.canvas.height = CANVAS_HEIGHT;
 
     const context = this.canvas.getContext('2d');
-    if (!context) return;
-
     context.fillStyle = '#000000';
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    //--
+    this.setStore(store);
+  }
+
+  destructor() {
+    removeControls(this.viewport);
+    window.removeEventListener('resize', this.resizeHandle);
+    this.viewport.remove();
+  }
+
+  getAllChunks() {
+    return this.chunkLoader.getAllChunks();
+  }
+
+  resizeHandle() {
+    this.viewport.width = window.innerWidth;
+    this.viewport.height = window.innerHeight;
+    this.forceNextRender = true;
   }
 
   // HAS to be set before any rendering can happen
-  setViewport(viewport: HTMLCanvasElement, store) {
-    this.viewport = viewport;
+  setStore(store) {
     this.store = store;
     const state = store.getState();
     const {
@@ -87,8 +115,8 @@ class Renderer {
       canvasSize,
     } = state.canvas;
     this.updateCanvasData(state);
+    initControls(this, this.viewport, store);
     this.updateScale(viewscale, canvasMaxTiledZoom, view, canvasSize);
-    this.forceNextRender = true;
   }
 
   updateCanvasData(state: State) {
@@ -97,7 +125,14 @@ class Renderer {
       viewscale,
       view,
       canvasSize,
+      canvasId,
     } = state.canvas;
+    if (canvasId !== this.canvasId) {
+      this.canvasId = canvasId;
+      if (canvasId !== null) {
+        this.chunkLoader = new ChunkLoader(this.store);
+      }
+    }
     this.updateScale(viewscale, canvasMaxTiledZoom, view, canvasSize);
   }
 
@@ -107,6 +142,10 @@ class Renderer {
     } else {
       this.oldHistoricalTime = historicalTime;
     }
+  }
+
+  getColorIndexOfPixel(cx, cy) {
+    return this.chunkLoader.getColorIndexOfPixel(cx, cy);
   }
 
   updateScale(
@@ -156,6 +195,7 @@ class Renderer {
       scale,
       isHistoricalView,
     } = state.canvas;
+    this.chunkLoader.getPixelUpdate(i, j, offset, color);
 
     if (scale < 0.8 || isHistoricalView) return;
     const scaleM = (scale > SCALE_THREASHOLD) ? 1 : scale;
@@ -216,10 +256,7 @@ class Renderer {
     } = this;
     const {
       viewscale: scale,
-      canvasId,
       canvasSize,
-      canvasMaxTiledZoom,
-      chunks,
     } = state.canvas;
 
     let { relScale } = this;
@@ -264,8 +301,7 @@ class Renderer {
     const [xc, yc] = chunkPosition; // center chunk
     // CLEAN margin
     // draw new chunks. If not existing, just clear.
-    let chunk: ChunkRGB;
-    let key: string;
+    let chunk;
     for (let dx = -CHUNK_RENDER_RADIUS_X; dx <= CHUNK_RENDER_RADIUS_X; dx += 1) {
       for (let dy = -CHUNK_RENDER_RADIUS_Y; dy <= CHUNK_RENDER_RADIUS_Y; dy += 1) {
         const cx = xc + dx;
@@ -278,32 +314,11 @@ class Renderer {
           // if out of bounds
           context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
         } else {
-          key = ChunkRGB.getKey(tiledZoom, cx, cy);
-          chunk = chunks.get(key);
+          chunk = this.chunkLoader.getChunk(tiledZoom, cx, cy, fetch);
           if (chunk) {
-            // render new chunk
-            if (chunk.ready) {
-              context.drawImage(chunk.image, x, y);
-              if (fetch) chunk.timestamp = curTime;
-            } else if (loadingTiles.hasTiles) {
-              context.drawImage(loadingTiles.getTile(canvasId), x, y);
-            } else {
-              context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-            }
+            context.drawImage(chunk, x, y);
           } else {
-            // we don't have that chunk
-            if (fetch) {
-              if (tiledZoom === canvasMaxTiledZoom) {
-                this.store.dispatch(fetchChunk(canvasId, [tiledZoom, cx, cy]));
-              } else {
-                this.store.dispatch(fetchTile(canvasId, [tiledZoom, cx, cy]));
-              }
-            }
-            if (loadingTiles.hasTiles) {
-              context.drawImage(loadingTiles.getTile(canvasId), x, y);
-            } else {
-              context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-            }
+            context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
           }
         }
       }
@@ -313,10 +328,15 @@ class Renderer {
 
 
   render() {
+    if (!this.chunkLoader) {
+      return;
+    }
     const state: State = this.store.getState();
-    return (state.canvas.isHistoricalView)
-      ? this.renderHistorical(state)
-      : this.renderMain(state);
+    if (state.canvas.isHistoricalView) {
+      this.renderHistorical(state);
+    } else {
+      this.renderMain(state);
+    }
   }
 
 
@@ -342,10 +362,7 @@ class Renderer {
       view,
       viewscale,
       canvasSize,
-      canvasId,
     } = state.canvas;
-
-    if (!view || canvasId === null) return;
 
     const [x, y] = view;
     const [cx, cy] = this.centerChunk;
@@ -353,8 +370,21 @@ class Renderer {
     // if we have to render pixelnotify
     const doRenderPixelnotify = (viewscale >= 0.5 && showPixelNotify && pixelNotify.doRender());
     // if we have to render placeholder
-    const doRenderPlaceholder = (viewscale >= 3 && placeAllowed && (hover || this.hover) && !isPotato);
-    const doRenderPotatoPlaceholder = (viewscale >= 3 && placeAllowed && (hover !== this.hover || this.forceNextRender || this.forceNextSubrender || doRenderPixelnotify) && isPotato);
+    const doRenderPlaceholder = (
+      viewscale >= 3
+      && placeAllowed
+      && (hover || this.hover)
+      && !isPotato
+    );
+    const doRenderPotatoPlaceholder = (
+      viewscale >= 3
+      && placeAllowed
+      && (hover !== this.hover
+        || this.forceNextRender
+        || this.forceNextSubrender
+        || doRenderPixelnotify
+      ) && isPotato
+    );
     //--
     // if we have nothing to render, return
     // note: this.hover is used to, to render without the placeholder one last time when cursor leaves window
@@ -425,9 +455,7 @@ class Renderer {
     } = this;
     const {
       viewscale,
-      canvasId,
       canvasSize,
-      chunks,
       historicalDate,
       historicalTime,
     } = state.canvas;
@@ -479,8 +507,7 @@ class Renderer {
     const [xc, yc] = chunkPosition; // center chunk
     // CLEAN margin
     // draw  chunks. If not existing, just clear.
-    let chunk: ChunkRGB;
-    let key: string;
+    let chunk;
     for (let dx = -CHUNK_RENDER_RADIUS_X; dx <= CHUNK_RENDER_RADIUS_X; dx += 1) {
       for (let dy = -CHUNK_RENDER_RADIUS_Y; dy <= CHUNK_RENDER_RADIUS_Y; dy += 1) {
         const cx = xc + dx;
@@ -494,55 +521,21 @@ class Renderer {
           context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
         } else {
           // full chunks
-          key = ChunkRGB.getKey(historicalDate, cx, cy);
-          chunk = chunks.get(key);
+          chunk = this.chunkLoader.getHistoricalChunk(cx, cy, fetch, historicalDate);
           if (chunk) {
-            // render new chunk
-            if (chunk.ready) {
-              context.drawImage(chunk.image, x, y);
-              if (fetch) chunk.timestamp = curTime;
-            } else if (loadingTiles.hasTiles) {
-              context.drawImage(loadingTiles.getTile(canvasId), x, y);
-            } else {
-              context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-            }
+            context.drawImage(chunk, x, y);
           } else {
-            // we don't have that chunk
-            if (fetch) {
-              this.store.dispatch(fetchHistoricalChunk(canvasId, [cx, cy], historicalDate, null));
-            }
-            if (loadingTiles.hasTiles) {
-              context.drawImage(loadingTiles.getTile(canvasId), x, y);
-            } else {
-              context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-            }
+            context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
           }
           // incremential chunks
           if (historicalTime === '0000') continue;
-          key = ChunkRGB.getKey(`${historicalDate}${historicalTime}`, cx, cy);
-          chunk = chunks.get(key);
+          chunk = this.chunkLoader.getHistoricalChunk(cx, cy, fetch, historicalDate, historicalTime);
           if (chunk) {
-            // render new chunk
-            if (!chunk.ready && oldHistoricalTime) {
-              // redraw previous incremential chunk if new one is not there yet
-              key = ChunkRGB.getKey(`${historicalDate}${oldHistoricalTime}`, cx, cy);
-              chunk = chunks.get(key);
-            }
-            if (chunk && chunk.ready && !chunk.isEmpty) {
-              context.drawImage(chunk.image, x, y);
-              if (fetch) chunk.timestamp = curTime;
-            }
-          } else {
-            if (fetch) {
-              // we don't have that chunk
-              this.store.dispatch(fetchHistoricalChunk(canvasId, [cx, cy], historicalDate, historicalTime));
-            }
-            if (oldHistoricalTime) {
-              key = ChunkRGB.getKey(`${historicalDate}${oldHistoricalTime}`, cx, cy);
-              chunk = chunks.get(key);
-              if (chunk && chunk.ready && !chunk.isEmpty) {
-                context.drawImage(chunk.image, x, y);
-              }
+            context.drawImage(chunk, x, y);
+          } else if (oldHistoricalTime) {
+            chunk = this.chunkLoader.getHistoricalChunk(cx, cy, false, historicalDate, oldHistoricalTime);
+            if (chunk) {
+              context.drawImage(chunk, x, y);
             }
           }
         }
@@ -612,5 +605,4 @@ class Renderer {
 }
 
 
-const renderer = new Renderer();
-export default renderer;
+export default Renderer;

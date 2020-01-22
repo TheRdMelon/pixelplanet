@@ -10,12 +10,19 @@ import type { State } from '../reducers';
 
 let style = {};
 function getStyle(notification) {
-  if (notification) style = { backgroundColor: (notification >= 0) ? '#a9ffb0cc' : '#ffa9a9cc' };
+  if (notification) {
+    style = {
+      backgroundColor: (notification >= 0) ? '#a9ffb0cc' : '#ffa9a9cc',
+    };
+  }
   return style;
 }
 
 const NotifyBox = ({ notification }) => (
-  <div className={(notification) ? 'notifyboxvis' : 'notifyboxhid'} style={getStyle(notification)}>
+  <div
+    className={(notification) ? 'notifyboxvis' : 'notifyboxhid'}
+    style={getStyle(notification)}
+  >
     {notification}
   </div>
 );

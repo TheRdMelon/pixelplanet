@@ -23,7 +23,7 @@ import {
   createTexture,
   initializeTiles,
 } from './Tile';
-import { mod, getChunkOfPixel, getMaxTiledZoom } from './utils';
+import { mod, getMaxTiledZoom } from './utils';
 
 
 // Array that holds cells of all changed base zoomlevel tiles
@@ -117,15 +117,6 @@ class CanvasUpdater {
   }
 
   /*
-   * register changed pixel, queue corespongind tile to reload
-   * @param pixel Pixel that got changed
-   */
-  registerPixelChange(pixel: Cell) {
-    const chunk = getChunkOfPixel(pixel, this.canvas.size);
-    return this.registerChunkChange(chunk);
-  }
-
-  /*
    * initialize queues and start loops for updating tiles
    */
   async startReloadingLoops() {
@@ -163,13 +154,11 @@ class CanvasUpdater {
 }
 
 export function registerChunkChange(canvasId: number, chunk: Cell) {
-  return CanvasUpdaters[canvasId].registerChunkChange(chunk);
+  if (CanvasUpdaters[canvasId]) {
+    CanvasUpdaters[canvasId].registerChunkChange(chunk);
+  }
 }
 RedisCanvas.setChunkChangeCallback(registerChunkChange);
-
-export function registerPixelChange(canvasId: number, pixel: Cell) {
-  return CanvasUpdaters[canvasId].registerPixelChange(pixel);
-}
 
 /*
  * starting update loops for canvases
@@ -178,7 +167,12 @@ export function startAllCanvasLoops() {
   if (!fs.existsSync(`${TILE_FOLDER}`)) fs.mkdirSync(`${TILE_FOLDER}`);
   const ids = Object.keys(canvases);
   for (let i = 0; i < ids.length; i += 1) {
-    const updater = new CanvasUpdater(parseInt(ids[i], 10));
-    CanvasUpdaters[ids[i]] = updater;
+    const id = parseInt(ids[i], 10);
+    const canvas = canvases[id];
+    if (!canvas.v) {
+      // just 2D canvases
+      const updater = new CanvasUpdater(id);
+      CanvasUpdaters[ids[i]] = updater;
+    }
   }
 }

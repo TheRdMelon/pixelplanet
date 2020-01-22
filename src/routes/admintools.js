@@ -157,6 +157,11 @@ router.post('/', upload.single('image'), async (req, res, next) => {
 
       const canvas = canvases[canvasId];
 
+      if (canvas.v) {
+        res.status(403).send('Can not upload Image to 3D canvas');
+        return;
+      }
+
       const canvasMaxXY = canvas.size / 2;
       const canvasMinXY = -canvasMaxXY;
       if (x < canvasMinXY || y < canvasMinXY

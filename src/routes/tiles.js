@@ -7,10 +7,11 @@
 
 import express from 'express';
 import type { Request, Response } from 'express';
-import sharp from 'sharp';
-import { TILE_SIZE, HOUR } from '../core/constants';
 import { TILE_FOLDER } from '../core/config';
-import RedisCanvas from '../data/models/RedisCanvas';
+import { HOUR } from '../core/constants';
+// import sharp from 'sharp';
+// import { TILE_SIZE, HOUR } from '../core/constants';
+// import RedisCanvas from '../data/models/RedisCanvas';
 
 
 const router = express.Router();
@@ -72,16 +73,17 @@ router.use('/', express.static(TILE_FOLDER, {
 /*
  * catch File Not Found: Send empty tile
  */
-router.use('/:c([0-9]+)/:z([0-9]+)/:x([0-9]+)/:y([0-9]+).png', async (req: Request, res: Response) => {
-  const { c: paramC } = req.params;
-  const c = parseInt(paramC, 10);
-  res.set({
-    'Cache-Control': `public, s-maxage=${2 * 60 * 60}, max-age=${1 * 60 * 60}`, // seconds
-    'Content-Type': 'image/png',
+router.use('/:c([0-9]+)/:z([0-9]+)/:x([0-9]+)/:y([0-9]+).png',
+  async (req: Request, res: Response) => {
+    const { c: paramC } = req.params;
+    const c = parseInt(paramC, 10);
+    res.set({
+      'Cache-Control': `public, s-maxage=${2 * 3600}, max-age=${1 * 3600}`,
+      'Content-Type': 'image/png',
+    });
+    res.status(200);
+    res.sendFile(`${TILE_FOLDER}/${c}/emptytile.png`);
   });
-  res.status(200);
-  res.sendFile(`${TILE_FOLDER}/${c}/emptytile.png`);
-});
 
 
 export default router;

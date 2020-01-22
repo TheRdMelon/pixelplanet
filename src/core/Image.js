@@ -40,15 +40,17 @@ export async function imageABGR2Canvas(
   const canvasMinXY = -(canvas.size / 2);
   const imageData = new Uint32Array(data.buffer);
 
-  const [ucx, ucy] = getChunkOfPixel([x, y], canvas.size);
-  const [lcx, lcy] = getChunkOfPixel([(x + width), (y + height)], canvas.size);
+  const [ucx, ucy] = getChunkOfPixel(canvas.size, x, y);
+  const [lcx, lcy] = getChunkOfPixel(canvas.size, x + width, y + height);
 
   logger.info(`Loading to chunks from ${ucx} / ${ucy} to ${lcx} / ${lcy} ...`);
   let chunk;
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
       chunk = await RedisCanvas.getChunk(cx, cy, canvasId);
-      chunk = (chunk) ? new Uint8Array(chunk) : new Uint8Array(TILE_SIZE * TILE_SIZE);
+      chunk = (chunk)
+        ? new Uint8Array(chunk)
+        : new Uint8Array(TILE_SIZE * TILE_SIZE);
       // offset of chunk in image
       const cOffX = cx * TILE_SIZE + canvasMinXY - x;
       const cOffY = cy * TILE_SIZE + canvasMinXY - y;
@@ -60,7 +62,9 @@ export async function imageABGR2Canvas(
           const clrY = cOffY + py;
           if (clrX >= 0 && clrY >= 0 && clrX < width && clrY < height) {
             const clr = imageData[clrX + clrY * width];
-            const clrIndex = (wipe) ? palette.abgr.indexOf(clr) : palette.abgr.indexOf(clr, 2);
+            const clrIndex = (wipe)
+              ? palette.abgr.indexOf(clr)
+              : palette.abgr.indexOf(clr, 2);
             if (~clrIndex) {
               const pixel = (protect) ? (clrIndex | 0x20) : clrIndex;
               chunk[cOff] = pixel;
@@ -113,15 +117,17 @@ export async function imagemask2Canvas(
 
   const imageData = new Uint8Array(data.buffer);
 
-  const [ucx, ucy] = getChunkOfPixel([x, y], canvas.size);
-  const [lcx, lcy] = getChunkOfPixel([(x + width), (y + height)], canvas.size);
+  const [ucx, ucy] = getChunkOfPixel(canvas.size, x, y);
+  const [lcx, lcy] = getChunkOfPixel(canvas.size, x + width, y + height);
 
   logger.info(`Loading to chunks from ${ucx} / ${ucy} to ${lcx} / ${lcy} ...`);
   let chunk;
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
       chunk = await RedisCanvas.getChunk(cx, cy, canvasId);
-      chunk = (chunk) ? new Uint8Array(chunk) : new Uint8Array(TILE_SIZE * TILE_SIZE);
+      chunk = (chunk)
+        ? new Uint8Array(chunk)
+        : new Uint8Array(TILE_SIZE * TILE_SIZE);
       // offset of chunk in image
       const cOffX = cx * TILE_SIZE + canvasMinXY - x;
       const cOffY = cy * TILE_SIZE + canvasMinXY - y;
@@ -133,7 +139,10 @@ export async function imagemask2Canvas(
           const clrY = cOffY + py;
           if (clrX >= 0 && clrY >= 0 && clrX < width && clrY < height) {
             let offset = (clrX + clrY * width) * 3;
-            if (!imageData[offset++] && !imageData[offset++] && !imageData[offset]) {
+            if (!imageData[offset++]
+              && !imageData[offset++]
+              && !imageData[offset]
+            ) {
               chunk[cOff] = filter(palette.abgr[chunk[cOff]]);
               pxlCnt += 1;
             }

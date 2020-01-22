@@ -24,6 +24,10 @@ export async function updateBackupRedis(canvasRedis, backupRedis, canvases) {
   for (let i = 0; i < ids.length; i += 1) {
     const id = ids[i];
     const canvas = canvases[id];
+    if (canvas.v) {
+      // ignore 3D canvases
+      continue;
+    }
     const chunksXY = (canvas.size / TILE_SIZE);
     console.log('Copy Chunks to backup redis...');
     const startTime = Date.now();
@@ -67,6 +71,11 @@ export async function incrementialBackupRedis(
   for (let i = 0; i < ids.length; i += 1) {
     const id = ids[i];
 
+    const canvas = canvases[id];
+    if (canvas.v) {
+      // ignore 3D canvases
+      continue;
+    }
 
     const canvasBackupDir = `${backupDir}/${id}`;
     if (!fs.existsSync(canvasBackupDir)) {
@@ -83,7 +92,6 @@ export async function incrementialBackupRedis(
       fs.mkdirSync(canvasTileBackupDir);
     }
 
-    const canvas = canvases[id];
     const palette = new Palette(canvas.colors, canvas.alpha);
     const chunksXY = (canvas.size / TILE_SIZE);
     console.log('Creating Incremential Backup...');

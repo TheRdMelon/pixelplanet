@@ -3,7 +3,7 @@
  * @flow
  */
 
-import Sequelize from 'sequelize';
+// import Sequelize from 'sequelize';
 import nodemailer from 'nodemailer';
 
 import logger from './logger';

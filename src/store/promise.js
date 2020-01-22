@@ -21,6 +21,7 @@
  */
 
 function warn(error) {
+  // eslint-disable-next-line no-console
   console.warn(error.message || error);
   throw error; // To let the caller handle the rejection
 }

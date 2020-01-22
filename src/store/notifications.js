@@ -35,6 +35,7 @@ export default () => (next) => (action) => {
         // nothing
     }
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
   }
   return next(action);

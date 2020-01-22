@@ -20,8 +20,7 @@ export function renderPlaceholder(
   const { selectedColor, hover } = state.gui;
   const { palette } = state.canvas;
 
-  const worldPos = screenToWorld(state, $viewport, hover);
-  const [sx, sy] = worldToScreen(state, $viewport, worldPos);
+  const [sx, sy] = worldToScreen(state, $viewport, hover);
 
   viewportCtx.save();
   viewportCtx.translate(sx + (scale / 2), sy + (scale / 2));
@@ -55,8 +54,7 @@ export function renderPotatoPlaceholder(
   const { selectedColor, hover } = state.gui;
   const { palette } = state.canvas;
 
-  const worldPos = screenToWorld(state, $viewport, hover);
-  const [sx, sy] = worldToScreen(state, $viewport, worldPos);
+  const [sx, sy] = worldToScreen(state, $viewport, hover);
 
   viewportCtx.save();
   viewportCtx.fillStyle = '#000';

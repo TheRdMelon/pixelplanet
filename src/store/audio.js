@@ -27,7 +27,10 @@ export default (store) => (next) => (action) => {
 
 
       gainNode.gain.setValueAtTime(0.3, context.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.2, context.currentTime + 0.1);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.2,
+        context.currentTime + 0.1,
+      );
 
       oscillatorNode.connect(gainNode);
       gainNode.connect(context.destination);
@@ -46,11 +49,17 @@ export default (store) => (next) => (action) => {
       // oscillatorNode.detune.value = -600
 
       oscillatorNode.frequency.setValueAtTime(1479.98, context.currentTime);
-      oscillatorNode.frequency.exponentialRampToValueAtTime(493.88, context.currentTime + 0.01);
+      oscillatorNode.frequency.exponentialRampToValueAtTime(
+        493.88,
+        context.currentTime + 0.01,
+      );
 
 
       gainNode.gain.setValueAtTime(0.5, context.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.2, context.currentTime + 0.1);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.2,
+        context.currentTime + 0.1,
+      );
 
       oscillatorNode.connect(gainNode);
       gainNode.connect(context.destination);
@@ -68,9 +77,18 @@ export default (store) => (next) => (action) => {
       oscillatorNode.type = 'sine';
       oscillatorNode.detune.value = -900;
       oscillatorNode.frequency.setValueAtTime(600, context.currentTime);
-      oscillatorNode.frequency.setValueAtTime(1400, context.currentTime + 0.025);
-      oscillatorNode.frequency.setValueAtTime(1200, context.currentTime + 0.05);
-      oscillatorNode.frequency.setValueAtTime(900, context.currentTime + 0.075);
+      oscillatorNode.frequency.setValueAtTime(
+        1400,
+        context.currentTime + 0.025,
+      );
+      oscillatorNode.frequency.setValueAtTime(
+        1200,
+        context.currentTime + 0.05,
+      );
+      oscillatorNode.frequency.setValueAtTime(
+        900,
+        context.currentTime + 0.075,
+      );
 
       const lfo = context.createOscillator();
       lfo.type = 'sine';
@@ -94,10 +112,16 @@ export default (store) => (next) => (action) => {
 
       oscillatorNode.type = 'sine';
       oscillatorNode.frequency.setValueAtTime(clrFreq, context.currentTime);
-      oscillatorNode.frequency.exponentialRampToValueAtTime(1400, context.currentTime + 0.2);
+      oscillatorNode.frequency.exponentialRampToValueAtTime(
+        1400,
+        context.currentTime + 0.2,
+      );
 
       gainNode.gain.setValueAtTime(0.5, context.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.2, context.currentTime + 0.1);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.2,
+        context.currentTime + 0.1,
+      );
 
       oscillatorNode.connect(gainNode);
       gainNode.connect(context.destination);
@@ -114,11 +138,20 @@ export default (store) => (next) => (action) => {
 
       oscillatorNode.type = 'sine';
       oscillatorNode.frequency.setValueAtTime(349.23, context.currentTime);
-      oscillatorNode.frequency.setValueAtTime(523.25, context.currentTime + 0.1);
-      oscillatorNode.frequency.setValueAtTime(698.46, context.currentTime + 0.2);
+      oscillatorNode.frequency.setValueAtTime(
+        523.25,
+        context.currentTime + 0.1,
+      );
+      oscillatorNode.frequency.setValueAtTime(
+        698.46,
+        context.currentTime + 0.2,
+      );
 
       gainNode.gain.setValueAtTime(0.5, context.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.2, context.currentTime + 0.15);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.2,
+        context.currentTime + 0.15,
+      );
 
       oscillatorNode.connect(gainNode);
       gainNode.connect(context.destination);
@@ -135,10 +168,16 @@ export default (store) => (next) => (action) => {
 
       oscillatorNode.type = 'sine';
       oscillatorNode.frequency.setValueAtTime(310, context.currentTime);
-      oscillatorNode.frequency.exponentialRampToValueAtTime(355, context.currentTime + 0.025);
+      oscillatorNode.frequency.exponentialRampToValueAtTime(
+        355,
+        context.currentTime + 0.025,
+      );
 
       gainNode.gain.setValueAtTime(0.1, context.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.1, context.currentTime + 0.1);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.1,
+        context.currentTime + 0.1,
+      );
 
       oscillatorNode.connect(gainNode);
       gainNode.connect(context.destination);

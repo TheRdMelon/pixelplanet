@@ -3,7 +3,11 @@
 import type { Cell } from './Cell';
 import type { State } from '../reducers';
 
-import { TILE_SIZE, TILE_ZOOM_LEVEL } from './constants';
+import {
+  TILE_SIZE,
+  THREE_TILE_SIZE,
+  TILE_ZOOM_LEVEL,
+} from './constants';
 
 /**
  * http://stackoverflow.com/questions/4467539/javascript-modulo-not-behaving
@@ -13,13 +17,6 @@ import { TILE_SIZE, TILE_ZOOM_LEVEL } from './constants';
  */
 export function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
-}
-
-export function sum(values: Array<number>): number {
-  let total = 0;
-  // TODO map reduce
-  values.forEach((value) => total += value);
-  return total;
 }
 
 /*
@@ -41,13 +38,26 @@ export function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(n, max));
 }
 
-export function getChunkOfPixel(pixel: Cell, canvasSize: number = null): Cell {
-  const target = pixel.map((x) => Math.floor((x + (canvasSize / 2)) / TILE_SIZE));
-  return target;
+export function getChunkOfPixel(
+  canvasSize: number = null,
+  x: number,
+  y: number,
+  z: number = null,
+): Cell {
+  const tileSize = (z === null) ? TILE_SIZE : THREE_TILE_SIZE;
+  const cx = Math.floor((x + (canvasSize / 2)) / tileSize);
+  const cy = Math.floor((y + (canvasSize / 2)) / tileSize);
+  return [cx, cy];
 }
 
-export function getTileOfPixel(tileScale: number, pixel: Cell, canvasSize: number = null): Cell {
-  const target = pixel.map((x) => Math.floor((x + canvasSize / 2) / TILE_SIZE * tileScale));
+export function getTileOfPixel(
+  tileScale: number,
+  pixel: Cell,
+  canvasSize: number = null,
+): Cell {
+  const target = pixel.map(
+    (x) => Math.floor((x + canvasSize / 2) / TILE_SIZE * tileScale),
+  );
   return target;
 }
 
@@ -62,11 +72,19 @@ export function getCanvasBoundaries(canvasSize: number): number {
   return [canvasMinXY, canvasMaxXY];
 }
 
-export function getOffsetOfPixel(x: number, y: number, canvasSize: number = null): number {
-  const modOffset = mod((canvasSize / 2), TILE_SIZE);
-  const cx = mod(x + modOffset, TILE_SIZE);
-  const cy = mod(y + modOffset, TILE_SIZE);
-  return (cy * TILE_SIZE) + cx;
+export function getOffsetOfPixel(
+  canvasSize: number = null,
+  x: number,
+  y: number,
+  z: number = null,
+): number {
+  const tileSize = (z === null) ? TILE_SIZE : THREE_TILE_SIZE;
+  let offset = (z === null) ? 0 : (z * tileSize * tileSize);
+  const modOffset = mod((canvasSize / 2), tileSize);
+  const cx = mod(x + modOffset, tileSize);
+  const cy = mod(y + modOffset, tileSize);
+  offset += (cy * tileSize) + cx;
+  return offset;
 }
 
 /*
@@ -134,29 +152,6 @@ export function worldToScreen(
   ];
 }
 
-/*
- * Get Color Index of specific pixel
- * @param state State
- * @param viewport Viewport HTML canvas
- * @param coordinates  Coords of pixel in World coordinates
- * @return number of color Index
- */
-export function getColorIndexOfPixel(
-  state: State,
-  coordinates: Cell,
-): number {
-  const { chunks, canvasSize, canvasMaxTiledZoom } = state.canvas;
-  const [cx, cy] = getChunkOfPixel(coordinates, canvasSize);
-  const key = `${canvasMaxTiledZoom}:${cx}:${cy}`;
-  const chunk = chunks.get(key);
-  if (!chunk) {
-    return 0;
-  }
-  return chunk.getColorIndex(
-    getCellInsideChunk(coordinates),
-  );
-}
-
 export function durationToString(
   ms: number,
   smallest: boolean = false,
@@ -166,6 +161,7 @@ export function durationToString(
   if (seconds < 60 && smallest) {
     timestring = seconds;
   } else {
+    // eslint-disable-next-line max-len
     timestring = `${Math.floor(seconds / 60)}:${(`0${seconds % 60}`).slice(-2)}`;
   }
   return timestring;
@@ -182,8 +178,10 @@ export function numberToString(num: number): string {
   let postfixNum = 0;
   while (postfixNum < postfix.length) {
     if (num < 10000) {
+      // eslint-disable-next-line max-len
       return `${Math.floor(num / 1000)}.${Math.floor((num % 1000) / 10)}${postfix[postfixNum]}`;
     } if (num < 100000) {
+      // eslint-disable-next-line max-len
       return `${Math.floor(num / 1000)}.${Math.floor((num % 1000) / 100)}${postfix[postfixNum]}`;
     } if (num < 1000000) {
       return Math.floor(num / 1000) + postfix[postfixNum];
@@ -203,6 +201,7 @@ export function numberToStringFull(num: number): string {
     return `${Math.floor(num / 1000)}.${(`00${num % 1000}`).slice(-3)}`;
   }
 
+  // eslint-disable-next-line max-len
   return `${Math.floor(num / 1000000)}.${(`00${Math.floor(num / 1000)}`).slice(-3)}.${(`00${num % 1000}`).slice(-3)}`;
 }
 

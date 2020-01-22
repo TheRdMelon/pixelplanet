@@ -7,7 +7,6 @@ import { TILE_SIZE } from '../core/constants';
 
 
 class ChunkRGB {
-  cell: Cell;
   key: string;
   image: HTMLCanvasElement;
   ready: boolean;
@@ -15,7 +14,7 @@ class ChunkRGB {
   palette: Palette;
   isBasechunk: boolean;
 
-  constructor(palette: Palette, cell: Cell) {
+  constructor(palette: Palette, key) {
     // isBasechunk gets set to true by RECEIVE_BIG_CHUNK
     // if true => chunk got requested from api/chunk and
     //            receives websocket pixel updates
@@ -25,10 +24,8 @@ class ChunkRGB {
     this.image = document.createElement('canvas');
     this.image.width = TILE_SIZE;
     this.image.height = TILE_SIZE;
-    this.cell = cell;
-    this.key = ChunkRGB.getKey(...cell);
+    this.key = key;
     this.ready = false;
-    this.isEmpty = false;
     this.timestamp = Date.now();
   }
 
@@ -89,21 +86,15 @@ class ChunkRGB {
     ctx.drawImage(img, 0, 0);
   }
 
-  empty() {
+  empty(transparent: boolean = false) {
     this.ready = true;
-    this.isEmpty = true;
-    const { image, palette } = this;
-    const ctx = image.getContext('2d');
-    // eslint-disable-next-line prefer-destructuring
-    ctx.fillStyle = palette.colors[0];
-    ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
-  }
-
-  static getKey(z: number, x: number, y: number) {
-    // this is also hardcoded into core/utils.js at getColorIndexOfPixel
-    // just to prevent whole ChunkRGB to get loaded into web.js
-    // ...could test that at some point if really neccessary
-    return `${z}:${x}:${y}`;
+    if (!transparent) {
+      const { image, palette } = this;
+      const ctx = image.getContext('2d');
+      // eslint-disable-next-line prefer-destructuring
+      ctx.fillStyle = palette.colors[0];
+      ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+    }
   }
 
   static getIndexFromCell([x, y]: Cell): number {

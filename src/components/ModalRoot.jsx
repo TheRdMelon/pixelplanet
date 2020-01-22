@@ -12,6 +12,7 @@ import HelpModal from './HelpModal';
 import SettingsModal from './SettingsModal';
 import UserAreaModal from './UserAreaModal';
 import RegisterModal from './RegisterModal';
+import CanvasSelectModal from './CanvasSelectModal';
 import ChatModal from './ChatModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import MinecraftModal from './MinecraftModal';
@@ -25,6 +26,7 @@ const MODAL_COMPONENTS = {
   FORGOT_PASSWORD: ForgotPasswordModal,
   CHAT: ChatModal,
   MINECRAFT: MinecraftModal,
+  CANVAS_SELECTION: CanvasSelectModal,
   /* other modals */
 };
 

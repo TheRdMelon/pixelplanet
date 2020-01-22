@@ -23,6 +23,7 @@ adTagParams.set('videoad_start_delay', 0);
 adTagParams.set('description_url', 'http://pixelplanet.fun/');
 adTagParams.set('max_ad_duration', 20000);
 if (__DEV__) adTagParams.set('adtest', 'on');
+// eslint-disable-next-line max-len
 const adTagUrl = `https://googleads.g.doubleclick.net/pagead/ads?${adTagParams.toString()}`;
 
 /**
@@ -84,7 +85,7 @@ function init() {
   if (typeof google === 'undefined') return;
   outstreamContainer = document.getElementById('outstreamContainer');
 
-  adsController = new google.outstream.AdsController(
+  adsController = new window.google.outstream.AdsController(
     outstreamContainer,
     onAdLoaded,
     onDone,
