@@ -90,8 +90,6 @@ const FactionInfo = ({
   factions,
   fetch_faction_info: fetchFactionInfoDisp,
 }) => {
-  // useRef - local storage, persistant between renders, updating doesn't cause re-render
-  const lastSelected = useRef<string>(selectFaction);
   // useState - local storage, requires render to update to new value, causes re-render
   const [selectedFactionInfo, setSelectedFactionInfo] = useState(
     factions.find((f) => f.id === selectedFaction),
@@ -101,16 +99,11 @@ const FactionInfo = ({
   useEffect(() => {
     // See if new faction info is available
     const selectedFactionInfo1 = factions.find((f) => f.id === selectedFaction);
-    if (selectedFactionInfo1) {
+    if (selectedFactionInfo1 && selectedFactionInfo1.Users) {
       // If available
-      lastSelected.current = selectedFaction;
       setSelectedFactionInfo(selectedFactionInfo1);
-    } else {
-      // Unavaiable, use last faction info until it comes through
-      setSelectedFactionInfo(
-        factions.find((f) => f.id === lastSelected.current),
-      );
     }
+    // Otherwise, use last faction info until it comes through
   }, [selectedFaction, factions]);
 
   return (
@@ -157,7 +150,7 @@ const FactionInfo = ({
           </h4>
           <div className="hr" />
           <h4>
-            Members:<span>{selectedFactionInfo.Users.length}</span>
+            Members:<span>{selectedFactionInfo.Users ? selectedFactionInfo.Users.length : null}</span>
           </h4>
         </div>
       </div>
@@ -167,7 +160,7 @@ const FactionInfo = ({
           <th style={{ maxWidth: 0 }}>Admin</th>
           <th style={{ textAlign: 'left' }}>Name</th>
         </tr>
-        {selectedFactionInfo.Users.map((user) => (
+        {selectedFactionInfo.Users ? selectedFactionInfo.Users.map((user) => (
           <>
             <tr>
               <td>
@@ -176,10 +169,15 @@ const FactionInfo = ({
               <td style={{ textAlign: 'left' }}>{user}</td>
             </tr>
           </>
-        ))}
+        )) : null}
       </table>
     </>
   );
+};
+
+const newTemplateLabelsStyles: CSSStyleDeclaration = {
+  paddingRight: '10px',
+  fontWeight: 'bold',
 };
 
 const Admin = ({ selected_faction: selectedFaction }) => {
@@ -187,6 +185,7 @@ const Admin = ({ selected_faction: selectedFaction }) => {
 
   return (
     <>
+      <h2>Create A New Template</h2>
       <form
         encType="multipart/form-data"
         onSubmit={(e) => {
@@ -199,38 +198,42 @@ const Admin = ({ selected_faction: selectedFaction }) => {
         }}
         ref={formRef}
       >
-        <input type="file" name="image" />
+        <label htmlFor="imagefile">
+          <div style={newTemplateLabelsStyles}>Template Image: </div>
+          <input id="imagefile" type="file" name="image" accept="image/*" />
+        </label>
         <br />
-        <label htmlFor="radio-d" style={{ display: 'inline' }}>
-          <input
-            type="radio"
-            name="canvasindent"
-            id="radio-d"
-            value="d"
-            style={{ display: 'inline' }}
-          />
-          Default
-        </label>
-        <label htmlFor="radio-m" style={{ dispatch: 'inline' }}>
-          <input
-            type="radio"
-            name="canvasindent"
-            id="radio-m"
-            value="m"
-            style={{ display: 'inline' }}
-          />
-          Moon
-        </label>
+        <div>
+          <div style={newTemplateLabelsStyles}>Canvas: </div>
+          <label htmlFor="radio-d" style={{ display: 'inline' }}>
+            <input
+              type="radio"
+              name="canvasindent"
+              id="radio-d"
+              value="d"
+              style={{ display: 'inline' }}
+            />
+            Default
+          </label>
+          <label htmlFor="radio-m" style={{ dispatch: 'inline' }}>
+            <input
+              type="radio"
+              name="canvasindent"
+              id="radio-m"
+              value="m"
+              style={{ display: 'inline' }}
+            />
+            Moon
+          </label>
+        </div>
         <br />
         <label htmlFor="x-input">
-          Top Left X:
-          <br />
+          <div style={newTemplateLabelsStyles}>Top Left X: </div>
           <input type="number" name="x" id="x-input" min={-32768} max={32768} />
         </label>
         <br />
         <label htmlFor="y-input">
-          Top Left Y:
-          <br />
+          <div style={newTemplateLabelsStyles}>Top Left Y: </div>
           <input type="number" name="y" id="y-input" min={-32768} max={32768} />
         </label>
         <br />
