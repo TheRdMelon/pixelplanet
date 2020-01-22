@@ -11,6 +11,7 @@ import LogInButton from './LogInButton';
 import DownloadButton from './DownloadButton';
 import MinecraftTPButton from './MinecraftTPButton';
 import MinecraftButton from './MinecraftButton';
+import VoxelButton from './VoxelButton';
 
 const Menu = ({
   menuOpen, minecraftname, messages, canvasId,
@@ -21,6 +22,7 @@ const Menu = ({
     {(menuOpen) ? <DownloadButton /> : null}
     {(menuOpen) ? <MinecraftButton /> : null}
     {(menuOpen) ? <HelpButton /> : null}
+    {(menuOpen) ? <VoxelButton /> : null}
     {(minecraftname && !messages.includes('not_mc_verified') && canvasId == 0) ? <MinecraftTPButton /> : null}
   </div>
 );

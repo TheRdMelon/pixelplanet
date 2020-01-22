@@ -237,11 +237,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   store.dispatch(initTimer());
 
-  function animationLoop() {
+  window.animationLoop = function animationLoop() {
     renderer.render(viewport);
-    window.requestAnimationFrame(animationLoop);
+    window.requestAnimationFrame(window.animationLoop);
   }
-  animationLoop();
+  window.animationLoop();
+  window.store = store;
 
   store.dispatch(fetchMe());
   ProtocolClient.connect();

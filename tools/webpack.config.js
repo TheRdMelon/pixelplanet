@@ -234,7 +234,6 @@ const clientConfig = {
   entry: {
     client: ['./src/client.js'],
     globe: ['./src/globe.js'],
-    voxel: ['./src/voxel.js'],
   },
 
   output: {
@@ -290,20 +289,6 @@ const clientConfig = {
     fs: 'empty',
     net: 'empty',
     tls: 'empty',
-  },
-};
-
-
-const voxelConfig = {
-  ...clientConfig,
-  entry: {
-    voxel: ['./src/voxel.js'],
-  },
-  output: {
-    ...config.output,
-    filename: '[name].js',
-  },
-  optimization: {
   },
 };
 
@@ -379,5 +364,4 @@ const webConfig = {
 
 };
 
-// export default [clientConfig, webConfig];
-export default [clientConfig, voxelConfig, webConfig];
+export default [clientConfig, webConfig];

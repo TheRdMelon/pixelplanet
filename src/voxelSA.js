@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { VoxelPainterControls } from './controls/VoxelPainterControls';
 // import { OrbitControls } from './controls/OrbitControls';
-import store from './ui/store';
 
 var camera, scene, renderer;
 var plane;
@@ -14,9 +13,12 @@ var controls;
 
 var objects = [];
 
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+  render();
+});
+
 function init() {
-  // quit 2d rendering
-  const canvas = document.getElementById('gameWindow').remove();
 
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.set( 100, 160, 260 );
@@ -119,12 +121,10 @@ function init() {
 
 }
 
-init();
-
-window.animationLoop = () => {
+function render() {
   controls.update();
   renderer.render( scene, camera );
-  requestAnimationFrame(window.animationLoop);
+  requestAnimationFrame(render);
 }
 
 function onWindowResize() {
@@ -178,13 +178,8 @@ function onDocumentMouseUp( event ) {
     switch ( event.button ) {
       case 0:
         // left mouse button
-        const state = store.getState();
-        const clri = state.gui.selectedColor;
-        const clr = state.canvas.palette.colors[clri];
-        const material = new THREE.MeshLambertMaterial( { color: clr } );
-
         console.log("set voxel");
-        var voxel = new THREE.Mesh( cubeGeo, material );
+        var voxel = new THREE.Mesh( cubeGeo, cubeMaterial );
         voxel.position.copy( intersect.point ).add( intersect.face.normal );
         voxel.position.divideScalar( 10 ).floor().multiplyScalar( 10 ).addScalar( 5 );
         scene.add( voxel );

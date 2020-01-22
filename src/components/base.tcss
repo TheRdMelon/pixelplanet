@@ -153,6 +153,10 @@ kbd {
     left: 98px;
     top: 16px;
 }
+:global(#voxelbutton) {
+    left: 180px;
+    top: 16px;
+}
 :global(#canvasbutton) {
     left: 57px;
     top: 16px;

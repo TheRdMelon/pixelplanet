@@ -162,7 +162,8 @@ var VoxelPainterControls = function ( object, domElement ) {
       velocity.x -= velocity.x * 50.0 * delta;
       velocity.y -= velocity.y * 50.0 * delta;
       velocity.z -= velocity.z * 50.0 * delta;
-      if (velocity.length() < 1) {
+      const length = velocity.length();
+      if (length < 1 || length > 10) {
         velocity.set(0, 0, 0);
       }
 
