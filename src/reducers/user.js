@@ -173,10 +173,38 @@ export default function user(
     }
 
     case 'RECIEVE_FACTIONS': {
-      const { factions } = action;
+      const { factions }: { factions: Array } = action;
+      let newFactions = state.factions;
+
+      console.log(factions);
+      console.log(newFactions);
+
+      factions.forEach((faction) => {
+        if (newFactions.findIndex((f) => f.id === faction.id) > -1) {
+          newFactions = newFactions.map((fa) => (fa.id === faction.id ? { ...fa, ...faction } : fa));
+        } else {
+          newFactions.push(faction);
+        }
+        console.log(newFactions);
+      });
+
+      console.log(newFactions);
+
+      // TODO: Implement the following without deleting private factions
+      /* newFactions.forEach((newFaction) => {
+        if (factions.findIndex((f) => f.id === newFaction.id) === -1) {
+          newFactions.splice(
+            newFactions.findIndex((nf) => nf.id === newFaction.id),
+            1,
+          );
+        }
+      }); */
+
+      console.log(newFactions);
+
       return {
         ...state,
-        factions,
+        factions: newFactions.slice(0),
       };
     }
 

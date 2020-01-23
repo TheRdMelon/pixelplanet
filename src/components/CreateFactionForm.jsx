@@ -135,13 +135,17 @@ class CreateFactionForm extends React.Component {
         {errors.map((error) => (
           <p key={error}>Error: {error}</p>
         ))}
-        <input
-          style={inputStyles}
-          value={name}
-          onChange={(e) => this.setState({ name: e.target.value })}
-          type="text"
-          placeholder="Faction Name"
-        />
+        <label htmlFor="name">
+          <div>Name: </div>
+          <input
+            id="name"
+            style={inputStyles}
+            value={name}
+            onChange={(e) => this.setState({ name: e.target.value })}
+            type="text"
+            placeholder="Faction Name"
+          />
+        </label>
         <label htmlFor="privateCheckbox" style={inputStyles}>
           Private Faction?
           <input
@@ -151,12 +155,16 @@ class CreateFactionForm extends React.Component {
             type="checkbox"
           />
         </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={this.handleFileChange}
-          stlye={inputStyles}
-        />
+        <label htmlFor="newfactionicon">
+          <div>Icon: (64x64)</div>
+          <input
+            id="newfactionicon"
+            type="file"
+            accept="image/*"
+            onChange={this.handleFileChange}
+            stlye={inputStyles}
+          />
+        </label>
         <button type="submit" style={{ display: 'block', margin: 'auto' }}>
           {creating ? '...' : 'Create'}
         </button>
