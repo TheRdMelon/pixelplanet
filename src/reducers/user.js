@@ -190,14 +190,15 @@ export default function user(
 
       console.log(newFactions);
 
-      newFactions.forEach((newFaction) => {
+      // TODO: Implement the following without deleting private factions
+      /* newFactions.forEach((newFaction) => {
         if (factions.findIndex((f) => f.id === newFaction.id) === -1) {
           newFactions.splice(
             newFactions.findIndex((nf) => nf.id === newFaction.id),
             1,
           );
         }
-      });
+      }); */
 
       console.log(newFactions);
 

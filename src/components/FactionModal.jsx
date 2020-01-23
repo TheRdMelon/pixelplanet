@@ -8,6 +8,8 @@ import { connect } from 'react-redux';
 
 import { FaCrown } from 'react-icons/fa';
 
+import ReactTooltip from 'react-tooltip';
+
 import Tabs from './Tabs';
 import JoinFactionForm from './JoinFactionForm';
 import PublicFactions from './PublicFactions';
@@ -23,6 +25,7 @@ import {
 } from '../actions';
 
 import type { State } from '../reducers';
+import { parseAPIresponse } from '../utils/validation';
 
 const textStyle: CSSStyleDeclaration = {
   color: 'hsla(218, 5%, 47%, .6)',
@@ -83,6 +86,31 @@ const CreateFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
   </p>
 );
 
+const FactionSelect = ({
+  own_factions: ownFactions,
+  select_faction: selectFactionDisp,
+  selected_faction: selectedFaction,
+  fetch_faction_info: fetchFactionInfoDisp,
+}) => (
+  <>
+    <h3 style={{ display: 'inline', fontSize: '32px' }}>Faction: </h3>
+    <select
+      style={{ display: 'inline', fontWeight: 'bold', fontSize: '26px' }}
+      value={selectedFaction}
+      onChange={(e) => {
+        fetchFactionInfoDisp(e.target.value);
+        selectFactionDisp(e.target.value);
+      }}
+    >
+      {ownFactions.map((f) => (
+        <option key={`f_opt_${f.id}`} value={f.id}>
+          {f.name}
+        </option>
+      ))}
+    </select>
+  </>
+);
+
 const FactionInfo = ({
   own_factions: ownFactions,
   selected_faction: selectedFaction,
@@ -108,21 +136,12 @@ const FactionInfo = ({
 
   return (
     <>
-      <h3 style={{ display: 'inline', fontSize: '32px' }}>Faction: </h3>
-      <select
-        style={{ display: 'inline', fontWeight: 'bold', fontSize: '26px' }}
-        value={selectedFaction}
-        onChange={(e) => {
-          fetchFactionInfoDisp(e.target.value);
-          selectFactionDisp(e.target.value);
-        }}
-      >
-        {ownFactions.map((f) => (
-          <option key={`f_opt_${f.id}`} value={f.id}>
-            {f.name}
-          </option>
-        ))}
-      </select>
+      <FactionSelect
+        own_factions={ownFactions}
+        select_faction={selectFactionDisp}
+        selected_faction={selectedFaction}
+        fetch_faction_info={fetchFactionInfoDisp}
+      />
 
       <div style={{ display: 'flex' }}>
         <div style={squareParentStyle}>
@@ -146,11 +165,17 @@ const FactionInfo = ({
         </div>
         <div className="factioninfobox">
           <h4>
-            Leader:<span style={factionNameStyle}>{selectedFactionInfo.leader}</span>
+            Leader:
+            <span style={factionNameStyle}>{selectedFactionInfo.leader}</span>
           </h4>
           <div className="hr" />
           <h4>
-            Members:<span>{selectedFactionInfo.Users ? selectedFactionInfo.Users.length : null}</span>
+            Members:
+            <span>
+              {selectedFactionInfo.Users
+                ? selectedFactionInfo.Users.length
+                : null}
+            </span>
           </h4>
         </div>
       </div>
@@ -160,16 +185,18 @@ const FactionInfo = ({
           <th style={{ maxWidth: 0 }}>Admin</th>
           <th style={{ textAlign: 'left' }}>Name</th>
         </tr>
-        {selectedFactionInfo.Users ? selectedFactionInfo.Users.map((user) => (
-          <>
-            <tr>
-              <td>
-                {user === selectedFactionInfo.leader ? <FaCrown /> : null}
-              </td>
-              <td style={{ textAlign: 'left' }}>{user}</td>
-            </tr>
-          </>
-        )) : null}
+        {selectedFactionInfo.Users
+          ? selectedFactionInfo.Users.map((user) => (
+            <>
+              <tr>
+                <td>
+                  {user === selectedFactionInfo.leader ? <FaCrown /> : null}
+                </td>
+                <td style={{ textAlign: 'left' }}>{user}</td>
+              </tr>
+            </>
+          ))
+          : null}
       </table>
     </>
   );
@@ -178,13 +205,50 @@ const FactionInfo = ({
 const newTemplateLabelsStyles: CSSStyleDeclaration = {
   paddingRight: '10px',
   fontWeight: 'bold',
+  display: 'inline-block',
+  width: '140px',
+  textAlign: 'right',
 };
 
-const Admin = ({ selected_faction: selectedFaction }) => {
+const Admin = ({
+  selected_faction: selectedFaction,
+  factions,
+  own_factions: ownFactions,
+  select_faction: selectFactionDisp,
+  fetch_faction_info: fetchFactionInfoDisp,
+}) => {
   const formRef = useRef(null);
+  const [password, setPassword] = useState<string>('');
+
+  const onPasswordFocus = (e) => {
+    e.target.select();
+    document.execCommand('copy');
+  };
+
+  const onGeneratePassword = async () => {
+    const body = JSON.stringify({
+      selectedFaction,
+    });
+    const response = await fetch('./api/factions/generatepassword', {
+      method: 'POST',
+      body,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    setPassword((await parseAPIresponse(response)).password);
+  };
 
   return (
     <>
+      <FactionSelect
+        own_factions={ownFactions}
+        select_faction={selectFactionDisp}
+        selected_faction={selectedFaction}
+        fetch_faction_info={fetchFactionInfoDisp}
+      />
+
       <h2>Create A New Template</h2>
       <form
         encType="multipart/form-data"
@@ -197,10 +261,17 @@ const Admin = ({ selected_faction: selectedFaction }) => {
           req.send(formData);
         }}
         ref={formRef}
+        style={{ textAlign: 'left', margin: 'auto', width: 'max-content' }}
       >
         <label htmlFor="imagefile">
           <div style={newTemplateLabelsStyles}>Template Image: </div>
-          <input id="imagefile" type="file" name="image" accept="image/*" />
+          <input
+            id="imagefile"
+            type="file"
+            name="image"
+            accept="image/*"
+            style={{ width: '238px' }}
+          />
         </label>
         <br />
         <div>
@@ -237,10 +308,38 @@ const Admin = ({ selected_faction: selectedFaction }) => {
           <input type="number" name="y" id="y-input" min={-32768} max={32768} />
         </label>
         <br />
-        <button type="submit" name="upload">
+        <button
+          type="submit"
+          name="upload"
+          style={{ margin: '5px auto auto auto', display: 'block' }}
+        >
           Create
         </button>
       </form>
+      {factions.find((f) => f.id === selectedFaction).private && (
+        <>
+          <div className="hr" style={{ margin: '10px 5px' }} />
+          <h2>Private Faction Password</h2>
+          <button type="button" onClick={onGeneratePassword}>
+            Generate New
+          </button>
+          <input
+            value={password}
+            onFocus={onPasswordFocus}
+            placeholder="Click generate for a single-use password (no expiry)"
+            data-tip
+            data-for="copiedTooltip"
+          />
+          <ReactTooltip
+            id="copiedTooltip"
+            place="bottom"
+            effect="solid"
+            type="dark"
+          >
+            Copied to Clipboard!
+          </ReactTooltip>
+        </>
+      )}
     </>
   );
 };
@@ -290,7 +389,7 @@ const FactionModal = ({
           )}
           {ownFactions.length > 0 ? (
             <div label="Admin">
-              <Admin selected_faction={selectedFaction} />
+              <Admin selected_faction={selectedFaction} factions={factions} />
             </div>
           ) : (
             undefined
