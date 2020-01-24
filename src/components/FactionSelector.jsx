@@ -38,13 +38,7 @@ const FactionSelector = ({
     true,
   );
 
-  const [hoveredFaction, setHoveredFaction] = useState<number>(
-    factions.findIndex((f) => f.id === selectedFaction),
-  );
-
-  useEffect(() => {
-    setHoveredFaction(factions.findIndex((f) => f.id === selectedFaction));
-  }, [factions]);
+  const [hoveredFaction, setHoveredFaction] = useState<number>(-1);
 
   useEffect(() => {
     window.clearTimeout(transitioningTimeoutId.current);

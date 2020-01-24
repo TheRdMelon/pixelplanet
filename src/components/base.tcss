@@ -496,8 +496,13 @@ kbd {
   transition: margin-right 0.75s ease-out, background-color 0.75s ease-out;
 }
 
+:global(.transitioning .factionselectorrow:last-child) {
+  transition: margin-right 0.75s ease-out, background-color 0.75s ease-out,
+    border-top 0.75s ease-out;
+}
+
 :global(.transitioning .factionselectorlogocontainer) {
-  transition: padding 0.75s ease-out;
+  transition: padding 0.75s ease-out, border-top 0.75s ease-out;
 }
 
 :global(.transitioning #factionselector) {
@@ -575,12 +580,8 @@ kbd {
 :global(.factionselectorclosed
     .factionselectorrow:last-child
     .factionselectorlogocontainer) {
-  padding: 16px 16px 16px 36px;
-}
-
-:global(#factionselector) {
-  position: absolute;
-  bottom: 94px;
+  border-top: solid 1px black;
+  padding: 17px 16px 16px 36px;
 }
 
 :global(.actionbuttons) {
