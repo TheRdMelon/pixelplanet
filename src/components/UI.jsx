@@ -15,7 +15,7 @@ import Palette from './Palette';
 import HistorySelect from './HistorySelect';
 
 
-const UI = ({ isHistoricalView }) => {
+const UI = ({ isHistoricalView, is3D }) => {
   if (isHistoricalView) {
     return <HistorySelect />;
   }
@@ -23,7 +23,7 @@ const UI = ({ isHistoricalView }) => {
     <div>
       <PalselButton />
       <Palette />
-      <GlobeButton />
+      {(is3D) ? null : <GlobeButton />}
       <CoolDownBox />
       <NotifyBox />
     </div>
@@ -33,9 +33,11 @@ const UI = ({ isHistoricalView }) => {
 function mapStateToProps(state: State) {
   const {
     isHistoricalView,
+    is3D,
   } = state.canvas;
   return {
     isHistoricalView,
+    is3D,
   };
 }
 

@@ -14,12 +14,12 @@ const textStyle = {
   color: 'hsla(218, 5%, 47%, .6)',
   fontSize: 14,
   fontWeight: 500,
-  position: 'relative',
-  textAlign: 'inherit',
-  float: 'none',
-  margin: 2,
   padding: 0,
-  overflow: 'auto',
+  display: 'inline-block',
+  verticalAlign: 'middle',
+  marginTop: 3,
+  marginBottom: 3,
+  width: '75%',
 };
 
 const infoStyle = {
@@ -35,23 +35,28 @@ const infoStyle = {
 
 const titleStyle = {
   color: '#4f545c',
-  marginLeft: 0,
-  marginRight: 10,
   overflow: 'hidden',
   wordWrap: 'break-word',
-  lineHeight: '24px',
+  lineHeight: '26px',
   fontSize: 16,
-  marginTop: 5,
-  marginBottom: 0,
   fontWeight: 'bold',
 };
 
 const buttonStyle = {
-  marginTop: 10,
-  marginBottom: 10,
+  marginTop: 8,
+  marginBottom: 8,
   border: '#c5c5c5',
   borderStyle: 'solid',
+  borderRadius: 8,
   cursor: 'pointer',
+};
+
+const imageStyle = {
+  maxWidth: '20%',
+  opacity: 0.3,
+  padding: 2,
+  display: 'inline-block',
+  verticalAlign: 'middle',
 };
 
 const CanvasItem = ({ canvasId, canvas, changeCanvas }) => (
@@ -61,14 +66,12 @@ const CanvasItem = ({ canvasId, canvas, changeCanvas }) => (
     role="button"
     tabIndex={0}
   >
+    <img
+      style={imageStyle}
+      alt="preview"
+      src={`/preview${canvasId}.png`}
+    />
     <p style={textStyle}>
-      <img
-        style={{
-          float: 'left', maxWidth: '20%', margin: 5, opacity: 0.5,
-        }}
-        alt="preview"
-        src={`/preview${canvasId}.png`}
-      />
       <span style={titleStyle}>{canvas.title}</span><br />
       <span style={infoStyle}>{canvas.desc}</span><br />
       Cooldown:
@@ -83,7 +86,8 @@ const CanvasItem = ({ canvasId, canvas, changeCanvas }) => (
       <span style={infoStyle}>
         {(canvas.req !== -1) ? <span>User Account </span> : null}
         {(canvas.req > 0) ? <span> and {canvas.req} Pixels set</span> : null}
-      </span><br />
+      </span>
+      {(canvas.req !== -1) ? <br /> : null}
       Dimensions:
       <span style={infoStyle}> {canvas.size} x {canvas.size}
         {(canvas.v)

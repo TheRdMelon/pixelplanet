@@ -1,5 +1,7 @@
 /*
  * Menu with Buttons on the top left
+ *
+ * @flow
  */
 
 import React from 'react';
@@ -21,7 +23,8 @@ const Menu = ({
     {(menuOpen) ? <DownloadButton /> : null}
     {(menuOpen) ? <MinecraftButton /> : null}
     {(menuOpen) ? <HelpButton /> : null}
-    {(minecraftname && !messages.includes('not_mc_verified') && canvasId == 0) ? <MinecraftTPButton /> : null}
+    {(minecraftname && !messages.includes('not_mc_verified') && canvasId === 0)
+      ? <MinecraftTPButton /> : null}
   </div>
 );
 
