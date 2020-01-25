@@ -7,6 +7,14 @@
 import * as THREE from 'three';
 
 import VoxelPainterControls from '../controls/VoxelPainterControls';
+import ChunkLoader from './ChunkLoader3D';
+import {
+  getChunkOfPixel,
+  getOffsetOfPixel,
+} from '../core/utils';
+import {
+  THREE_TILE_SIZE,
+} from '../core/constants';
 import {
   setHover,
 } from '../actions';
@@ -23,6 +31,7 @@ class Renderer {
   voxel: Object;
   voxelMaterials: Array<Object>;
   objects: Array<Object>;
+  loadedChunks: Array<Object>;
   plane: Object;
   //--
   controls: Object;
@@ -31,20 +40,25 @@ class Renderer {
   mouse;
   raycaster;
   pressTime: number;
+  //--
+  chunkLoader: ChunkLoader = null;
+  forceNextRender: boolean = false;
 
   constructor(store) {
     this.store = store;
     const state = store.getState();
     this.objects = [];
+    this.loadedChunks = new Map();
+    this.chunkLoader = new ChunkLoader(store);
 
     // camera
     const camera = new THREE.PerspectiveCamera(
       45,
       window.innerWidth / window.innerHeight,
       1,
-      2000,
+      200,
     );
-    camera.position.set(100, 160, 260);
+    camera.position.set(10, 16, 26);
     camera.lookAt(0, 0, 0);
     this.camera = camera;
 
@@ -52,9 +66,11 @@ class Renderer {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf0f0f0);
     this.scene = scene;
+    window.scene = scene;
+    window.THREE = THREE;
 
     // hover helper
-    const rollOverGeo = new THREE.BoxBufferGeometry(10, 10, 10);
+    const rollOverGeo = new THREE.BoxBufferGeometry(1, 1, 1);
     const rollOverMaterial = new THREE.MeshBasicMaterial({
       color: 0xff0000,
       opacity: 0.5,
@@ -64,11 +80,11 @@ class Renderer {
     scene.add(this.rollOverMesh);
 
     // cubes
-    this.voxel = new THREE.BoxBufferGeometry(10, 10, 10);
+    this.voxel = new THREE.BoxBufferGeometry(1, 1, 1);
     this.initCubeMaterials(state);
 
     // grid
-    const gridHelper = new THREE.GridHelper(1000, 100, 0x555555, 0x555555);
+    const gridHelper = new THREE.GridHelper(100, 10, 0x555555, 0x555555);
     scene.add(gridHelper);
 
     //
@@ -76,7 +92,7 @@ class Renderer {
     this.mouse = new THREE.Vector2();
 
     // Plane Floor
-    const geometry = new THREE.PlaneBufferGeometry(5000, 5000);
+    const geometry = new THREE.PlaneBufferGeometry(500, 500);
     geometry.rotateX(-Math.PI / 2);
     const plane = new THREE.Mesh(
       geometry,
@@ -106,8 +122,8 @@ class Renderer {
     controls.enableDamping = true;
     controls.dampingFactor = 0.75;
     controls.maxPolarAngle = Math.PI / 2;
-    controls.minDistance = 100.00;
-    controls.maxDistance = 1000.00;
+    controls.minDistance = 10.00;
+    controls.maxDistance = 100.00;
     this.controls = controls;
 
     const { domElement } = threeRenderer;
@@ -120,6 +136,8 @@ class Renderer {
     domElement.addEventListener('mousedown', this.onDocumentMouseDown, false);
     domElement.addEventListener('mouseup', this.onDocumentMouseUp, false);
     window.addEventListener('resize', this.onWindowResize, false);
+
+    this.forceNextRender = true;
   }
 
   destructor() {
@@ -147,9 +165,49 @@ class Renderer {
     this.voxelMaterials = cubeMaterials;
   }
 
+  reloadChunks() {
+    console.log('Reload Chunks');
+    const renderDistance = 50;
+    const state = this.store.getState();
+    const { canvasSize, view } = state.canvas;
+    // const [x,, z] = view;
+    const [x, z] = [0, 0];
+    const {
+      scene,
+      loadedChunks,
+      chunkLoader,
+    } = this;
+    const [xcMin, zcMin] = getChunkOfPixel(canvasSize, x - 50, z - 50, 0);
+    const [xcMax, zcMax] = getChunkOfPixel(canvasSize, x + 50, z + 50, 0);
+    console.log(`Get ${xcMin} - ${xcMax} - ${zcMin} - ${zcMax}`);
+    for (let zc = zcMin; zc <= zcMax; ++zc) {
+      for (let xc = xcMin; xc <= xcMax; ++xc) {
+        const chunkKey = `${xc}:${zc}`;
+        const chunk = chunkLoader.getChunk(xc, zc, true);
+        if (chunk) {
+          console.log(`Got Chunk ${chunkKey}`);
+          loadedChunks.set(chunkKey, chunk);
+          this.objects.push(chunk);
+          chunk.position.fromArray([
+            xc * THREE_TILE_SIZE - canvasSize / 2,
+            0,
+            zc * THREE_TILE_SIZE - canvasSize / 2,
+          ]);
+          window.chunk = chunk;
+          scene.add(chunk);
+          console.log(`added chunk`);
+        }
+      }
+    }
+  }
+
   render() {
     if (!this.threeRenderer) {
       return;
+    }
+    if (this.forceNextRender) {
+      this.reloadChunks();
+      this.forceNextRender = false;
     }
     this.controls.update();
     this.threeRenderer.render(this.scene, this.camera);
@@ -190,16 +248,13 @@ class Renderer {
       const intersect = intersects[0];
       rollOverMesh.position
         .copy(intersect.point)
-        .add(intersect.face.normal);
+        .add(intersect.face.normal.multiplyScalar(0.5));
       rollOverMesh.position
-        .divideScalar(10)
         .floor()
-        .multiplyScalar(10)
-        .addScalar(5);
+        .addScalar(0.5);
     }
     const hover = rollOverMesh.position
-      .toArray()
-      .map((u) => Math.floor(u / 10));
+      .toArray().map((u) => Math.floor(u));
     this.store.dispatch(setHover(hover));
   }
 
@@ -247,27 +302,55 @@ class Renderer {
         case 0: {
           // left mouse button
           const state = store.getState();
-          const { selectedColor } = state.gui;
+          const { selectedColor, hover } = state.gui;
+          const { canvasSize } = state.canvas;
+          //const pos = new THREE.Vector3();
+          const [x, y, z] = hover;
+          /*
+          const [x, y, z] = pos.copy(intersect.point)
+            .add(intersect.face.normal.multiplyScalar(0.5))
+            .floor()
+            .addScalar(0.5)
+            .toArray();
+            */
+          const offset = getOffsetOfPixel(canvasSize, x, z, y);
+          const [xc, zc] = getChunkOfPixel(canvasSize, x, z, y);
+          this.chunkLoader.getVoxelUpdate(xc, zc, offset, selectedColor);
+          /*
           const newVoxel = new THREE.Mesh(
             voxel,
             voxelMaterials[selectedColor],
           );
-          newVoxel.position.copy(intersect.point)
-            .add(intersect.face.normal);
-          newVoxel.position.divideScalar(10)
+          newVoxel.position
+            .copy(intersect.point)
+            .add(intersect.face.normal.multiplyScalar(0.5));
+          newVoxel.position
             .floor()
-            .multiplyScalar(10)
-            .addScalar(5);
+            .addScalar(0.5);
           scene.add(newVoxel);
           objects.push(newVoxel);
+          */
         }
           break;
         case 2:
           // right mouse button
+          const state = store.getState();
+          const { hover } = state.gui;
+          const { canvasSize } = state.canvas;
+          const normal = intersect.face.normal;
+          let [x, y, z] = hover;
+          x -= normal.x; 
+          y -= normal.y;
+          z -= normal.z;
+          const offset = getOffsetOfPixel(canvasSize, x, z, y);
+          const [xc, zc] = getChunkOfPixel(canvasSize, x, z, y);
+          this.chunkLoader.getVoxelUpdate(xc, zc, offset, 0);
+          /*
           if (intersect.object !== plane) {
             scene.remove(intersect.object);
             objects.splice(objects.indexOf(intersect.object), 1);
           }
+          */
           break;
         default:
           break;

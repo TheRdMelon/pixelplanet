@@ -85,7 +85,8 @@ class ChunkLoader {
         return chunk.image;
       }
       return loadingTiles.getTile(canvasId);
-    } if (fetch) {
+    }
+    if (fetch) {
       // fetch chunk
       const chunkRGB = new ChunkRGB(this.palette, chunkKey);
       this.chunks.set(chunkKey, chunkRGB);
