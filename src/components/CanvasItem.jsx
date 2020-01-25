@@ -83,7 +83,8 @@ const CanvasItem = ({ canvasId, canvas, changeCanvas }) => (
       <span style={infoStyle}>
         {(canvas.req !== -1) ? <span>User Account </span> : null}
         {(canvas.req > 0) ? <span> and {canvas.req} Pixels set</span> : null}
-      </span><br />
+      </span>
+      {(canvas.req !== -1) ? <br /> : null}
       Dimensions:
       <span style={infoStyle}> {canvas.size} x {canvas.size}
         {(canvas.v)
