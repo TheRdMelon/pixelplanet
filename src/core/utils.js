@@ -147,10 +147,6 @@ export function worldToScreen(
   ];
 }
 
-/* function getKey(canvasMaxTiledZoom, cx, cy) {
-  return `${canvasMaxTiledZoom}:${cx}:${cy}`;
-} */
-
 export function durationToString(
   ms: number,
   smallest: boolean = false,

@@ -676,10 +676,6 @@ export function showModal(modalType: string, modalProps: Object = {}): Action {
   };
 }
 
-export function showCanvasSelectionModal(): Action {
-  return showModal('CANVAS_SELECTION');
-}
-
 export function showSettingsModal(): Action {
   return showModal('SETTINGS');
 }
@@ -706,6 +702,10 @@ export function showForgotPasswordModal(): Action {
 
 export function showHelpModal(): Action {
   return showModal('HELP');
+}
+
+export function showCanvasSelectionModal(): Action {
+  return showModal('CANVAS_SELECTION');
 }
 
 export function showChatModal(): Action {

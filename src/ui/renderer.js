@@ -25,9 +25,7 @@ export async function initRenderer(store, is3D: boolean) {
   renderer.destructor();
   if (is3D) {
     /* eslint-disable-next-line max-len */
-    const module = await import(
-      /* webpackChunkName: "voxel" */ '../ui/Renderer3D'
-    );
+    const module = await import(/* webpackChunkName: "voxel" */ '../ui/Renderer3D');
     const Renderer3D = module.default;
     renderer = new Renderer3D(store);
   } else {

@@ -85,7 +85,7 @@ function init() {
   if (typeof google === 'undefined') return;
   outstreamContainer = document.getElementById('outstreamContainer');
 
-  adsController = new window.outstream.AdsController(
+  adsController = new window.google.outstream.AdsController(
     outstreamContainer,
     onAdLoaded,
     onDone,

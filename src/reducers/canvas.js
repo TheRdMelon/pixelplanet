@@ -211,24 +211,6 @@ export default function canvasReducer(
     }
 
     case 'REQUEST_BIG_TEMPLATE_CHUNK': {
-      // TODO
-      /* const {
-        palette, templateChunks, fetchs, requested,
-      } = state;
-      const { center } = action;
-
-      const chunkRGB = new ChunkRGB(palette, center);
-      const { key } = chunkRGB;
-      templateChunks.set(key, chunkRGB);
-
-      requested.add(key);
-      return {
-        ...state,
-        templateChunks,
-        fetchs: fetchs + 1,
-        requested,
-      }; */
-
       const { fetchs } = state;
 
       return {
@@ -247,26 +229,6 @@ export default function canvasReducer(
     }
 
     case 'RECIEVE_BIG_TEMPLATE_CHUNK': {
-      // TODO
-      /* const { templateChunks, fetchs } = state;
-      const { center, arrayBuffer } = action;
-
-      const key = ChunkRGB.getKey(...center);
-      const chunk = templateChunks.get(key);
-      chunk.isBasechunk = true;
-      if (arrayBuffer.byteLength) {
-        const chunkArray = new Uint8Array(arrayBuffer);
-        chunk.fromBuffer(chunkArray, true);
-      } else {
-        chunk.empty(true);
-      }
-
-      return {
-        ...state,
-        templateChunks,
-        fetchs: fetchs + 1,
-      }; */
-
       const { fetchs } = state;
 
       return {
@@ -285,20 +247,6 @@ export default function canvasReducer(
     }
 
     case 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE': {
-      // TODO
-      /* const { templateChunks, fetchs } = state;
-      const { center } = action;
-
-      const key = ChunkRGB.getKey(...center);
-      const chunk = templateChunks.get(key);
-      chunk.empty(true);
-
-      return {
-        ...state,
-        templateChunks,
-        fetchs: fetchs + 1,
-      }; */
-
       const { fetchs } = state;
 
       return {
@@ -306,23 +254,6 @@ export default function canvasReducer(
         fetchs: fetchs + 1,
       };
     }
-
-    // TODO
-
-    /* case 'RECEIVE_IMAGE_TEMPLATE_TILE': {
-      const { templateChunks, fetchs } = state;
-      const { center, tile } = action;
-
-      const key = ChunkRGB.getKey(...center);
-      const chunk = templateChunks.get(key);
-      chunk.fromImage(tile);
-
-      return {
-        ...state,
-        templateChunks,
-        fetchs: fetchs + 1,
-      };
-    } */
 
     case 'SELECT_CANVAS': {
       let { canvasId } = action;
@@ -355,7 +286,7 @@ export default function canvasReducer(
         view,
         viewscale: DEFAULT_SCALE,
         scale: DEFAULT_SCALE,
-        isHistoricalView: !is3D && !isHistoricalView,
+        isHistoricalView: !is3D && isHistoricalView,
       };
     }
 
