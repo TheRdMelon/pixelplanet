@@ -203,9 +203,9 @@ class Renderer {
     context.fillRect(px, py, scaleM, scaleM);
 
     const templateChunk = this.chunkLoader
-      .getTemplateChunk(tiledZoom, i, j, fetch);
+      .getTemplateChunk(tiledZoom, i, j, false);
     if (templateChunk) {
-      const templateCtx = templateChunk.image.getContext(
+      const templateCtx = templateChunk.getContext(
         '2d',
       );
       const [rx, ry] = getCellInsideChunk([x, y]);
