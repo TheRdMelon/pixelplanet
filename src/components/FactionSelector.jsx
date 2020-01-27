@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 
 import type { State } from '../reducers';
 
-import { selectFaction } from '../actions';
+import { selectFaction, fetchOwnFactions } from '../actions';
 
 function getHeightOffset() {
   const offsetTop = 57;
@@ -25,10 +25,14 @@ const FactionSelector = ({
   factions,
   selected_faction: selectedFaction,
   select_faction: dispatchSelectFaction,
+  fetch_own_factions: dispatchFetchOwnFactions,
+  own_factions: ownFactions,
 }: {
   factions: Array,
   selected_faction: string | undefined,
   select_faction: (faction: string) => void,
+  fetch_own_factions: () => void,
+  own_factions: Array,
 }) => {
   const containerEl = useRef<HTMLDivElement>(null);
   const transitioningTimeoutId = useRef<int>(-1);
@@ -39,6 +43,10 @@ const FactionSelector = ({
   );
 
   const [hoveredFaction, setHoveredFaction] = useState<number>(-1);
+
+  useEffect(() => {
+    dispatchFetchOwnFactions();
+  }, []);
 
   useEffect(() => {
     window.clearTimeout(transitioningTimeoutId.current);
@@ -77,38 +85,42 @@ const FactionSelector = ({
             id="factionselector"
             style={{ maxHeight: `calc(100vh - ${getHeightOffset()}px)` }}
           >
-            {factions.sort().map((faction, index) => (
-              <div
-                key={faction.name.replace(' ', '_')}
-                className={`factionselectorrow ${
-                  hoveredFaction === index ? 'factionselectorrowselected' : ''
-                }`}
-                onFocus={() => {}}
-                onMouseOver={() => {
-                  if (!closing.current) {
-                    setHoveredFaction(index);
-                  }
-                }}
-                onMouseLeave={() => setHoveredFaction(-1)}
-                onClick={() => dispatchSelectFaction(faction.id)}
-                role="button"
-                tabIndex={-1}
-              >
-                <div className="factionselectorname">{faction.name}</div>
-                {hoveredFaction === index && (
-                  <>
-                    <div className="factionselectorlogocontainer">
-                      <div className="factionselectorlogobackground" />
-                      <img
-                        className="factionselectorlogo"
-                        src={`data:image/png;base64,${faction.icon}`}
-                        alt="logo"
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
+            {ownFactions.sort().map((faction, index) => {
+              const thisFaction = factions.find((f) => f.id === faction.id);
+
+              return thisFaction === undefined ? null : (
+                <div
+                  key={thisFaction.name.replace(' ', '_')}
+                  className={`factionselectorrow ${
+                    hoveredFaction === index ? 'factionselectorrowselected' : ''
+                  }`}
+                  onFocus={() => {}}
+                  onMouseOver={() => {
+                    if (!closing.current) {
+                      setHoveredFaction(index);
+                    }
+                  }}
+                  onMouseLeave={() => setHoveredFaction(-1)}
+                  onClick={() => dispatchSelectFaction(thisFaction.id)}
+                  role="button"
+                  tabIndex={-1}
+                >
+                  <div className="factionselectorname">{thisFaction.name}</div>
+                  {hoveredFaction === index && (
+                    <>
+                      <div className="factionselectorlogocontainer">
+                        <div className="factionselectorlogobackground" />
+                        <img
+                          className="factionselectorlogo"
+                          src={`data:image/png;base64,${faction.icon}`}
+                          alt="logo"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
             {selectedFactionObj && (
               <>
                 <div
@@ -142,6 +154,7 @@ function mapStateToProps(state: State) {
   return {
     factions: state.user.factions,
     selected_faction: state.gui.selectedFaction,
+    own_factions: state.user.ownFactions,
   };
 }
 
@@ -150,7 +163,25 @@ function mapDispatchToProps(dispatch) {
     select_faction(faction: string) {
       dispatch(selectFaction(faction));
     },
+    fetch_own_factions() {
+      dispatch(fetchOwnFactions());
+    },
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FactionSelector);
+function mergeProps(propsFromState, propsFromDispatch) {
+  return {
+    ...propsFromState,
+    ...propsFromDispatch,
+    own_factions: propsFromState.own_factions || [],
+    fetch_own_factions() {
+      propsFromDispatch.fetch_own_factions(propsFromState.selected_faction);
+    },
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  mergeProps,
+)(FactionSelector);
