@@ -20,12 +20,11 @@ import {
   fetchFactions,
   recieveFactionInfo,
   fetchOwnFactions,
-  selectFaction,
-  fetchFactionInfo,
 } from '../actions';
 
 import type { State } from '../reducers';
 import { parseAPIresponse } from '../utils/validation';
+import useFactionSelect from '../reacthooks/useFactionSelect';
 
 const textStyle: CSSStyleDeclaration = {
   color: 'hsla(218, 5%, 47%, .6)',
@@ -86,62 +85,11 @@ const CreateFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
   </p>
 );
 
-const FactionSelect = ({
-  own_factions: ownFactions,
-  select_faction: selectFactionDisp,
-  selected_faction: selectedFaction,
-  fetch_faction_info: fetchFactionInfoDisp,
-}) => (
-  <>
-    <h3 style={{ display: 'inline', fontSize: '32px' }}>Faction: </h3>
-    <select
-      style={{ display: 'inline', fontWeight: 'bold', fontSize: '26px' }}
-      value={selectedFaction}
-      onChange={(e) => {
-        fetchFactionInfoDisp(e.target.value);
-        selectFactionDisp(e.target.value);
-      }}
-    >
-      {ownFactions.map((f) => (
-        <option key={`f_opt_${f.id}`} value={f.id}>
-          {f.name}
-        </option>
-      ))}
-    </select>
-  </>
-);
-
-const FactionInfo = ({
-  own_factions: ownFactions,
-  selected_faction: selectedFaction,
-  select_faction: selectFactionDisp,
-  factions,
-  fetch_faction_info: fetchFactionInfoDisp,
-}) => {
-  // useState - local storage, requires render to update to new value, causes re-render
-  const [selectedFactionInfo, setSelectedFactionInfo] = useState(
-    factions.find((f) => f.id === selectedFaction),
-  );
-
-  // Run every re-render that either of the elements of the 2nd parameter change (only works on states, refs(?), props I believe).
-  useEffect(() => {
-    // See if new faction info is available
-    const selectedFactionInfo1 = factions.find((f) => f.id === selectedFaction);
-    if (selectedFactionInfo1 && selectedFactionInfo1.Users) {
-      // If available
-      setSelectedFactionInfo(selectedFactionInfo1);
-    }
-    // Otherwise, use last faction info until it comes through
-  }, [selectedFaction, factions]);
-
+const FactionInfo = () => {
+  const { Selector, selectedFactionInfo } = useFactionSelect();
   return (
     <>
-      <FactionSelect
-        own_factions={ownFactions}
-        select_faction={selectFactionDisp}
-        selected_faction={selectedFaction}
-        fetch_faction_info={fetchFactionInfoDisp}
-      />
+      <Selector />
 
       <div style={{ display: 'flex' }}>
         <div style={squareParentStyle}>
@@ -212,13 +160,11 @@ const newTemplateLabelsStyles: CSSStyleDeclaration = {
 
 const Admin = ({
   selected_faction: selectedFaction,
-  factions,
-  own_factions: ownFactions,
-  select_faction: selectFactionDisp,
-  fetch_faction_info: fetchFactionInfoDisp,
 }) => {
   const formRef = useRef(null);
   const [password, setPassword] = useState<string>('');
+
+  const { Selector, selectedFactionInfo } = useFactionSelect();
 
   const onPasswordFocus = (e) => {
     e.target.select();
@@ -242,12 +188,7 @@ const Admin = ({
 
   return (
     <>
-      <FactionSelect
-        own_factions={ownFactions}
-        select_faction={selectFactionDisp}
-        selected_faction={selectedFaction}
-        fetch_faction_info={fetchFactionInfoDisp}
-      />
+      <Selector />
 
       <h2>Create A New Template</h2>
       <form
@@ -316,7 +257,7 @@ const Admin = ({
           Create
         </button>
       </form>
-      {factions.find((f) => f.id === selectedFaction).private && (
+      {selectedFactionInfo.private && (
         <>
           <div className="hr" style={{ margin: '10px 5px' }} />
           <h2>Private Faction Password</h2>
@@ -350,9 +291,6 @@ const FactionModal = ({
   fetch_own_factions: fetchOwnFactionsDisp,
   own_factions: ownFactions,
   selected_faction: selectedFaction,
-  select_faction: selectFactionDisp,
-  factions,
-  fetch_faction_info: fetchFactionInfoDisp,
 }) => {
   // New react hook, 2nd parameter of empty array makes it equivelant to componentDidMount
   useEffect(() => {
@@ -371,13 +309,7 @@ const FactionModal = ({
         >
           {ownFactions.length > 0 ? (
             <div label="Info">
-              <FactionInfo
-                own_factions={ownFactions}
-                selected_faction={selectedFaction}
-                select_faction={selectFactionDisp}
-                factions={factions}
-                fetch_faction_info={fetchFactionInfoDisp}
-              />
+              <FactionInfo />
             </div>
           ) : (
             undefined
@@ -389,7 +321,9 @@ const FactionModal = ({
           )}
           {ownFactions.length > 0 ? (
             <div label="Admin">
-              <Admin selected_faction={selectedFaction} factions={factions} />
+              <Admin
+                selected_faction={selectedFaction}
+              />
             </div>
           ) : (
             undefined
@@ -419,7 +353,6 @@ function mapStateToProps(state: State) {
   return {
     selected_faction: state.gui.selectedFaction,
     own_factions: state.user.ownFactions,
-    factions: state.user.factions,
   };
 }
 
@@ -433,12 +366,6 @@ function mapDispatchToProps(dispatch) {
     },
     fetch_own_factions_dispatch(id) {
       dispatch(fetchOwnFactions(id));
-    },
-    select_faction(select) {
-      dispatch(selectFaction(select));
-    },
-    fetch_faction_info(id) {
-      dispatch(fetchFactionInfo(id));
     },
   };
 }
@@ -454,9 +381,6 @@ function mergeProps(propsFromState, propsFromDispatch) {
     fetch_factions: propsFromDispatch.fetch_factions,
     recieve_faction_info: propsFromDispatch.recieve_faction_info,
     own_factions: propsFromState.own_factions,
-    select_faction: propsFromDispatch.select_faction,
-    factions: propsFromState.factions,
-    fetch_faction_info: propsFromDispatch.fetch_faction_info,
   };
 }
 
