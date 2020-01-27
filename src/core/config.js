@@ -4,7 +4,9 @@
 import path from 'path';
 
 if (process.env.BROWSER) {
-  throw new Error('Do not import `config.js` from inside the client-side code.');
+  throw new Error(
+    'Do not import `config.js` from inside the client-side code.'
+  );
 }
 
 export const PORT = process.env.PORT || 80;
@@ -30,7 +32,8 @@ export const MYSQL_USER = process.env.MYSQL_USER || 'pixelplanet';
 export const MYSQL_PW = process.env.MYSQL_PW || 'password';
 
 // Social
-export const DISCORD_INVITE = process.env.DISCORD_INVITE || 'https://discordapp.com/';
+export const DISCORD_INVITE = process.env.DISCORD_INVITE
+  || 'https://discordapp.com/';
 
 // Logging
 export const LOG_MYSQL = parseInt(process.env.LOG_MYSQL, 10) || false;

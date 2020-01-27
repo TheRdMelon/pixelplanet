@@ -4,14 +4,10 @@
  * @flow
  */
 
-import * as THREE from 'three';
-
 import {
-  THREE_CANVAS_HEIGHT,
-  THREE_TILE_SIZE,
-} from '../core/constants';
-import {
+  requestBigChunk,
   receiveBigChunk,
+  receiveBigChunkFailure,
 } from '../actions';
 
 import Chunk from './ChunkRGB3D';
@@ -24,7 +20,6 @@ class ChunkLoader {
   chunks: Map<string, Chunk>;
 
   constructor(store) {
-    console.log("Created Chunk loader");
     this.store = store;
     const state = store.getState();
     const {
@@ -33,6 +28,13 @@ class ChunkLoader {
     } = state.canvas;
     this.canvasId = canvasId;
     this.palette = palette;
+    this.chunks = new Map();
+  }
+
+  destructor() {
+    this.chunks.forEach((chunk) => {
+      chunk.destructor();
+    });
     this.chunks = new Map();
   }
 
@@ -45,20 +47,13 @@ class ChunkLoader {
     const key = `${xc}:${zc}`;
     const chunk = this.chunks.get(key);
     if (chunk) {
-      /*
-      const offsetXZ = offset % (THREE_TILE_SIZE ** 2);
-      const iy = (offset - offsetXZ) / (THREE_TILE_SIZE ** 2);
-      const ix = offsetXZ % THREE_TILE_SIZE;
-      const iz = (offsetXZ - ix) / THREE_TILE_SIZE;
-      */
       chunk.setVoxelByOffset(offset, color);
-      //this.store.dispatch(receiveBigChunk(key));
     }
   }
 
   getChunk(xc, zc, fetch: boolean) {
     const chunkKey = `${xc}:${zc}`;
-    console.log(`Get chunk ${chunkKey}`);
+    // console.log(`Get chunk ${chunkKey}`);
     let chunk = this.chunks.get(chunkKey);
     if (chunk) {
       if (chunk.ready) {
@@ -75,12 +70,39 @@ class ChunkLoader {
     return null;
   }
 
+  async fetchChunk(cx: number, cz: number, chunk) {
+    const center = [0, cx, cz];
+    this.store.dispatch(requestBigChunk(center));
+    try {
+      const url = `/chunks/${this.canvasId}/${cx}/${cz}.bmp`;
+      const response = await fetch(url);
+      if (response.ok) {
+        const arrayBuffer = await response.arrayBuffer();
+        if (arrayBuffer.byteLength) {
+          const chunkArray = new Uint8Array(arrayBuffer);
+          chunk.fromBuffer(chunkArray);
+        } else {
+          throw new Error('Chunk response was invalid');
+        }
+        this.store.dispatch(receiveBigChunk(center));
+      } else {
+        throw new Error('Network response was not ok.');
+      }
+    } catch (error) {
+      chunk.empty();
+      this.store.dispatch(receiveBigChunkFailure(center, error));
+    }
+  }
+
+  /*
+  // sine environment creation for load tests
   async fetchChunk(xc: number, zc: number, chunk) {
     const { key } = chunk;
     console.log(`Fetch chunk ${key}`);
     await chunk.generateSin();
     this.store.dispatch(receiveBigChunk(key));
   }
+  */
 }
 
 export default ChunkLoader;

@@ -27,7 +27,7 @@ async function validate(req: Request, res: Response, next) {
   const x = parseInt(req.body.x, 10);
   const y = parseInt(req.body.y, 10);
   let z = null;
-  if (req.body.z) {
+  if (typeof req.body.z !== 'undefined') {
     z = parseInt(req.body.z, 10);
   }
   const clr = parseInt(req.body.clr, 10);
@@ -40,13 +40,13 @@ async function validate(req: Request, res: Response, next) {
     error = 'y is not a valid number';
   } else if (Number.isNaN(clr)) {
     error = 'No color selected';
-  } else if (clr < 2 || clr > 31) {
+  } else if (clr < 0 || clr > 31) {
     error = 'Invalid color selected';
   } else if (z !== null && Number.isNaN(z)) {
     error = 'z is not a valid number';
   }
   if (error !== null) {
-    res.status(400).json({ errors: [error] });
+    res.status(400).json({ errors: [{ msg: error }] });
     return;
   }
 
@@ -70,7 +70,7 @@ async function validate(req: Request, res: Response, next) {
     user = req.user;
   }
   if (!user || !user.ip) {
-    res.status(400).json({ errors: ["Couldn't authenticate"] });
+    res.status(400).json({ errors: [{ msg: "Couldn't authenticate" }] });
     return;
   }
 

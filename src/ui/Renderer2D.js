@@ -94,6 +94,10 @@ class Renderer {
     this.viewport.remove();
   }
 
+  getViewport() {
+    return this.viewport;
+  }
+
   getAllChunks() {
     return this.chunkLoader.getAllChunks();
   }
@@ -317,6 +321,9 @@ class Renderer {
           chunk = this.chunkLoader.getChunk(tiledZoom, cx, cy, fetch);
           if (chunk) {
             context.drawImage(chunk, x, y);
+            if (fetch) {
+              chunk.timestamp = curTime;
+            }
           } else {
             context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
           }
@@ -368,7 +375,11 @@ class Renderer {
     const [cx, cy] = this.centerChunk;
 
     // if we have to render pixelnotify
-    const doRenderPixelnotify = (viewscale >= 0.5 && showPixelNotify && pixelNotify.doRender());
+    const doRenderPixelnotify = (
+      viewscale >= 0.5
+      && showPixelNotify
+      && pixelNotify.doRender()
+    );
     // if we have to render placeholder
     const doRenderPlaceholder = (
       viewscale >= 3
@@ -433,12 +444,18 @@ class Renderer {
         Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE / this.tiledScale - canvasCenter - y) * viewscale));
     }
 
-    if (showGrid && viewscale >= 8) renderGrid(state, viewport, viewscale, isLightGrid);
+    if (showGrid && viewscale >= 8) {
+      renderGrid(state, viewport, viewscale, isLightGrid);
+    }
 
     if (doRenderPixelnotify) pixelNotify.render(state, viewport);
 
-    if (hover && doRenderPlaceholder) renderPlaceholder(state, viewport, viewscale);
-    if (hover && doRenderPotatoPlaceholder) renderPotatoPlaceholder(state, viewport, viewscale);
+    if (hover && doRenderPlaceholder) {
+      renderPlaceholder(state, viewport, viewscale);
+    }
+    if (hover && doRenderPotatoPlaceholder) {
+      renderPotatoPlaceholder(state, viewport, viewscale);
+    }
   }
 
 
@@ -521,21 +538,33 @@ class Renderer {
           context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
         } else {
           // full chunks
-          chunk = this.chunkLoader.getHistoricalChunk(cx, cy, fetch, historicalDate);
+          chunk = this.chunkLoader
+            .getHistoricalChunk(cx, cy, fetch, historicalDate);
           if (chunk) {
             context.drawImage(chunk, x, y);
+            if (fetch) {
+              chunk.timestamp = curTime;
+            }
           } else {
             context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
           }
           // incremential chunks
           if (historicalTime === '0000') continue;
-          chunk = this.chunkLoader.getHistoricalChunk(cx, cy, fetch, historicalDate, historicalTime);
+          chunk = this.chunkLoader
+            .getHistoricalChunk(cx, cy, fetch, historicalDate, historicalTime);
           if (chunk) {
             context.drawImage(chunk, x, y);
+            if (fetch) {
+              chunk.timestamp = curTime;
+            }
           } else if (oldHistoricalTime) {
-            chunk = this.chunkLoader.getHistoricalChunk(cx, cy, false, historicalDate, oldHistoricalTime);
+            chunk = this.chunkLoader
+              .getHistoricalChunk(cx, cy, false, historicalDate, oldHistoricalTime);
             if (chunk) {
               context.drawImage(chunk, x, y);
+              if (fetch) {
+                chunk.timestamp = curTime;
+              }
             }
           }
         }

@@ -80,6 +80,7 @@ class ProtocolClient extends EventEmitter {
     this.emit('open', {});
     this.requestChatHistory();
     console.log(`Register ${chunks.length} chunks`);
+    // TODO RegisterMultipleChunks before RegisterCanvas doesn't make sense
     this.ws.send(RegisterMultipleChunks.dehydrate(chunks));
     if (this.canvasId !== null) {
       this.ws.send(RegisterCanvas.dehydrate(this.canvasId));

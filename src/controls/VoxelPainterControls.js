@@ -24,6 +24,10 @@ import {
   Vector2,
   Vector3,
 } from 'three';
+import {
+  onViewFinishChange,
+  setViewCoordinates,
+} from '../actions';
 
 // This set of controls performs orbiting, dollying (zooming),
 // and panning and smooth moving by keys.
@@ -34,7 +38,7 @@ import {
 //          or arrow keys / touch: two-finger move
 
 class VoxelPainterControls extends EventDispatcher {
-  constructor(object, domElement) {
+  constructor(object, domElement, store) {
     super();
     // eslint-disable-next-line max-len
     if (domElement === undefined) console.warn('THREE.VoxelPainterControls: The second parameter "domElement" is now mandatory.');
@@ -43,6 +47,7 @@ class VoxelPainterControls extends EventDispatcher {
 
     this.object = object;
     this.domElement = domElement;
+    this.store = store;
 
     // Set to false to disable this control
     this.enabled = true;
@@ -298,8 +303,8 @@ class VoxelPainterControls extends EventDispatcher {
         .subVectors(rotateEnd, rotateStart)
         .multiplyScalar(scope.rotateSpeed);
       const element = scope.domElement;
-      rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
-      rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+      rotateLeft(Math.PI * rotateDelta.x / element.clientHeight); // yes, height
+      rotateUp(Math.PI * rotateDelta.y / element.clientHeight);
       rotateStart.copy(rotateEnd);
       scope.update();
     }
@@ -806,6 +811,9 @@ class VoxelPainterControls extends EventDispatcher {
       const lastPosition = new Vector3();
       const lastQuaternion = new Quaternion();
 
+      // const rotationFinishThreshold = Math.PI / 180 / 4;
+      let updateTime = Date.now();
+
       const direction = new Vector3();
       const velocity = new Vector3();
       let prevTime = Date.now();
@@ -822,9 +830,9 @@ class VoxelPainterControls extends EventDispatcher {
         }
 
         const delta = (time - prevTime) / 1000.0;
-        velocity.x -= velocity.x * 50.0 * delta;
-        velocity.y -= velocity.y * 50.0 * delta;
-        velocity.z -= velocity.z * 50.0 * delta;
+        velocity.x -= velocity.x * 40.0 * delta;
+        velocity.y -= velocity.y * 40.0 * delta;
+        velocity.z -= velocity.z * 40.0 * delta;
         const length = velocity.length();
         if (length < 1 || length > 10) {
           velocity.set(0, 0, 0);
@@ -836,13 +844,13 @@ class VoxelPainterControls extends EventDispatcher {
         direction.normalize();
 
         if (moveLeft || moveRight) {
-          velocity.x -= direction.x * 5000.0 * delta;
+          velocity.x -= direction.x * 500.0 * delta;
         }
         if (moveUp || moveDown) {
-          velocity.y -= direction.y * 5000.0 * delta;
+          velocity.y -= direction.y * 500.0 * delta;
         }
         if (moveForward || moveBackward) {
-          velocity.z -= direction.z * 2500.0 * delta;
+          velocity.z -= direction.z * 250.0 * delta;
         }
 
         // controls.moveRight( -velocity.x * delta);
@@ -908,7 +916,7 @@ class VoxelPainterControls extends EventDispatcher {
 
         // move target to panned location
 
-        if (panOffset.length() > 10000) {
+        if (panOffset.length() > 1000) {
           panOffset.set(0, 0, 0);
         }
         if (scope.enableDamping === true) {
@@ -928,16 +936,37 @@ class VoxelPainterControls extends EventDispatcher {
 
         position.copy(scope.target).add(offset);
 
+
         scope.object.lookAt(scope.target);
 
         if (scope.enableDamping === true) {
           sphericalDelta.theta *= (1 - scope.dampingFactor);
           sphericalDelta.phi *= (1 - scope.dampingFactor);
-
           panOffset.multiplyScalar(1 - scope.dampingFactor);
+
+          if (panOffset.length() < 0.2 && panOffset.length() !== 0.0) {
+            panOffset.set(0, 0, 0);
+            scope.store.dispatch(setViewCoordinates(scope.target.toArray()));
+            scope.store.dispatch(onViewFinishChange());
+          } else if (panOffset.length() !== 0.0) {
+            const curTime = Date.now();
+            if (curTime > updateTime + 500) {
+              updateTime = curTime;
+              scope.store.dispatch(setViewCoordinates(scope.target.toArray()));
+              scope.store.dispatch(onViewFinishChange());
+            }
+          }
+          /*
+          if (Math.abs(sphericalDelta.theta) < rotationFinishThreshold
+            && sphericalDelta.theta != 0.0
+            && Math.abs(sphericalDelta.phi) < rotationFinishThreshold
+            && sphericalDelta.phi != 0.0) {
+            sphericalDelta.set(0, 0, 0);
+            console.log(`rotation finished`);
+          }
+          */
         } else {
           sphericalDelta.set(0, 0, 0);
-
           panOffset.set(0, 0, 0);
         }
 

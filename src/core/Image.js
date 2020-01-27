@@ -15,7 +15,7 @@ import Palette from './Palette';
 /*
  * Load iamge from ABGR buffer onto canvas
  * (be aware that tis function does no validation of arguments)
- * @param canvadIs numerical ID of canvas
+ * @param canvasId numerical ID of canvas
  * @param x X coordinate on canvas
  * @param y Y coordinate on canvas
  * @param data buffer of image in ABGR format
@@ -47,7 +47,7 @@ export async function imageABGR2Canvas(
   let chunk;
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
-      chunk = await RedisCanvas.getChunk(cx, cy, canvasId);
+      chunk = await RedisCanvas.getChunk(canvasId, cx, cy);
       chunk = (chunk)
         ? new Uint8Array(chunk)
         : new Uint8Array(TILE_SIZE * TILE_SIZE);
@@ -90,7 +90,7 @@ export async function imageABGR2Canvas(
 /*
  * Load iamgemask from ABGR buffer and execute function for each black pixel
  * (be aware that tis function does no validation of arguments)
- * @param canvadIs numerical ID of canvas
+ * @param canvasId numerical ID of canvas
  * @param x X coordinate on canvas
  * @param y Y coordinate on canvas
  * @param data buffer of image in ABGR format
@@ -124,7 +124,7 @@ export async function imagemask2Canvas(
   let chunk;
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
-      chunk = await RedisCanvas.getChunk(cx, cy, canvasId);
+      chunk = await RedisCanvas.getChunk(canvasId, cx, cy);
       chunk = (chunk)
         ? new Uint8Array(chunk)
         : new Uint8Array(TILE_SIZE * TILE_SIZE);

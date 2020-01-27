@@ -4,6 +4,9 @@
  * @flow
  */
 
+/* We have to look for performance here not for good looking code */
+/* eslint-disable prefer-destructuring */
+
 import * as THREE from 'three';
 
 import {
@@ -78,30 +81,38 @@ class Chunk {
   buffer: Uint8Array;
   mesh: THREE.Mesh = null;
   faceCnt: number;
+  lastPixel: number;
+  heightMap: Array;
 
   constructor(palette, key) {
     this.key = key;
     this.palette = palette;
   }
 
+  destructor() {
+    if (this.mesh) {
+      this.mesh.geometry.dispose();
+    }
+  }
+
   getVoxel(x: number, y: number, z: number) {
     const { buffer } = this;
     if (!buffer) return 0;
     if (x < 0 || x >= THREE_TILE_SIZE || y >= THREE_CANVAS_HEIGHT
-      || z < 0 || z >= THREE_TILE_SIZE)
-      return 0;
-    if (y < 0)
-      return 1;
+      || z < 0 || z >= THREE_TILE_SIZE) return 0;
+    if (y < 0) return 1;
     // z and y are swapped in api/pixel for compatibility
     // with 2D canvas
-    const offset = Chunk.getOffsetOfVoxel(x, y, z)
+    const offset = Chunk.getOffsetOfVoxel(x, y, z);
     return this.buffer[offset];
   }
 
+  /*
+  // Test Sin encironment creation for load tests
   async generateSin() {
     let cnt = 0;
     this.buffer = new Uint8Array(THREE_TILE_SIZE * THREE_TILE_SIZE * THREE_CANVAS_HEIGHT);
-    const cellSize = 64;
+    const cellSize = THREE_TILE_SIZE;
     for (let y = 0; y < THREE_CANVAS_HEIGHT; ++y) {
       for (let z = 0; z < THREE_TILE_SIZE; ++z) {
         for (let x = 0; x < THREE_TILE_SIZE; ++x) {
@@ -110,7 +121,8 @@ class Chunk {
             const offset = x
               + z * THREE_TILE_SIZE
               + y * THREE_TILE_SIZE * THREE_TILE_SIZE;
-            const clr = 1 + Math.floor(Math.random() * 31);
+            // const clr = 1 + Math.floor(Math.random() * 31);
+            const clr = 14;
             this.buffer[offset] = clr;
             cnt += 1;
           }
@@ -118,56 +130,94 @@ class Chunk {
       }
     }
     console.log(`Created buffer with ${cnt} voxels`);
-    this.faceCnt = Chunk.estimateNeededFaces(this.buffer);
+    const [faceCnt, lastPixel, heightMap] = Chunk.calculateMetaData(this.buffer);
+    this.faceCnt = faceCnt;
+    this.lastPixel = lastPixel;
+    this.heightMap = heightMap;
     this.renderChunk();
     this.ready = true;
   }
+  */
 
-  static estimateNeededFaces(buffer: Uint8Array) {
-    let totalCnt = 0;
+  static calculateMetaData(buffer: Uint8Array) {
+    const rowVolume = THREE_TILE_SIZE ** 2;
+    const heightMap = new Uint8Array(rowVolume);
 
-    let u = 0;
-    for (let y = 0; y < THREE_CANVAS_HEIGHT; ++y) {
-      for (let z = 0; z < THREE_TILE_SIZE; ++z) {
-        for (let x = 0; x < THREE_TILE_SIZE; ++x) {
+    let totalHeight = 0;
+    let lastPixel = 0;
+    let faceCnt = 0;
+    for (let z = THREE_TILE_SIZE - 1; z >= 0; --z) {
+      for (let x = THREE_TILE_SIZE - 1; x >= 0; --x) {
+        let heighestPixel = 0;
+        const startOffset = x + z * THREE_TILE_SIZE;
+        let u = startOffset;
+        for (let y = 0; y < THREE_CANVAS_HEIGHT; ++y) {
           if (buffer[u] !== 0) {
+            // heighest pixel fo x,z in heightmap
+            heighestPixel = y;
+            // number of faces to render
             if (x === 0
               || buffer[u - 1] === 0) {
-              totalCnt += 1;
+              faceCnt += 1;
             }
             if (x === THREE_TILE_SIZE - 1
               || buffer[u + 1] === 0) {
-              totalCnt += 1;
+              faceCnt += 1;
             }
             if (z === 0
               || buffer[u - THREE_TILE_SIZE] === 0) {
-              totalCnt += 1;
+              faceCnt += 1;
             }
             if (z === THREE_TILE_SIZE - 1
               || buffer[u + THREE_TILE_SIZE] === 0) {
-              totalCnt += 1;
+              faceCnt += 1;
             }
             if (y !== 0
               && buffer[u - (THREE_TILE_SIZE ** 2)] === 0) {
-              totalCnt += 1;
+              faceCnt += 1;
             }
             if (y === THREE_CANVAS_HEIGHT - 1
               || buffer[u + (THREE_TILE_SIZE ** 2)] === 0) {
-              totalCnt += 1;
+              faceCnt += 1;
             }
           }
-          u += 1;
+          u += rowVolume;
+        }
+        heightMap[startOffset] = heighestPixel;
+        if (heighestPixel > totalHeight) {
+          // last total pixel
+          totalHeight = heighestPixel;
+          lastPixel = Chunk.getOffsetOfVoxel(x, heighestPixel, z);
         }
       }
     }
-    return totalCnt;
+    return [faceCnt, lastPixel, heightMap];
   }
 
   static getOffsetOfVoxel(x: number, y: number, z: number) {
     return x + z * THREE_TILE_SIZE + y * THREE_TILE_SIZE * THREE_TILE_SIZE;
   }
 
+  static getXZOfVoxel(offset) {
+    const xzOffset = offset % (THREE_TILE_SIZE * THREE_TILE_SIZE);
+    const y = (offset - xzOffset) / (THREE_TILE_SIZE * THREE_TILE_SIZE);
+    const x = xzOffset % THREE_TILE_SIZE;
+    const z = (xzOffset - x) / THREE_TILE_SIZE;
+    return [x, y, z];
+  }
+
   setVoxelByOffset(offset: number, clr: number) {
+    if (offset > this.lastPixel) {
+      this.lastPixel = offset;
+    }
+    // TODO heightmap if pixel got deleted instead
+    // of set
+    const rowVolume = THREE_TILE_SIZE ** 2;
+    const rowOffset = offset % rowVolume;
+    const y = (offset - rowOffset) / rowVolume;
+    if (y > this.heightMap[rowOffset]) {
+      this.heightMap[rowOffset] = y;
+    }
     this.buffer[offset] = clr;
     this.faceCnt += 6;
     this.renderChunk();
@@ -180,30 +230,51 @@ class Chunk {
 
   async fromBuffer(chunkBuffer: Uint8Array) {
     this.buffer = chunkBuffer;
+    const [faceCnt, lastPixel, heightMap] = Chunk.calculateMetaData(
+      chunkBuffer,
+    );
+    this.faceCnt = faceCnt;
+    this.lastPixel = lastPixel;
+    this.heightMap = heightMap;
     this.renderChunk();
     this.ready = true;
   }
 
-  renderChunk() {
-    let time1 = Date.now();
+  empty() {
+    const buffer = new Uint8Array(
+      THREE_TILE_SIZE * THREE_TILE_SIZE * THREE_CANVAS_HEIGHT,
+    );
+    const heightMap = new Uint8Array(
+      THREE_TILE_SIZE * THREE_TILE_SIZE,
+    );
+    this.buffer = buffer;
+    this.heightMap = heightMap;
+    this.faceCnt = 0;
+    this.lastPixel = 0;
+    this.renderChunk();
+    this.ready = true;
+  }
 
+  calculateGeometryData() {
+    const rowVolume = THREE_TILE_SIZE ** 2;
     let cnt = 0;
-    let cntv = 0;
     let voxel;
-    const faceCnt = this.faceCnt;
+    const { faceCnt } = this;
     const positions = new Float32Array(faceCnt * 4 * 3);
     const normals = new Float32Array(faceCnt * 4 * 3);
     const colors = new Uint8Array(faceCnt * 4 * 3);
     const indices = new Uint32Array(faceCnt * 6);
     const { rgb } = this.palette;
     // just render faces that do not have an adjescent voxel
-    for (let y = 0; y < THREE_CANVAS_HEIGHT; ++y) {
-      for (let z = 0; z < THREE_TILE_SIZE; ++z) {
-        for (let x = 0; x < THREE_TILE_SIZE; ++x) {
-          voxel = this.getVoxel(x, y, z);
+    for (let z = 0; z < THREE_TILE_SIZE; ++z) {
+      for (let x = 0; x < THREE_TILE_SIZE; ++x) {
+        const startOffset = x + z * THREE_TILE_SIZE;
+        const height = this.heightMap[startOffset];
+        let u = startOffset;
+        for (let y = 0; y <= height; ++y) {
+          voxel = this.buffer[u];
           if (voxel !== 0) {
             voxel *= 3;
-            cntv += 1;
             for (let i = 0; i < 6; ++i) {
               const dir = faceDirs[i];
               const corners = faceCorners[i];
@@ -242,10 +313,18 @@ class Chunk {
               }
             }
           }
+          u += rowVolume;
         }
       }
     }
-    let time2 = Date.now();
+    this.faceCnt = cnt;
+    return [positions, normals, colors, indices];
+  }
+
+  renderChunk() {
+    const time1 = Date.now();
+    const [positions, normals, colors, indices] = this.calculateGeometryData();
+    const time2 = Date.now();
 
     const geometry = (this.mesh)
       ? this.mesh.geometry
@@ -275,17 +354,16 @@ class Chunk {
     );
     geometry.setIndex(new THREE.BufferAttribute(indices, 1));
     geometry.computeBoundingSphere();
-    geometry.setDrawRange(0, cnt * 6);
-
-    this.faceCnt = cnt;
+    geometry.setDrawRange(0, this.faceCnt * 6);
 
     if (!this.mesh) {
       this.mesh = new THREE.Mesh(geometry, material);
       this.mesh.name = this.key;
     }
 
-    let time3 = Date.now();
-    console.log(`Created mesh for ${cntv} voxels with ${cnt} faces in ${time3 - time2}ms webgl and ${time2 - time1}ms data creation`);
+    const time3 = Date.now();
+    // eslint-disable-next-line no-console, max-len
+    console.log(`Created mesh with ${this.faceCnt} faces in ${time3 - time2}ms webgl and ${time2 - time1}ms data creation`);
   }
 }
 

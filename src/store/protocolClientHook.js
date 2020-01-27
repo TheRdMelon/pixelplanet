@@ -6,10 +6,13 @@
 
 import ProtocolClient from '../socket/ProtocolClient';
 
-export default store => next => action => {
+export default (store) => (next) => (action) => {
   switch (action.type) {
     case 'RECEIVE_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK_FAILURE': {
+      if (!action.center) {
+        break;
+      }
       const [, cx, cy] = action.center;
       ProtocolClient.registerChunk([cx, cy]);
       break;
