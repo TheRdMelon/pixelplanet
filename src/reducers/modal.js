@@ -18,7 +18,6 @@ const initialState: ModalState = {
   chatOpen: false,
 };
 
-
 export default function modal(
   state: ModalState = initialState,
   action: Action,
@@ -28,7 +27,7 @@ export default function modal(
     // fixes a bug with iPad
     case 'SHOW_MODAL': {
       const { modalType, modalProps } = action;
-      const chatOpen = (modalType == 'CHAT') ? false : state.chatOpen;
+      const chatOpen = modalType === 'CHAT' ? false : state.chatOpen;
       return {
         ...state,
         modalType,
@@ -37,6 +36,7 @@ export default function modal(
       };
     }
 
+    case 'SELECT_CANVAS':
     case 'HIDE_MODAL':
       return {
         ...state,
@@ -53,7 +53,7 @@ export default function modal(
 
     case 'RECEIVE_ME': {
       const { name } = action;
-      const chatOpen = (name) ? state.chatOpen : false;
+      const chatOpen = name ? state.chatOpen : false;
       return {
         ...state,
         chatOpen,

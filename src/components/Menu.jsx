@@ -1,5 +1,6 @@
 /*
  * Menu with Buttons on the top left
+ * @flow
  */
 
 import React from 'react';
@@ -12,7 +13,6 @@ import DownloadButton from './DownloadButton';
 import MinecraftTPButton from './MinecraftTPButton';
 import MinecraftButton from './MinecraftButton';
 import FactionButton from './FactionButton';
-import VoxelButton from './VoxelButton';
 
 const Menu = ({
   menuOpen, minecraftname, messages, canvasId,
@@ -27,7 +27,6 @@ const Menu = ({
           <DownloadButton />
           <MinecraftButton />
           <HelpButton />
-          <VoxelButton />
         </>
       ) : null}
     </div>

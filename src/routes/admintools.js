@@ -25,10 +25,8 @@ import { imageABGR2Canvas } from '../core/Image';
 
 import adminHtml from '../components/Admin';
 
-
 const router = express.Router();
 const limiter = expressLimiter(router, redis);
-
 
 /*
  * multer middleware for getting POST parameters
@@ -41,18 +39,18 @@ const upload = multer({
   },
 });
 
-
 /*
  * rate limiting to prevent bruteforce attacks
  */
-router.use('/',
+router.use(
+  '/',
   limiter({
     lookup: 'headers.cf-connecting-ip',
     total: 240,
     expire: 5 * MINUTE,
     skipHeaders: true,
-  }));
-
+  }),
+);
 
 /*
  * make sure User is logged in and admin
@@ -79,7 +77,6 @@ router.use(async (req, res, next) => {
   );
   next();
 });
-
 
 /*
  * Execute IP based actions (banning, whitelist, etc.)
@@ -123,7 +120,6 @@ async function executeAction(action: string, ip: string): boolean {
   return true;
 }
 
-
 /*
  * Check for POST parameters,
  */
@@ -157,16 +153,25 @@ router.post('/', upload.single('image'), async (req, res, next) => {
 
       const canvas = canvases[canvasId];
 
+      if (canvas.v) {
+        res.status(403).send('Can not upload Image to 3D canvas');
+        return;
+      }
+
       const canvasMaxXY = canvas.size / 2;
       const canvasMinXY = -canvasMaxXY;
-      if (x < canvasMinXY || y < canvasMinXY
-          || x >= canvasMaxXY || y >= canvasMaxXY) {
+      if (
+        x < canvasMinXY
+        || y < canvasMinXY
+        || x >= canvasMaxXY
+        || y >= canvasMaxXY
+      ) {
         res.status(403).send('Coordinates are outside of canvas');
         return;
       }
 
-      const protect = (imageaction === 'protect');
-      const wipe = (imageaction === 'wipe');
+      const protect = imageaction === 'protect';
+      const wipe = imageaction === 'wipe';
 
       await sharp(req.file.buffer)
         .ensureAlpha()
@@ -176,10 +181,13 @@ router.post('/', upload.single('image'), async (req, res, next) => {
           if (err) throw err;
           return imageABGR2Canvas(
             canvasId,
-            x, y,
+            x,
+            y,
             data,
-            info.width, info.height,
-            wipe, protect,
+            info.width,
+            info.height,
+            wipe,
+            protect,
           );
         });
 
@@ -192,9 +200,9 @@ router.post('/', upload.single('image'), async (req, res, next) => {
       if (!ret) {
         res.status(403).send('Failed');
       } else {
-        res.status(200).send(
-          `Succseefully did ${req.body.action} ${req.body.ip}`,
-        );
+        res
+          .status(200)
+          .send(`Succseefully did ${req.body.action} ${req.body.ip}`);
       }
       return;
     }
@@ -204,7 +212,6 @@ router.post('/', upload.single('image'), async (req, res, next) => {
     next(error);
   }
 });
-
 
 /*
  * Check GET parameters for action to execute
@@ -233,13 +240,11 @@ router.get('/', async (req: Request, res: Response, next) => {
   }
 });
 
-
 router.use(async (req: Request, res: Response) => {
   res.set({
     'Content-Type': 'text/html',
   });
   res.status(200).send(adminHtml);
 });
-
 
 export default router;

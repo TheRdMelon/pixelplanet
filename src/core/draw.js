@@ -8,9 +8,9 @@ import { getChunkOfPixel, getOffsetOfPixel } from './utils';
 import webSockets from '../socket/websockets';
 import logger from './logger';
 import RedisCanvas from '../data/models/RedisCanvas';
-import { registerPixelChange } from './tileserver';
 import canvases from '../canvases.json';
 
+import { THREE_CANVAS_HEIGHT } from './constants';
 
 /**
  *
@@ -21,13 +21,14 @@ import canvases from '../canvases.json';
  */
 export function setPixel(
   canvasId: number,
+  color: ColorIndex,
   x: number,
   y: number,
-  color: ColorIndex,
+  z: number = null,
 ) {
   const canvasSize = canvases[canvasId].size;
-  const [i, j] = getChunkOfPixel([x, y], canvasSize);
-  const offset = getOffsetOfPixel(x, y, canvasSize);
+  const [i, j] = getChunkOfPixel(canvasSize, x, y, z);
+  const offset = getOffsetOfPixel(canvasSize, x, y, z);
   RedisCanvas.setPixelInChunk(i, j, offset, color, canvasId);
   webSockets.broadcastPixel(canvasId, i, j, offset, color);
 }
@@ -44,11 +45,12 @@ export function setPixel(
 async function draw(
   user: User,
   canvasId: number,
+  color: ColorIndex,
   x: number,
   y: number,
-  color: ColorIndex,
+  z: number = null,
 ): Promise<Object> {
-  if (!({}.hasOwnProperty.call(canvases, canvasId))) {
+  if (!{}.hasOwnProperty.call(canvases, canvasId)) {
     return {
       error: 'This canvas does not exist',
       success: false,
@@ -58,10 +60,34 @@ async function draw(
 
   const canvasMaxXY = canvas.size / 2;
   const canvasMinXY = -canvasMaxXY;
-  if (x < canvasMinXY || y < canvasMinXY
-      || x >= canvasMaxXY || y >= canvasMaxXY) {
+  if (
+    x < canvasMinXY
+    || y < canvasMinXY
+    || x >= canvasMaxXY
+    || y >= canvasMaxXY
+  ) {
     return {
       error: 'Coordinates not within canvas',
+      success: false,
+    };
+  }
+
+  if (z !== null) {
+    if (z >= THREE_CANVAS_HEIGHT) {
+      return {
+        error: "You reached build limit. Can't place higher than 128 blocks.",
+        success: false,
+      };
+    }
+    if (!canvas.v) {
+      return {
+        error: 'This is not a 3D canvas',
+        success: false,
+      };
+    }
+  } else if (canvas.v) {
+    return {
+      error: 'This is a 3D canvas. z is required.',
       success: false,
     };
   }
@@ -80,15 +106,16 @@ async function draw(
     if (totalPixels < canvas.req) {
       return {
         errorTitle: 'Not Yet :(',
+        // eslint-disable-next-line max-len
         error: `You need to set ${canvas.req} pixels on another canvas first, before you can use this one.`,
         success: false,
       };
     }
   }
 
-  const setColor = await RedisCanvas.getPixel(x, y, canvasId);
+  const setColor = await RedisCanvas.getPixel(canvasId, x, y, z);
 
-  let coolDown = !(setColor & 0x1E) ? canvas.bcd : canvas.pcd;
+  let coolDown = !(setColor & 0x1e) ? canvas.bcd : canvas.pcd;
   if (user.isAdmin()) {
     coolDown = 0.0;
   }
@@ -116,7 +143,7 @@ async function draw(
     };
   }
 
-  setPixel(canvasId, x, y, color);
+  setPixel(canvasId, color, x, y, null);
 
   user.setWait(waitLeft, canvasId);
   user.incrementPixelcount();
@@ -141,12 +168,13 @@ async function draw(
 function drawSafe(
   user: User,
   canvasId: number,
+  color: ColorIndex,
   x: number,
   y: number,
-  color: ColorIndex,
+  z: number = null,
 ): Promise<Cell> {
   if (user.isAdmin()) {
-    return draw(user, canvasId, x, y, color);
+    return draw(user, canvasId, color, x, y, z);
   }
 
   // can just check for one unique occurence,
@@ -155,16 +183,12 @@ function drawSafe(
   const userId = user.ip;
 
   return new Promise((resolve) => {
-    using(
-      redlock.disposer(`locks:${userId}`, 5000, logger.error),
-      async () => {
-        const ret = await draw(user, canvasId, x, y, color);
-        resolve(ret);
-      },
-    ); // <-- unlock is automatically handled by bluebird
+    using(redlock.disposer(`locks:${userId}`, 5000, logger.error), async () => {
+      const ret = await draw(user, canvasId, color, x, y, z);
+      resolve(ret);
+    }); // <-- unlock is automatically handled by bluebird
   });
 }
-
 
 export const drawUnsafe = draw;
 

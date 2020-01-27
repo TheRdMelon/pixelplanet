@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* @flow
  *
  * functions to deal with images
@@ -42,8 +43,8 @@ export async function imageABGR2Canvas(
   const canvasMinXY = -(canvas.size / 2);
   const imageData = new Uint32Array(data.buffer);
 
-  const [ucx, ucy] = getChunkOfPixel([x, y], canvas.size);
-  const [lcx, lcy] = getChunkOfPixel([x + width, y + height], canvas.size);
+  const [ucx, ucy] = getChunkOfPixel(canvas.size, x, y);
+  const [lcx, lcy] = getChunkOfPixel(canvas.size, x + width, y + height);
 
   if (templateId === undefined) {
     logger.info(
@@ -132,8 +133,8 @@ export async function imagemask2Canvas(
 
   const imageData = new Uint8Array(data.buffer);
 
-  const [ucx, ucy] = getChunkOfPixel([x, y], canvas.size);
-  const [lcx, lcy] = getChunkOfPixel([x + width, y + height], canvas.size);
+  const [ucx, ucy] = getChunkOfPixel(canvas.size, x, y);
+  const [lcx, lcy] = getChunkOfPixel(canvas.size, x + width, y + height);
 
   logger.info(`Loading to chunks from ${ucx} / ${ucy} to ${lcx} / ${lcy} ...`);
   let chunk;

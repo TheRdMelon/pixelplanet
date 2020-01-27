@@ -6,21 +6,29 @@
 import type { Request, Response } from 'express';
 
 import draw from '../../core/draw';
-import { blacklistDetector, cheapDetector, strongDetector } from '../../core/isProxy';
+import {
+  blacklistDetector,
+  cheapDetector,
+  strongDetector,
+} from '../../core/isProxy';
 import verifyCaptcha from '../../utils/recaptcha';
 import logger from '../../core/logger';
 import redis from '../../data/redis';
-import { USE_PROXYCHECK, RECAPTCHA_SECRET, RECAPTCHA_TIME } from '../../core/config';
 import {
-  User,
-} from '../../data/models';
-
+  USE_PROXYCHECK,
+  RECAPTCHA_SECRET,
+  RECAPTCHA_TIME,
+} from '../../core/config';
 
 async function validate(req: Request, res: Response, next) {
   let error = null;
   const cn = parseInt(req.body.cn, 10);
   const x = parseInt(req.body.x, 10);
   const y = parseInt(req.body.y, 10);
+  let z = null;
+  if (req.body.z) {
+    z = parseInt(req.body.z, 10);
+  }
   const clr = parseInt(req.body.clr, 10);
 
   if (Number.isNaN(cn)) {
@@ -33,6 +41,8 @@ async function validate(req: Request, res: Response, next) {
     error = 'No color selected';
   } else if (clr < 2 || clr > 31) {
     error = 'Invalid color selected';
+  } else if (z !== null && Number.isNaN(z)) {
+    error = 'z is not a valid number';
   }
   if (error !== null) {
     res.status(400).json({ errors: [error] });
@@ -42,8 +52,8 @@ async function validate(req: Request, res: Response, next) {
   req.body.cn = cn;
   req.body.x = x;
   req.body.y = y;
+  req.body.z = z;
   req.body.clr = clr;
-
 
   /**
    * make sure that a user is chosen
@@ -64,7 +74,6 @@ async function validate(req: Request, res: Response, next) {
 
   next();
 }
-
 
 const TTL_CACHE = RECAPTCHA_TIME * 60; // seconds
 async function checkHuman(req: Request, res: Response, next) {
@@ -91,10 +100,9 @@ async function checkHuman(req: Request, res: Response, next) {
       return;
     }
 
-    if (!token || !await verifyCaptcha(token, ip)) {
+    if (!token || !(await verifyCaptcha(token, ip))) {
       logger.info(`CAPTCHA ${ip} got a captcha`);
-      res.status(422)
-        .json({ errors: [{ msg: 'Captcha occured' }] });
+      res.status(422).json({ errors: [{ msg: 'Captcha occured' }] });
       return;
     }
 
@@ -111,7 +119,7 @@ async function checkHuman(req: Request, res: Response, next) {
 // strongly check selective areas
 async function checkProxy(req: Request, res: Response, next) {
   const { trueIp: ip } = req;
-  if (USE_PROXYCHECK && ip != '0.0.0.1') {
+  if (USE_PROXYCHECK && ip !== '0.0.0.1') {
     /*
     //one area uses stronger detector
     const { x, y } = req.body;
@@ -127,16 +135,16 @@ async function checkProxy(req: Request, res: Response, next) {
       }
     } else {
     */
-    if (!ip || await cheapDetector(ip)) {
-      res.status(403)
-        .json({ errors: [{ msg: 'You are using a proxy!' }] });
+    if (!ip || (await cheapDetector(ip))) {
+      res.status(403).json({ errors: [{ msg: 'You are using a proxy!' }] });
       return;
     }
     /*
     }
     */
   } else if (await blacklistDetector(ip)) {
-    res.status(403)
+    res
+      .status(403)
       .json({ errors: [{ msg: 'You are using a proxy or got banned!' }] });
     return;
   }
@@ -146,19 +154,21 @@ async function checkProxy(req: Request, res: Response, next) {
 
 // strongly check just specific areas for proxies
 // do not proxycheck the rest
+// eslint-disable-next-line no-unused-vars
 async function checkProxySelective(req: Request, res: Response, next) {
   const { trueIp: ip } = req;
   if (USE_PROXYCHECK) {
     const { x, y } = req.body;
-    if (x > 970 && x < 2380 && y > -11407 && y < -10597) { // nc
-      if (!ip || await strongDetector(ip)) {
-        res.status(403)
-          .json({ errors: [{ msg: 'You are using a proxy!' }] });
+    if (x > 970 && x < 2380 && y > -11407 && y < -10597) {
+      // nc
+      if (!ip || (await strongDetector(ip))) {
+        res.status(403).json({ errors: [{ msg: 'You are using a proxy!' }] });
         return;
       }
     }
   } else if (await blacklistDetector(ip)) {
-    res.status(403)
+    res
+      .status(403)
       .json({ errors: [{ msg: 'You are using a proxy or got banned!' }] });
     return;
   }
@@ -177,18 +187,22 @@ async function place(req: Request, res: Response) {
   });
 
   const {
-    cn, x, y, clr,
+    cn, x, y, z, clr,
   } = req.body;
-  const { user, headers, trueIp } = req;
-  const { ip } = user;
+  const { user, trueIp } = req;
 
-  const isHashed = parseInt(req.body.a, 10) === (x + y + 8);
-
-  logger.info(`${trueIp} / ${user.id} wants to place ${clr} in (${x}, ${y})`);
+  logger.info(
+    // eslint-disable-next-line max-len
+    `${trueIp} / ${user.id} wants to place ${clr} in (${x}, ${y}, ${z}) on canvas ${cn}`,
+  );
 
   const {
-    errorTitle, error, success, waitSeconds, coolDownSeconds,
-  } = await draw(user, cn, x, y, clr);
+    errorTitle,
+    error,
+    success,
+    waitSeconds,
+    coolDownSeconds,
+  } = await draw(user, cn, clr, x, y, z);
   logger.log('debug', success);
 
   if (success) {
@@ -201,15 +215,21 @@ async function place(req: Request, res: Response) {
     }
     if (errorTitle) {
       res.json({
-        success, waitSeconds, coolDownSeconds, errorTitle, errors,
+        success,
+        waitSeconds,
+        coolDownSeconds,
+        errorTitle,
+        errors,
       });
     } else {
       res.json({
-        success, waitSeconds, coolDownSeconds, errors,
+        success,
+        waitSeconds,
+        coolDownSeconds,
+        errors,
       });
     }
   }
 }
-
 
 export default [validate, checkHuman, checkProxy, place];

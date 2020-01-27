@@ -4,10 +4,12 @@
  */
 
 import configureStore from '../store/configureStore';
-import renderer from './Renderer';
+import { getRenderer } from './renderer';
 
 const store = configureStore(() => {
-  renderer.forceNextRender = true;
+  getRenderer().forceNextRender = true;
+  // TODO: still works?
+  // renderer.forceNextRender = true;
 });
 
 export default store;

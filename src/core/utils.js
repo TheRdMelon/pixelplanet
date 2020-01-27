@@ -3,7 +3,7 @@
 import type { Cell } from './Cell';
 import type { State } from '../reducers';
 
-import { TILE_SIZE, TILE_ZOOM_LEVEL } from './constants';
+import { TILE_SIZE, THREE_TILE_SIZE, TILE_ZOOM_LEVEL } from './constants';
 
 /**
  * http://stackoverflow.com/questions/4467539/javascript-modulo-not-behaving
@@ -15,13 +15,6 @@ export function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
 }
 
-export function sum(values: Array<number>): number {
-  let total = 0;
-  // TODO map reduce
-  values.forEach((value) => (total += value));
-  return total;
-}
-
 /*
  * returns random integer
  * @param min Minimum of random integer
@@ -30,7 +23,7 @@ export function sum(values: Array<number>): number {
  */
 export function getRandomInt(min, max) {
   const range = max - min + 1;
-  return min + (Math.floor(Math.random() * range));
+  return min + Math.floor(Math.random() * range);
 }
 
 export function distMax([x1, y1]: Cell, [x2, y2]: Cell): number {
@@ -41,9 +34,16 @@ export function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(n, max));
 }
 
-export function getChunkOfPixel(pixel: Cell, canvasSize: number = null): Cell {
-  const target = pixel.map((x) => Math.floor((x + canvasSize / 2) / TILE_SIZE));
-  return target;
+export function getChunkOfPixel(
+  canvasSize: number = null,
+  x: number,
+  y: number,
+  z: number = null,
+): Cell {
+  const tileSize = z === null ? TILE_SIZE : THREE_TILE_SIZE;
+  const cx = Math.floor((x + canvasSize / 2) / tileSize);
+  const cy = Math.floor((y + canvasSize / 2) / tileSize);
+  return [cx, cy];
 }
 
 export function getTileOfPixel(
@@ -51,6 +51,7 @@ export function getTileOfPixel(
   pixel: Cell,
   canvasSize: number = null,
 ): Cell {
+  // eslint-disable-next-line max-len
   const target = pixel.map((x) => Math.floor(((x + canvasSize / 2) / TILE_SIZE) * tileScale));
   return target;
 }
@@ -67,14 +68,18 @@ export function getCanvasBoundaries(canvasSize: number): number {
 }
 
 export function getOffsetOfPixel(
+  canvasSize: number = null,
   x: number,
   y: number,
-  canvasSize: number = null,
+  z: number = null,
 ): number {
-  const modOffset = mod(canvasSize / 2, TILE_SIZE);
-  const cx = mod(x + modOffset, TILE_SIZE);
-  const cy = mod(y + modOffset, TILE_SIZE);
-  return cy * TILE_SIZE + cx;
+  const tileSize = z === null ? TILE_SIZE : THREE_TILE_SIZE;
+  let offset = z === null ? 0 : z * tileSize * tileSize;
+  const modOffset = mod(canvasSize / 2, tileSize);
+  const cx = mod(x + modOffset, tileSize);
+  const cy = mod(y + modOffset, tileSize);
+  offset += cy * tileSize + cx;
+  return offset;
 }
 
 /*
@@ -142,34 +147,9 @@ export function worldToScreen(
   ];
 }
 
-function getKey(canvasMaxTiledZoom, cx, cy) {
+/* function getKey(canvasMaxTiledZoom, cx, cy) {
   return `${canvasMaxTiledZoom}:${cx}:${cy}`;
-}
-
-/*
- * Get Color Index of specific pixel
- * @param state State
- * @param viewport Viewport HTML canvas
- * @param coordinates  Coords of pixel in World coordinates
- * @return number of color Index
- */
-export function getColorIndexOfPixel(
-  state: State,
-  coordinates: Cell,
-  template: boolean = false,
-): number {
-  const {
-    canvasSize, canvasMaxTiledZoom, chunks, templateChunks,
-  } = state.canvas;
-  const [cx, cy] = getChunkOfPixel(coordinates, canvasSize);
-  const key = getKey(canvasMaxTiledZoom, cx, cy);
-  const chunk = (template ? templateChunks : chunks).get(key);
-  if (!chunk) {
-    return 0;
-  }
-  const cell = getCellInsideChunk(coordinates);
-  return chunk.getColorIndex(cell, template);
-}
+} */
 
 export function durationToString(
   ms: number,

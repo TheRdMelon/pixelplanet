@@ -4,13 +4,14 @@
  * @flow
  */
 
-import renderer from '../ui/Renderer';
+import { getRenderer, initRenderer } from '../ui/renderer';
 
 export default (store) => (next) => (action) => {
   const { type } = action;
 
-  if (type == 'SET_HISTORICAL_TIME') {
+  if (type === 'SET_HISTORICAL_TIME') {
     const state = store.getState();
+    const renderer = getRenderer();
     renderer.updateOldHistoricalTime(state.canvas.historicalTime);
   }
 
@@ -23,7 +24,13 @@ export default (store) => (next) => (action) => {
     case 'RELOAD_URL':
     case 'SELECT_CANVAS':
     case 'RECEIVE_ME': {
-      renderer.updateCanvasData(state);
+      const renderer = getRenderer();
+      const { is3D } = state.canvas;
+      if (is3D === renderer.is3D) {
+        renderer.updateCanvasData(state);
+      } else {
+        initRenderer(store, is3D);
+      }
       break;
     }
 
@@ -31,12 +38,11 @@ export default (store) => (next) => (action) => {
     case 'REQUEST_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK_FAILURE':
-    case 'RECEIVE_IMAGE_TILE':
     case 'REQUEST_BIG_TEMPLATE_CHUNK':
     case 'RECIEVE_BIG_TEMPLATE_CHUNK':
     case 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE':
-    case 'RECEIVE_IMAGE_TEMPLATE_TILE':
     case 'CHANGE_TEMPLATE_ALPHA': {
+      const renderer = getRenderer();
       renderer.forceNextRender = true;
       break;
     }
@@ -46,12 +52,23 @@ export default (store) => (next) => (action) => {
       const {
         viewscale, canvasMaxTiledZoom, view, canvasSize,
       } = state.canvas;
+      const renderer = getRenderer();
       renderer.updateScale(viewscale, canvasMaxTiledZoom, view, canvasSize);
+      break;
+    }
+
+    case 'RECEIVE_PIXEL_UPDATE': {
+      const {
+        i, j, offset, color,
+      } = action;
+      const renderer = getRenderer();
+      renderer.renderPixel(i, j, offset, color);
       break;
     }
 
     case 'SET_VIEW_COORDINATES': {
       const { view, canvasSize } = state.canvas;
+      const renderer = getRenderer();
       renderer.updateView(view, canvasSize);
       break;
     }

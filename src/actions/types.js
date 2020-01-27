@@ -42,14 +42,11 @@ export type Action =
   | { type: 'SET_SCALE', scale: number, zoompoint: Cell }
   | { type: 'REQUEST_BIG_CHUNK', center: Cell }
   | { type: 'REQUEST_BIG_TEMPLATE_CHUNK', center: Cell }
-  | { type: 'RECEIVE_BIG_CHUNK', center: Cell, arrayBuffer: ArrayBuffer }
+  | { type: 'RECEIVE_BIG_CHUNK', center: Cell }
   | {
       type: 'RECIEVE_BIG_TEMPLATE_CHUNK',
       center: Cell,
-      arrayBuffer: ArrayBuffer,
     }
-  | { type: 'RECEIVE_IMAGE_TILE', center: Cell, tile: Image }
-  | { type: 'RECEIVE_IMAGE_TEMPLATE_TILE', center: Cell, tile: Image }
   | { type: 'RECEIVE_BIG_CHUNK_FAILURE', center: Cell, error: Error }
   | { type: 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE', center: Cell, error: Error }
   | { type: 'RECEIVE_COOLDOWN', waitSeconds: number }
@@ -98,6 +95,7 @@ export type Action =
   | { type: 'TOGGLE_TEMPLATE_ENABLE' };
 export type PromiseAction = Promise<Action>;
 export type Dispatch = (
+  // eslint-disable-next-line no-use-before-define
   action: Action | ThunkAction | PromiseAction | Array<Action>,
 ) => any;
 export type GetState = () => State;

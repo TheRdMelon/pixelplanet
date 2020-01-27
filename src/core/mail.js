@@ -3,7 +3,7 @@
  * @flow
  */
 
-import Sequelize from 'sequelize';
+// import Sequelize from 'sequelize';
 import nodemailer from 'nodemailer';
 
 import logger from './logger';
@@ -11,7 +11,6 @@ import { HOUR, MINUTE } from './constants';
 import { DailyCron, HourlyCron } from '../utils/cron';
 
 import RegUser from '../data/models/RegUser';
-
 
 /*
  * define mail transport
@@ -22,7 +21,6 @@ const transporter = nodemailer.createTransport({
   newline: 'unix',
   path: '/usr/sbin/sendmail',
 });
-
 
 // TODO make code expire
 class MailProvider {
@@ -53,19 +51,22 @@ class MailProvider {
     logger.info(`Sending verification mail to ${to} / ${name}`);
     const code = this.setCode(to);
     const verifyUrl = `${host}/api/auth/verify?token=${code}`;
-    transporter.sendMail({
-      from: 'donotreply@pixelplanet.fun',
-      to,
-      replyTo: 'donotreply@pixelplanet.fun',
-      // eslint-disable-next-line max-len
-      subject: `Welcome ${name} to PixelPlanet, plese verify your mail`,
-      // eslint-disable-next-line max-len
-      text: `Hello,\nwelcome to our little community of pixelplacers, to use your account, you have to verify your mail. You can do that here:\n ${verifyUrl} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nThanks`,
-    }, (err) => {
-      if (err) {
-        logger.error(err & err.stack);
-      }
-    });
+    transporter.sendMail(
+      {
+        from: 'donotreply@pixelplanet.fun',
+        to,
+        replyTo: 'donotreply@pixelplanet.fun',
+        // eslint-disable-next-line max-len
+        subject: `Welcome ${name} to PixelPlanet, plese verify your mail`,
+        // eslint-disable-next-line max-len
+        text: `Hello,\nwelcome to our little community of pixelplacers, to use your account, you have to verify your mail. You can do that here:\n ${verifyUrl} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nThanks`,
+      },
+      (err) => {
+        if (err) {
+          logger.error(err & err.stack);
+        }
+      },
+    );
     return null;
   }
 
@@ -100,19 +101,22 @@ class MailProvider {
     logger.info(`Sending Password reset mail to ${to}`);
     const code = this.setCode(to);
     const restoreUrl = `${host}/reset_password?token=${code}`;
-    transporter.sendMail({
-      from: 'donotreply@pixelplanet.fun',
-      to,
-      replyTo: 'donotreply@pixelplanet.fun',
-      // eslint-disable-next-line max-len
-      subject: 'You forgot your password for PixelPlanet? Get a new one here',
-      // eslint-disable-next-line max-len
-      text: `Hello,\nYou requested to get a new password. You can change your password within the next 30min here:\n ${restoreUrl} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nIf you did not request this mail, please just ignore it (the ip that requested this mail was ${ip}).\nThanks`,
-    }, (err) => {
-      if (err) {
-        logger.error(err & err.stack);
-      }
-    });
+    transporter.sendMail(
+      {
+        from: 'donotreply@pixelplanet.fun',
+        to,
+        replyTo: 'donotreply@pixelplanet.fun',
+        // eslint-disable-next-line max-len
+        subject: 'You forgot your password for PixelPlanet? Get a new one here',
+        // eslint-disable-next-line max-len
+        text: `Hello,\nYou requested to get a new password. You can change your password within the next 30min here:\n ${restoreUrl} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nIf you did not request this mail, please just ignore it (the ip that requested this mail was ${ip}).\nThanks`,
+      },
+      (err) => {
+        if (err) {
+          logger.error(err & err.stack);
+        }
+      },
+    );
     return null;
   }
 
@@ -179,10 +183,18 @@ class MailProvider {
   }
 
   static createCode() {
-    const part1 = Math.random().toString(36).substring(2, 15)
-      + Math.random().toString(36).substring(2, 15);
-    const part2 = Math.random().toString(36).substring(2, 15)
-      + Math.random().toString(36).substring(2, 15);
+    const part1 = Math.random()
+      .toString(36)
+      .substring(2, 15)
+      + Math.random()
+        .toString(36)
+        .substring(2, 15);
+    const part2 = Math.random()
+      .toString(36)
+      .substring(2, 15)
+      + Math.random()
+        .toString(36)
+        .substring(2, 15);
     return `${part1}-${part2}`;
   }
 

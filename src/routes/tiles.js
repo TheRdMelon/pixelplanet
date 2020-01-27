@@ -7,10 +7,11 @@
 
 import express from 'express';
 import type { Request, Response } from 'express';
-import sharp from 'sharp';
-import { TILE_SIZE, HOUR } from '../core/constants';
 import { TILE_FOLDER } from '../core/config';
-import RedisCanvas from '../data/models/RedisCanvas';
+import { HOUR } from '../core/constants';
+// import sharp from 'sharp';
+// import { TILE_SIZE, HOUR } from '../core/constants';
+// import RedisCanvas from '../data/models/RedisCanvas';
 
 const router = express.Router();
 
@@ -93,9 +94,7 @@ router.use(
     const { c: paramC } = req.params;
     const c = parseInt(paramC, 10);
     res.set({
-      'Cache-Control': `public, s-maxage=${2 * 60 * 60}, max-age=${1
-        * 60
-        * 60}`, // seconds
+      'Cache-Control': `public, s-maxage=${2 * 3600}, max-age=${1 * 3600}`,
       'Content-Type': 'image/png',
     });
     res.status(200);

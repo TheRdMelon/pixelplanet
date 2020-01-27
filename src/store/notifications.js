@@ -4,12 +4,12 @@
  * @flow
  */
 
-
 export default () => (next) => (action) => {
   try {
     switch (action.type) {
       case 'PLACE_PIXEL': {
-        if (window.Notification
+        if (
+          window.Notification
           && Notification.permission !== 'granted'
           && Notification.permission !== 'denied'
         ) {
@@ -32,9 +32,10 @@ export default () => (next) => (action) => {
       }
 
       default:
-        // nothing
+      // nothing
     }
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
   }
   return next(action);
