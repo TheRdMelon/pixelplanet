@@ -12,7 +12,6 @@ import Palette from './Palette';
 
 import { TILE_SIZE } from './constants';
 
-
 /*
  * Copy canvases from one redis instance to another
  * @param canvasRedis redis from where to get the data
@@ -24,7 +23,11 @@ export async function updateBackupRedis(canvasRedis, backupRedis, canvases) {
   for (let i = 0; i < ids.length; i += 1) {
     const id = ids[i];
     const canvas = canvases[id];
-    const chunksXY = (canvas.size / TILE_SIZE);
+    if (canvas.v) {
+      // ignore 3D canvases
+      continue;
+    }
+    const chunksXY = canvas.size / TILE_SIZE;
     console.log('Copy Chunks to backup redis...');
     const startTime = Date.now();
     let amount = 0;
@@ -50,7 +53,6 @@ export async function updateBackupRedis(canvasRedis, backupRedis, canvases) {
   }
 }
 
-
 /*
  * Create incremential PNG tile backup between two redis canvases
  * @param canvasRedis redis from where to get the data
@@ -67,6 +69,11 @@ export async function incrementialBackupRedis(
   for (let i = 0; i < ids.length; i += 1) {
     const id = ids[i];
 
+    const canvas = canvases[id];
+    if (canvas.v) {
+      // ignore 3D canvases
+      continue;
+    }
 
     const canvasBackupDir = `${backupDir}/${id}`;
     if (!fs.existsSync(canvasBackupDir)) {
@@ -83,9 +90,8 @@ export async function incrementialBackupRedis(
       fs.mkdirSync(canvasTileBackupDir);
     }
 
-    const canvas = canvases[id];
     const palette = new Palette(canvas.colors, canvas.alpha);
-    const chunksXY = (canvas.size / TILE_SIZE);
+    const chunksXY = canvas.size / TILE_SIZE;
     console.log('Creating Incremential Backup...');
     const startTime = Date.now();
     let amount = 0;
@@ -112,7 +118,7 @@ export async function incrementialBackupRedis(
                 if (!tileBuffer) {
                   tileBuffer = new Uint32Array(TILE_SIZE * TILE_SIZE);
                 }
-                const color = palette.abgr[curChunk[pxl] & 0x1F];
+                const color = palette.abgr[curChunk[pxl] & 0x1f];
                 tileBuffer[pxl] = color;
               }
               pxl += 1;
@@ -128,15 +134,13 @@ export async function incrementialBackupRedis(
           }
           const filename = `${xBackupDir}/${y}.png`;
           // eslint-disable-next-line no-await-in-loop
-          await sharp(
-            Buffer.from(tileBuffer.buffer), {
-              raw: {
-                width: TILE_SIZE,
-                height: TILE_SIZE,
-                channels: 4,
-              },
+          await sharp(Buffer.from(tileBuffer.buffer), {
+            raw: {
+              width: TILE_SIZE,
+              height: TILE_SIZE,
+              channels: 4,
             },
-          ).toFile(filename);
+          }).toFile(filename);
           amount += 1;
         }
       }
@@ -147,7 +151,6 @@ export async function incrementialBackupRedis(
     );
   }
 }
-
 
 /*
  * Backup all tiles as PNG files into folder
@@ -175,7 +178,7 @@ export async function createPngBackup(
 
     const canvas = canvases[id];
     const palette = new Palette(canvas.colors, canvas.alpha);
-    const chunksXY = (canvas.size / TILE_SIZE);
+    const chunksXY = canvas.size / TILE_SIZE;
     console.log('Create PNG tiles from backup...');
     const startTime = Date.now();
     let amount = 0;
@@ -196,15 +199,13 @@ export async function createPngBackup(
           const textureBuffer = palette.buffer2RGB(chunk);
           const filename = `${xBackupDir}/${y}.png`;
           // eslint-disable-next-line no-await-in-loop
-          await sharp(
-            Buffer.from(textureBuffer.buffer), {
-              raw: {
-                width: TILE_SIZE,
-                height: TILE_SIZE,
-                channels: 3,
-              },
+          await sharp(Buffer.from(textureBuffer.buffer), {
+            raw: {
+              width: TILE_SIZE,
+              height: TILE_SIZE,
+              channels: 3,
             },
-          ).toFile(filename);
+          }).toFile(filename);
           amount += 1;
         }
       }

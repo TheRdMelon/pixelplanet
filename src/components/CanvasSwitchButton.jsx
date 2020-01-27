@@ -5,32 +5,33 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { FaGlobe, FaGlobeAfrica } from 'react-icons/fa';
+import { FaGlobe } from 'react-icons/fa';
 
-import { switchCanvas } from '../actions';
+import { showCanvasSelectionModal } from '../actions';
 
-import type { State } from '../reducers';
-
-
-const CanvasSwitchButton = ({ canvasId, changeCanvas }) => (
-  <div id="canvasbutton" className="actionbuttons" onClick={() => changeCanvas(canvasId)}>
-    {(canvasId == 0) ? <FaGlobe /> : <FaGlobeAfrica />}
+const CanvasSwitchButton = ({ open }) => (
+  <div
+    id="canvasbutton"
+    className="actionbuttons"
+    onClick={open}
+    role="button"
+    tabIndex={-1}
+  >
+    <FaGlobe />
   </div>
 );
 
-function mapStateToProps(state: State) {
+/* function mapStateToProps(state: State) {
   const { canvasId } = state.canvas;
   return { canvasId };
-}
+} */
 
 function mapDispatchToProps(dispatch) {
   return {
-    changeCanvas(canvasId) {
-      const newCanvasId = (canvasId == 0) ? 1 : 0;
-      dispatch(switchCanvas(newCanvasId));
+    open() {
+      dispatch(showCanvasSelectionModal());
     },
   };
 }
 
-export default connect(mapStateToProps,
-  mapDispatchToProps)(CanvasSwitchButton);
+export default connect(null, mapDispatchToProps)(CanvasSwitchButton);

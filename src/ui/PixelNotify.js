@@ -10,7 +10,6 @@ import type { State } from '../reducers';
 
 import { clamp, worldToScreen } from '../core/utils';
 
-
 class PixelNotify {
   static NOTIFICATION_TIME = 1100;
 
@@ -38,29 +37,22 @@ class PixelNotify {
     notifcontext.fill();
   }
 
-
   addPixel(x: number, y: number) {
     if (this.pixelList.length < 300) {
       this.pixelList.unshift([Date.now(), x, y]);
     }
   }
 
-
   doRender() {
-    return (this.pixelList.length != 0);
+    return this.pixelList.length !== 0;
   }
-
 
   updateScale(scale: number) {
     this.scale = scale;
     this.notificationRadius = clamp(this.scale * 10, 20, 400);
   }
 
-
-  render(
-    state: State,
-    $viewport: HTMLCanvasElement,
-  ) {
+  render(state: State, $viewport: HTMLCanvasElement) {
     const viewportCtx = $viewport.getContext('2d');
     if (!viewportCtx) return;
 
@@ -74,14 +66,20 @@ class PixelNotify {
         this.pixelList.pop();
         continue;
       }
-      const [sx, sy] = worldToScreen(state, $viewport, [x, y])
-        .map((x) => x + this.scale / 2);
+      const [sx, sy] = worldToScreen(state, $viewport, [x, y]).map(
+        (z) => z + this.scale / 2,
+      );
 
-      const notRadius = timePasseded / PixelNotify.NOTIFICATION_TIME * this.notificationRadius;
+      const notRadius = (timePasseded / PixelNotify.NOTIFICATION_TIME)
+        * this.notificationRadius;
       const circleScale = notRadius / 100;
       viewportCtx.save();
       viewportCtx.scale(circleScale, circleScale);
-      viewportCtx.drawImage(this.notifcircle, sx / circleScale - 100, sy / circleScale - 100);
+      viewportCtx.drawImage(
+        this.notifcircle,
+        sx / circleScale - 100,
+        sy / circleScale - 100,
+      );
       viewportCtx.restore();
     }
   }

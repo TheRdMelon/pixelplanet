@@ -4,9 +4,6 @@ import type { Action, ThunkAction, PromiseAction } from './types';
 import type { Cell } from '../core/Cell';
 import type { ColorIndex } from '../core/Palette';
 
-import { loadImage } from '../ui/loadImage';
-import { getColorIndexOfPixel } from '../core/utils';
-
 export function sweetAlert(
   title: string,
   text: string,
@@ -221,7 +218,6 @@ export function requestPlacePixel(
       y,
       clr: color,
       token,
-      a: x + y + 8,
     });
 
     dispatch(setPlaceAllowed(false));
@@ -286,12 +282,10 @@ export function tryPlacePixel(
   return (dispatch, getState) => {
     const state = getState();
     const { canvasId } = state.canvas;
-    const selectedColor =
-      color === undefined || color === null ? state.gui.selectedColor : color;
+    const selectedColor = color === undefined
+      || color === null ? state.gui.selectedColor : color;
 
-    if (getColorIndexOfPixel(getState(), coordinates) !== selectedColor) {
-      dispatch(requestPlacePixel(canvasId, coordinates, selectedColor));
-    }
+    dispatch(requestPlacePixel(canvasId, coordinates, selectedColor));
   };
 }
 
@@ -369,56 +363,35 @@ export function zoomOut(zoompoint): ThunkAction {
   };
 }
 
-function requestBigChunk(center: Cell): Action {
+export function requestBigChunk(center: Cell): Action {
   return {
     type: 'REQUEST_BIG_CHUNK',
     center,
   };
 }
 
-function requestBigTemplateChunk(center: Cell): Action {
+export function requestBigTemplateChunk(center: Cell): Action {
   return {
     type: 'REQUEST_BIG_TEMPLATE_CHUNK',
     center,
   };
 }
 
-function receiveBigChunk(center: Cell, arrayBuffer: ArrayBuffer): Action {
+export function receiveBigChunk(center: Cell): Action {
   return {
     type: 'RECEIVE_BIG_CHUNK',
     center,
-    arrayBuffer,
   };
 }
 
-function recieveBigTemplateChunk(
-  center: Cell,
-  arrayBuffer: ArrayBuffer,
-): Action {
+export function recieveBigTemplateChunk(center: Cell): Action {
   return {
     type: 'RECIEVE_BIG_TEMPLATE_CHUNK',
     center,
-    arrayBuffer,
   };
 }
 
-function receiveImageTile(center: Cell, tile: Image): Action {
-  return {
-    type: 'RECEIVE_IMAGE_TILE',
-    center,
-    tile,
-  };
-}
-
-function recieveImageTemplateTile(center: Cel, tile: Image): Action {
-  return {
-    type: 'RECEIVE_IMAGE_TEMPLATE_TILE',
-    center,
-    tile,
-  };
-}
-
-function receiveBigChunkFailure(center: Cell, error: Error): Action {
+export function receiveBigChunkFailure(center: Cell, error: Error): Action {
   return {
     type: 'RECEIVE_BIG_CHUNK_FAILURE',
     center,
@@ -426,114 +399,14 @@ function receiveBigChunkFailure(center: Cell, error: Error): Action {
   };
 }
 
-function recieveBigTemplateChunkFailure(center: Cell, error: Error): Action {
+export function recieveBigTemplateChunkFailure(
+  center: Cell,
+  error: Error,
+): Action {
   return {
     type: 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE',
     center,
     error,
-  };
-}
-
-export function fetchTile(canvasId, center: Cell): PromiseAction {
-  const [cz, cx, cy] = center;
-
-  return async (dispatch) => {
-    dispatch(requestBigChunk(center));
-    try {
-      const url = `/tiles/${canvasId}/${cz}/${cx}/${cy}.png`;
-      const img = await loadImage(url);
-      dispatch(receiveImageTile(center, img));
-    } catch (error) {
-      dispatch(receiveBigChunkFailure(center, error));
-    }
-  };
-}
-
-export function fetchTemplateTile(canvasId, center: Cell): PromiseAction {
-  const [cz, cx, cy] = center;
-
-  return async (dispatch) => {
-    dispatch(requestBigTemplateChunk(center));
-    try {
-      const url = `/tiles/templates/${canvasId}/${cz}/${cx}/${cy}.png`;
-      const img = await loadImage(url);
-      dispatch(recieveImageTemplateTile(center, img));
-    } catch (error) {
-      dispatch(recieveBigTemplateChunkFailure(center, error));
-    }
-  };
-}
-
-export function fetchHistoricalChunk(
-  canvasId: number,
-  center: Cell,
-  historicalDate: string,
-  historicalTime: string,
-): PromiseAction {
-  const [cx, cy] = center;
-
-  return async (dispatch) => {
-    let url = `${window.backupurl}/${historicalDate}/`;
-    let zkey;
-    if (historicalTime) {
-      // incremential tiles
-      zkey = `${historicalDate}${historicalTime}`;
-      url += `${canvasId}/${historicalTime}/${cx}/${cy}.png`;
-    } else {
-      // full tiles
-      zkey = historicalDate;
-      url += `${canvasId}/tiles/${cx}/${cy}.png`;
-    }
-    const keyValues = [zkey, cx, cy];
-    dispatch(requestBigChunk(keyValues));
-    try {
-      const img = await loadImage(url);
-      dispatch(receiveImageTile(keyValues, img));
-    } catch (error) {
-      dispatch(receiveBigChunkFailure(keyValues, error));
-    }
-  };
-}
-
-export function fetchChunk(canvasId, center: Cell): PromiseAction {
-  const [, cx, cy] = center;
-
-  return async (dispatch) => {
-    dispatch(requestBigChunk(center));
-    try {
-      const url = `/chunks/${canvasId}/${cx}/${cy}.bmp`;
-      const response = await fetch(url);
-      if (response.ok) {
-        const arrayBuffer = await response.arrayBuffer();
-        dispatch(receiveBigChunk(center, arrayBuffer));
-      } else {
-        const error = new Error('Network response was not ok.');
-        dispatch(receiveBigChunkFailure(center, error));
-      }
-    } catch (error) {
-      dispatch(receiveBigChunkFailure(center, error));
-    }
-  };
-}
-
-export function fetchTemplateChunk(canvasId, center: Cell): PromiseAction {
-  const [, cx, cy] = center;
-
-  return async (dispatch) => {
-    dispatch(requestBigTemplateChunk(center));
-    try {
-      const url = `/chunks/templates/${canvasId}/${cx}/${cy}.bmp`;
-      const response = await fetch(url);
-      if (response.ok) {
-        const arrayBuffer = await response.arrayBuffer();
-        dispatch(recieveBigTemplateChunk(center, arrayBuffer));
-      } else {
-        const error = new Error('Network response was not ok.');
-        dispatch(recieveBigTemplateChunkFailure(center, error));
-      }
-    } catch (error) {
-      dispatch(recieveBigTemplateChunkFailure(center, error));
-    }
   };
 }
 
@@ -803,6 +676,10 @@ export function showModal(modalType: string, modalProps: Object = {}): Action {
   };
 }
 
+export function showCanvasSelectionModal(): Action {
+  return showModal('CANVAS_SELECTION');
+}
+
 export function showSettingsModal(): Action {
   return showModal('SETTINGS');
 }
@@ -867,13 +744,6 @@ export function selectHistoricalTime(date: string, time: string) {
 export function urlChange(): PromiseAction {
   return (dispatch) => {
     dispatch(reloadUrl());
-  };
-}
-
-export function switchCanvas(canvasId: number): PromiseAction {
-  return async (dispatch) => {
-    await dispatch(selectCanvas(canvasId));
-    dispatch(onViewFinishChange());
   };
 }
 

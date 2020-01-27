@@ -21,10 +21,8 @@ export function loadImage(url) {
  */
 class LoadingTiles {
   tiles: Object;
-  hasTiles: boolean;
 
   constructor() {
-    this.hasTiles = false;
     this.tiles = {};
     this.loadLoadingTile(0);
   }
@@ -33,7 +31,7 @@ class LoadingTiles {
     if (typeof this.tiles[canvasId] === 'undefined') {
       this.loadLoadingTile(canvasId);
     }
-    return this.tiles[canvasId] || this.tiles[0];
+    return this.tiles[canvasId] || this.tiles[0] || null;
   }
 
   async loadLoadingTile(canvasId: number) {
@@ -43,11 +41,7 @@ class LoadingTiles {
     this.tiles[canvasId] = null;
     const img = await loadImage(`./loading${canvasId}.png`);
     this.tiles[canvasId] = img;
-    if (canvasId === 0) {
-      this.hasTiles = true;
-    }
   }
 }
-
 
 export const loadingTiles = new LoadingTiles();

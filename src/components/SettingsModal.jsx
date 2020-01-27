@@ -146,7 +146,7 @@ function SettingsModal({
       />
       <SettingsItem
         title="Compact Palette"
-        description="Display Palette in a compact form that takes less screen spaece."
+        description="Display Palette in a compact form that takes less screen space."
         value={compactPalette}
         onToggle={onToggleCompactPalette}
       />

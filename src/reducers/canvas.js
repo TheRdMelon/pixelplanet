@@ -3,13 +3,7 @@
 import type { Action } from '../actions/types';
 import type { Cell } from '../core/Cell';
 import Palette from '../core/Palette';
-import {
-  getMaxTiledZoom,
-  getChunkOfPixel,
-  getCellInsideChunk,
-  clamp,
-  getIdFromObject,
-} from '../core/utils';
+import { getMaxTiledZoom, clamp, getIdFromObject } from '../core/utils';
 
 import {
   MAX_SCALE,
@@ -18,21 +12,18 @@ import {
   DEFAULT_CANVASES,
   TILE_SIZE,
 } from '../core/constants';
-import ChunkRGB from '../ui/ChunkRGB';
 
 export type CanvasState = {
   canvasId: number,
   canvasIdent: string,
+  is3D: boolean,
   canvasSize: number,
   canvasMaxTiledZoom: number,
   canvasStartDate: string,
   palette: Palette,
-  chunks: Map<string, ChunkRGB>,
-  templateChunks: Map<string, ChunkRGB>,
   view: Cell,
   scale: number,
   viewscale: number,
-  requested: Set<string>,
   fetchs: number,
   isHistoricalView: boolean,
   historicalDate: string,
@@ -66,27 +57,30 @@ function getViewFromURL(canvases: Object) {
     let colors;
     let canvasSize;
     let canvasStartDate;
+    let is3D;
     if (canvasId == null) {
       // if canvas informations are not available yet
       // aka /api/me didn't load yet
       colors = canvases[DEFAULT_CANVAS_ID].colors;
       canvasSize = 1024;
+      is3D = false;
       canvasStartDate = null;
     } else {
       const canvas = canvases[canvasId];
       colors = canvas.colors;
       canvasSize = canvas.size;
+      is3D = !!canvas.v;
       canvasStartDate = canvas.sd;
     }
 
     const x = parseInt(almost[1], 10);
     const y = parseInt(almost[2], 10);
     let urlscale = parseInt(almost[3], 10);
-    if (isNaN(x) || isNaN(y)) {
+    if (Number.isNaN(x) || Number.isNaN(y)) {
       const thrown = 'NaN';
       throw thrown;
     }
-    if (!urlscale || isNaN(urlscale)) {
+    if (!urlscale || Number.isNaN(urlscale)) {
       urlscale = DEFAULT_SCALE;
     } else {
       urlscale = 2 ** (urlscale / 10);
@@ -96,6 +90,7 @@ function getViewFromURL(canvases: Object) {
       canvasId,
       canvasIdent,
       canvasSize,
+      is3D,
       canvasStartDate,
       canvasMaxTiledZoom: getMaxTiledZoom(canvasSize),
       palette: new Palette(colors, 0),
@@ -109,6 +104,7 @@ function getViewFromURL(canvases: Object) {
       canvasId: DEFAULT_CANVAS_ID,
       canvasIdent: canvases[DEFAULT_CANVAS_ID].ident,
       canvasSize: canvases[DEFAULT_CANVAS_ID].size,
+      is3D: !!canvases[DEFAULT_CANVAS_ID].v,
       canvasStartDate: null,
       canvasMaxTiledZoom: getMaxTiledZoom(canvases[DEFAULT_CANVAS_ID].size),
       palette: new Palette(canvases[DEFAULT_CANVAS_ID].colors, 0),
@@ -120,43 +116,18 @@ function getViewFromURL(canvases: Object) {
 }
 
 const initialState: CanvasState = {
-  chunks: new Map(),
-  templateChunks: new Map(),
   ...getViewFromURL(DEFAULT_CANVASES),
-  requested: new Set(),
   fetchs: 0,
   isHistoricalView: false,
   historicalDate: null,
   historicalTime: null,
 };
 
-export default function gui(
+export default function canvasReducer(
   state: CanvasState = initialState,
   action: Action,
 ): CanvasState {
   switch (action.type) {
-    case 'PLACE_PIXEL': {
-      const {
-        chunks, canvasMaxTiledZoom, palette, canvasSize,
-      } = state;
-      const { coordinates, color } = action;
-
-      const [cx, cy] = getChunkOfPixel(coordinates, canvasSize);
-      const key = ChunkRGB.getKey(canvasMaxTiledZoom, cx, cy);
-      let chunk = chunks.get(key);
-      if (!chunk) {
-        chunk = new ChunkRGB(palette, [canvasMaxTiledZoom, cx, cy]);
-        chunks.set(chunk.key, chunk);
-      }
-
-      // redis prediction
-      chunk.setColor(getCellInsideChunk(coordinates), color);
-      return {
-        ...state,
-        chunks,
-      };
-    }
-
     case 'SET_SCALE': {
       let { view, viewscale } = state;
       const { canvasSize, isHistoricalView } = state;
@@ -205,7 +176,7 @@ export default function gui(
         ...state,
         scale: scale < 1.0 ? 1.0 : scale,
         viewscale: viewscale < 1.0 ? 1.0 : viewscale,
-        isHistoricalView: !state.isHistoricalView,
+        isHistoricalView: !state.is3D && !state.isHistoricalView,
       };
     }
 
@@ -222,58 +193,26 @@ export default function gui(
     }
 
     case 'RELOAD_URL': {
-      const {
-        canvasId, chunks, templateChunks, canvases,
-      } = state;
+      const { canvases } = state;
       const nextstate = getViewFromURL(canvases);
-      if (nextstate.canvasId !== canvasId) {
-        chunks.clear();
-        templateChunks.clear();
-      }
       return {
         ...state,
         ...nextstate,
       };
     }
 
-    /*
-     * set url coordinates
-     */
-    case 'ON_VIEW_FINISH_CHANGE': {
-      const { view, viewscale, canvasIdent } = state;
-      let [x, y] = view;
-      x = Math.round(x);
-      y = Math.round(y);
-      const scale = Math.round(Math.log2(viewscale) * 10);
-      const newhash = `#${canvasIdent},${x},${y},${scale}`;
-      window.history.replaceState(undefined, undefined, newhash);
-      return {
-        ...state,
-      };
-    }
-
     case 'REQUEST_BIG_CHUNK': {
-      const {
-        palette, chunks, fetchs, requested,
-      } = state;
-      const { center } = action;
+      const { fetchs } = state;
 
-      const chunkRGB = new ChunkRGB(palette, center);
-      // chunkRGB.preLoad(chunks);
-      const { key } = chunkRGB;
-      chunks.set(key, chunkRGB);
-
-      requested.add(key);
       return {
         ...state,
-        chunks,
         fetchs: fetchs + 1,
-        requested,
       };
     }
 
     case 'REQUEST_BIG_TEMPLATE_CHUNK': {
-      const {
+      // TODO
+      /* const {
         palette, templateChunks, fetchs, requested,
       } = state;
       const { center } = action;
@@ -288,34 +227,28 @@ export default function gui(
         templateChunks,
         fetchs: fetchs + 1,
         requested,
+      }; */
+
+      const { fetchs } = state;
+
+      return {
+        ...state,
+        fetchs: fetchs + 1,
       };
     }
 
     case 'RECEIVE_BIG_CHUNK': {
-      const { chunks, fetchs } = state;
-      const { center, arrayBuffer } = action;
-
-      const key = ChunkRGB.getKey(...center);
-      const chunk = chunks.get(key);
-      if (!chunk) return state;
-
-      chunk.isBasechunk = true;
-      if (arrayBuffer.byteLength) {
-        const chunkArray = new Uint8Array(arrayBuffer);
-        chunk.fromBuffer(chunkArray);
-      } else {
-        chunk.empty();
-      }
+      const { fetchs } = state;
 
       return {
         ...state,
-        chunks,
         fetchs: fetchs + 1,
       };
     }
 
     case 'RECIEVE_BIG_TEMPLATE_CHUNK': {
-      const { templateChunks, fetchs } = state;
+      // TODO
+      /* const { templateChunks, fetchs } = state;
       const { center, arrayBuffer } = action;
 
       const key = ChunkRGB.getKey(...center);
@@ -332,18 +265,18 @@ export default function gui(
         ...state,
         templateChunks,
         fetchs: fetchs + 1,
+      }; */
+
+      const { fetchs } = state;
+
+      return {
+        ...state,
+        fetchs: fetchs + 1,
       };
     }
 
     case 'RECEIVE_BIG_CHUNK_FAILURE': {
-      const { chunks, fetchs } = state;
-      const { center } = action;
-
-      const key = ChunkRGB.getKey(...center);
-      const chunk = chunks.get(key);
-      if (!chunk) return state;
-
-      chunk.empty();
+      const { fetchs } = state;
 
       return {
         ...state,
@@ -352,7 +285,8 @@ export default function gui(
     }
 
     case 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE': {
-      const { templateChunks, fetchs } = state;
+      // TODO
+      /* const { templateChunks, fetchs } = state;
       const { center } = action;
 
       const key = ChunkRGB.getKey(...center);
@@ -363,27 +297,19 @@ export default function gui(
         ...state,
         templateChunks,
         fetchs: fetchs + 1,
-      };
-    }
+      }; */
 
-    case 'RECEIVE_IMAGE_TILE': {
-      const { chunks, fetchs } = state;
-      const { center, tile } = action;
-
-      const key = ChunkRGB.getKey(...center);
-      const chunk = chunks.get(key);
-      if (!chunk) return state;
-
-      chunk.fromImage(tile);
+      const { fetchs } = state;
 
       return {
         ...state,
-        chunks,
         fetchs: fetchs + 1,
       };
     }
 
-    case 'RECEIVE_IMAGE_TEMPLATE_TILE': {
+    // TODO
+
+    /* case 'RECEIVE_IMAGE_TEMPLATE_TILE': {
       const { templateChunks, fetchs } = state;
       const { center, tile } = action;
 
@@ -396,37 +322,12 @@ export default function gui(
         templateChunks,
         fetchs: fetchs + 1,
       };
-    }
-
-    case 'RECEIVE_PIXEL_UPDATE': {
-      const { chunks, canvasMaxTiledZoom } = state;
-      // i, j: Coordinates of chunk
-      // offset: Offset of pixel within said chunk
-      const {
-        i, j, offset, color,
-      } = action;
-
-      const key = ChunkRGB.getKey(canvasMaxTiledZoom, i, j);
-      const chunk = chunks.get(key);
-
-      // ignore because is not seen
-      if (!chunk) return state;
-
-      const ix = offset % TILE_SIZE;
-      const iy = Math.floor(offset / TILE_SIZE);
-      chunk.setColor([ix, iy], color);
-
-      return {
-        ...state,
-        chunks,
-      };
-    }
+    } */
 
     case 'SELECT_CANVAS': {
       let { canvasId } = action;
-      const { canvases, chunks } = state;
+      const { canvases, isHistoricalView } = state;
 
-      chunks.clear();
       let canvas = canvases[canvasId];
       if (!canvas) {
         canvasId = DEFAULT_CANVAS_ID;
@@ -436,23 +337,25 @@ export default function gui(
         size: canvasSize,
         sd: canvasStartDate,
         ident: canvasIdent,
+        v: is3D,
         colors,
       } = canvas;
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
       const palette = new Palette(colors, 0);
       const view = canvasId === 0 ? getGivenCoords() : [0, 0];
-      chunks.clear();
       return {
         ...state,
         canvasId,
         canvasIdent,
         canvasSize,
+        is3D,
         canvasStartDate,
         canvasMaxTiledZoom,
         palette,
         view,
         viewscale: DEFAULT_SCALE,
         scale: DEFAULT_SCALE,
+        isHistoricalView: !is3D && !isHistoricalView,
       };
     }
 
@@ -465,9 +368,12 @@ export default function gui(
         canvasId = DEFAULT_CANVAS_ID;
         canvasIdent = canvases[DEFAULT_CANVAS_ID].ident;
       }
-      const { size: canvasSize, sd: canvasStartDate, colors } = canvases[
-        canvasId
-      ];
+      const {
+        size: canvasSize,
+        sd: canvasStartDate,
+        v: is3D,
+        colors,
+      } = canvases[canvasId];
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
       const palette = new Palette(colors, 0);
 
@@ -476,6 +382,7 @@ export default function gui(
         canvasId,
         canvasIdent,
         canvasSize,
+        is3D,
         canvasStartDate,
         canvasMaxTiledZoom,
         palette,

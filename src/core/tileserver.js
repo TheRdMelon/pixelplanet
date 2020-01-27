@@ -13,18 +13,14 @@ import Palette from './Palette';
 import RedisCanvas from '../data/models/RedisCanvas';
 
 import { TILE_FOLDER } from './config';
-import {
-  TILE_SIZE,
-  TILE_ZOOM_LEVEL,
-} from './constants';
+import { TILE_SIZE, TILE_ZOOM_LEVEL } from './constants';
 import {
   createZoomTileFromChunk,
   createZoomedTile,
   createTexture,
   initializeTiles,
 } from './Tile';
-import { mod, getChunkOfPixel, getMaxTiledZoom } from './utils';
-
+import { mod, getMaxTiledZoom } from './utils';
 
 // Array that holds cells of all changed base zoomlevel tiles
 const CanvasUpdaters = {};
@@ -73,11 +69,11 @@ class CanvasUpdater {
           [cx, cy],
         );
       } else if (zoom !== this.maxTiledZoom) {
-        await createZoomedTile(
-          this.canvasTileFolder,
-          this.palette,
-          [zoom, cx, cy],
-        );
+        await createZoomedTile(this.canvasTileFolder, this.palette, [
+          zoom,
+          cx,
+          cy,
+        ]);
       }
 
       if (zoom === 0) {
@@ -90,7 +86,7 @@ class CanvasUpdater {
         );
       } else {
         const [ucx, ucy] = [cx, cy].map((z) => Math.floor(z / 4));
-        const upperTile = ucx + ucy * (TILE_ZOOM_LEVEL ** (zoom - 1));
+        const upperTile = ucx + ucy * TILE_ZOOM_LEVEL ** (zoom - 1);
         const upperQueue = this.TileLoadingQueues[zoom - 1];
         if (~upperQueue.indexOf(upperTile)) return;
         upperQueue.push(upperTile);
@@ -117,15 +113,6 @@ class CanvasUpdater {
   }
 
   /*
-   * register changed pixel, queue corespongind tile to reload
-   * @param pixel Pixel that got changed
-   */
-  registerPixelChange(pixel: Cell) {
-    const chunk = getChunkOfPixel(pixel, this.canvas.size);
-    return this.registerChunkChange(chunk);
-  }
-
-  /*
    * initialize queues and start loops for updating tiles
    */
   async startReloadingLoops() {
@@ -148,7 +135,7 @@ class CanvasUpdater {
     }
     for (let c = 0; c < this.maxTiledZoom; c += 1) {
       this.TileLoadingQueues.push([]);
-      const timeout = (8 ** (this.maxTiledZoom - c - 1)) * 5 * 1000;
+      const timeout = 8 ** (this.maxTiledZoom - c - 1) * 5 * 1000;
       logger.info(
         `Tiling: Set interval for zoomlevel ${c} update to ${timeout / 1000}`,
       );
@@ -163,13 +150,11 @@ class CanvasUpdater {
 }
 
 export function registerChunkChange(canvasId: number, chunk: Cell) {
-  return CanvasUpdaters[canvasId].registerChunkChange(chunk);
+  if (CanvasUpdaters[canvasId]) {
+    CanvasUpdaters[canvasId].registerChunkChange(chunk);
+  }
 }
 RedisCanvas.setChunkChangeCallback(registerChunkChange);
-
-export function registerPixelChange(canvasId: number, pixel: Cell) {
-  return CanvasUpdaters[canvasId].registerPixelChange(pixel);
-}
 
 /*
  * starting update loops for canvases
@@ -178,7 +163,12 @@ export function startAllCanvasLoops() {
   if (!fs.existsSync(`${TILE_FOLDER}`)) fs.mkdirSync(`${TILE_FOLDER}`);
   const ids = Object.keys(canvases);
   for (let i = 0; i < ids.length; i += 1) {
-    const updater = new CanvasUpdater(parseInt(ids[i], 10));
-    CanvasUpdaters[ids[i]] = updater;
+    const id = parseInt(ids[i], 10);
+    const canvas = canvases[id];
+    if (!canvas.v) {
+      // just 2D canvases
+      const updater = new CanvasUpdater(id);
+      CanvasUpdaters[ids[i]] = updater;
+    }
   }
 }

@@ -52,10 +52,16 @@ class RedisCanvas {
     return true;
   }
 
-  static async setPixel(x: number, y: number, color: number, canvasId: number) {
+  static async setPixel(
+    color: number,
+    canvasId: number,
+    x: number,
+    y: number,
+    z: number = null,
+  ) {
     const canvasSize = canvases[canvasId].size;
-    const [i, j] = getChunkOfPixel([x, y], canvasSize);
-    const offset = getOffsetOfPixel(x, y, canvasSize);
+    const [i, j] = getChunkOfPixel(canvasSize, x, y, z);
+    const offset = getOffsetOfPixel(canvasSize, x, y, z);
     RedisCanvas.setPixelInChunk(i, j, offset, color, canvasId);
   }
 
@@ -79,16 +85,17 @@ class RedisCanvas {
   }
 
   static async getPixelIfExists(
+    canvasId: number,
     x: number,
     y: number,
-    canvasId: number,
+    z: number = null,
   ): Promise<number> {
     // 1st and 2nd bit -> not used yet
     // 3rd bit -> protected or not
     // rest (5 bits) -> index of color
     const canvasSize = canvases[canvasId].size;
-    const [i, j] = getChunkOfPixel([x, y], canvasSize);
-    const offset = getOffsetOfPixel(x, y, canvasSize);
+    const [i, j] = getChunkOfPixel(canvasSize, x, y, z);
+    const offset = getOffsetOfPixel(canvasSize, x, y, z);
     const args = [`ch:${canvasId}:${i}:${j}`, 'GET', UINT_SIZE, `#${offset}`];
     const result: ?number = await redis.sendCommandAsync('bitfield', args);
     if (!result) return null;
@@ -97,13 +104,14 @@ class RedisCanvas {
   }
 
   static async getPixel(
+    canvasId: number,
     x: number,
     y: number,
-    canvasId: number,
+    z: number = null,
   ): Promise<number> {
     const canvasAlpha = canvases[canvasId].alpha;
-    const clr = RedisCanvas.getPixelIfExists(x, y, canvasId);
-    return (clr == null) ? canvasAlpha : clr;
+    const clr = RedisCanvas.getPixelIfExists(canvasId, x, y, z);
+    return clr == null ? canvasAlpha : clr;
   }
 }
 

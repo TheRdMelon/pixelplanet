@@ -1,5 +1,6 @@
 /*
  * Menu with Buttons on the top left
+ * @flow
  */
 
 import React from 'react';
@@ -29,9 +30,11 @@ const Menu = ({
         </>
       ) : null}
     </div>
-    {minecraftname && !messages.includes('not_mc_verified') && canvasId == 0 ? (
+    {minecraftname
+    && !messages.includes('not_mc_verified')
+    && canvasId === 0 ? (
       <MinecraftTPButton />
-    ) : null}
+      ) : null}
   </div>
 );
 

@@ -20,19 +20,18 @@ export function renderPlaceholder(
   const { selectedColor, hover } = state.gui;
   const { palette } = state.canvas;
 
-  const worldPos = screenToWorld(state, $viewport, hover);
-  const [sx, sy] = worldToScreen(state, $viewport, worldPos);
+  const [sx, sy] = worldToScreen(state, $viewport, hover);
 
   viewportCtx.save();
-  viewportCtx.translate(sx + (scale / 2), sy + (scale / 2));
+  viewportCtx.translate(sx + scale / 2, sy + scale / 2);
   const angle = Math.sin(Date.now() / 250) / 4;
   viewportCtx.rotate(angle);
   viewportCtx.fillStyle = '#000';
   viewportCtx.fillRect(
     -(scale * (PLACEHOLDER_SIZE / 2)) - PLACEHOLDER_BORDER,
     -(scale * (PLACEHOLDER_SIZE / 2)) - PLACEHOLDER_BORDER,
-    (scale * PLACEHOLDER_SIZE) + (2 * PLACEHOLDER_BORDER),
-    (scale * PLACEHOLDER_SIZE) + (2 * PLACEHOLDER_BORDER),
+    scale * PLACEHOLDER_SIZE + 2 * PLACEHOLDER_BORDER,
+    scale * PLACEHOLDER_SIZE + 2 * PLACEHOLDER_BORDER,
   );
   viewportCtx.fillStyle = palette.colors[selectedColor];
   viewportCtx.fillRect(
@@ -44,7 +43,6 @@ export function renderPlaceholder(
   viewportCtx.restore();
 }
 
-
 export function renderPotatoPlaceholder(
   state: State,
   $viewport: HTMLCanvasElement,
@@ -55,8 +53,7 @@ export function renderPotatoPlaceholder(
   const { selectedColor, hover } = state.gui;
   const { palette } = state.canvas;
 
-  const worldPos = screenToWorld(state, $viewport, hover);
-  const [sx, sy] = worldToScreen(state, $viewport, worldPos);
+  const [sx, sy] = worldToScreen(state, $viewport, hover);
 
   viewportCtx.save();
   viewportCtx.fillStyle = '#000';
@@ -72,7 +69,6 @@ export function renderPotatoPlaceholder(
   viewportCtx.restore();
 }
 
-
 export function renderGrid(
   state: State,
   $viewport: HTMLCanvasElement,
@@ -85,18 +81,18 @@ export function renderGrid(
   if (!viewportCtx) return;
 
   viewportCtx.globalAlpha = 0.5;
-  viewportCtx.fillStyle = (isLightGrid) ? '#DDDDDD' : '#222222';
+  viewportCtx.fillStyle = isLightGrid ? '#DDDDDD' : '#222222';
 
   let [xoff, yoff] = screenToWorld(state, $viewport, [0, 0]);
   let [x, y] = worldToScreen(state, $viewport, [xoff, yoff]);
 
   for (; x < width; x += scale) {
-    const thick = (xoff++ % 10 === 0) ? 2 : 1;
+    const thick = xoff++ % 10 === 0 ? 2 : 1;
     viewportCtx.fillRect(x, 0, thick, height);
   }
 
   for (; y < height; y += scale) {
-    const thick = (yoff++ % 10 === 0) ? 2 : 1;
+    const thick = yoff++ % 10 === 0 ? 2 : 1;
     viewportCtx.fillRect(0, y, width, thick);
   }
 

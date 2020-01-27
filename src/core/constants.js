@@ -62,6 +62,9 @@ export const DEFAULT_CANVASES = {
 
 export const TILE_LOADING_IMAGE = './loading.png';
 
+// constants for 3D voxel canvas
+export const THREE_CANVAS_HEIGHT = 128;
+export const THREE_TILE_SIZE = 64;
 // one bigchunk has 16x16 smallchunks, one smallchunk has 64x64 pixel, so one bigchunk is 1024x1024 pixels
 export const TILE_SIZE = 256;
 // how much to scale for a new tiled zoomlevel
