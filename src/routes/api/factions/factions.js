@@ -183,7 +183,7 @@ const transferFaction = async (req: Request, res: Response) => {
 const factionIcon = async (req: Request, res: Response) => {
   const { faction: factionIdParam } = req.params;
 
-  const faction = factions.factions.find((f) => f.id === factionIdParam);
+  const faction = factions.factionInfo.find((f) => f.id === factionIdParam);
 
   // Validation
   const errors = [];

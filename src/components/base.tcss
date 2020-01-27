@@ -462,6 +462,7 @@ kbd {
   border-top: 1px black solid;
   border-right: 1px black solid;
   border-bottom: 1px black solid;
+  width: 64px;
 }
 
 :global(.factionselectorlogobackground) {

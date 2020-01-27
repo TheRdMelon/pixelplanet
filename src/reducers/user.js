@@ -247,10 +247,12 @@ export default function user(
 
     case 'RECIEVE_OWN_FACTIONS': {
       const { ownFactions } = action;
+      const { factions } = state;
 
       return {
         ...state,
         ownFactions,
+        factions: [...ownFactions, ...factions],
       };
     }
 

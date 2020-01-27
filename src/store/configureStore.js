@@ -17,7 +17,6 @@ import notifications from './notifications';
 import title from './title';
 import reducers from '../reducers';
 
-
 const isDebuggingInChrome = __DEV__ && !!window.navigator.userAgent;
 
 const logger = createLogger({
@@ -46,7 +45,6 @@ const store = createStore(
     ),
   ),
 );
-
 
 export default function configureStore(onComplete: ?() => void) {
   persistStore(store, null, onComplete);
