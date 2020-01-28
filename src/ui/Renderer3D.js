@@ -40,6 +40,7 @@ class Renderer {
   mouse;
   raycaster;
   pressTime: number;
+  pressCdTime: number;
   //--
   chunkLoader: ChunkLoader = null;
   forceNextRender: boolean = false;
@@ -363,7 +364,12 @@ class Renderer {
   }
 
   onDocumentMouseUp(event) {
-    if (Date.now() - this.pressTime > 600) {
+    const curTime = Date.now();
+    if (curTime - this.pressCdTime < 200) {
+      return;
+    }
+    if (curTime - this.pressTime > 500) {
+      this.pressCdTime = curTime;
       return;
     }
 
