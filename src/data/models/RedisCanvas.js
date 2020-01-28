@@ -1,7 +1,7 @@
 /* @flow */
 
 import { getChunkOfPixel, getOffsetOfPixel } from '../../core/utils';
-import { TILE_SIZE } from '../../core/constants';
+import { TILE_SIZE, THREE_CANVAS_HEIGHT } from '../../core/constants';
 import canvases from '../../canvases.json';
 import logger from '../../core/logger';
 
@@ -12,6 +12,10 @@ const UINT_SIZE = 'u8';
 
 const EMPTY_CACA = new Uint8Array(TILE_SIZE * TILE_SIZE);
 const EMPTY_CHUNK_BUFFER = Buffer.from(EMPTY_CACA.buffer);
+const THREE_EMPTY_CACA = new Uint8Array(
+  TILE_SIZE * TILE_SIZE * THREE_CANVAS_HEIGHT,
+);
+const THREE_EMPTY_CHUNK_BUFFER = Buffer.from(THREE_EMPTY_CACA.buffer);
 
 // cache existence of chunks
 const chunks: Set<string> = new Set();
@@ -24,9 +28,14 @@ class RedisCanvas {
     RedisCanvas.registerChunkChange = cb;
   }
 
-  static getChunk(i: number, j: number, canvasId: number): Promise<Buffer> {
+  static getChunk(
+    canvasId: number,
+    i: number,
+    j: number,
+  ): Promise<Buffer> {
     // this key is also hardcoded into core/tilesBackup.js
-    return redis.getAsync(`ch:${canvasId}:${i}:${j}`);
+    const key = `ch:${canvasId}:${i}:${j}`;
+    return redis.getAsync(key);
   }
 
   static async setChunk(i: number, j: number, chunk: Uint8Array,
@@ -64,7 +73,12 @@ class RedisCanvas {
     const key = `ch:${canvasId}:${i}:${j}`;
 
     if (!chunks.has(key)) {
-      await redis.setAsync(key, EMPTY_CHUNK_BUFFER, 'NX');
+      const is3D = canvases[canvasId].v;
+      if (is3D) {
+        await redis.setAsync(key, THREE_EMPTY_CHUNK_BUFFER, 'NX');
+      } else {
+        await redis.setAsync(key, EMPTY_CHUNK_BUFFER, 'NX');
+      }
       chunks.add(key);
     }
 

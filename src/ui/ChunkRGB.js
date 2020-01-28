@@ -19,7 +19,7 @@ class ChunkRGB {
     // if true => chunk got requested from api/chunk and
     //            receives websocket pixel updates
     // if false => chunk is an zoomed png tile
-    this.isBasechunk = true;
+    this.isBasechunk = false;
     this.palette = palette;
     this.image = document.createElement('canvas');
     this.image.width = TILE_SIZE;
@@ -69,7 +69,6 @@ class ChunkRGB {
   */
 
   fromBuffer(chunkBuffer: Uint8Array) {
-    this.ready = true;
     const imageData = new ImageData(TILE_SIZE, TILE_SIZE);
     const imageView = new Uint32Array(imageData.data.buffer);
     const colors = this.palette.buffer2ABGR(chunkBuffer);
@@ -78,6 +77,7 @@ class ChunkRGB {
     });
     const ctx = this.image.getContext('2d');
     ctx.putImageData(imageData, 0, 0);
+    this.ready = true;
   }
 
   fromImage(img: Image) {

@@ -37,12 +37,14 @@ export default (store) => (next) => (action) => {
         view,
         viewscale,
         canvasIdent,
+        is3D,
       } = store.getState().canvas;
-      let [x, y] = view;
-      x = Math.round(x);
-      y = Math.round(y);
-      const scale = Math.round(Math.log2(viewscale) * 10);
-      const newhash = `#${canvasIdent},${x},${y},${scale}`;
+      const coords = view.map((u) => Math.round(u)).join(',');
+      let newhash = `#${canvasIdent},${coords}`;
+      if (!is3D) {
+        const scale = Math.round(Math.log2(viewscale) * 10);
+        newhash += `,${scale}`;
+      }
       window.history.replaceState(undefined, undefined, newhash);
       break;
     }

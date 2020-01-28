@@ -213,13 +213,14 @@ export function requestPlacePixel(
   color: ColorIndex,
   token: ?string = null,
 ): ThunkAction {
-  const [x, y] = coordinates;
+  const [x, y, z] = coordinates;
 
   return async (dispatch) => {
     const body = JSON.stringify({
       cn: canvasId,
       x,
       y,
+      z,
       clr: color,
       token,
     });
@@ -283,7 +284,9 @@ export function tryPlacePixel(
 ): ThunkAction {
   return (dispatch, getState) => {
     const state = getState();
-    const { canvasId } = state.canvas;
+    const {
+      canvasId,
+    } = state.canvas;
     const selectedColor = (color === undefined || color === null)
       ? state.gui.selectedColor
       : color;

@@ -3,7 +3,6 @@
  * @flow
  */
 
-
 import EventEmitter from 'events';
 
 import CoolDownPacket from './packets/CoolDownPacket';
@@ -16,7 +15,6 @@ import DeRegisterChunk from './packets/DeRegisterChunk';
 import RequestChatHistory from './packets/RequestChatHistory';
 import ChangedMe from './packets/ChangedMe';
 
-
 const chunks = [];
 
 class ProtocolClient extends EventEmitter {
@@ -26,23 +24,30 @@ class ProtocolClient extends EventEmitter {
   canvasId: number;
   timeConnected: number;
   isConnected: number;
+  isConnecting: boolean;
+  msgQueue: Array;
 
   constructor() {
     super();
     console.log('creating ProtocolClient');
+    this.isConnecting = false;
     this.isConnected = false;
     this.ws = null;
     this.name = null;
     this.canvasId = null;
+    this.msgQueue = [];
   }
 
   async connect() {
+    this.isConnecting = true;
     if (this.ws) {
       console.log('WebSocket already open, not starting');
     }
     this.timeConnected = Date.now();
-    const protocol = (location.protocol === 'https:') ? 'wss:' : 'ws:';
-    const url = `${protocol}//${location.hostname}${location.port ? `:${location.port}` : ''}/ws`;
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const url = `${protocol}//${location.hostname}${
+      location.port ? `:${location.port}` : ''
+    }/ws`;
     this.ws = new WebSocket(url);
     this.ws.binaryType = 'arraybuffer';
     this.ws.onopen = this.onOpen.bind(this);
@@ -51,15 +56,35 @@ class ProtocolClient extends EventEmitter {
     this.ws.onerror = this.onError.bind(this);
   }
 
+  sendWhenReady(msg) {
+    if (this.isConnected) {
+      this.ws.send(msg);
+    } else {
+      console.log('Tried sending message when websocket was closed!');
+      this.msgQueue.push(msg);
+      if (!this.isConnecting) {
+        this.connect();
+      }
+    }
+  }
+
+  processMsgQueue() {
+    while (this.msgQueue.length > 0) {
+      this.sendWhenReady(this.msgQueue.shift());
+    }
+  }
+
   onOpen() {
+    this.isConnecting = false;
     this.isConnected = true;
     this.emit('open', {});
     this.requestChatHistory();
-    console.log(`Register ${chunks.length} chunks`);
-    this.ws.send(RegisterMultipleChunks.dehydrate(chunks));
+    this.processMsgQueue();
     if (this.canvasId !== null) {
       this.ws.send(RegisterCanvas.dehydrate(this.canvasId));
     }
+    console.log(`Register ${chunks.length} chunks`);
+    this.ws.send(RegisterMultipleChunks.dehydrate(chunks));
   }
 
   onError(err) {
@@ -80,9 +105,8 @@ class ProtocolClient extends EventEmitter {
     }
     console.log('Notify websocket server that we changed canvas');
     this.canvasId = canvasId;
-    if (this.isConnected) {
-      this.ws.send(RegisterCanvas.dehydrate(this.canvasId));
-    }
+    chunks.length = 0;
+    this.sendWhenReady(RegisterCanvas.dehydrate(this.canvasId));
   }
 
   registerChunk(cell) {
@@ -119,7 +143,9 @@ class ProtocolClient extends EventEmitter {
         this.onBinaryMessage(message);
       }
     } catch (err) {
-      console.log(`An error occured while parsing websocket message ${message}`);
+      console.log(
+        `An error occured while parsing websocket message ${message}`,
+      );
     }
   }
 
@@ -174,9 +200,11 @@ class ProtocolClient extends EventEmitter {
     this.ws = null;
     this.isConnected = false;
     // reconnect in 1s if last connect was longer than 7s ago, else 5s
-    const timeout = (this.timeConnected < Date.now() - 7000) ? 1000 : 5000;
-    console.warn('Socket is closed. '
-      + `Reconnect will be attempted in ${timeout} ms.`, e.reason);
+    const timeout = this.timeConnected < Date.now() - 7000 ? 1000 : 5000;
+    console.warn(
+      'Socket is closed. ' + `Reconnect will be attempted in ${timeout} ms.`,
+      e.reason,
+    );
 
     setTimeout(() => this.connect(), 5000);
   }
@@ -187,6 +215,7 @@ class ProtocolClient extends EventEmitter {
 
   reconnect() {
     if (this.isConnected) {
+      this.isConnected = false;
       console.log('Restarting WebSocket');
       this.ws.onclose = null;
       this.ws.onmessage = null;

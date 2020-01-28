@@ -61,31 +61,58 @@ async function draw(
 
   const canvasMaxXY = canvas.size / 2;
   const canvasMinXY = -canvasMaxXY;
-  if (x < canvasMinXY || y < canvasMinXY
-      || x >= canvasMaxXY || y >= canvasMaxXY) {
+  if (x < canvasMinXY || x >= canvasMaxXY) {
     return {
-      error: 'Coordinates not within canvas',
+      error: 'x Coordinate not within canvas',
       success: false,
     };
   }
-  if (z !== null) {
-    if (z >= THREE_CANVAS_HEIGHT) {
+  if (canvas.v) {
+    if (z < canvasMinXY || z >= canvasMaxXY) {
+      return {
+        error: 'z Coordinate not within canvas',
+        success: false,
+      };
+    }
+    if (y >= THREE_CANVAS_HEIGHT) {
       return {
         error: 'You reached build limit. Can\'t place higher than 128 blocks.',
         success: false,
       };
     }
-    if (!canvas.v) {
+    if (y < 0) {
       return {
-        error: 'This is not a 3D canvas',
+        error: 'Can\'t place on y < 0',
         success: false,
       };
     }
-  } else if (canvas.v) {
-    return {
-      error: 'This is a 3D canvas. z is required.',
-      success: false,
-    };
+    if (z === null) {
+      return {
+        error: 'This is a 3D canvas. z is required.',
+        success: false,
+      };
+    }
+  } else {
+    if (y < canvasMinXY || y >= canvasMaxXY) {
+      return {
+        error: 'y Coordinate not within canvas',
+        success: false,
+      };
+    }
+    if (color < 2) {
+      return {
+        error: 'Invalid color selected',
+        success: false,
+      };
+    }
+    if (z !== null) {
+      if (!canvas.v) {
+        return {
+          error: 'This is not a 3D canvas',
+          success: false,
+        };
+      }
+    }
   }
 
   if (canvas.req !== -1) {
@@ -139,7 +166,7 @@ async function draw(
     };
   }
 
-  setPixel(canvasId, color, x, y, null);
+  setPixel(canvasId, color, x, y, z);
 
   user.setWait(waitLeft, canvasId);
   user.incrementPixelcount();

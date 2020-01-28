@@ -28,7 +28,7 @@ export default function modal(
     // fixes a bug with iPad
     case 'SHOW_MODAL': {
       const { modalType, modalProps } = action;
-      const chatOpen = (modalType == 'CHAT') ? false : state.chatOpen;
+      const chatOpen = (modalType === 'CHAT') ? false : state.chatOpen;
       return {
         ...state,
         modalType,

@@ -8,6 +8,8 @@ import { connect } from 'react-redux';
 import { MdFileDownload } from 'react-icons/md';
 import fileDownload from 'react-file-download';
 
+import { getRenderer } from '../ui/renderer';
+
 import type { State } from '../reducers';
 
 
@@ -15,21 +17,25 @@ import type { State } from '../reducers';
  * https://jsfiddle.net/AbdiasSoftware/7PRNN/
  */
 function download(view) {
-  // TODO id shouldnt be hardcoded
-  const $viewport = document.getElementById('gameWindow');
-  if (!$viewport) return;
-
-  // TODO change name
+  const renderer = getRenderer();
+  const viewport = renderer.getViewport();
+  if (!viewport) return;
 
   const [x, y] = view.map(Math.round);
   const filename = `pixelplanet-${x}-${y}.png`;
 
-  $viewport.toBlob((blob) => fileDownload(blob, filename));
+  viewport.toBlob((blob) => fileDownload(blob, filename));
 }
 
 
 const DownloadButton = ({ view }) => (
-  <div id="downloadbutton" className="actionbuttons" onClick={() => download(view)}>
+  <div
+    id="downloadbutton"
+    className="actionbuttons"
+    role="button"
+    tabIndex={0}
+    onClick={() => download(view)}
+  >
     <MdFileDownload />
   </div>
 );

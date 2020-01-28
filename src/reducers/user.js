@@ -104,7 +104,6 @@ export default function user(
     case 'RECEIVE_CHAT_MESSAGE': {
       const { name, text } = action;
       let { chatMessages } = state;
-      console.log('received chat message');
       if (chatMessages.length > 50) {
         chatMessages = chatMessages.slice(-50);
       }
@@ -124,7 +123,9 @@ export default function user(
 
     case 'RECEIVE_COOLDOWN': {
       const { waitSeconds } = action;
-      const wait = waitSeconds ? new Date(Date.now() + waitSeconds * 1000) : null;
+      const wait = waitSeconds
+        ? new Date(Date.now() + waitSeconds * 1000)
+        : null;
       return {
         ...state,
         wait,

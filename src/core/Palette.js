@@ -12,6 +12,7 @@ class Palette {
   rgb: Uint8Array;
   colors: Array<Color>;
   abgr: Uint32Array;
+  fl: Array<number>;
   alpha: number = 0;
 
   constructor(colors: Array, alpha: number = 0) {
@@ -20,6 +21,7 @@ class Palette {
     this.rgb = new Uint8Array(this.length * 3);
     this.colors = new Array(this.length);
     this.abgr = new Uint32Array(this.length);
+    this.fl = new Array(this.length);
 
     let cnt = 0;
     for (let index = 0; index < colors.length; index++) {
@@ -31,6 +33,7 @@ class Palette {
       this.rgb[cnt++] = b;
       this.colors[index] = `rgb(${r}, ${g}, ${b})`;
       this.abgr[index] = (0xFF000000) | (b << 16) | (g << 8) | (r);
+      this.fl[index] = [r / 256, g / 256, b / 256];
     }
   }
 

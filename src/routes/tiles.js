@@ -26,7 +26,7 @@ async function basetile(req: Request, res: Response, next) {
   const x = parseInt(paramX, 10);
   const y = parseInt(paramY, 10);
   try {
-    let tile = await RedisCanvas.getChunk(x, y, c);
+    let tile = await RedisCanvas.getChunk(c, x, y);
 
     res.set({
       'Cache-Control': `public, s-maxage=${5 * 60}, max-age=${3 * 60}`, // seconds

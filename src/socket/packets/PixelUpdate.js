@@ -15,12 +15,12 @@ export default {
   OP_CODE,
   hydrate(data: DataView): PixelUpdatePacket {
     // CLIENT
-    const i = data.getInt16(1);
-    const j = data.getInt16(3);
-    // const offset = (data.getUint8(5) << 16) | data.getUint16(6);
-    // const color = data.getUint8(8);
-    const offset = data.getUint16(5);
-    const color = data.getUint8(7);
+    const i = data.getUint8(1);
+    const j = data.getUint8(2);
+    const offset = (data.getUint8(3) << 16) | data.getUint16(4);
+    const color = data.getUint8(6);
+    // const offset = data.getUint16(5);
+    // const color = data.getUint8(7);
     return {
       i, j, offset, color,
     };
@@ -28,16 +28,16 @@ export default {
   dehydrate(i, j, offset, color): Buffer {
     // SERVER
     if (!process.env.BROWSER) {
-      const buffer = Buffer.allocUnsafe(1 + 2 + 2 + 1 + 2 + 1);
+      const buffer = Buffer.allocUnsafe(1 + 1 + 1 + 1 + 2 + 1);
       buffer.writeUInt8(OP_CODE, 0);
 
-      buffer.writeInt16BE(i, 1);
-      buffer.writeInt16BE(j, 3);
-      // buffer.writeUInt8(offset >>> 16, 5);
-      // buffer.writeUInt16BE(offset & 0x00FFFF, 6);
-      // buffer.writeUInt8(color, 8);
-      buffer.writeUInt16BE(offset, 5);
-      buffer.writeUInt8(color, 7);
+      buffer.writeUInt8(i, 1);
+      buffer.writeUInt8(j, 2);
+      buffer.writeUInt8(offset >>> 16, 3);
+      buffer.writeUInt16BE(offset & 0x00FFFF, 4);
+      buffer.writeUInt8(color, 6);
+      // buffer.writeUInt16BE(offset, 5);
+      // buffer.writeUInt8(color, 7);
 
       return buffer;
     }

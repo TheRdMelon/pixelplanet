@@ -64,8 +64,8 @@ export const TILE_LOADING_IMAGE = './loading.png';
 
 // constants for 3D voxel canvas
 export const THREE_CANVAS_HEIGHT = 128;
-export const THREE_TILE_SIZE = 64;
-// one bigchunk has 16x16 smallchunks, one smallchunk has 64x64 pixel, so one bigchunk is 1024x1024 pixels
+export const THREE_TILE_SIZE = 32;
+// 2D tile size
 export const TILE_SIZE = 256;
 // how much to scale for a new tiled zoomlevel
 export const TILE_ZOOM_LEVEL = 4;
@@ -87,9 +87,3 @@ export const MINUTE = 60 * SECOND;
 export const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 export const MONTH = 30 * DAY;
-
-/* export const BLANK_COOLDOWN = 10 * SECOND;
-export const MIN_COOLDOWN = 30 * SECOND; */
-
-export const BLANK_COOLDOWN = 3 * SECOND;
-export const MIN_COOLDOWN = 15 * SECOND;
