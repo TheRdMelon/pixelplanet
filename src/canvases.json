@@ -136,6 +136,6 @@
     "cds": 60000,
     "req": -1,
     "sd": "2020-01-08",
-    "desc": "Test 3D canvas. Changes are not saved."
+    "desc": "Place Voxels on a 3D canvas with others"
   }
 }
