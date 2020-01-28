@@ -122,7 +122,6 @@ class Renderer {
     //
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
-    this.mouseMoveStart = new THREE.Vector2();
 
     // Plane Floor
     const geometry = new THREE.PlaneBufferGeometry(1024, 1024);
@@ -365,20 +364,10 @@ class Renderer {
     this.store.dispatch(setHover(hover));
   }
 
-  onDocumentMouseDown(event) {
-    const {
-      clientX,
-      clientY,
-    } = event;
-    const {
-      innerWidth,
-      innerHeight,
-    } = window;
+  onDocumentMouseDown() {
     this.pressTime = Date.now();
-    this.mouseMoveStart.set(
-      (clientX / innerWidth) * 2 - 1,
-      -(clientY / innerHeight) * 2 + 1,
-    );
+    const state = this.store.getState();
+    this.mouseMoveStart = state.gui.hover;
   }
 
   onDocumentMouseUp(event) {
@@ -396,6 +385,12 @@ class Renderer {
       placeAllowed,
     } = state.user;
     if (!placeAllowed) {
+      return;
+    }
+
+    const [px, py, pz] = this.mouseMoveStart;
+    const [qx, qy, qz] = state.gui.hover;
+    if (px !== qx || py !== qy || pz !== qz) {
       return;
     }
 
@@ -420,9 +415,6 @@ class Renderer {
       (clientX / innerWidth) * 2 - 1,
       -(clientY / innerHeight) * 2 + 1,
     );
-    if (this.mouseMoveStart.sub(this.mouse).length() > 0.05) {
-      return;
-    }
 
     raycaster.setFromCamera(mouse, camera);
 
