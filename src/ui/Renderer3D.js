@@ -38,6 +38,7 @@ class Renderer {
   threeRenderer: Object;
   //--
   mouse;
+  mouseMoveStart;
   raycaster;
   pressTime: number;
   pressCdTime: number;
@@ -121,6 +122,7 @@ class Renderer {
     //
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
+    this.mouseMoveStart = new THREE.Vector2();
 
     // Plane Floor
     const geometry = new THREE.PlaneBufferGeometry(1024, 1024);
@@ -176,6 +178,9 @@ class Renderer {
     const { domElement } = this.threeRenderer;
     this.threeRenderer = null;
     domElement.remove();
+    if (this.chunkLoader) {
+      this.chunkLoader.destructor();
+    }
   }
 
   updateView() {
@@ -344,23 +349,36 @@ class Renderer {
     const intersects = raycaster.intersectObjects(objects);
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      rollOverMesh.position
-        .copy(intersect.point)
-        .add(intersect.face.normal.multiplyScalar(0.5));
-      rollOverMesh.position
+      const target = intersect.point.clone()
+        .add(intersect.face.normal.multiplyScalar(0.5))
         .floor()
         .addScalar(0.5);
+      if (!placeAllowed
+        || target.clone().sub(camera.position).length() > 120) {
+        rollOverMesh.position.y = -10;
+      } else {
+        rollOverMesh.position.copy(target);
+      }
     }
     const hover = rollOverMesh.position
       .toArray().map((u) => Math.floor(u));
-    if (!placeAllowed) {
-      rollOverMesh.position.y = -10;
-    }
     this.store.dispatch(setHover(hover));
   }
 
-  onDocumentMouseDown() {
+  onDocumentMouseDown(event) {
+    const {
+      clientX,
+      clientY,
+    } = event;
+    const {
+      innerWidth,
+      innerHeight,
+    } = window;
     this.pressTime = Date.now();
+    this.mouseMoveStart.set(
+      (clientX / innerWidth) * 2 - 1,
+      -(clientY / innerHeight) * 2 + 1,
+    );
   }
 
   onDocumentMouseUp(event) {
@@ -402,6 +420,9 @@ class Renderer {
       (clientX / innerWidth) * 2 - 1,
       -(clientY / innerHeight) * 2 + 1,
     );
+    if (this.mouseMoveStart.sub(this.mouse).length() > 0.05) {
+      return;
+    }
 
     raycaster.setFromCamera(mouse, camera);
 
