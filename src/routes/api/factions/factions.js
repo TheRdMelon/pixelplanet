@@ -268,6 +268,7 @@ const ownFactions = async (req: Request, res: Response) => {
   const userFactions = await user.regUser.getFactions({
     attributes: ['id', 'name'],
     order: ['name'],
+    joinTableAttributes: [],
   });
 
   if (selected === undefined) {

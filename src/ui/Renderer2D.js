@@ -51,7 +51,6 @@ class Renderer {
   canvas: HTMLCanvasElement;
   lastFetch: number;
   lastTemplateFetch: number;
-  // overlayCanvas: HTMLCanvasElement;
   //--
   oldHistoricalTime: string;
 
@@ -83,7 +82,7 @@ class Renderer {
     const context = this.canvas.getContext('2d');
     context.fillStyle = '#000000';
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
+    //--
     this.setStore(store);
   }
 
@@ -203,12 +202,10 @@ class Renderer {
     context.fillStyle = palette.colors[color];
     context.fillRect(px, py, scaleM, scaleM);
 
-    // TODO Check
-
     const templateChunk = this.chunkLoader
-      .getTemplateChunk(tiledZoom, i, j, fetch);
+      .getTemplateChunk(tiledZoom, i, j, false);
     if (templateChunk) {
-      const templateCtx = templateChunk.image.getContext(
+      const templateCtx = templateChunk.getContext(
         '2d',
       );
       const [rx, ry] = getCellInsideChunk([x, y]);

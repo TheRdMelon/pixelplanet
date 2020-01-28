@@ -71,6 +71,25 @@ async function draw(
       success: false,
     };
   }
+  if (z !== null) {
+    if (z >= THREE_CANVAS_HEIGHT) {
+      return {
+        error: 'You reached build limit. Can\'t place higher than 128 blocks.',
+        success: false,
+      };
+    }
+    if (!canvas.v) {
+      return {
+        error: 'This is not a 3D canvas',
+        success: false,
+      };
+    }
+  } else if (canvas.v) {
+    return {
+      error: 'This is a 3D canvas. z is required.',
+      success: false,
+    };
+  }
 
   if (z !== null) {
     if (z >= THREE_CANVAS_HEIGHT) {
