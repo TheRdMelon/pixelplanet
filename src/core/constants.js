@@ -87,9 +87,3 @@ export const MINUTE = 60 * SECOND;
 export const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 export const MONTH = 30 * DAY;
-
-/* export const BLANK_COOLDOWN = 10 * SECOND;
-export const MIN_COOLDOWN = 30 * SECOND; */
-
-export const BLANK_COOLDOWN = 3 * SECOND;
-export const MIN_COOLDOWN = 15 * SECOND;

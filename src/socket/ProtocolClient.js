@@ -79,13 +79,12 @@ class ProtocolClient extends EventEmitter {
     this.isConnected = true;
     this.emit('open', {});
     this.requestChatHistory();
-    console.log(`Register ${chunks.length} chunks`);
-    // TODO RegisterMultipleChunks before RegisterCanvas doesn't make sense
-    this.ws.send(RegisterMultipleChunks.dehydrate(chunks));
+    this.processMsgQueue();
     if (this.canvasId !== null) {
       this.ws.send(RegisterCanvas.dehydrate(this.canvasId));
     }
-    this.processMsgQueue();
+    console.log(`Register ${chunks.length} chunks`);
+    this.ws.send(RegisterMultipleChunks.dehydrate(chunks));
   }
 
   onError(err) {
@@ -106,6 +105,7 @@ class ProtocolClient extends EventEmitter {
     }
     console.log('Notify websocket server that we changed canvas');
     this.canvasId = canvasId;
+    chunks.length = 0;
     this.sendWhenReady(RegisterCanvas.dehydrate(this.canvasId));
   }
 

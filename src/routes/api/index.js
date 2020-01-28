@@ -15,7 +15,6 @@ import {
   MINUTE,
   SECOND,
   DAY,
-  BLANK_COOLDOWN,
 } from '../../core/constants';
 
 import me from './me';

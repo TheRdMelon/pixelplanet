@@ -134,7 +134,9 @@ class Renderer {
     this.plane.position.y = -0.1;
 
     // renderer
-    const threeRenderer = new THREE.WebGLRenderer({ antialias: true });
+    const threeRenderer = new THREE.WebGLRenderer({
+      preserveDrawingBuffer: true,
+    });
     threeRenderer.setPixelRatio(window.devicePixelRatio);
     threeRenderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(threeRenderer.domElement);

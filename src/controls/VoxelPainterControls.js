@@ -467,11 +467,11 @@ class VoxelPainterControls extends EventDispatcher {
           moveRight = true;
           break;
 
-        case 32: // space
+        case 69: // E
           moveUp = true;
           break;
 
-        case 16: // shift
+        case 67: // C
           moveDown = true;
           break;
         default:
@@ -503,11 +503,11 @@ class VoxelPainterControls extends EventDispatcher {
           moveRight = false;
           break;
 
-        case 32: // space
+        case 69: // E
           moveUp = false;
           break;
 
-        case 16: // shift
+        case 67: // C
           moveDown = false;
           break;
         default:
