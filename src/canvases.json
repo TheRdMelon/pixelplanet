@@ -134,7 +134,7 @@
     "bcd": 2000,
     "pcd" : 2000,
     "cds": 60000,
-    "req": -1,
+    "req": 0,
     "sd": "2020-01-08",
     "desc": "Place Voxels on a 3D canvas with others"
   }
