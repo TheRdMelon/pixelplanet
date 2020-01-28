@@ -8,7 +8,11 @@
 import type { Request, Response } from 'express';
 import etag from 'etag';
 import RedisCanvas from '../data/models/RedisCanvas';
-import { TILE_SIZE } from '../core/constants';
+import {
+  TILE_SIZE,
+  THREE_TILE_SIZE,
+  THREE_CANVAS_HEIGHT,
+} from '../core/constants';
 import logger from '../core/logger';
 
 /*
@@ -49,8 +53,10 @@ export default async (req: Request, res: Response, next) => {
     }
 
     // for temporary logging to see if we have invalid chunks in redis
-    if (chunk.length !== TILE_SIZE * TILE_SIZE) {
-      logger.error(`Chunk ${x},${y},${z} has invalid length ${chunk.length}!`);
+
+    if (chunk.length !== TILE_SIZE * TILE_SIZE
+      && chunk.length !== (THREE_TILE_SIZE ** 2) * THREE_CANVAS_HEIGHT) {
+      logger.error(`Chunk ${x},${y}/${c} has invalid length ${chunk.length}!`);
     }
 
     const curEtag = etag(chunk, { weak: true });
