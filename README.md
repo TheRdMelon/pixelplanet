@@ -117,9 +117,10 @@ Notes:
 - The HTML for the Help Screen is in src/components/HelpModal.js
 
 Canvas specific configuartion like colors and cooldown is in `src/canvases.json` for all canvases.
-The CanvasSize is expected to be a power of 4 (4096, 16384, 65536,...) and not smaller than 256.
+The CanvasSize is expected to be a power of 4 (4096, 16384, 65536) and not smaller than 256 and not larger than 65536 (you can however change the websocket packages in src/socket/packages/ to send chunk coordinates in 16bit and surpas that limit).
 bcd is base cooldown for unset pixels, pcd is cooldown for placing on top of others, cds is stacktime, req is the requirement to be allowed to set on canvas in total pixels placed (or -1 for no requirement or 0 for having to be registered). `sd` is the start-date of the canvas, its used to know the oldest available backup (see Backup & Historical View section). All the cooldown values are in ms.
-If you want to add a new canvas, be sure that you additionally create `public/loading${canvasId}.png` and `public/assets3d/normal${canvasId}.jpg` and `public/assets3d/specular${canvasId}.jpg`, check out the existing ones to see what those files are for.
+If you want to add a new canvas, be sure that you additionally create `public/loading${canvasId}.png`, `public/assets3d/normal${canvasId}.jpg`, `public/preview${canvasId}.png` and `public/assets3d/specular${canvasId}.jpg`, check out the existing ones to see what those files are for.
+If `v` is set to true for a canvas, it will be a 3D canvas.
 
 The default configuration values can be seen in `src/core/config.js` and for the canvases in `src/core/constats.js`
 
@@ -216,3 +217,10 @@ Note:
 Pixelplanet is able to let the user browse through the past with those backups. For this you need to define `BACKUP_URL` and `BACKUP_DIR` in your ecosystem.yml for pixelplanet.
 `BACKUP_URL` is the URL where the backup folder is available. It's best to let another server serve those files or at least use nginx.
 `BACKUP_DIR` is the full path of the local directory where the backup is located (whats set as `BACKUP_DIRECTORY` in the command of the backup.js).
+
+## 3D canvas
+
+If v is set and true for a canvas in the canvas.json, it will be a 3D voxel canvas.
+3D Canvases can not be seen in Historical View.
+
+![threecanvas](promotion/threecanvas.png)
