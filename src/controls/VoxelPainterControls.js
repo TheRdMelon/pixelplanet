@@ -817,17 +817,10 @@ class VoxelPainterControls extends EventDispatcher {
       const direction = new Vector3();
       const velocity = new Vector3();
       let prevTime = Date.now();
-      let logTime = Date.now();
       const vec = new Vector3();
 
       return function update() {
         const time = Date.now();
-
-        let log = false;
-        if (time - logTime > 2000) {
-          logTime = time;
-          log = true;
-        }
 
         const delta = (time - prevTime) / 1000.0;
         velocity.x -= velocity.x * 40.0 * delta;
@@ -844,21 +837,15 @@ class VoxelPainterControls extends EventDispatcher {
         direction.normalize();
 
         if (moveLeft || moveRight) {
-          velocity.x -= direction.x * 500.0 * delta;
+          velocity.x -= direction.x * 1000.0 * delta;
         }
         if (moveUp || moveDown) {
-          velocity.y -= direction.y * 500.0 * delta;
+          velocity.y -= direction.y * 1000.0 * delta;
         }
         if (moveForward || moveBackward) {
-          velocity.z -= direction.z * 250.0 * delta;
+          velocity.z -= direction.z * 500.0 * delta;
         }
 
-        // controls.moveRight( -velocity.x * delta);
-        // controls.moveUp( -velocity.y * delta);
-        // forward
-        if (log) {
-          console.log(vec.x, vec.y, vec.z, delta);
-        }
         vec.setFromMatrixColumn(scope.object.matrix, 0);
         vec.crossVectors(scope.object.up, vec);
         vec.multiplyScalar(-velocity.z * delta);
