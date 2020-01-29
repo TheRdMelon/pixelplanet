@@ -35,8 +35,11 @@ const FactionSelector = ({
   fetch_faction_icon: (id) => void,
 }) => {
   const containerEl = useRef<HTMLDivElement>(null);
+  const iconEl = useRef<HTMLImageElement>(null);
   const transitioningTimeoutId = useRef<int>(-1);
   const closing = useRef<boolean>(false);
+  const [width, setWidth] = useState<number>(0);
+  const [height, setHeight] = useState<number>(-1);
   const [transitioning, setTransitioning] = useState<boolean>(true);
   const [factionSelectorClosed, setFactionSelectorClosed] = useState<boolean>(
     true,
@@ -56,6 +59,14 @@ const FactionSelector = ({
     }
   }, [factionSelectorClosed]);
 
+  useEffect(() => {
+    setWidth(containerEl.current ? containerEl.current.clientWidth + 16 : 0);
+  }, [ownFactions, factions]);
+
+  useEffect(() => {
+    setHeight(iconEl.current ? iconEl.current.height : -1);
+  }, [selectedFaction, iconEl]);
+
   const selectedFactionObj = factions.find((f) => f.id === selectedFaction);
 
   return (
@@ -69,9 +80,7 @@ const FactionSelector = ({
         style={
           factionSelectorClosed
             ? {
-              left: `-${
-                containerEl.current ? containerEl.current.clientWidth + 16 : 0
-              }px`,
+              left: `-${width}px`,
             }
             : {}
         }
@@ -145,9 +154,11 @@ const FactionSelector = ({
                   <div className="factionselectorlogocontainer">
                     <div className="factionselectorlogobackground" />
                     <img
+                      ref={iconEl}
                       className="factionselectorlogo"
                       src={`data:image/png;base64,${selectedFactionObj.icon}`}
                       alt="logo"
+                      style={height % 2 === 0 ? { paddingBottom: '1px' } : {}}
                     />
                   </div>
                 </div>
