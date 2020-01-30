@@ -83,7 +83,7 @@ class Palette {
 
     let pos = 0;
     for (let i = 0; i < length; i++) {
-      value = (buffer[i] & 0x1F);
+      value = (buffer[i] & 0x3F);
       colors[pos++] = this.abgr[value];
     }
     return colors;
@@ -105,7 +105,7 @@ class Palette {
     for (let i = 0; i < length; i++) {
       value = buffer[i];
 
-      color = (value & 0x1F) * 3;
+      color = (value & 0x3F) * 3;
       colors[c++] = this.rgb[color++];
       colors[c++] = this.rgb[color++];
       colors[c++] = this.rgb[color];

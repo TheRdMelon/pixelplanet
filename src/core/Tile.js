@@ -87,7 +87,7 @@ function addIndexedSubtiletoTile(
     let channelOffset = (chunkOffset + row * TILE_SIZE * subtilesInTile) * 3;
     const max = channelOffset + TILE_SIZE * 3;
     while (channelOffset < max) {
-      clr = (subtile[pos++] & 0x1F) * 3;
+      clr = (subtile[pos++] & 0x3F) * 3;
       buffer[channelOffset++] = palette.rgb[clr++];
       buffer[channelOffset++] = palette.rgb[clr++];
       buffer[channelOffset++] = palette.rgb[clr];

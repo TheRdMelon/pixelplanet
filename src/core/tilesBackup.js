@@ -120,7 +120,7 @@ export async function incrementialBackupRedis(
                 if (!tileBuffer) {
                   tileBuffer = new Uint32Array(TILE_SIZE * TILE_SIZE);
                 }
-                const color = palette.abgr[curChunk[pxl] & 0x1F];
+                const color = palette.abgr[curChunk[pxl] & 0x3F];
                 tileBuffer[pxl] = color;
               }
               pxl += 1;
