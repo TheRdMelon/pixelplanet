@@ -40,8 +40,6 @@ async function validate(req: Request, res: Response, next) {
     error = 'y is not a valid number';
   } else if (Number.isNaN(clr)) {
     error = 'No color selected';
-  } else if (clr < 0 || clr > 31) {
-    error = 'Invalid color selected';
   } else if (z !== null && Number.isNaN(z)) {
     error = 'z is not a valid number';
   }

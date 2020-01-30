@@ -44,7 +44,7 @@ class CanvasUpdater {
     this.id = id;
     this.canvas = canvases[id];
     this.canvasTileFolder = `${TILE_FOLDER}/${id}`;
-    this.palette = new Palette(this.canvas.colors, this.canvas.alpha);
+    this.palette = new Palette(this.canvas.colors);
     this.firstZoomtileWidth = this.canvas.size / TILE_SIZE / TILE_ZOOM_LEVEL;
     this.maxTiledZoom = getMaxTiledZoom(this.canvas.size);
     this.startReloadingLoops();

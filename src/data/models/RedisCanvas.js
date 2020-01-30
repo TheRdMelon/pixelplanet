@@ -97,9 +97,9 @@ class RedisCanvas {
     y: number,
     z: number = null,
   ): Promise<number> {
-    // 1st and 2nd bit -> not used yet
-    // 3rd bit -> protected or not
-    // rest (5 bits) -> index of color
+    // 1st bit -> protected or not
+    // 2nd bit -> unused
+    // rest (6 bits) -> index of color
     const canvasSize = canvases[canvasId].size;
     const [i, j] = getChunkOfPixel(canvasSize, x, y, z);
     const offset = getOffsetOfPixel(canvasSize, x, y, z);
@@ -121,9 +121,8 @@ class RedisCanvas {
     y: number,
     z: number = null,
   ): Promise<number> {
-    const canvasAlpha = canvases[canvasId].alpha;
     const clr = RedisCanvas.getPixelIfExists(canvasId, x, y, z);
-    return (clr == null) ? canvasAlpha : clr;
+    return (clr == null) ? 0 : clr;
   }
 }
 

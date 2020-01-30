@@ -12,16 +12,33 @@ import type { State } from '../reducers';
 
 
 const Palette = ({
-  colors, selectedColor, paletteOpen, compactPalette, select,
+  colors, selectedColor, paletteOpen, compactPalette, select, clrIgnore,
 }) => (
-  <div className={`palettebox ${(compactPalette) ? 'compalette' : 'widpalette'}`} id="colors" style={{ display: (paletteOpen) ? 'flex' : 'none' }}>
+  <div
+    className={`palettebox ${
+      ((colors.length - clrIgnore) > 30 || compactPalette)
+        ? 'compalette'
+        : 'widpalette'
+    }`}
+    id="colors"
+    style={{
+      display: (paletteOpen) ? 'flex' : 'none',
+      height: ((colors.length - clrIgnore) > 30 || compactPalette)
+        ? Math.ceil((colors.length - clrIgnore) / 5 * 28)
+        : undefined,
+    }}
+  >
     {colors.slice(2).map((color, index) => (
       <span
-        style={{ backgroundColor: color }}
+        style={{
+          backgroundColor: color,
+        }}
         key={index + 2}
-        className={selectedColor === (index + 2) ? 'selected' : 'unselected'}
+        className={selectedColor === (index + clrIgnore)
+          ? 'selected'
+          : 'unselected'}
         color={color}
-        onClick={() => select(index + 2)}
+        onClick={() => select(index + clrIgnore)}
       />
     ))}
   </div>
@@ -29,9 +46,13 @@ const Palette = ({
 
 function mapStateToProps(state: State) {
   const { selectedColor, paletteOpen, compactPalette } = state.gui;
-  const { palette } = state.canvas;
+  const { palette, clrIgnore } = state.canvas;
   return {
-    colors: palette.colors, selectedColor, paletteOpen, compactPalette,
+    colors: palette.colors,
+    selectedColor,
+    paletteOpen,
+    compactPalette,
+    clrIgnore,
   };
 }
 

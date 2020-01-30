@@ -31,11 +31,10 @@ function deleteSubtilefromTile(
   for (let row = 0; row < TILE_SIZE; row += 1) {
     let channelOffset = (offset + row * TILE_SIZE * subtilesInTile) * 3;
     const max = channelOffset + TILE_SIZE * 3;
-    const alphaIndex = palette.alpha * 3;
     while (channelOffset < max) {
-      buffer[channelOffset++] = palette.rgb[alphaIndex];
-      buffer[channelOffset++] = palette.rgb[alphaIndex + 1];
-      buffer[channelOffset++] = palette.rgb[alphaIndex + 2];
+      buffer[channelOffset++] = palette.rgb[0];
+      buffer[channelOffset++] = palette.rgb[1];
+      buffer[channelOffset++] = palette.rgb[2];
     }
   }
 }
@@ -244,11 +243,10 @@ export async function createEmptyTile(
   );
   let i = 0;
   const max = TILE_SIZE * TILE_SIZE * 3;
-  const alphaIndex = palette.alpha * 3;
   while (i < max) {
-    tileRGBBuffer[i++] = palette.rgb[alphaIndex];
-    tileRGBBuffer[i++] = palette.rgb[alphaIndex + 1];
-    tileRGBBuffer[i++] = palette.rgb[alphaIndex + 2];
+    tileRGBBuffer[i++] = palette.rgb[0];
+    tileRGBBuffer[i++] = palette.rgb[1];
+    tileRGBBuffer[i++] = palette.rgb[2];
   }
   const filename = `${canvasTileFolder}/emptytile.png`;
   await sharp(Buffer.from(tileRGBBuffer.buffer), {

@@ -99,7 +99,7 @@ async function draw(
         success: false,
       };
     }
-    if (color < 2) {
+    if (color < canvas.cli) {
       return {
         error: 'Invalid color selected',
         success: false,
@@ -113,6 +113,13 @@ async function draw(
         };
       }
     }
+  }
+
+  if (color < 0 || color >= canvas.colors.length) {
+      return {
+        error: 'Invalid color selected',
+        success: false,
+      };
   }
 
   if (canvas.req !== -1) {
@@ -138,7 +145,7 @@ async function draw(
 
   const setColor = await RedisCanvas.getPixel(canvasId, x, y, z);
 
-  let coolDown = !(setColor & 0x1E) ? canvas.bcd : canvas.pcd;
+  let coolDown = (setColor & 0x3F) < canvas.cli ? canvas.bcd : canvas.pcd;
   if (user.isAdmin()) {
     coolDown = 0.0;
   }
@@ -156,7 +163,7 @@ async function draw(
     };
   }
 
-  if (setColor & 0x20) {
+  if (setColor & 0x80) {
     logger.info(`${user.ip} tried to set on protected pixel (${x}, ${y})`);
     return {
       errorTitle: 'Pixel Protection',

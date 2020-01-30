@@ -36,7 +36,7 @@ export async function imageABGR2Canvas(
     `Loading image with dim ${width}/${height} to ${x}/${y}/${canvasId}`,
   );
   const canvas = canvases[canvasId];
-  const palette = new Palette(canvas.colors, canvas.alpha);
+  const palette = new Palette(canvas.colors);
   const canvasMinXY = -(canvas.size / 2);
   const imageData = new Uint32Array(data.buffer);
 
@@ -112,7 +112,7 @@ export async function imagemask2Canvas(
     `Loading mask with size ${width} / ${height} to ${x} / ${y} to the canvas`,
   );
   const canvas = canvases[canvasId];
-  const palette = new Palette(canvas.colors, canvas.alpha);
+  const palette = new Palette(canvas.colors);
   const canvasMinXY = -(canvas.size / 2);
 
   const imageData = new Uint8Array(data.buffer);

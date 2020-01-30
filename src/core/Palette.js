@@ -13,10 +13,8 @@ class Palette {
   colors: Array<Color>;
   abgr: Uint32Array;
   fl: Array<number>;
-  alpha: number = 0;
 
-  constructor(colors: Array, alpha: number = 0) {
-    this.alpha = alpha;
+  constructor(colors: Array) {
     this.length = colors.length;
     this.rgb = new Uint8Array(this.length * 3);
     this.colors = new Array(this.length);

@@ -50,7 +50,6 @@ export const DEFAULT_CANVASES = {
       [207, 110, 228],
       [130, 0, 128],
     ],
-    alpha: 0,
     size: 65536,
     bcd: 4000,
     pcd: 7000,
