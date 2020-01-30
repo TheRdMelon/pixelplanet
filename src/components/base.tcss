@@ -163,8 +163,8 @@ kbd {
   top: 16px;
 }
 :global(#voxelbutton) {
-    left: 180px;
-    top: 16px;
+  left: 180px;
+  top: 16px;
 }
 :global(#canvasbutton) {
   left: 57px;
@@ -406,7 +406,6 @@ kbd {
   border-top: 1px solid black;
   border-bottom: 1px solid black;
   background-color: rgba(226, 226, 226, 0.8);
-  transition: left 0.75s ease-out;
   left: 0;
 }
 
@@ -518,6 +517,10 @@ kbd {
   transition: margin-right 0.75s ease-out;
 }
 
+:global(#factionselectorcontainer.slidetransition) {
+  transition: left 0.75s ease-out;
+}
+
 :global(#factionselector::-webkit-scrollbar) {
   width: 4px;
 }
@@ -562,8 +565,14 @@ kbd {
 }
 
 :global(.factionselectorrow:last-child) {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: #b9b9b9;
   border-top: solid 2px black;
+  position: sticky;
+  bottom: 0;
+}
+
+:global(.factionselectorrow:last-child.transparentbase) {
+  background-color: transparent;
 }
 
 :global(.factionselectorrow:last-child .factionselectorname) {
