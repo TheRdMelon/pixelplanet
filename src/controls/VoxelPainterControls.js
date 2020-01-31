@@ -759,8 +759,8 @@ class VoxelPainterControls extends EventDispatcher {
     scope.domElement.addEventListener('mousedown', onMouseDown, false);
     scope.domElement.addEventListener('wheel', onMouseWheel, false);
 
-    scope.domElement.addEventListener('keydown', onDocumentKeyDown, false);
-    scope.domElement.addEventListener('keyup', onDocumentKeyUp, false);
+    document.addEventListener('keydown', onDocumentKeyDown, false);
+    document.addEventListener('keyup', onDocumentKeyUp, false);
 
     scope.domElement.addEventListener('touchstart', onTouchStart, false);
     scope.domElement.addEventListener('touchend', onTouchEnd, false);
