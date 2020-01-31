@@ -78,7 +78,10 @@ function getViewFromURL(canvases: Object) {
     const x = parseInt(almost[1], 10);
     const y = parseInt(almost[2], 10);
     const z = parseInt(almost[3], 10);
-    if (Number.isNaN(x) || Number.isNaN(y)) {
+    if (Number.isNaN(x)
+      || Number.isNaN(y)
+      || (Number.isNaN(z) && is3D)
+    ) {
       throw new Error('NaN');
     }
     const view = [x, y, z];
