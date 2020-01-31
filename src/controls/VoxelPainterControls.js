@@ -799,6 +799,13 @@ class VoxelPainterControls extends EventDispatcher {
       state = STATE.NONE;
     };
 
+    this.setView = (view) => {
+      if (view.length !== 3) {
+        return;
+      }
+      scope.target.set(...view);
+    };
+
     // this method is exposed, but perhaps it would be better if we can make it private...
     this.update = (() => {
       const offset = new Vector3();

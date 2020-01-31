@@ -50,7 +50,6 @@ class Renderer {
     this.store = store;
     const state = store.getState();
     this.objects = [];
-    this.loadedChunks = new Map();
     this.chunkLoader = null;
 
     // camera
@@ -193,6 +192,7 @@ class Renderer {
   updateCanvasData(state: State) {
     const {
       canvasId,
+      view,
     } = state.canvas;
     if (canvasId !== this.canvasId) {
       this.canvasId = canvasId;
@@ -200,16 +200,20 @@ class Renderer {
         if (this.chunkLoader) {
           // destroy old chunks,
           // meshes need to get disposed
-          this.loadedChunks.forEach((chunk) => {
-            this.scene.remove(chunk);
-            this.objects = [this.plane];
-          });
-          this.chunkLoader.destructor();
+          if (this.loadedChunks) {
+            this.loadedChunks.forEach((chunk) => {
+              this.scene.remove(chunk);
+              this.objects = [this.plane];
+            });
+            this.chunkLoader.destructor();
+          }
         }
+        this.loadedChunks = new Map();
         this.chunkLoader = new ChunkLoader(this.store);
-        this.forceNextRender = true;
       }
     }
+    this.controls.setView(view);
+    this.forceNextRender = true;
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -43,7 +43,7 @@ export type CanvasState = {
  */
 function getGivenCoords() {
   // if (window.coordx && window.coordy) return [window.coordx, window.coordy];
-  return [0, 0];
+  return [0, 0, 0];
 }
 
 /*
@@ -61,41 +61,40 @@ function getViewFromURL(canvases: Object) {
     // will be null if not in DEFAULT_CANVASES
     const canvasId = getIdFromObject(canvases, almost[0]);
 
-    let colors;
-    let clrIgnore;
-    let canvasSize;
-    let canvasStartDate;
-    let is3D;
-    if (canvasId == null) {
-      // if canvas informations are not available yet
-      // aka /api/me didn't load yet
-      colors = canvases[DEFAULT_CANVAS_ID].colors;
-      clrIgnore = 2;
-      canvasSize = 1024;
-      is3D = false;
-      canvasStartDate = null;
-    } else {
-      const canvas = canvases[canvasId];
-      colors = canvas.colors;
-      clrIgnore = canvas.cli;
-      canvasSize = canvas.size;
-      is3D = !!canvas.v;
-      canvasStartDate = canvas.sd;
-    }
+    // canvasId is null if canvas data isn't loaded yet and it's not
+    // the default canvas.
+    // aka those few milliseconds before /api/me
+    const canvas = (canvasId === null)
+      ? canvases[DEFAULT_CANVAS_ID]
+      : canvases[canvasId];
+    const {
+      colors,
+      cli: clrIgnore,
+      sd: canvasStartDate,
+      size: canvasSize,
+    } = canvas;
+    const is3D = !!canvas.v;
 
     const x = parseInt(almost[1], 10);
     const y = parseInt(almost[2], 10);
-    let urlscale = parseInt(almost[3], 10);
+    const z = parseInt(almost[3], 10);
     if (Number.isNaN(x) || Number.isNaN(y)) {
-      const thrown = 'NaN';
-      throw thrown;
+      throw new Error('NaN');
     }
-    if (!urlscale || Number.isNaN(urlscale)) {
-      urlscale = DEFAULT_SCALE;
+    const view = [x, y, z];
+
+    let scale = z;
+    if (!scale || Number.isNaN(scale)) {
+      scale = DEFAULT_SCALE;
     } else {
-      urlscale = 2 ** (urlscale / 10);
+      scale = 2 ** (scale / 10);
     }
-    urlscale = clamp(urlscale, TILE_SIZE / canvasSize, MAX_SCALE);
+
+    if (!is3D && canvasId !== null) {
+      scale = clamp(scale, TILE_SIZE / canvasSize, MAX_SCALE);
+      view.length = 2;
+    }
+
     return {
       canvasId,
       canvasIdent,
@@ -105,22 +104,22 @@ function getViewFromURL(canvases: Object) {
       canvasMaxTiledZoom: getMaxTiledZoom(canvasSize),
       palette: new Palette(colors, 0),
       clrIgnore,
-      view: [x, y],
-      viewscale: urlscale,
-      scale: urlscale,
+      view,
+      viewscale: scale,
+      scale,
       canvases,
     };
   } catch (error) {
-    const canvas = canvases[DEFAULT_CANVAS_ID];
+    const canvasd = canvases[DEFAULT_CANVAS_ID];
     return {
       canvasId: DEFAULT_CANVAS_ID,
-      canvasIdent: canvas.ident,
-      canvasSize: canvas.size,
-      is3D: !!canvas.v,
+      canvasIdent: canvasd.ident,
+      canvasSize: canvasd.size,
+      is3D: !!canvasd.v,
       canvasStartDate: null,
-      canvasMaxTiledZoom: getMaxTiledZoom(canvas.size),
-      palette: new Palette(canvas.colors, 0),
-      clrIgnore: canvas.cli,
+      canvasMaxTiledZoom: getMaxTiledZoom(canvasd.size),
+      palette: new Palette(canvasd.colors, 0),
+      clrIgnore: canvasd.cli,
       view: getGivenCoords(),
       viewscale: DEFAULT_SCALE,
       scale: DEFAULT_SCALE,
@@ -275,7 +274,10 @@ export default function canvasReducer(
       } = canvas;
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
       const palette = new Palette(colors, 0);
-      const view = (canvasId === 0) ? getGivenCoords() : [0, 0];
+      const view = (canvasId === 0) ? getGivenCoords() : [0, 0, 0];
+      if (!is3D) {
+        view.length = 2;
+      }
       return {
         ...state,
         canvasId,
@@ -295,7 +297,7 @@ export default function canvasReducer(
 
     case 'RECEIVE_ME': {
       const { canvases } = action;
-      let { canvasIdent } = state;
+      let { canvasIdent, scale, view } = state;
 
       let canvasId = getIdFromObject(canvases, canvasIdent);
       if (canvasId === null) {
@@ -312,6 +314,11 @@ export default function canvasReducer(
       const canvasMaxTiledZoom = getMaxTiledZoom(canvasSize);
       const palette = new Palette(colors, 0);
 
+      if (!is3D) {
+        scale = clamp(scale, TILE_SIZE / canvasSize, MAX_SCALE);
+        view = [view[0], view[1]];
+      }
+
       return {
         ...state,
         canvasId,
@@ -323,6 +330,9 @@ export default function canvasReducer(
         palette,
         clrIgnore,
         canvases,
+        viewscale: scale,
+        scale,
+        view,
       };
     }
 
