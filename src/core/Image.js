@@ -66,7 +66,7 @@ export async function imageABGR2Canvas(
               ? palette.abgr.indexOf(clr)
               : palette.abgr.indexOf(clr, 2);
             if (~clrIndex) {
-              const pixel = (protect) ? (clrIndex | 0x20) : clrIndex;
+              const pixel = (protect) ? (clrIndex | 0x80) : clrIndex;
               chunk[cOff] = pixel;
               pxlCnt += 1;
             }
