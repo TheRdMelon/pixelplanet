@@ -239,7 +239,7 @@ class Renderer {
     if (!this.chunkLoader) {
       return;
     }
-    const renderDistance = 110;
+    const renderDistance = 150;
     const state = this.store.getState();
     const {
       canvasSize,
