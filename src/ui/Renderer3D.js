@@ -173,6 +173,7 @@ class Renderer {
   destructor() {
     window.addEventListener('resize', this.onWindowResize, false);
     this.threeRenderer.dispose();
+    this.controls.dispose();
     const { domElement } = this.threeRenderer;
     this.threeRenderer = null;
     domElement.remove();
