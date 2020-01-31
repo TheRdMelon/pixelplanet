@@ -445,6 +445,12 @@ class VoxelPainterControls extends EventDispatcher {
     //
     function onDocumentKeyDown(event) {
       if (scope.enabled === false) return;
+      // ignore key presses if modal is open or chat is used
+      if (event.target.nodeName === 'INPUT'
+        || event.target.nodeName === 'TEXTAREA'
+      ) {
+        return;
+      }
 
       switch (event.keyCode) {
         case 38: // up
@@ -481,6 +487,12 @@ class VoxelPainterControls extends EventDispatcher {
 
     function onDocumentKeyUp(event) {
       if (scope.enabled === false) return;
+      // ignore key presses if modal is open or chat is used
+      if (event.target.nodeName === 'INPUT'
+        || event.target.nodeName === 'TEXTAREA'
+      ) {
+        return;
+      }
 
       switch (event.keyCode) {
         case 38: // up
