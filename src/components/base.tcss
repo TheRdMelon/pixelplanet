@@ -411,6 +411,7 @@ kbd {
 
 :global(#factionselectorwrapper) {
   margin-right: -100px;
+  pointer-events: none;
 }
 
 :global(#factionselector) {
@@ -433,6 +434,7 @@ kbd {
   border-left: black solid 1px;
   direction: ltr;
   outline: none;
+  pointer-events: all;
 }
 
 :global(.factionselectorname) {

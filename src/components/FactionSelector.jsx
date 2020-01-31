@@ -11,6 +11,10 @@ import { connect } from 'react-redux';
 import type { State } from '../reducers';
 
 import { selectFaction, fetchFactionIcon } from '../actions';
+import {
+  requestAnimationFrames,
+  mouseDistanceFromElement,
+} from '../core/utils';
 
 function getHeightOffset() {
   const offsetTop = 57;
@@ -38,16 +42,18 @@ const FactionSelector = ({
 }) => {
   // Flag for if the faction loader is loaded and ready to transition
   const hasLoaded = useRef<boolean>(false);
-  // Faction icon container ref
+  // Faction selector container ref
   const containerEl = useRef<HTMLDivElement>(null);
   // Faction icon ref
   const iconEl = useRef<HTMLImageElement>(null);
   // Faction selector ref
   const selectorEl = useRef<HTMLDivElement>(null);
+  const baseEl = useRef<HTMLDivElement>(null);
   // Store timeout id for tracking transitions
   const transitioningTimeoutId = useRef<int>(-1);
+  const autoCloseTimeoutId = useRef<int>(-1);
   // Transitioning lock ref, prevent hovering while transitions are active
-  const closing = useRef<boolean>(false);
+  const closing = useRef<boolean>(true);
   // Width of the faction selector
   const [width, setWidth] = useState<number>(0);
   // Height tracking of the faction icon img element
@@ -65,27 +71,54 @@ const FactionSelector = ({
   // Toggle disabled scrolling for faction selector
   const disableScrolling = useRef<boolean>(true);
   // Ignore onScroll if waiting for animation frame
-  const ticking = useRef<boolean>(false);
+  const scrollTicking = useRef<boolean>(false);
+  const mouseMoveTicking = useRef<boolean>(false);
 
   const onScroll = (e: Event) => {
-    if (!ticking.current) {
+    if (!scrollTicking.current) {
       requestAnimationFrame(() => {
         if (e.target === selectorEl.current && disableScrolling.current) {
           selectorEl.current.scrollTo(0, selectorEl.current.scrollHeight);
         }
-        ticking.current = false;
+        scrollTicking.current = false;
       });
 
-      ticking.current = true;
+      scrollTicking.current = true;
+    }
+  };
+
+  const onMouseMove = (e: Event) => {
+    if (!mouseMoveTicking.current) {
+      requestAnimationFrame(() => {
+        const containerDist = mouseDistanceFromElement(e, containerEl.current);
+        const baseDist = mouseDistanceFromElement(e, baseEl.current);
+        if (containerDist > 75 && baseDist > 75) {
+          if (autoCloseTimeoutId.current < 0) {
+            autoCloseTimeoutId.current = window.setTimeout(() => {
+              setFactionSelectorClosed(true);
+            }, 750);
+          }
+        } else {
+          window.clearTimeout(autoCloseTimeoutId.current);
+          autoCloseTimeoutId.current = -1;
+        }
+        mouseMoveTicking.current = false;
+      });
+
+      mouseMoveTicking.current = true;
     }
   };
 
   useEffect(() => {
     // Start listening for scroll events
     window.addEventListener('scroll', onScroll, { capture: true });
+    window.addEventListener('mousemove', onMouseMove);
 
-    // Functions returned from use effects with empty dependencies run on unload
-    return () => window.removeEventListener('scroll', onScroll);
+    // Functions returned from useeffects with empty dependencies run on unload
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('mousemove', onMouseMove);
+    };
   }, []);
 
   // Scroll to bottom
@@ -102,6 +135,7 @@ const FactionSelector = ({
   useEffect(() => {
     window.clearTimeout(transitioningTimeoutId.current);
     if (factionSelectorClosed && hasLoaded.current) {
+      closing.current = true;
       setTransitioning(true);
       transitioningTimeoutId.current = window.setTimeout(() => {
         setTransparentBase(true);
@@ -118,9 +152,10 @@ const FactionSelector = ({
     }
   }, [factionSelectorClosed]);
 
-  useLayoutEffect(() => {
+  // Set transition flag after 2 (idk dont ask me) animation frames
+  useEffect(() => {
     if (ownFactions && ownFactions.length > 0) {
-      requestAnimationFrame(() => {
+      requestAnimationFrames(2).then(() => {
         setTransitioning(true);
         hasLoaded.current = true;
       });
@@ -133,9 +168,8 @@ const FactionSelector = ({
     setWidth(wid);
   }, [ownFactions, factions]);
 
-  // useLayoutEffect, called after all element mutations, before the browser paints
   // When the selected faction changes, or the icon ref is set, work out the height of the icon, minus padding (.height instead of .clientHeight)
-  useLayoutEffect(() => {
+  useEffect(() => {
     setHeight(iconEl.current ? iconEl.current.height : -1);
   }, [selectedFaction, iconEl.current]);
 
@@ -222,6 +256,7 @@ const FactionSelector = ({
             {selectedFactionObj && (
               <>
                 <div
+                  ref={baseEl}
                   className={`factionselectorrow factionselectorrowselected ${
                     transparentBase ? 'transparentbase ' : ''
                   }`}

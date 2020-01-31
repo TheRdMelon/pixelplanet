@@ -224,3 +224,50 @@ export function splitCoordsInString(text) {
   const arr = text.split(linkRegExp).filter((val, ind) => ind % 3 !== 2);
   return arr;
 }
+
+export function requestAnimationFrames(frames: number) {
+  return new Promise((resolve) => {
+    let frameId;
+    let i = 0;
+    function requestFrame() {
+      if (++i === frames) {
+        window.cancelAnimationFrame(frameId);
+        resolve();
+      } else {
+        frameId = window.requestAnimationFrame(requestFrame);
+      }
+    }
+    window.requestAnimationFrame(requestFrame);
+  });
+}
+
+export function mouseDistanceFromElement(mouseEvent, element) {
+  const $n = element;
+  const mX = mouseEvent.pageX;
+  const mY = mouseEvent.pageY;
+  const from = {
+    x: mX,
+    y: mY,
+  };
+  const off = $n.getBoundingClientRect();
+  const ny1 = off.top + document.body.scrollTop; // top
+  const ny2 = ny1 + $n.offsetHeight; // bottom
+  const nx1 = off.left + document.body.scrollLeft; // left
+  const nx2 = nx1 + $n.offsetWidth; // right
+  const maxX1 = Math.max(mX, nx1);
+  const minX2 = Math.min(mX, nx2);
+  const maxY1 = Math.max(mY, ny1);
+  const minY2 = Math.min(mY, ny2);
+  const intersectX = minX2 >= maxX1;
+  const intersectY = minY2 >= maxY1;
+  const to = {
+    // eslint-disable-next-line no-nested-ternary
+    x: intersectX ? mX : nx2 < mX ? nx2 : nx1,
+    // eslint-disable-next-line no-nested-ternary
+    y: intersectY ? mY : ny2 < mY ? ny2 : ny1,
+  };
+  const distX = to.x - from.x;
+  const distY = to.y - from.y;
+  const hypot = (distX ** 2 + distY ** 2) ** (1 / 2);
+  return Math.floor(hypot); // this will output 0 when next to your element.
+}
