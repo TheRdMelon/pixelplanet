@@ -5,13 +5,13 @@
  * */
 
 
-const COLORS_AMOUNT = 32;
 // iPhone needs this
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const context = new AudioContext();
 
 export default (store) => (next) => (action) => {
-  const { mute, chatNotify } = store.getState().audio;
+  const state = store.getState();
+  const { mute, chatNotify } = state.audio;
 
   switch (action.type) {
     case 'SELECT_COLOR': {
@@ -106,7 +106,10 @@ export default (store) => (next) => (action) => {
     case 'PLACE_PIXEL': {
       if (mute) break;
       const { color } = action;
-      const clrFreq = 100 + Math.log(color / COLORS_AMOUNT + 1) * 300;
+      const { palette } = state.canvas;
+      const colorsAmount = palette.colors.length;
+
+      const clrFreq = 100 + Math.log(color / colorsAmount + 1) * 300;
       const oscillatorNode = context.createOscillator();
       const gainNode = context.createGain();
 
