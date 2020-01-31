@@ -272,7 +272,7 @@ class Chunk {
         const height = this.heightMap[startOffset];
         let u = startOffset;
         for (let y = 0; y <= height; ++y) {
-          voxel = this.buffer[u];
+          voxel = this.buffer[u] & 0x3F;
           if (voxel !== 0) {
             voxel *= 3;
             for (let i = 0; i < 6; ++i) {
