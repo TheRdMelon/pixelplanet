@@ -98,7 +98,15 @@ export default function gui(
     }
 
     case 'SELECT_COLOR': {
-      const paletteOpen = (!state.compactPalette && window.innerWidth > 300);
+      const {
+        compactPalette,
+      } = state;
+      let {
+        paletteOpen,
+      } = state;
+      if (compactPalette || window.innerWidth < 300) {
+        paletteOpen = false;
+      }
       return {
         ...state,
         paletteOpen,
