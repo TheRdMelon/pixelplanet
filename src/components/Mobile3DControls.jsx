@@ -79,6 +79,12 @@ class Mobile3DControls extends React.Component {
           onMouseUp={() => {
             move('FORWARD', false);
           }}
+          onTouchStart={() => {
+            move('FORWARD', true);
+          }}
+          onTouchEnd={() => {
+            move('FORWARD', false);
+          }}
           onTouchCancel={cancelMovement}
           onMouseLeave={cancelMovement}
         >
@@ -100,6 +106,12 @@ class Mobile3DControls extends React.Component {
           onMouseUp={() => {
             move('BACKWARD', false);
           }}
+          onTouchStart={() => {
+            move('BACKWARD', true);
+          }}
+          onTouchEnd={() => {
+            move('BACKWARD', false);
+          }}
           onTouchCancel={cancelMovement}
           onMouseLeave={cancelMovement}
         >
@@ -118,6 +130,12 @@ class Mobile3DControls extends React.Component {
             move('LEFT', true);
           }}
           onMouseUp={() => {
+            move('LEFT', false);
+          }}
+          onTouchStart={() => {
+            move('LEFT', true);
+          }}
+          onTouchEnd={() => {
             move('LEFT', false);
           }}
           onTouchCancel={cancelMovement}
@@ -141,6 +159,12 @@ class Mobile3DControls extends React.Component {
           onMouseUp={() => {
             move('RIGHT', false);
           }}
+          onTouchStart={() => {
+            move('RIGHT', true);
+          }}
+          onTouchEnd={() => {
+            move('RIGHT', false);
+          }}
           onTouchCancel={cancelMovement}
           onMouseLeave={cancelMovement}
         >
@@ -162,6 +186,12 @@ class Mobile3DControls extends React.Component {
           onMouseUp={() => {
             move('UP', false);
           }}
+          onTouchStart={() => {
+            move('UP', true);
+          }}
+          onTouchEnd={() => {
+            move('UP', false);
+          }}
           onTouchCancel={cancelMovement}
           onMouseLeave={cancelMovement}
         >
@@ -181,6 +211,12 @@ class Mobile3DControls extends React.Component {
             move('DOWN', true);
           }}
           onMouseUp={() => {
+            move('DOWN', false);
+          }}
+          onTouchStart={() => {
+            move('DOWN', true);
+          }}
+          onTouchEnd={() => {
             move('DOWN', false);
           }}
           onTouchCancel={cancelMovement}
