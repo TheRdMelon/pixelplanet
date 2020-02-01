@@ -143,12 +143,12 @@ class VoxelPainterControls extends EventDispatcher {
     const spherical = new Spherical();
     const sphericalDelta = new Spherical();
 
-    let moveLeft = false;
-    let moveRight = false;
-    let moveForward = false;
-    let moveBackward = false;
-    let moveUp = false;
-    let moveDown = false;
+    this.moveLeft = false;
+    this.moveRight = false;
+    this.moveForward = false;
+    this.moveBackward = false;
+    this.moveUp = false;
+    this.moveDown = false;
 
     let scale = 1;
     const panOffset = new Vector3();
@@ -455,30 +455,30 @@ class VoxelPainterControls extends EventDispatcher {
       switch (event.keyCode) {
         case 38: // up
         case 87: // w
-          moveForward = true;
+          scope.moveForward = true;
           break;
 
         case 37: // left
         case 65: // a
-          moveLeft = true;
+          scope.moveLeft = true;
           break;
 
         case 40: // down
         case 83: // s
-          moveBackward = true;
+          scope.moveBackward = true;
           break;
 
         case 39: // right
         case 68: // d
-          moveRight = true;
+          scope.moveRight = true;
           break;
 
         case 69: // E
-          moveUp = true;
+          scope.moveUp = true;
           break;
 
         case 67: // C
-          moveDown = true;
+          scope.moveDown = true;
           break;
         default:
           break;
@@ -497,30 +497,30 @@ class VoxelPainterControls extends EventDispatcher {
       switch (event.keyCode) {
         case 38: // up
         case 87: // w
-          moveForward = false;
+          scope.moveForward = false;
           break;
 
         case 37: // left
         case 65: // a
-          moveLeft = false;
+          scope.moveLeft = false;
           break;
 
         case 40: // down
         case 83: // s
-          moveBackward = false;
+          scope.moveBackward = false;
           break;
 
         case 39: // right
         case 68: // d
-          moveRight = false;
+          scope.moveRight = false;
           break;
 
         case 69: // E
-          moveUp = false;
+          scope.moveUp = false;
           break;
 
         case 67: // C
-          moveDown = false;
+          scope.moveDown = false;
           break;
         default:
           break;
@@ -849,6 +849,15 @@ class VoxelPainterControls extends EventDispatcher {
         if (length < 1 || length > 10) {
           velocity.set(0, 0, 0);
         }
+
+        const {
+          moveRight,
+          moveLeft,
+          moveUp,
+          moveDown,
+          moveForward,
+          moveBackward,
+        } = scope;
 
         direction.x = Number(moveRight) - Number(moveLeft);
         direction.y = Number(moveUp) - Number(moveDown);

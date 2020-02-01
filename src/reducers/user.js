@@ -25,6 +25,9 @@ export type UserState = {
   chatMessages: Array,
   // minecraft
   minecraftname: string,
+  // just gets set by 3D controls on
+  // on voxel canvases
+  isOnMobile: boolean,
 };
 
 const initialState: UserState = {
@@ -40,6 +43,7 @@ const initialState: UserState = {
   totalDailyRanking: {},
   chatMessages: [['info', 'Welcome to the PixelPlanet Chat']],
   minecraftname: null,
+  isOnMobile: false,
 };
 
 export default function user(
@@ -79,6 +83,14 @@ export default function user(
       return {
         ...state,
         wait,
+      };
+    }
+
+    case 'SET_MOBILE': {
+      const { mobile: isOnMobile } = action;
+      return {
+        ...state,
+        isOnMobile,
       };
     }
 

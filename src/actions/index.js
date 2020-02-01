@@ -135,6 +135,13 @@ export function setWait(wait: ?number): Action {
   };
 }
 
+export function setMobile(mobile: boolean): Action {
+  return {
+    type: 'SET_MOBILE',
+    mobile,
+  };
+}
+
 export function selectColor(color: ColorIndex): Action {
   return {
     type: 'SELECT_COLOR',

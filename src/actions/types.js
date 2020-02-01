@@ -31,6 +31,7 @@ export type Action =
   | { type: 'SET_HOVER', hover: Cell }
   | { type: 'UNSET_HOVER' }
   | { type: 'SET_WAIT', wait: ?number }
+  | { type: 'SET_MOBILE', mobile: boolean }
   | { type: 'COOLDOWN_END' }
   | { type: 'COOLDOWN_SET', coolDown: number }
   | { type: 'SELECT_COLOR', color: ColorIndex }

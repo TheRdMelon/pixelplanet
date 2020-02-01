@@ -13,6 +13,7 @@ import GlobeButton from './GlobeButton';
 import PalselButton from './PalselButton';
 import Palette from './Palette';
 import HistorySelect from './HistorySelect';
+import Mobile3DControls from './Mobile3DControls';
 
 
 const UI = ({ isHistoricalView, is3D }) => {
@@ -24,6 +25,7 @@ const UI = ({ isHistoricalView, is3D }) => {
       <PalselButton />
       <Palette />
       {(is3D) ? null : <GlobeButton />}
+      <Mobile3DControls />
       <CoolDownBox />
       <NotifyBox />
     </div>

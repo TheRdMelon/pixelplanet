@@ -19,6 +19,7 @@ import {
   receiveOnline,
   receiveChatMessage,
   receiveChatHistory,
+  setMobile,
 } from './actions';
 import store from './ui/store';
 
@@ -55,6 +56,14 @@ function init() {
   window.addEventListener('hashchange', () => {
     store.dispatch(urlChange());
   });
+
+  // check if on mobile
+  //
+  function checkMobile() {
+    store.dispatch(setMobile(true));
+    document.removeEventListener('touchstart', checkMobile, false);
+  }
+  document.addEventListener('touchstart', checkMobile, false);
 
   store.dispatch(initTimer());
 

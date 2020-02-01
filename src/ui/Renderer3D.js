@@ -42,6 +42,7 @@ class Renderer {
   mouseMoveStart;
   raycaster;
   pressTime: number;
+  longTouch: boolean;
   pressCdTime: number;
   //--
   chunkLoader: ChunkLoader = null;
@@ -374,8 +375,20 @@ class Renderer {
 
   onDocumentMouseDown() {
     this.pressTime = Date.now();
+    this.longTouch = false;
     const state = this.store.getState();
     this.mouseMoveStart = state.gui.hover;
+  }
+
+  onDocumentTouchEnd() {
+    // gets fired before onDocumentMouseUp
+    // --
+    // longer press on touch-device -> remove Voxel
+    const curTime = Date.now();
+    if (curTime - this.pressTime > 600) {
+      this.pressCdTime = curTime;
+      this.longTouch = true;
+    }
   }
 
   onDocumentMouseUp(event) {
@@ -406,6 +419,7 @@ class Renderer {
     const {
       clientX,
       clientY,
+      button,
     } = event;
     const {
       innerWidth,
@@ -430,59 +444,50 @@ class Renderer {
     if (intersects.length > 0) {
       const intersect = intersects[0];
 
-      switch (event.button) {
-        case 0: {
-          // left mouse button
-          const target = intersect.point.clone()
-            .add(intersect.face.normal.multiplyScalar(0.5))
-            .floor()
-            .addScalar(0.5)
-            .floor();
-          if (target.clone().sub(camera.position).length() < 120) {
-            const cell = target.toArray();
-            store.dispatch(tryPlacePixel(cell));
-          }
-          break;
+      if (button === 0 && !this.longTouch) {
+        // left mouse button
+        const target = intersect.point.clone()
+          .add(intersect.face.normal.multiplyScalar(0.5))
+          .floor()
+          .addScalar(0.5)
+          .floor();
+        if (target.clone().sub(camera.position).length() < 120) {
+          const cell = target.toArray();
+          store.dispatch(tryPlacePixel(cell));
         }
-        case 1: {
-          // middle mouse button
-          const target = intersect.point.clone()
-            .add(intersect.face.normal.multiplyScalar(-0.5))
-            .floor()
-            .addScalar(0.5)
-            .floor();
-          if (target.y < 0) {
-            return;
-          }
-          if (target.clone().sub(camera.position).length() < 120) {
-            const cell = target.toArray();
-            if (this.chunkLoader) {
-              const clr = this.chunkLoader.getVoxel(...cell);
-              if (clr) {
-                store.dispatch(selectColor(clr));
-              }
+      } else if (button === 1) {
+        // middle mouse button
+        const target = intersect.point.clone()
+          .add(intersect.face.normal.multiplyScalar(-0.5))
+          .floor()
+          .addScalar(0.5)
+          .floor();
+        if (target.y < 0) {
+          return;
+        }
+        if (target.clone().sub(camera.position).length() < 120) {
+          const cell = target.toArray();
+          if (this.chunkLoader) {
+            const clr = this.chunkLoader.getVoxel(...cell);
+            if (clr) {
+              store.dispatch(selectColor(clr));
             }
           }
-          break;
         }
-        case 2: {
-          // right mouse button
-          const target = intersect.point.clone()
-            .add(intersect.face.normal.multiplyScalar(-0.5))
-            .floor()
-            .addScalar(0.5)
-            .floor();
-          if (target.y < 0) {
-            return;
-          }
-          if (target.clone().sub(camera.position).length() < 120) {
-            const cell = target.toArray();
-            store.dispatch(tryPlacePixel(cell, 0));
-          }
-          break;
+      } else if (button === 2 || this.longTouch) {
+        // right mouse button
+        const target = intersect.point.clone()
+          .add(intersect.face.normal.multiplyScalar(-0.5))
+          .floor()
+          .addScalar(0.5)
+          .floor();
+        if (target.y < 0) {
+          return;
         }
-        default:
-          break;
+        if (target.clone().sub(camera.position).length() < 120) {
+          const cell = target.toArray();
+          store.dispatch(tryPlacePixel(cell, 0));
+        }
       }
     }
   }
