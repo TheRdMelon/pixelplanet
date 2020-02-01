@@ -86,6 +86,8 @@ class Renderer {
     sky.scale.setScalar(450000);
     scene.add(sky);
 
+    scene.fog = new THREE.FogExp2(0xffffff, 0.006);
+
     const effectController = {
       turbidity: 10,
       rayleigh: 2,
