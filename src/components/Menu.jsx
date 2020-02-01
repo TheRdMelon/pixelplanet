@@ -17,7 +17,7 @@ import MinecraftButton from './MinecraftButton';
 const Menu = ({
   menuOpen, minecraftname, messages, canvasId,
 }) => (
-  <div>
+  <div id="menu">
     {(menuOpen) ? <SettingsButton /> : null}
     {(menuOpen) ? <LogInButton /> : null}
     {(menuOpen) ? <DownloadButton /> : null}
