@@ -19,6 +19,7 @@ import {
 import {
   setHover,
   tryPlacePixel,
+  selectColor,
 } from '../actions';
 
 
@@ -439,8 +440,29 @@ class Renderer {
             const cell = target.toArray();
             store.dispatch(tryPlacePixel(cell));
           }
-        }
           break;
+        }
+        case 1: {
+          // middle mouse button
+          const target = intersect.point.clone()
+            .add(intersect.face.normal.multiplyScalar(-0.5))
+            .floor()
+            .addScalar(0.5)
+            .floor();
+          if (target.y < 0) {
+            return;
+          }
+          if (target.clone().sub(camera.position).length() < 120) {
+            const cell = target.toArray();
+            if (this.chunkLoader) {
+              const clr = this.chunkLoader.getVoxel(...cell);
+              if (clr) {
+                store.dispatch(selectColor(clr));
+              }
+            }
+          }
+          break;
+        }
         case 2: {
           // right mouse button
           const target = intersect.point.clone()
@@ -455,8 +477,8 @@ class Renderer {
             const cell = target.toArray();
             store.dispatch(tryPlacePixel(cell, 0));
           }
-        }
           break;
+        }
         default:
           break;
       }

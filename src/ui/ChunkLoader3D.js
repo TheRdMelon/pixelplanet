@@ -9,6 +9,10 @@ import {
   receiveBigChunk,
   receiveBigChunkFailure,
 } from '../actions';
+import {
+  getChunkOfPixel,
+  getOffsetOfPixel,
+} from '../core/utils';
 
 import Chunk from './ChunkRGB3D';
 
@@ -36,6 +40,22 @@ class ChunkLoader {
       chunk.destructor();
     });
     this.chunks = new Map();
+  }
+
+  getVoxel(x: number, y: number, z: number) {
+    const state = this.store.getState();
+    const {
+      canvasSize,
+    } = state.canvas;
+    const [xc, zc] = getChunkOfPixel(canvasSize, x, y, z);
+    const offset = getOffsetOfPixel(canvasSize, x, y, z);
+    const key = `${xc}:${zc}`;
+    const chunk = this.chunks.get(key);
+    if (chunk) {
+      const clr = chunk.getVoxelByOffset(offset);
+      return clr;
+    }
+    return 0;
   }
 
   getVoxelUpdate(

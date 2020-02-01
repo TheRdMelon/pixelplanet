@@ -107,6 +107,12 @@ class Chunk {
     return this.buffer[offset];
   }
 
+  getVoxelByOffset(offset: number) {
+    const { buffer } = this;
+    if (!buffer) return 0;
+    return buffer[offset];
+  }
+
   /*
   // Test Sin encironment creation for load tests
   async generateSin() {
