@@ -115,7 +115,7 @@ const FactionSelector = ({
   useEffect(() => {
     // Start listening for scroll events
     window.addEventListener('scroll', onScroll, { capture: true });
-    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mousemove', onMouseMove, { capture: true });
 
     // Functions returned from useeffects with empty dependencies run on unload
     return () => {

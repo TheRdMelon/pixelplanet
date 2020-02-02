@@ -10,6 +10,7 @@ import { fetchOwnFactions } from '../actions';
 const store = configureStore(() => {
   getRenderer().forceNextRender = true;
   store.dispatch(fetchOwnFactions(store.getState().gui.selectedFaction));
+  window.store = store;
 });
 
 export default store;

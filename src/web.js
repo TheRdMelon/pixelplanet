@@ -46,7 +46,6 @@ setInterval(forceGC, 15 * 60 * SECOND);
 // create http server
 const server = http.createServer(app);
 
-
 //
 // websockets
 // -----------------------------------------------------------------------------
@@ -159,7 +158,7 @@ const indexEtag = etag(`${assets.vendor.js},${assets.client.js}`, {
   weak: true,
 });
 
-app.get('/', async (req, res) => {
+app.get(['/', '/invite/*'], async (req, res) => {
   res.set({
     'Cache-Control': `private, max-age=${15 * 60}`, // seconds
     'Content-Type': 'text/html; charset=utf-8',

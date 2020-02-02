@@ -223,16 +223,19 @@ const joinFaction = async (req: Request, res: Response) => {
   const faction = await Faction.findByPk(factionIdParam);
 
   // Validation
+  let errorCode = '';
   const errors = [];
   const existCheck = !(!faction || faction.private);
 
   if (!existCheck) {
     errors.push('This faction does not exist.');
+    errorCode = 'ER001';
   }
 
   if (existCheck) {
     if (await faction.hasUser(user.regUser)) {
       errors.push('You are already a member of this faction.');
+      errorCode = 'ER002';
     }
   }
 
@@ -241,6 +244,7 @@ const joinFaction = async (req: Request, res: Response) => {
     res.json({
       success: false,
       errors,
+      errorCode,
     });
     return;
   }

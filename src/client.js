@@ -21,6 +21,7 @@ import {
   receiveChatMessage,
   receiveChatHistory,
   setMobile,
+  joinFaction,
 } from './actions';
 import store from './ui/store';
 
@@ -30,6 +31,12 @@ import { initRenderer, getRenderer } from './ui/renderer';
 import ProtocolClient from './socket/ProtocolClient';
 
 function init() {
+  const invitePattern = /^\/invite\/(.+)$/g;
+  const matches = invitePattern.exec(window.location.pathname);
+  if (matches !== null) {
+    store.dispatch(joinFaction(matches[1]));
+  }
+
   initRenderer(store, false);
 
   ProtocolClient.on('pixelUpdate', ({

@@ -290,8 +290,7 @@ export function tryPlacePixel(
   return (dispatch, getState) => {
     const state = getState();
     const { canvasId } = state.canvas;
-    const selectedColor = color === undefined
-      || color === null ? state.gui.selectedColor : color;
+    const selectedColor = color === undefined || color === null ? state.gui.selectedColor : color;
 
     dispatch(requestPlacePixel(canvasId, coordinates, selectedColor));
   };
@@ -726,6 +725,35 @@ export function showChatModal(): Action {
 export function hideModal(): Action {
   return {
     type: 'HIDE_MODAL',
+  };
+}
+
+export function joinFaction(id): PromiseAction {
+  return async (dispatch) => {
+    const response = await fetch(`/api/factions/${id}`, {
+      credentials: 'include',
+      method: 'PATCH',
+    });
+    let errorCode = '';
+
+    if (response.ok || response.status === 400) {
+      const json = await response.json();
+      if (!json.success) {
+        errorCode = json.errorCode || response.status;
+      } else {
+        dispatch(recieveFactionInfo(json.info));
+      }
+    } else {
+      errorCode = response.status;
+    }
+
+    if (errorCode) {
+      window.location = `/error?code=${errorCode}`;
+    } else {
+      dispatch(selectFaction(id));
+      dispatch(showFactionsAreaModal());
+      window.history.replaceState(undefined, undefined, '/');
+    }
   };
 }
 
