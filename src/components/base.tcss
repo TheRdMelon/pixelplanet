@@ -103,7 +103,7 @@ kbd {
 
 :global(.actionbuttons), :global(.coorbox), :global(.onlinebox), :global(.cooldownbox), :global(.palettebox) {
     position: absolute;
-    background-color: rgb(213, 238, 255);
+    background-color: rgba(226, 226, 226, 0.80);
     color: black;
     text-align: center;
     vertical-align: middle;
@@ -131,7 +131,7 @@ kbd {
 
 :global(#menu > div) {
   z-index: 1;
-  background-color: rgba(193, 207, 216, 0.92);
+  background-color: rgb(213, 238, 255);
 }
 
 :global(#helpbutton) {
