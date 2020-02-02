@@ -73,7 +73,7 @@ const HelpModal = () => (
       <p style={textStyle}>Click middle mouse button to current hovering color</p>
       <p style={textStyle}>Pinch to zoom (on touch devices)</p>
       <p style={textStyle}>Pan to move (on touch devices)</p>
-      <p style={textStyle}>Click or tab to place a pixel</p>
+      <p style={textStyle}>Click or tap to place a pixel</p>
       <h3 style={titleStyle}>3D Controls</h3>
       <p style={textStyle}>Press <kbd>W</kbd>,<kbd>A</kbd>,<kbd>S</kbd>, <kbd>D</kbd> to move</p>
       <p style={textStyle}>Press <kbd>↑</kbd>,<kbd>←</kbd>,<kbd>↓</kbd>, <kbd>→</kbd> to move</p>
@@ -81,8 +81,8 @@ const HelpModal = () => (
       <p style={textStyle}>Left click and drag mouse to rotate</p>
       <p style={textStyle}>Middle click and drag mouse to zoom</p>
       <p style={textStyle}>Right click and drag mouse to pan</p>
-      <p style={textStyle}>Left Click to place a pixel</p>
-      <p style={textStyle}>Right Click to remove a pixel</p>
+      <p style={textStyle}>Left Click or tap to place a pixel</p>
+      <p style={textStyle}>Right Click of double tap to remove a pixel</p>
       <p>Partners: <a href="https://www.crazygames.com/c/io" target="_blank">crazygames.com</a></p>
       <p style={textStyle}>
         <small>This site is protected by reCAPTCHA and the Google
