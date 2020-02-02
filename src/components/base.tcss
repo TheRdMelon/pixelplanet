@@ -600,6 +600,14 @@ kbd {
   padding: 17px 16px 16px 36px;
 }
 
+:global(.tooltip > *) {
+  visibility: visible;
+}
+
+:global(.tooltip:not(.show) > *) {
+  opacity: 0;
+}
+
 :global(.actionbuttons) {
   vertical-align: text-bottom;
   cursor: pointer;
@@ -725,4 +733,8 @@ kbd {
 :global(.hr) {
   border-bottom: solid 1px black;
   margin: 5px 12px;
+}
+
+:global(.hr.dashed) {
+  border-bottom-style: dashed;
 }

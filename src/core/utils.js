@@ -271,3 +271,11 @@ export function mouseDistanceFromElement(mouseEvent, element) {
   const hypot = (distX ** 2 + distY ** 2) ** (1 / 2);
   return Math.floor(hypot); // this will output 0 when next to your element.
 }
+
+export function joinOnId(arr1, arr2, on) {
+  const ids = [...new Set([...arr1, ...arr2].map((i) => i[on]))];
+  return ids.map((id) => ({
+    ...(arr1.find((i) => i[on] === id) || {}),
+    ...(arr2.find((i) => i[on] === id) || {}),
+  }));
+}

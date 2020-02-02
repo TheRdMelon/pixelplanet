@@ -1,5 +1,7 @@
 /* @flow */
 
+import { joinOnId } from '../core/utils';
+
 import type { Action } from '../actions/types';
 
 export type UserState = {
@@ -176,31 +178,25 @@ export default function user(
       const { factions }: { factions: Array } = action;
       let newFactions = state.factions;
 
-      console.log(factions);
-      console.log(newFactions);
-
       factions.forEach((faction) => {
         if (newFactions.findIndex((f) => f.id === faction.id) > -1) {
           newFactions = newFactions.map((fa) => (fa.id === faction.id ? { ...fa, ...faction } : fa));
         } else {
           newFactions.push(faction);
         }
-        console.log(newFactions);
       });
 
-      console.log(newFactions);
-
-      // TODO: Implement the following without deleting private factions
       /* newFactions.forEach((newFaction) => {
-        if (factions.findIndex((f) => f.id === newFaction.id) === -1) {
+        if (
+          factions.findIndex((f) => f.id === newFaction.id) === -1
+          && !newFaction.private
+        ) {
           newFactions.splice(
             newFactions.findIndex((nf) => nf.id === newFaction.id),
             1,
           );
         }
       }); */
-
-      console.log(newFactions);
 
       return {
         ...state,
@@ -234,9 +230,6 @@ export default function user(
     case 'RECIEVE_FACTION_INFO': {
       const { info } = action;
 
-      console.log(state.factions);
-      console.log(info);
-
       return {
         ...state,
         factions: state.factions.find((f) => f.id === info.id)
@@ -252,7 +245,7 @@ export default function user(
       return {
         ...state,
         ownFactions,
-        factions: [...ownFactions, ...factions],
+        factions: joinOnId(ownFactions, factions, 'id'),
       };
     }
 

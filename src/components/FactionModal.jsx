@@ -26,7 +26,7 @@ import type { State } from '../reducers';
 import { parseAPIresponse } from '../utils/validation';
 import useFactionSelect from '../reacthooks/useFactionSelect';
 
-const textStyle: CSSStyleDeclaration = {
+const textStyle: React.CSSStyleDeclaration = {
   color: 'hsla(218, 5%, 47%, .6)',
   fontSize: 14,
   fontWeight: 500,
@@ -38,7 +38,7 @@ const textStyle: CSSStyleDeclaration = {
   lineHeight: 'normal',
 };
 
-const squareParentStyle: CSSStyleDeclaration = {
+const squareParentStyle: React.CSSStyleDeclaration = {
   width: '40%',
   flexBasis: '40%',
   flexShrink: 0,
@@ -46,11 +46,11 @@ const squareParentStyle: CSSStyleDeclaration = {
   position: 'relative',
 };
 
-const squareStretcherStyle: CSSStyleDeclaration = {
+const squareStretcherStyle: React.CSSStyleDeclaration = {
   paddingBottom: '100%',
 };
 
-const squareChildStyle: CSSStyleDeclaration = {
+const squareChildStyle: React.CSSStyleDeclaration = {
   position: 'absolute',
   top: 0,
   bottom: 0,
@@ -58,7 +58,7 @@ const squareChildStyle: CSSStyleDeclaration = {
   right: 0,
 };
 
-const factionNameStyle: CSSStyleDeclaration = {
+const factionNameStyle: React.CSSStyleDeclaration = {
   wordBreak: 'break-word',
   display: 'block',
   paddingTop: '10px',
@@ -90,7 +90,8 @@ const FactionInfo = () => {
   return (
     <>
       <Selector />
-
+      <div />
+      <br />
       <div style={{ display: 'flex' }}>
         <div style={squareParentStyle}>
           <div style={squareStretcherStyle} />
@@ -112,11 +113,17 @@ const FactionInfo = () => {
           </div>
         </div>
         <div className="factioninfobox">
+          {selectedFactionInfo.private && (
+            <>
+              <h4>(Private)</h4>
+              <div className="hr" />
+            </>
+          )}
           <h4>
             Leader:
             <span style={factionNameStyle}>{selectedFactionInfo.leader}</span>
           </h4>
-          <div className="hr" />
+          <div className={`hr ${selectedFactionInfo.private ? 'dashed' : ''}`} />
           <h4>
             Members:
             <span>
@@ -150,7 +157,7 @@ const FactionInfo = () => {
   );
 };
 
-const newTemplateLabelsStyles: CSSStyleDeclaration = {
+const newTemplateLabelsStyles: React.CSSStyleDeclaration = {
   paddingRight: '10px',
   fontWeight: 'bold',
   display: 'inline-block',
@@ -158,17 +165,45 @@ const newTemplateLabelsStyles: CSSStyleDeclaration = {
   textAlign: 'right',
 };
 
-const Admin = ({
-  selected_faction: selectedFaction,
-}) => {
+const Admin = ({ selected_faction: selectedFaction }) => {
   const formRef = useRef(null);
+  const passwordTooltipRef = useRef(null);
   const [password, setPassword] = useState<string>('');
+  const [showCopied, setShowCopied] = useState<boolean>(false);
 
   const { Selector, selectedFactionInfo } = useFactionSelect();
 
+  useEffect(() => {
+    if (passwordTooltipRef.current) {
+      passwordTooltipRef.current.onmousedown = (e) => {
+        e = e || window.event;
+        e.preventDefault();
+        passwordTooltipRef.current.focus();
+      };
+    }
+  }, [passwordTooltipRef.current]);
+
   const onPasswordFocus = (e) => {
-    e.target.select();
-    document.execCommand('copy');
+    e.preventDefault();
+    if (e.target.value) {
+      e.target.select();
+      document.execCommand('copy');
+      setShowCopied(true);
+      ReactTooltip.show(passwordTooltipRef.current);
+    }
+  };
+
+  const onPasswordMouseEnter = () => {
+    setShowCopied(false);
+  };
+
+  const onPasswordBlur = () => {
+    if (window.getSelection) {
+      window.getSelection().removeAllRanges();
+    } else if (document.selection) {
+      document.selection.empty();
+    }
+    ReactTooltip.hide(passwordTooltipRef.current);
   };
 
   const onGeneratePassword = async () => {
@@ -214,6 +249,7 @@ const Admin = ({
             style={{ width: '238px' }}
           />
         </label>
+        <div />
         <br />
         <div>
           <div style={newTemplateLabelsStyles}>Canvas: </div>
@@ -265,20 +301,27 @@ const Admin = ({
             Generate New
           </button>
           <input
+            style={{ textAlign: 'center', width: '100%', marginTop: '5px' }}
             value={password}
             onFocus={onPasswordFocus}
+            onBlur={onPasswordBlur}
+            onMouseEnter={onPasswordMouseEnter}
             placeholder="Click generate for a single-use password (no expiry)"
             data-tip
             data-for="copiedTooltip"
+            readOnly
+            ref={passwordTooltipRef}
           />
-          <ReactTooltip
-            id="copiedTooltip"
-            place="bottom"
-            effect="solid"
-            type="dark"
-          >
-            Copied to Clipboard!
-          </ReactTooltip>
+          <div className={`tooltip ${showCopied ? 'show' : ''}`}>
+            <ReactTooltip
+              id="copiedTooltip"
+              place="bottom"
+              effect="solid"
+              type="dark"
+            >
+              Copied to Clipboard!
+            </ReactTooltip>
+          </div>
         </>
       )}
     </>
@@ -321,9 +364,7 @@ const FactionModal = ({
           )}
           {ownFactions.length > 0 ? (
             <div label="Admin">
-              <Admin
-                selected_faction={selectedFaction}
-              />
+              <Admin selected_faction={selectedFaction} />
             </div>
           ) : (
             undefined

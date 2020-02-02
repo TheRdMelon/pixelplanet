@@ -88,13 +88,15 @@ const PublicFactions = ({
         <th>Leader</th>
         <th> </th>
       </tr>
-      {factions.map((faction) => (
-        <VisibleFactionRow
-          faction={faction}
-          fetch_icon={fetchIcon}
-          recieve_faction_info={recieveFactionInfoDisp}
-        />
-      ))}
+      {factions
+        .filter((f) => !f.private)
+        .map((faction) => (
+          <VisibleFactionRow
+            faction={faction}
+            fetch_icon={fetchIcon}
+            recieve_faction_info={recieveFactionInfoDisp}
+          />
+        ))}
     </table>
   </div>
 );

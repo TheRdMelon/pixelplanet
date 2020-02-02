@@ -3,10 +3,8 @@
  * @flow
  */
 
-import React, {
-  useState, useEffect, useRef, useLayoutEffect,
-} from 'react';
-import { connect } from 'react-redux';
+import React, { useState, useEffect, useRef } from 'react';
+import { connect, useSelector } from 'react-redux';
 
 import type { State } from '../reducers';
 
@@ -39,7 +37,9 @@ const FactionSelector = ({
   select_faction: (faction: string) => void,
   own_factions: Array,
   fetch_faction_icon: (id) => void,
-}) => {
+  }) => {
+  // Fetch selected faction data using redux useSelector hook
+  const selectedFactionObj = useSelector((state) => state.user.factions.find((f) => f.id === selectedFaction));
   // Flag for if the faction loader is loaded and ready to transition
   const hasLoaded = useRef<boolean>(false);
   // Faction selector container ref
@@ -48,9 +48,11 @@ const FactionSelector = ({
   const iconEl = useRef<HTMLImageElement>(null);
   // Faction selector ref
   const selectorEl = useRef<HTMLDivElement>(null);
+  // Bottom faction selector row ref
   const baseEl = useRef<HTMLDivElement>(null);
   // Store timeout id for tracking transitions
   const transitioningTimeoutId = useRef<int>(-1);
+  // Store timeout id for auto-close timer
   const autoCloseTimeoutId = useRef<int>(-1);
   // Transitioning lock ref, prevent hovering while transitions are active
   const closing = useRef<boolean>(true);
@@ -72,6 +74,7 @@ const FactionSelector = ({
   const disableScrolling = useRef<boolean>(true);
   // Ignore onScroll if waiting for animation frame
   const scrollTicking = useRef<boolean>(false);
+  // Ignore mouseMove if waiting for animation frame
   const mouseMoveTicking = useRef<boolean>(false);
 
   const onScroll = (e: Event) => {
@@ -92,11 +95,11 @@ const FactionSelector = ({
       requestAnimationFrame(() => {
         const containerDist = mouseDistanceFromElement(e, containerEl.current);
         const baseDist = mouseDistanceFromElement(e, baseEl.current);
-        if (containerDist > 75 && baseDist > 75) {
+        if (containerDist > 50 && baseDist > 50) {
           if (autoCloseTimeoutId.current < 0) {
             autoCloseTimeoutId.current = window.setTimeout(() => {
               setFactionSelectorClosed(true);
-            }, 750);
+            }, 500);
           }
         } else {
           window.clearTimeout(autoCloseTimeoutId.current);
@@ -173,9 +176,6 @@ const FactionSelector = ({
     setHeight(iconEl.current ? iconEl.current.height : -1);
   }, [selectedFaction, iconEl.current]);
 
-  // The current selected faction information
-  const selectedFactionObj = factions.find((f) => f.id === selectedFaction);
-
   return (
     <>
       <div
@@ -183,7 +183,7 @@ const FactionSelector = ({
         id="factionselectorcontainer"
         className={`${factionSelectorClosed ? 'factionselectorclosed' : ''} ${
           transitioning || factionSelectorClosed ? 'transitioning' : ''
-        } ${transitioning ? 'slidetransition' : ''}`}
+        } ${transitioning || hasLoaded.current ? 'slidetransition' : ''}`}
         style={
           factionSelectorClosed
             ? {

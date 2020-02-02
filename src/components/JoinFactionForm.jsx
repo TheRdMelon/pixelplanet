@@ -87,7 +87,9 @@ class JoinFactionForm extends React.Component {
           placeholder="Join Password"
         />
 
-        <button type="submit">{joining ? '...' : 'Join'}</button>
+        <button type="submit" style={{ marginTop: '12px' }}>
+          {joining ? '...' : 'Join'}
+        </button>
       </form>
     );
   }
