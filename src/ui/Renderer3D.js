@@ -34,6 +34,8 @@ class Renderer {
   objects: Array<Object>;
   loadedChunks: Array<Object>;
   plane: Object;
+  oobGeometry: Object;
+  oobMaterial: Object;
   //--
   controls: Object;
   threeRenderer: Object;
@@ -138,6 +140,19 @@ class Renderer {
     this.plane = plane;
     this.objects.push(plane);
     this.plane.position.y = -0.1;
+
+    // Out of bounds plane
+    const oobGeometry = new THREE.PlaneBufferGeometry(
+      THREE_TILE_SIZE,
+      THREE_TILE_SIZE,
+    );
+    oobGeometry.rotateX(-Math.PI / 2);
+    oobGeometry.translate(THREE_TILE_SIZE / 2, 0.2, THREE_TILE_SIZE / 2);
+    const oobMaterial = new THREE.MeshLambertMaterial({
+      color: '#C4C4C4',
+    });
+    this.oobGeometry = oobGeometry;
+    this.oobMaterial = oobMaterial;
 
     // renderer
     const threeRenderer = new THREE.WebGLRenderer({
@@ -289,6 +304,7 @@ class Renderer {
       0,
       z + renderDistance,
     );
+    const chunkMaxXY = canvasSize / THREE_TILE_SIZE;
     // console.log(`Get ${xcMin} - ${xcMax} - ${zcMin} - ${zcMax}`);
     const curLoadedChunks = [];
     for (let zc = zcMin; zc <= zcMax; ++zc) {
@@ -296,7 +312,13 @@ class Renderer {
         const chunkKey = `${xc}:${zc}`;
         curLoadedChunks.push(chunkKey);
         if (!loadedChunks.has(chunkKey)) {
-          const chunk = chunkLoader.getChunk(xc, zc, true);
+          let chunk = null;
+          if (xc < 0 || zc < 0 || xc >= chunkMaxXY || zc >= chunkMaxXY) {
+            // if out of bounds
+            chunk = new THREE.Mesh(this.oobGeometry, this.oobMaterial);
+          } else {
+            chunk = chunkLoader.getChunk(xc, zc, true);
+          }
           if (chunk) {
             loadedChunks.set(chunkKey, chunk);
             chunk.position.fromArray([
@@ -304,7 +326,6 @@ class Renderer {
               0,
               zc * THREE_TILE_SIZE - canvasSize / 2,
             ]);
-            window.chunk = chunk;
             scene.add(chunk);
           }
         }

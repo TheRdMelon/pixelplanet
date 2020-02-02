@@ -28,6 +28,9 @@ import {
   onViewFinishChange,
   setViewCoordinates,
 } from '../actions';
+import {
+  THREE_CANVAS_HEIGHT,
+} from '../core/constants';
 
 // This set of controls performs orbiting, dollying (zooming),
 // and panning and smooth moving by keys.
@@ -930,7 +933,6 @@ class VoxelPainterControls extends EventDispatcher {
         );
 
         // move target to panned location
-
         if (panOffset.length() > 1000) {
           panOffset.set(0, 0, 0);
         }
@@ -939,19 +941,31 @@ class VoxelPainterControls extends EventDispatcher {
         } else {
           scope.target.add(panOffset);
         }
+        /*
         if (scope.target.y < 10.0) {
           scope.target.y = 10.0;
         }
+        */
 
+        // clamp to boundaries
+        const state = scope.store.getState();
+        const { canvasSize } = state.canvas;
+        const bound = canvasSize / 2;
+        scope.target.clamp({
+          x: -bound,
+          y: 10,
+          z: -bound,
+        }, {
+          x: bound,
+          y: THREE_CANVAS_HEIGHT,
+          z: bound,
+        });
 
         offset.setFromSpherical(spherical);
 
         // rotate offset back to "camera-up-vector-is-up" space
         offset.applyQuaternion(quatInverse);
-
         position.copy(scope.target).add(offset);
-
-
         scope.object.lookAt(scope.target);
 
         if (scope.enableDamping === true) {
