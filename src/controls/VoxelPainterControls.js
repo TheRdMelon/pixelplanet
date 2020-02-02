@@ -643,7 +643,6 @@ class VoxelPainterControls extends EventDispatcher {
       if (scope.enabled === false) return;
 
       event.preventDefault();
-      event.stopPropagation();
 
       switch (state) {
         case STATE.TOUCH_ROTATE:

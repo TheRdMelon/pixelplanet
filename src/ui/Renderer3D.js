@@ -163,10 +163,12 @@ class Renderer {
 
 
     this.onDocumentMouseMove = this.onDocumentMouseMove.bind(this);
+    this.onDocumentTouchMove = this.onDocumentTouchMove.bind(this);
     this.onDocumentMouseDown = this.onDocumentMouseDown.bind(this);
     this.onDocumentMouseUp = this.onDocumentMouseUp.bind(this);
     this.onWindowResize = this.onWindowResize.bind(this);
     domElement.addEventListener('mousemove', this.onDocumentMouseMove, false);
+    domElement.addEventListener('touchmove', this.onDocumentTouchMove, false);
     domElement.addEventListener('mousedown', this.onDocumentMouseDown, false);
     domElement.addEventListener('mouseup', this.onDocumentMouseUp, false);
     window.addEventListener('resize', this.onWindowResize, false);
@@ -378,6 +380,42 @@ class Renderer {
     this.longTouch = false;
     const state = this.store.getState();
     this.mouseMoveStart = state.gui.hover;
+  }
+
+  onDocumentTouchMove(event) {
+    event.stopPropagation();
+
+    const {
+      camera,
+      objects,
+      raycaster,
+      mouse,
+      rollOverMesh,
+      store,
+    } = this;
+    const {
+      placeAllowed,
+    } = store.getState().user;
+
+    mouse.set(0, 0);
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(objects);
+    if (intersects.length > 0) {
+      const intersect = intersects[0];
+      const target = intersect.point.clone()
+        .add(intersect.face.normal.multiplyScalar(0.5))
+        .floor()
+        .addScalar(0.5);
+      if (!placeAllowed
+        || target.clone().sub(camera.position).length() > 120) {
+        rollOverMesh.position.y = -10;
+      } else {
+        rollOverMesh.position.copy(target);
+      }
+    }
+    const hover = rollOverMesh.position
+      .toArray().map((u) => Math.floor(u));
+    this.store.dispatch(setHover(hover));
   }
 
   onDocumentTouchEnd() {
