@@ -524,8 +524,9 @@ class Renderer {
     const state = this.store.getState();
     const {
       placeAllowed,
+      isOnMobile,
     } = state.user;
-    if (!placeAllowed) {
+    if (!placeAllowed || isOnMobile) {
       return;
     }
 

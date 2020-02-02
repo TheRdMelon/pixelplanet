@@ -25,8 +25,7 @@ export type UserState = {
   chatMessages: Array,
   // minecraft
   minecraftname: string,
-  // just gets set by 3D controls on
-  // on voxel canvases
+  // if user is using touchscreen
   isOnMobile: boolean,
 };
 
