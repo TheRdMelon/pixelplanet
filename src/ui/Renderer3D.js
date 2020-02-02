@@ -37,13 +37,13 @@ class Renderer {
   //--
   controls: Object;
   threeRenderer: Object;
-  //--
+  // temp variables for mouse events
   mouse;
   mouseMoveStart;
   raycaster;
   pressTime: number;
-  longTouch: boolean;
   pressCdTime: number;
+  multitap: number;
   //--
   chunkLoader: ChunkLoader = null;
   forceNextRender: boolean = false;
@@ -125,6 +125,7 @@ class Renderer {
     //
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
+    this.multitap = 0;
 
     // Plane Floor
     const geometry = new THREE.PlaneBufferGeometry(1024, 1024);
@@ -164,12 +165,25 @@ class Renderer {
 
     this.onDocumentMouseMove = this.onDocumentMouseMove.bind(this);
     this.onDocumentTouchMove = this.onDocumentTouchMove.bind(this);
-    this.onDocumentMouseDown = this.onDocumentMouseDown.bind(this);
+    // eslint-disable-next-line max-len
+    this.onDocumentMouseDownOrTouchStart = this.onDocumentMouseDownOrTouchStart.bind(this);
     this.onDocumentMouseUp = this.onDocumentMouseUp.bind(this);
     this.onWindowResize = this.onWindowResize.bind(this);
+    this.onDocumentTouchEnd = this.onDocumentTouchEnd.bind(this);
+    this.multiTapEnd = this.multiTapEnd.bind(this);
     domElement.addEventListener('mousemove', this.onDocumentMouseMove, false);
     domElement.addEventListener('touchmove', this.onDocumentTouchMove, false);
-    domElement.addEventListener('mousedown', this.onDocumentMouseDown, false);
+    domElement.addEventListener(
+      'mousedown',
+      this.onDocumentMouseDownOrTouchStart,
+      false,
+    );
+    domElement.addEventListener(
+      'touchstart',
+      this.onDocumentMouseDownOrTouchStart,
+      false,
+    );
+    domElement.addEventListener('touchend', this.onDocumentTouchEnd, false);
     domElement.addEventListener('mouseup', this.onDocumentMouseUp, false);
     window.addEventListener('resize', this.onWindowResize, false);
 
@@ -368,23 +382,20 @@ class Renderer {
         rollOverMesh.position.y = -10;
       } else {
         rollOverMesh.position.copy(target);
+        const hover = target
+          .toArray().map((u) => Math.floor(u));
+        this.store.dispatch(setHover(hover));
       }
     }
-    const hover = rollOverMesh.position
-      .toArray().map((u) => Math.floor(u));
-    this.store.dispatch(setHover(hover));
   }
 
-  onDocumentMouseDown() {
+  onDocumentMouseDownOrTouchStart() {
     this.pressTime = Date.now();
-    this.longTouch = false;
     const state = this.store.getState();
     this.mouseMoveStart = state.gui.hover;
   }
 
-  onDocumentTouchMove(event) {
-    event.stopPropagation();
-
+  onDocumentTouchMove() {
     const {
       camera,
       objects,
@@ -407,26 +418,97 @@ class Renderer {
         .floor()
         .addScalar(0.5);
       if (!placeAllowed
-        || target.clone().sub(camera.position).length() > 120) {
+        || target.clone().sub(camera.position).length() > 50) {
         rollOverMesh.position.y = -10;
       } else {
         rollOverMesh.position.copy(target);
+        const hover = target
+          .toArray().map((u) => Math.floor(u));
+        this.store.dispatch(setHover(hover));
       }
     }
-    const hover = rollOverMesh.position
-      .toArray().map((u) => Math.floor(u));
-    this.store.dispatch(setHover(hover));
   }
 
-  onDocumentTouchEnd() {
-    // gets fired before onDocumentMouseUp
-    // --
-    // longer press on touch-device -> remove Voxel
+  multiTapEnd() {
+    const {
+      store,
+      mouseMoveStart,
+      multitap,
+    } = this;
+    this.multitap = 0;
+    const state = store.getState();
+    const {
+      placeAllowed,
+    } = state.user;
+    if (!placeAllowed) {
+      return;
+    }
+
+    const [px, py, pz] = mouseMoveStart;
+    const [qx, qy, qz] = state.gui.hover;
+    if (px !== qx || py !== qy || pz !== qz) {
+      return;
+    }
+
+    switch (multitap) {
+      case 1: {
+        // singel tap
+        // Place Voxel
+        if (this.rollOverMesh.position.y < 0) {
+          return;
+        }
+        store.dispatch(tryPlacePixel([px, py, pz]));
+        break;
+      }
+      case 2: {
+        // double tap
+        // Remove Voxel
+        const {
+          mouse,
+          raycaster,
+          camera,
+          objects,
+        } = this;
+        mouse.set(0, 0);
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(objects);
+        if (intersects.length > 0) {
+          const intersect = intersects[0];
+          const target = intersect.point.clone()
+            .add(intersect.face.normal.multiplyScalar(-0.5))
+            .floor()
+            .addScalar(0.5)
+            .floor();
+          if (target.y < 0) {
+            return;
+          }
+          if (target.clone().sub(camera.position).length() <= 50) {
+            const cell = target.toArray();
+            store.dispatch(tryPlacePixel(cell, 0));
+          }
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  onDocumentTouchEnd(event) {
+    event.preventDefault();
+
     const curTime = Date.now();
     if (curTime - this.pressTime > 600) {
-      this.pressCdTime = curTime;
-      this.longTouch = true;
+      this.multitap = 0;
+      return;
     }
+    // if we want to do something with triple tap,
+    // we should reset on every tap
+    // but we don't need that right now...
+    if (this.multitap === 0) {
+      setTimeout(this.multiTapEnd, 500);
+    }
+    this.multitap += 1;
   }
 
   onDocumentMouseUp(event) {
@@ -482,7 +564,7 @@ class Renderer {
     if (intersects.length > 0) {
       const intersect = intersects[0];
 
-      if (button === 0 && !this.longTouch) {
+      if (button === 0) {
         // left mouse button
         const target = intersect.point.clone()
           .add(intersect.face.normal.multiplyScalar(0.5))
@@ -512,7 +594,7 @@ class Renderer {
             }
           }
         }
-      } else if (button === 2 || this.longTouch) {
+      } else if (button === 2) {
         // right mouse button
         const target = intersect.point.clone()
           .add(intersect.face.normal.multiplyScalar(-0.5))
