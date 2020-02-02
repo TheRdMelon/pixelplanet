@@ -11,7 +11,13 @@ import { showChatModal } from '../actions';
 
 
 const ChatButton = ({ open }) => (
-  <div id="chatbutton" className="actionbuttons" onClick={open}>
+  <div
+    id="chatbutton"
+    className="actionbuttons"
+    onClick={open}
+    role="button"
+    tabIndex={0}
+  >
     <MdForum />
   </div>: null
 );

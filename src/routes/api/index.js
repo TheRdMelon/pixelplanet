@@ -18,7 +18,6 @@ import ranking from './ranking';
 import factions from './factions';
 import history from './history';
 
-
 const router = express.Router();
 
 // this route doesn't need passport

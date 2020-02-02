@@ -134,6 +134,11 @@ kbd {
   top: 16px;
 }
 
+:global(#menuitems > div) {
+  z-index: 1;
+  background-color: rgb(213, 238, 255);
+}
+
 :global(#helpbutton) {
   left: 16px;
   top: 262px;
@@ -303,13 +308,13 @@ kbd {
   }
 }
 :global(.Overlay) {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  background-color: rgba(255, 255, 255, 0.75);
-  z-index: 2;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: rgba(255, 255, 255, 0.75);
+    z-index: 4;
 }
 
 :global(.chatbox div .chatarea) {

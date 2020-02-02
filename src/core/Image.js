@@ -15,7 +15,7 @@ import Palette from './Palette';
 /*
  * Load iamge from ABGR buffer onto canvas
  * (be aware that tis function does no validation of arguments)
- * @param canvadIs numerical ID of canvas
+ * @param canvasId numerical ID of canvas
  * @param x X coordinate on canvas
  * @param y Y coordinate on canvas
  * @param data buffer of image in ABGR format
@@ -39,7 +39,7 @@ export async function imageABGR2Canvas(
     );
   }
   const canvas = canvases[canvasId];
-  const palette = new Palette(canvas.colors, canvas.alpha);
+  const palette = new Palette(canvas.colors);
   const canvasMinXY = -(canvas.size / 2);
   const imageData = new Uint32Array(data.buffer);
 
@@ -55,7 +55,7 @@ export async function imageABGR2Canvas(
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
       chunk = templateId === undefined
-        ? await RedisCanvas.getChunk(cx, cy, canvasId, templateId)
+        ? await RedisCanvas.getChunk(canvasId, cx, cy, templateId)
         : null;
       chunk = chunk
         ? new Uint8Array(chunk)
@@ -75,7 +75,7 @@ export async function imageABGR2Canvas(
               ? palette.abgr.indexOf(clr)
               : palette.abgr.indexOf(clr, 2);
             if (~clrIndex) {
-              const pixel = protect ? clrIndex | 0x20 : clrIndex;
+              const pixel = protect ? clrIndex | 0x80 : clrIndex;
               chunk[cOff] = pixel;
               pxlCnt += 1;
             }
@@ -106,7 +106,7 @@ export async function imageABGR2Canvas(
 /*
  * Load iamgemask from ABGR buffer and execute function for each black pixel
  * (be aware that tis function does no validation of arguments)
- * @param canvadIs numerical ID of canvas
+ * @param canvasId numerical ID of canvas
  * @param x X coordinate on canvas
  * @param y Y coordinate on canvas
  * @param data buffer of image in ABGR format
@@ -128,7 +128,7 @@ export async function imagemask2Canvas(
     `Loading mask with size ${width} / ${height} to ${x} / ${y} to the canvas`,
   );
   const canvas = canvases[canvasId];
-  const palette = new Palette(canvas.colors, canvas.alpha);
+  const palette = new Palette(canvas.colors);
   const canvasMinXY = -(canvas.size / 2);
 
   const imageData = new Uint8Array(data.buffer);
@@ -140,7 +140,7 @@ export async function imagemask2Canvas(
   let chunk;
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
-      chunk = await RedisCanvas.getChunk(cx, cy, canvasId);
+      chunk = await RedisCanvas.getChunk(canvasId, cx, cy);
       chunk = chunk
         ? new Uint8Array(chunk)
         : new Uint8Array(TILE_SIZE * TILE_SIZE);

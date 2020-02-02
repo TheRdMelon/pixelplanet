@@ -24,6 +24,7 @@ const MdToggleButtonHover = ({ value, onToggle }) => (
       height: 32,
     }}
     animateThumbStyleHover={(n) => ({
+      // eslint-disable-next-line max-len
       boxShadow: `0 0 ${2 + (4 * n)}px rgba(0,0,0,.16),0 ${2 + (3 * n)}px ${4 + (8 * n)}px rgba(0,0,0,.32)`,
     })}
   />

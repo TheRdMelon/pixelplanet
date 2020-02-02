@@ -60,33 +60,63 @@ async function draw(
 
   const canvasMaxXY = canvas.size / 2;
   const canvasMinXY = -canvasMaxXY;
-  if (
-    x < canvasMinXY
-    || y < canvasMinXY
-    || x >= canvasMaxXY
-    || y >= canvasMaxXY
-  ) {
+  if (x < canvasMinXY || x >= canvasMaxXY) {
     return {
-      error: 'Coordinates not within canvas',
+      error: 'x Coordinate not within canvas',
       success: false,
     };
   }
-  if (z !== null) {
-    if (z >= THREE_CANVAS_HEIGHT) {
+  if (canvas.v) {
+    if (z < canvasMinXY || z >= canvasMaxXY) {
       return {
-        error: 'You reached build limit. Can\'t place higher than 128 blocks.',
+        error: 'z Coordinate not within canvas',
         success: false,
       };
     }
-    if (!canvas.v) {
+    if (y >= THREE_CANVAS_HEIGHT) {
       return {
-        error: 'This is not a 3D canvas',
+        error: "You reached build limit. Can't place higher than 128 blocks.",
         success: false,
       };
     }
-  } else if (canvas.v) {
+    if (y < 0) {
+      return {
+        error: "Can't place on y < 0",
+        success: false,
+      };
+    }
+    if (z === null) {
+      return {
+        error: 'This is a 3D canvas. z is required.',
+        success: false,
+      };
+    }
+  } else {
+    if (y < canvasMinXY || y >= canvasMaxXY) {
+      return {
+        error: 'y Coordinate not within canvas',
+        success: false,
+      };
+    }
+    if (color < canvas.cli) {
+      return {
+        error: 'Invalid color selected',
+        success: false,
+      };
+    }
+    if (z !== null) {
+      if (!canvas.v) {
+        return {
+          error: 'This is not a 3D canvas',
+          success: false,
+        };
+      }
+    }
+  }
+
+  if (color < 0 || color >= canvas.colors.length) {
     return {
-      error: 'This is a 3D canvas. z is required.',
+      error: 'Invalid color selected',
       success: false,
     };
   }
@@ -134,7 +164,7 @@ async function draw(
 
   const setColor = await RedisCanvas.getPixel(canvasId, x, y, z);
 
-  let coolDown = !(setColor & 0x1e) ? canvas.bcd : canvas.pcd;
+  let coolDown = (setColor & 0x3f) < canvas.cli ? canvas.bcd : canvas.pcd;
   if (user.isAdmin()) {
     coolDown = 0.0;
   }
@@ -152,7 +182,7 @@ async function draw(
     };
   }
 
-  if (setColor & 0x20) {
+  if (setColor & 0x80) {
     logger.info(`${user.ip} tried to set on protected pixel (${x}, ${y})`);
     return {
       errorTitle: 'Pixel Protection',
@@ -162,7 +192,7 @@ async function draw(
     };
   }
 
-  setPixel(canvasId, color, x, y, null);
+  setPixel(canvasId, color, x, y, z);
 
   user.setWait(waitLeft, canvasId);
   user.incrementPixelcount();

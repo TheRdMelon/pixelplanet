@@ -121,7 +121,7 @@ app.get(
   '/chunks/templates/:c([0-9]+)/:x([0-9]+)/:y([0-9]+).bmp',
   templateChunks,
 );
-app.get('/chunks/:c([0-9]+)/:x([0-9]+)/:y([0-9]+).bmp', chunks);
+app.get('/chunks/:c([0-9]+)/:x([0-9]+)/:y([0-9]+)(/)?:z([0-9]+)?.bmp', chunks);
 
 //
 // Admintools

@@ -15,8 +15,10 @@ import Palette from './Palette';
 import HistorySelect from './HistorySelect';
 import FactionSelector from './FactionSelector';
 import TemplateSettings from './TemplateSettings';
+import Mobile3DControls from './Mobile3DControls';
 
-const UI = ({ isHistoricalView, is3D }) => {
+
+const UI = ({ isHistoricalView, is3D, isOnMobile }) => {
   if (isHistoricalView) {
     return <HistorySelect />;
   }
@@ -24,7 +26,8 @@ const UI = ({ isHistoricalView, is3D }) => {
     <div>
       <PalselButton />
       <Palette />
-      {is3D ? null : <GlobeButton />}
+      {(is3D) ? null : <GlobeButton />}
+      {(isOnMobile) ? <Mobile3DControls /> : null}
       <CoolDownBox />
       <NotifyBox />
       <FactionSelector />
@@ -34,10 +37,17 @@ const UI = ({ isHistoricalView, is3D }) => {
 };
 
 function mapStateToProps(state: State) {
-  const { isHistoricalView, is3D } = state.canvas;
+  const {
+    isHistoricalView,
+    is3D,
+  } = state.canvas;
+  const {
+    isOnMobile,
+  } = state.user;
   return {
     isHistoricalView,
     is3D,
+    isOnMobile,
   };
 }
 

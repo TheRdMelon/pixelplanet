@@ -9,8 +9,6 @@ import { MdPerson } from 'react-icons/md';
 
 import { showUserAreaModal } from '../actions';
 
-import type { State } from '../reducers';
-
 
 const LogInButton = ({ open }) => (
   <div id="loginbutton" className="actionbuttons" onClick={open}>

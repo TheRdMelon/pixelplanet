@@ -31,11 +31,10 @@ function deleteSubtilefromTile(
   for (let row = 0; row < TILE_SIZE; row += 1) {
     let channelOffset = (offset + row * TILE_SIZE * subtilesInTile) * 3;
     const max = channelOffset + TILE_SIZE * 3;
-    const alphaIndex = palette.alpha * 3;
     while (channelOffset < max) {
-      buffer[channelOffset++] = palette.rgb[alphaIndex];
-      buffer[channelOffset++] = palette.rgb[alphaIndex + 1];
-      buffer[channelOffset++] = palette.rgb[alphaIndex + 2];
+      buffer[channelOffset++] = palette.rgb[0];
+      buffer[channelOffset++] = palette.rgb[1];
+      buffer[channelOffset++] = palette.rgb[2];
     }
   }
 }
@@ -88,7 +87,7 @@ function addIndexedSubtiletoTile(
     let channelOffset = (chunkOffset + row * TILE_SIZE * subtilesInTile) * 3;
     const max = channelOffset + TILE_SIZE * 3;
     while (channelOffset < max) {
-      clr = (subtile[pos++] & 0x1F) * 3;
+      clr = (subtile[pos++] & 0x3F) * 3;
       buffer[channelOffset++] = palette.rgb[clr++];
       buffer[channelOffset++] = palette.rgb[clr++];
       buffer[channelOffset++] = palette.rgb[clr];
@@ -136,7 +135,7 @@ export async function createZoomTileFromChunk(
   let chunk = null;
   for (let dy = 0; dy < TILE_ZOOM_LEVEL; dy += 1) {
     for (let dx = 0; dx < TILE_ZOOM_LEVEL; dx += 1) {
-      chunk = await redisCanvas.getChunk(xabs + dx, yabs + dy, canvasId);
+      chunk = await redisCanvas.getChunk(canvasId, xabs + dx, yabs + dy);
       if (!chunk) {
         na.push([dx, dy]);
         continue;
@@ -244,11 +243,10 @@ export async function createEmptyTile(
   );
   let i = 0;
   const max = TILE_SIZE * TILE_SIZE * 3;
-  const alphaIndex = palette.alpha * 3;
   while (i < max) {
-    tileRGBBuffer[i++] = palette.rgb[alphaIndex];
-    tileRGBBuffer[i++] = palette.rgb[alphaIndex + 1];
-    tileRGBBuffer[i++] = palette.rgb[alphaIndex + 2];
+    tileRGBBuffer[i++] = palette.rgb[0];
+    tileRGBBuffer[i++] = palette.rgb[1];
+    tileRGBBuffer[i++] = palette.rgb[2];
   }
   const filename = `${canvasTileFolder}/emptytile.png`;
   await sharp(Buffer.from(tileRGBBuffer.buffer), {
@@ -303,7 +301,7 @@ export async function createTexture(
   } else {
     for (let dy = 0; dy < amount; dy += 1) {
       for (let dx = 0; dx < amount; dx += 1) {
-        chunk = await redisCanvas.getChunk(dx, dy, canvasId);
+        chunk = await redisCanvas.getChunk(canvasId, dx, dy);
         if (!chunk) {
           na.push([dx, dy]);
           continue;

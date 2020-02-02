@@ -19,7 +19,7 @@ async function copyChunks() {
   for (let x = 0; x < CHUNKS_XY; x++) {
     for (let y = 0; y < CHUNKS_XY; y++) {
       const oldkey = `chunk:${x}:${y}`;
-      const newkey = `ch:0:${i}:${j}`;
+      const newkey = `ch:0:${x}:${y}`;
       const chunk = await oldredis.getAsync(oldkey);
       if (chunk) {
         const setNXArgs = [newkey, chunk];

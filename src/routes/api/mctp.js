@@ -28,7 +28,10 @@ export default async (req: Request, res: Response) => {
 
   const x = parseInt(req.body.x, 10);
   const y = parseInt(req.body.y, 10);
-  if (x < CANVAS_MIN_XY || y < CANVAS_MIN_XY || x >= CANVAS_MAX_XY || y >= CANVAS_MAX_XY) {
+  if (x < CANVAS_MIN_XY
+    || y < CANVAS_MIN_XY
+    || x >= CANVAS_MAX_XY
+    || y >= CANVAS_MAX_XY) {
     res.status(400);
     res.json({
       success: false,

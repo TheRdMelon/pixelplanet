@@ -131,6 +131,13 @@ export function setWait(wait: ?number): Action {
   };
 }
 
+export function setMobile(mobile: boolean): Action {
+  return {
+    type: 'SET_MOBILE',
+    mobile,
+  };
+}
+
 export function selectColor(color: ColorIndex): Action {
   return {
     type: 'SELECT_COLOR',
@@ -209,13 +216,14 @@ export function requestPlacePixel(
   color: ColorIndex,
   token: ?string = null,
 ): ThunkAction {
-  const [x, y] = coordinates;
+  const [x, y, z] = coordinates;
 
   return async (dispatch) => {
     const body = JSON.stringify({
       cn: canvasId,
       x,
       y,
+      z,
       clr: color,
       token,
     });

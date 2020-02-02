@@ -30,6 +30,8 @@ export type UserState = {
   chatMessages: Array,
   // minecraft
   minecraftname: string,
+  // if user is using touchscreen
+  isOnMobile: boolean,
 };
 
 const initialState: UserState = {
@@ -47,6 +49,7 @@ const initialState: UserState = {
   factions: [],
   chatMessages: [['info', 'Welcome to the PixelPlanet Chat']],
   minecraftname: null,
+  isOnMobile: false,
 };
 
 export default function user(
@@ -89,6 +92,14 @@ export default function user(
       };
     }
 
+    case 'SET_MOBILE': {
+      const { mobile: isOnMobile } = action;
+      return {
+        ...state,
+        isOnMobile,
+      };
+    }
+
     case 'PLACE_PIXEL': {
       let { totalPixels, dailyTotalPixels } = state;
       totalPixels += 1;
@@ -111,7 +122,6 @@ export default function user(
     case 'RECEIVE_CHAT_MESSAGE': {
       const { name, text } = action;
       let { chatMessages } = state;
-      console.log('received chat message');
       if (chatMessages.length > 50) {
         chatMessages = chatMessages.slice(-50);
       }

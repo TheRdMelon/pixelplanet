@@ -145,7 +145,6 @@ class ChunkLoader {
     chunkRGB,
   ) {
     const { canvasId } = this;
-    const { key } = chunkRGB;
     let url = `${window.backupurl}/${historicalDate}/`;
     if (historicalTime) {
       // incremential tiles
@@ -154,13 +153,13 @@ class ChunkLoader {
       // full tiles
       url += `${canvasId}/tiles/${cx}/${cy}.png`;
     }
-    this.store.dispatch(requestBigChunk(key));
+    this.store.dispatch(requestBigChunk(null));
     try {
       const img = await loadImage(url);
       chunkRGB.fromImage(img);
-      this.store.dispatch(receiveBigChunk(key));
+      this.store.dispatch(receiveBigChunk(null));
     } catch (error) {
-      this.store.dispatch(receiveBigChunkFailure(key, error));
+      this.store.dispatch(receiveBigChunkFailure(null, error));
       if (historicalTime) {
         chunkRGB.empty(true);
       } else {

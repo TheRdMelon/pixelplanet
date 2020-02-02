@@ -35,14 +35,15 @@ export function clamp(n: number, min: number, max: number): number {
 }
 
 export function getChunkOfPixel(
-  canvasSize: number = null,
+  canvasSize: number,
   x: number,
   y: number,
   z: number = null,
 ): Cell {
-  const tileSize = z === null ? TILE_SIZE : THREE_TILE_SIZE;
-  const cx = Math.floor((x + canvasSize / 2) / tileSize);
-  const cy = Math.floor((y + canvasSize / 2) / tileSize);
+  const tileSize = (z === null) ? TILE_SIZE : THREE_TILE_SIZE;
+  const width = (z == null) ? y : z;
+  const cx = Math.floor((x + (canvasSize / 2)) / tileSize);
+  const cy = Math.floor((width + (canvasSize / 2)) / tileSize);
   return [cx, cy];
 }
 
@@ -67,18 +68,21 @@ export function getCanvasBoundaries(canvasSize: number): number {
   return [canvasMinXY, canvasMaxXY];
 }
 
+// z is assumed to be height here
+// in ui and rendeer, y is height
 export function getOffsetOfPixel(
   canvasSize: number = null,
   x: number,
   y: number,
   z: number = null,
 ): number {
-  const tileSize = z === null ? TILE_SIZE : THREE_TILE_SIZE;
-  let offset = z === null ? 0 : z * tileSize * tileSize;
-  const modOffset = mod(canvasSize / 2, tileSize);
+  const tileSize = (z === null) ? TILE_SIZE : THREE_TILE_SIZE;
+  const width = (z == null) ? y : z;
+  let offset = (z === null) ? 0 : (y * tileSize * tileSize);
+  const modOffset = mod((canvasSize / 2), tileSize);
   const cx = mod(x + modOffset, tileSize);
-  const cy = mod(y + modOffset, tileSize);
-  offset += cy * tileSize + cx;
+  const cy = mod(width + modOffset, tileSize);
+  offset += (cy * tileSize) + cx;
   return offset;
 }
 
@@ -196,14 +200,12 @@ export function numberToStringFull(num: number): string {
   }
   if (num < 1000) {
     return num;
-  }
-  if (num < 1000000) {
-    return `${Math.floor(num / 1000)}.${`00${num % 1000}`.slice(-3)}`;
+  } if (num < 1000000) {
+    return `${Math.floor(num / 1000)}.${(`00${String(num % 1000)}`).slice(-3)}`;
   }
 
-  return `${Math.floor(num / 1000000)}.${`00${Math.floor(num / 1000)}`.slice(
-    -3,
-  )}.${`00${num % 1000}`.slice(-3)}`;
+  // eslint-disable-next-line max-len
+  return `${Math.floor(num / 1000000)}.${(`00${String(Math.floor(num / 1000))}`).slice(-3)}.${(`00${String(num % 1000)}`).slice(-3)}`;
 }
 
 export function colorFromText(str: string) {

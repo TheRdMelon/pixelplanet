@@ -40,14 +40,14 @@ class Palette {
   rgb: Uint8Array;
   colors: Array<Color>;
   abgr: Uint32Array;
-  alpha: number = 0;
+  fl: Array<number>;
 
-  constructor(colors: Array, alpha: number = 0) {
-    this.alpha = alpha;
+  constructor(colors: Array) {
     this.length = colors.length;
     this.rgb = new Uint8Array(this.length * 3);
     this.colors = new Array(this.length);
     this.abgr = new Uint32Array(this.length);
+    this.fl = new Array(this.length);
 
     let cnt = 0;
     for (let index = 0; index < colors.length; index++) {
@@ -59,6 +59,7 @@ class Palette {
       this.rgb[cnt++] = b;
       this.colors[index] = `rgb(${r}, ${g}, ${b})`;
       this.abgr[index] = 0xff000000 | (b << 16) | (g << 8) | r;
+      this.fl[index] = [r / 256, g / 256, b / 256];
     }
   }
 
@@ -107,7 +108,7 @@ class Palette {
 
     let pos = 0;
     for (let i = 0; i < length; i++) {
-      value = buffer[i] & 0x1f;
+      value = buffer[i] & 0x3f;
       if (template && value === 0) {
         colors[pos++] = 0x00000000;
       } else {
@@ -133,7 +134,7 @@ class Palette {
     for (let i = 0; i < length; i++) {
       value = buffer[i];
 
-      color = (value & 0x1f) * 3;
+      color = (value & 0x3f) * 3;
       colors[c++] = this.rgb[color++];
       colors[c++] = this.rgb[color++];
       colors[c++] = this.rgb[color];

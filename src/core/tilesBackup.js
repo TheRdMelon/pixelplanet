@@ -90,7 +90,7 @@ export async function incrementialBackupRedis(
       fs.mkdirSync(canvasTileBackupDir);
     }
 
-    const palette = new Palette(canvas.colors, canvas.alpha);
+    const palette = new Palette(canvas.colors);
     const chunksXY = canvas.size / TILE_SIZE;
     console.log('Creating Incremential Backup...');
     const startTime = Date.now();
