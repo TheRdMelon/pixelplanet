@@ -53,6 +53,7 @@ class Factions {
         [Sequelize.col('Users.name'), 'leader'],
         'icon',
         'private',
+        'invite',
       ],
       include: [
         {

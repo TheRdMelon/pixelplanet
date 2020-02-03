@@ -21,11 +21,17 @@ const Faction = Model.define(
     },
 
     leader: {
-      type: DataType.STRING(32),
+      type: DataType.INTEGER.UNSIGNED,
     },
 
     private: {
       type: DataType.BOOLEAN,
+    },
+
+    invite: {
+      type: DataType.STRING(36),
+      defaultValue: '',
+      allowNull: true,
     },
 
     icon: {

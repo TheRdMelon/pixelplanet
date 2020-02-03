@@ -259,6 +259,16 @@ export default function user(
       };
     }
 
+    case 'SET_FACTION_INVITE_ENABLED': {
+      const { id, inviteEnabled } = action;
+      const { factions } = state;
+
+      return {
+        ...state,
+        factions: factions.map((f) => (f.id === id ? { ...f, invite: inviteEnabled } : f)),
+      };
+    }
+
     case 'SET_NAME': {
       const { name } = action;
       return {

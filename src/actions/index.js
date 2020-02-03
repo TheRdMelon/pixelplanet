@@ -546,6 +546,14 @@ export function remFromMessages(message: string): Action {
   };
 }
 
+function setLocalFactionInviteEnabled(id, inviteEnabled): Action {
+  return {
+    type: 'SET_FACTION_INVITE_ENABLED',
+    id,
+    inviteEnabled,
+  };
+}
+
 export function fetchStats(): PromiseAction {
   return async (dispatch) => {
     const response = await fetch('api/ranking', { credentials: 'include' });
@@ -621,12 +629,22 @@ export function fetchOwnFactions(id): ThunkAction {
   };
 }
 
-export function toggleFactionInvite(id): PromiseAction {
-  return async (dispatch) => {
-    dispatch(toggleFactionInviteLocal(id));
+export function toggleFactionInvite(id): ThunkAction {
+  return async (dispatch, getState) => {
+    const isEnabled = (getState().user.factions.find((f) => f.id === id).inviteEnabled) !== null;
+    const newState = isEnabled ? null : '';
+    dispatch(setLocalFactionInviteEnabled(id, newState));
 
-    const response = await fetch('/api/me')
-  }
+    const response = await fetch(`/api/factions/${id}`, {
+      body: { set: 'inviteEnabled', value: !isEnabled },
+      method: 'PATCH',
+      credentials: 'include',
+    });
+
+    if (!response.ok || !(await response.json()).success) {
+      throw new Error('Failed to update faction information.');
+    }
+  };
 }
 
 export function fetchMe(): PromiseAction {
@@ -737,7 +755,7 @@ export function hideModal(): Action {
 
 export function joinFaction(id, successCB): PromiseAction {
   return async (dispatch) => {
-    const response = await fetch(`/api/factions/${id}`, {
+    const response = await fetch(`/api/factions/${id}/join`, {
       credentials: 'include',
       method: 'PATCH',
     });

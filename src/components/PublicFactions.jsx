@@ -21,7 +21,7 @@ const iconStyle = {
 };
 
 async function joinFaction(id) {
-  const response = await fetch(`./api/factions/${id}`, {
+  const response = await fetch(`./api/factions/${id}/join`, {
     credentials: 'include',
     method: 'PATCH',
   });

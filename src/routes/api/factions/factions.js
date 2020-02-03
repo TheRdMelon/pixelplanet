@@ -5,6 +5,7 @@
 
 import type { Request, Response } from 'express';
 
+import uuid from 'uuid';
 import factions from '../../../core/factions';
 import { Faction, RegUser } from '../../../data/models';
 
@@ -60,6 +61,7 @@ const newFaction = async (req: Request, res: Response) => {
     name,
     leader: user.regUser.id,
     private: priv,
+    invite: priv ? null : '',
     icon,
   });
 
@@ -208,6 +210,62 @@ const factionIcon = async (req: Request, res: Response) => {
   });
 };
 
+const generatePrivateInvite = async (req: Request, res: Response) => {
+  const { user } = req;
+
+  if (!user) {
+    res.status(401);
+    res.json({
+      errors: ['You are not authenticated.'],
+    });
+    return;
+  }
+
+  const { selectedFaction } = req.body;
+  const faction = await Faction.findByPk(selectedFaction);
+
+  // Validation
+  const errors = [];
+  const leadCheck = !(!faction || faction.leader !== user.regUser.id);
+  let privateCheck = true;
+
+  if (!leadCheck) {
+    errors.push('You do not lead this faction or it does not exist.');
+  }
+
+  if (leadCheck) {
+    privateCheck = faction.private;
+  }
+
+  if (!privateCheck) {
+    errors.push('Invites cannot be generated for public invites.');
+  }
+
+  if (leadCheck && privateCheck && faction.invite === null) {
+    errors.push('Invites are not enabled for this faction.');
+  }
+
+  if (errors.length > 0) {
+    res.status(400);
+    res.json({
+      success: false,
+      errors,
+    });
+    return;
+  }
+
+  await faction.update({
+    invite: uuid.v4(),
+  });
+
+  await factions.updateFactionInfo();
+
+  res.json({
+    success: true,
+    invite: faction.invite,
+  });
+};
+
 const modifyFaction = async (req: Request, res: Response) => {
   const { faction: factionIdParam } = req.params;
   const { user } = req;
@@ -230,10 +288,43 @@ const modifyFaction = async (req: Request, res: Response) => {
     errors.push('You do not lead this faction or it does not exist.');
   }
 
-  
+  if (leadCheck && !faction.private) {
+    errors.push('Invite enabled cannot be changed for public factions.');
+  }
+
+  if (errors.length > 0) {
+    res.status(400);
+    res.json({
+      success: false,
+      errors,
+    });
+    return;
+  }
 
   const { set, value } = req.body;
-}
+
+  switch (set) {
+    case 'inviteEnabled':
+      await faction.update({
+        invite: value === true ? '' : null,
+      });
+      break;
+
+    default:
+      res.status(400);
+      res.json({
+        success: false,
+        errors: ['Invalid field.'],
+      });
+      return;
+  }
+
+  await factions.updateFactionInfo();
+
+  res.json({
+    success: true,
+  });
+};
 
 const joinFaction = async (req: Request, res: Response) => {
   const { faction: factionIdParam } = req.params;
@@ -379,4 +470,6 @@ export {
   transferFaction,
   ownFactions,
   factionInfo,
+  modifyFaction,
+  generatePrivateInvite,
 };

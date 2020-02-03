@@ -20,6 +20,7 @@ import {
   fetchFactions,
   recieveFactionInfo,
   fetchOwnFactions,
+  toggleFactionInvite,
 } from '../actions';
 
 import type { State } from '../reducers';
@@ -329,7 +330,7 @@ const Admin = ({ selected_faction: selectedFaction, enable_faction_invite: dispa
           <h2>Private Faction Invite</h2>
           <p>Enable</p>
           <MdToggleButtonHover
-            value={selectedFactionInfo.inviteEnabled}
+            value={selectedFactionInfo.invite !== null}
             onToggle={() => dispatchEnableFactionInvite(selectedFactionInfo.id)}
           />
         </>
@@ -420,7 +421,7 @@ function mapDispatchToProps(dispatch) {
       dispatch(fetchOwnFactions(id));
     },
     enable_faction_invite(id) {
-      dispatch(enableFactionInvite(id));
+      dispatch(toggleFactionInvite(id));
     },
   };
 }

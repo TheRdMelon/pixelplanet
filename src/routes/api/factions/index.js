@@ -15,6 +15,8 @@ import factions, {
   transferFaction,
   ownFactions,
   factionInfo,
+  modifyFaction,
+  generatePrivateInvite,
 } from './factions';
 
 import templates, { newTemplate } from './templates';
@@ -23,9 +25,10 @@ const router = express.Router();
 
 router.get('/', factions);
 router.post('/create', newFaction);
+router.post('/generateinvite', generatePrivateInvite);
 router.get('/icon/:faction', factionIcon);
-router.patch('/modify/:faction', modifyFaction);
-router.patch('/:faction', joinFaction);
+router.patch('/:faction/join', joinFaction);
+router.patch('/:faction', modifyFaction);
 router.delete('/:faction', deleteFaction);
 router.put('/:faction', transferFaction);
 router.get('/mine', ownFactions);
