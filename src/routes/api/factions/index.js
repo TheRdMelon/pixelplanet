@@ -24,6 +24,7 @@ const router = express.Router();
 router.get('/', factions);
 router.post('/create', newFaction);
 router.get('/icon/:faction', factionIcon);
+router.patch('/modify/:faction', modifyFaction);
 router.patch('/:faction', joinFaction);
 router.delete('/:faction', deleteFaction);
 router.put('/:faction', transferFaction);

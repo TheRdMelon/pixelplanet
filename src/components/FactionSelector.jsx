@@ -37,9 +37,9 @@ const FactionSelector = ({
   select_faction: (faction: string) => void,
   own_factions: Array,
   fetch_faction_icon: (id) => void,
-  }) => {
+}) => {
   // Fetch selected faction data using redux useSelector hook
-  const selectedFactionObj = useSelector((state) => state.user.factions.find((f) => f.id === selectedFaction));
+  const selectedFactionObj = useSelector((state) => state.user.factions.find((f) => f && f.id === selectedFaction));
   // Flag for if the faction loader is loaded and ready to transition
   const hasLoaded = useRef<boolean>(false);
   // Faction selector container ref

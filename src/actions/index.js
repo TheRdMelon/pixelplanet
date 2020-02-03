@@ -2,7 +2,6 @@
 
 import type { Action, ThunkAction, PromiseAction } from './types';
 import type { Cell } from '../core/Cell';
-import type { ColorIndex } from '../core/Palette';
 
 export function sweetAlert(
   title: string,
@@ -622,6 +621,14 @@ export function fetchOwnFactions(id): ThunkAction {
   };
 }
 
+export function toggleFactionInvite(id): PromiseAction {
+  return async (dispatch) => {
+    dispatch(toggleFactionInviteLocal(id));
+
+    const response = await fetch('/api/me')
+  }
+}
+
 export function fetchMe(): PromiseAction {
   return async (dispatch) => {
     const response = await fetch('/api/me', {
@@ -728,7 +735,7 @@ export function hideModal(): Action {
   };
 }
 
-export function joinFaction(id): PromiseAction {
+export function joinFaction(id, successCB): PromiseAction {
   return async (dispatch) => {
     const response = await fetch(`/api/factions/${id}`, {
       credentials: 'include',
@@ -739,9 +746,7 @@ export function joinFaction(id): PromiseAction {
     if (response.ok || response.status === 400) {
       const json = await response.json();
       if (!json.success) {
-        errorCode = json.errorCode || response.status;
-      } else {
-        dispatch(recieveFactionInfo(json.info));
+        errorCode = json.errorCode === 'ER002' ? '' : json.errorCode || response.status;
       }
     } else {
       errorCode = response.status;
@@ -750,9 +755,11 @@ export function joinFaction(id): PromiseAction {
     if (errorCode) {
       window.location = `/error?code=${errorCode}`;
     } else {
+      window.history.replaceState(undefined, undefined, '/');
+      successCB();
+      await dispatch(fetchOwnFactions(id));
       dispatch(selectFaction(id));
       dispatch(showFactionsAreaModal());
-      window.history.replaceState(undefined, undefined, '/');
     }
   };
 }

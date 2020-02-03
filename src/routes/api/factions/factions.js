@@ -208,6 +208,33 @@ const factionIcon = async (req: Request, res: Response) => {
   });
 };
 
+const modifyFaction = async (req: Request, res: Response) => {
+  const { faction: factionIdParam } = req.params;
+  const { user } = req;
+
+  if (!user) {
+    res.status(401);
+    res.json({
+      errors: ['You are not authenticated.'],
+    });
+    return;
+  }
+
+  const faction = await Faction.findByPk(factionIdParam);
+
+  // Validation
+  const errors = [];
+  const leadCheck = !(!faction || faction.leader !== user.regUser.id);
+
+  if (!leadCheck) {
+    errors.push('You do not lead this faction or it does not exist.');
+  }
+
+  
+
+  const { set, value } = req.body;
+}
+
 const joinFaction = async (req: Request, res: Response) => {
   const { faction: factionIdParam } = req.params;
   const { user } = req;

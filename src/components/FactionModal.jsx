@@ -25,6 +25,7 @@ import {
 import type { State } from '../reducers';
 import { parseAPIresponse } from '../utils/validation';
 import useFactionSelect from '../reacthooks/useFactionSelect';
+import MdToggleButtonHover from './MdToggleButtonHover';
 
 const textStyle: React.CSSStyleDeclaration = {
   color: 'hsla(218, 5%, 47%, .6)',
@@ -165,7 +166,7 @@ const newTemplateLabelsStyles: React.CSSStyleDeclaration = {
   textAlign: 'right',
 };
 
-const Admin = ({ selected_faction: selectedFaction }) => {
+const Admin = ({ selected_faction: selectedFaction, enable_faction_invite: dispatchEnableFactionInvite }) => {
   const formRef = useRef(null);
   const passwordTooltipRef = useRef(null);
   const [password, setPassword] = useState<string>('');
@@ -322,6 +323,15 @@ const Admin = ({ selected_faction: selectedFaction }) => {
               Copied to Clipboard!
             </ReactTooltip>
           </div>
+
+          <div className="hr" style={{ margin: '10px 5px' }} />
+
+          <h2>Private Faction Invite</h2>
+          <p>Enable</p>
+          <MdToggleButtonHover
+            value={selectedFactionInfo.inviteEnabled}
+            onToggle={() => dispatchEnableFactionInvite(selectedFactionInfo.id)}
+          />
         </>
       )}
     </>
@@ -334,6 +344,7 @@ const FactionModal = ({
   fetch_own_factions: fetchOwnFactionsDisp,
   own_factions: ownFactions,
   selected_faction: selectedFaction,
+  enable_faction_invite: dispatchEnableFactionInvite,
 }) => {
   // New react hook, 2nd parameter of empty array makes it equivelant to componentDidMount
   useEffect(() => {
@@ -364,7 +375,7 @@ const FactionModal = ({
           )}
           {ownFactions.length > 0 ? (
             <div label="Admin">
-              <Admin selected_faction={selectedFaction} />
+              <Admin selected_faction={selectedFaction} enable_faction_invite={dispatchEnableFactionInvite} />
             </div>
           ) : (
             undefined
@@ -408,6 +419,9 @@ function mapDispatchToProps(dispatch) {
     fetch_own_factions_dispatch(id) {
       dispatch(fetchOwnFactions(id));
     },
+    enable_faction_invite(id) {
+      dispatch(enableFactionInvite(id));
+    },
   };
 }
 
@@ -422,6 +436,7 @@ function mergeProps(propsFromState, propsFromDispatch) {
     fetch_factions: propsFromDispatch.fetch_factions,
     recieve_faction_info: propsFromDispatch.recieve_faction_info,
     own_factions: propsFromState.own_factions,
+    enable_faction_invite: propsFromDispatch.enable_faction_invite,
   };
 }
 

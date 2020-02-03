@@ -30,13 +30,44 @@ import App from './components/App';
 import { initRenderer, getRenderer } from './ui/renderer';
 import ProtocolClient from './socket/ProtocolClient';
 
-function init() {
-  const invitePattern = /^\/invite\/(.+)$/g;
-  const matches = invitePattern.exec(window.location.pathname);
-  if (matches !== null) {
-    store.dispatch(joinFaction(matches[1]));
+function renderAndGC() {
+  // garbage collection
+  function runGC() {
+    const renderer = getRenderer();
+
+    const chunks = renderer.getAllChunks();
+    if (chunks) {
+      const curTime = Date.now();
+      let cnt = 0;
+      chunks.forEach((value, key) => {
+        if (curTime > value.timestamp + 300000) {
+          cnt++;
+          const [z, i, j] = value.cell;
+          if (!renderer.isChunkInView(z, i, j)) {
+            if (value.isBasechunk) {
+              ProtocolClient.deRegisterChunk([i, j]);
+            }
+            chunks.delete(key);
+          }
+        }
+      });
+      // eslint-disable-next-line no-console
+      console.log('Garbage collection cleaned', cnt, 'chunks');
+    }
   }
 
+  ReactDOM.render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+    document.getElementById('app'),
+  );
+  document.addEventListener('keydown', onKeyPress, false);
+
+  setInterval(runGC, 300000);
+}
+
+function init() {
   initRenderer(store, false);
 
   ProtocolClient.on('pixelUpdate', ({
@@ -82,41 +113,26 @@ function init() {
     store.dispatch(fetchStats());
   }, 300000);
 }
-init();
+
+const invitePattern = /^\/invite\/(.+)$/g;
+const matches = invitePattern.exec(window.location.pathname);
+const match = matches !== null;
+
+if (match) {
+  store.dispatch(
+    joinFaction(matches[1], () => {
+      init();
+      renderAndGC();
+    }),
+  );
+} else {
+  init();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-  ReactDOM.render(
-    <Provider store={store}>
-      <App />
-    </Provider>,
-    document.getElementById('app'),
-  );
-
-  document.addEventListener('keydown', onKeyPress, false);
-
-  // garbage collection
-  function runGC() {
-    const renderer = getRenderer();
-
-    const chunks = renderer.getAllChunks();
-    if (chunks) {
-      const curTime = Date.now();
-      let cnt = 0;
-      chunks.forEach((value, key) => {
-        if (curTime > value.timestamp + 300000) {
-          cnt++;
-          const [z, i, j] = value.cell;
-          if (!renderer.isChunkInView(z, i, j)) {
-            if (value.isBasechunk) {
-              ProtocolClient.deRegisterChunk([i, j]);
-            }
-            chunks.delete(key);
-          }
-        }
-      });
-      // eslint-disable-next-line no-console
-      console.log('Garbage collection cleaned', cnt, 'chunks');
-    }
+  if (!match) {
+    renderAndGC();
+  } else {
+    ReactDOM.render(null, document.getElementById('app'));
   }
-  setInterval(runGC, 300000);
 });
