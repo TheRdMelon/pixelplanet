@@ -546,11 +546,11 @@ export function remFromMessages(message: string): Action {
   };
 }
 
-function setLocalFactionInviteEnabled(id, inviteEnabled): Action {
+function setLocalFactionInvite(id, invite): Action {
   return {
-    type: 'SET_FACTION_INVITE_ENABLED',
+    type: 'SET_FACTION_INVITE',
     id,
-    inviteEnabled,
+    invite,
   };
 }
 
@@ -631,19 +631,30 @@ export function fetchOwnFactions(id): ThunkAction {
 
 export function toggleFactionInvite(id): ThunkAction {
   return async (dispatch, getState) => {
-    const isEnabled = (getState().user.factions.find((f) => f.id === id).inviteEnabled) !== null;
-    const newState = isEnabled ? null : '';
-    dispatch(setLocalFactionInviteEnabled(id, newState));
+    const isEnabled = getState().user.factions.find((f) => f.id === id).invite === null;
+    const newState = isEnabled ? '' : null;
+    dispatch(setLocalFactionInvite(id, newState));
 
     const response = await fetch(`/api/factions/${id}`, {
-      body: { set: 'inviteEnabled', value: !isEnabled },
+      body: JSON.stringify({ set: 'inviteEnabled', value: isEnabled }),
+      headers: {
+        'Content-type': 'application/json',
+      },
       method: 'PATCH',
       credentials: 'include',
     });
 
-    if (!response.ok || !(await response.json()).success) {
+    if (!response.ok || (response.ok && !(await response.json()).success)) {
       throw new Error('Failed to update faction information.');
     }
+  };
+}
+
+export function setFactionInvite(id, invite): Action {
+  return {
+    type: 'SET_FACTION_INVITE',
+    id,
+    invite,
   };
 }
 
@@ -753,6 +764,12 @@ export function hideModal(): Action {
   };
 }
 
+function setInvited(): Action {
+  return {
+    type: 'SET_INVITED',
+  };
+}
+
 export function joinFaction(id, successCB): PromiseAction {
   return async (dispatch) => {
     const response = await fetch(`/api/factions/${id}/join`, {
@@ -765,6 +782,9 @@ export function joinFaction(id, successCB): PromiseAction {
       const json = await response.json();
       if (!json.success) {
         errorCode = json.errorCode === 'ER002' ? '' : json.errorCode || response.status;
+        if (json.errorCode === 'ER002') {
+          id = json.info.id;
+        }
       }
     } else {
       errorCode = response.status;
@@ -774,6 +794,7 @@ export function joinFaction(id, successCB): PromiseAction {
       window.location = `/error?code=${errorCode}`;
     } else {
       window.history.replaceState(undefined, undefined, '/');
+      dispatch(setInvited());
       successCB();
       await dispatch(fetchOwnFactions(id));
       dispatch(selectFaction(id));

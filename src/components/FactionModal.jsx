@@ -21,6 +21,7 @@ import {
   recieveFactionInfo,
   fetchOwnFactions,
   toggleFactionInvite,
+  setFactionInvite,
 } from '../actions';
 
 import type { State } from '../reducers';
@@ -67,6 +68,12 @@ const factionNameStyle: React.CSSStyleDeclaration = {
   paddingLeft: '0',
 };
 
+const copyInputStyle: React.CSSStyleDeclaration = {
+  textAlign: 'center',
+  width: '100%',
+  marginTop: '5px',
+};
+
 const JoinFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
   <p style={{ textAlign: 'center' }}>
     <p style={textStyle}>Join a faction to gain perks and work together.</p>
@@ -89,6 +96,43 @@ const CreateFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
 
 const FactionInfo = () => {
   const { Selector, selectedFactionInfo } = useFactionSelect();
+
+  const inviteTooltipRef = useRef(null);
+  const [showCopied, setShowCopied] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (inviteTooltipRef.current) {
+      inviteTooltipRef.current.onmousedown = (e) => {
+        e = e || window.event;
+        e.preventDefault();
+        inviteTooltipRef.current.focus();
+      };
+    }
+  }, [inviteTooltipRef.current]);
+
+  const onInviteFocus = (e) => {
+    e.preventDefault();
+    if (e.target.value) {
+      e.target.select();
+      document.execCommand('copy');
+      setShowCopied(true);
+      ReactTooltip.show(inviteTooltipRef.current);
+    }
+  };
+
+  const onInviteMouseEnter = () => {
+    setShowCopied(false);
+  };
+
+  const onInviteBlur = () => {
+    if (window.getSelection) {
+      window.getSelection().removeAllRanges();
+    } else if (document.selection) {
+      document.selection.empty();
+    }
+    ReactTooltip.hide(inviteTooltipRef.current);
+  };
+
   return (
     <>
       <Selector />
@@ -125,7 +169,9 @@ const FactionInfo = () => {
             Leader:
             <span style={factionNameStyle}>{selectedFactionInfo.leader}</span>
           </h4>
-          <div className={`hr ${selectedFactionInfo.private ? 'dashed' : ''}`} />
+          <div
+            className={`hr ${selectedFactionInfo.private ? 'dashed' : ''}`}
+          />
           <h4>
             Members:
             <span>
@@ -136,6 +182,25 @@ const FactionInfo = () => {
           </h4>
         </div>
       </div>
+      {selectedFactionInfo.private || (
+        <>
+          <h3 style={{ margin: '0' }}>Invite</h3>
+          <input
+            style={copyInputStyle}
+            value={`https://pixelplanet.fun/invite/${selectedFactionInfo.id}`}
+            onFocus={onInviteFocus}
+            onBlur={onInviteBlur}
+            onMouseEnter={onInviteMouseEnter}
+            data-tip
+            data-for="publicInvCopiedTooltip"
+            readOnly
+            ref={inviteTooltipRef}
+          />
+          <div className={`tooltip ${showCopied ? 'show' : ''}`}>
+            <ReactTooltip id="publicInvCopiedTooltip" place="bottom" effect="solid" type="dark">Copied to Clipboard!</ReactTooltip>
+          </div>
+        </>
+      )}
       <h3>Member List</h3>
       <table>
         <tr>
@@ -167,11 +232,17 @@ const newTemplateLabelsStyles: React.CSSStyleDeclaration = {
   textAlign: 'right',
 };
 
-const Admin = ({ selected_faction: selectedFaction, enable_faction_invite: dispatchEnableFactionInvite }) => {
+const Admin = ({
+  selected_faction: selectedFaction,
+  enable_faction_invite: dispatchEnableFactionInvite,
+  set_faction_invite: dispatchSetFactionInvite,
+}) => {
   const formRef = useRef(null);
   const passwordTooltipRef = useRef(null);
+  const inviteTooltipRef = useRef(null);
   const [password, setPassword] = useState<string>('');
   const [showCopied, setShowCopied] = useState<boolean>(false);
+  const [showInvCopied, setShowInvCopied] = useState<boolean>(false);
 
   const { Selector, selectedFactionInfo } = useFactionSelect();
 
@@ -185,6 +256,16 @@ const Admin = ({ selected_faction: selectedFaction, enable_faction_invite: dispa
     }
   }, [passwordTooltipRef.current]);
 
+  useEffect(() => {
+    if (inviteTooltipRef.current) {
+      inviteTooltipRef.current.onmousedown = (e) => {
+        e = e || window.event;
+        e.preventDefault();
+        inviteTooltipRef.current.focus();
+      };
+    }
+  }, [inviteTooltipRef.current]);
+
   const onPasswordFocus = (e) => {
     e.preventDefault();
     if (e.target.value) {
@@ -195,8 +276,22 @@ const Admin = ({ selected_faction: selectedFaction, enable_faction_invite: dispa
     }
   };
 
+  const onInviteFocus = (e) => {
+    e.preventDefault();
+    if (e.target.value) {
+      e.target.select();
+      document.execCommand('copy');
+      setShowInvCopied(true);
+      ReactTooltip.show(inviteTooltipRef.current);
+    }
+  };
+
   const onPasswordMouseEnter = () => {
     setShowCopied(false);
+  };
+
+  const onInviteMouseEnter = () => {
+    setShowInvCopied(false);
   };
 
   const onPasswordBlur = () => {
@@ -206,6 +301,15 @@ const Admin = ({ selected_faction: selectedFaction, enable_faction_invite: dispa
       document.selection.empty();
     }
     ReactTooltip.hide(passwordTooltipRef.current);
+  };
+
+  const onInviteBlur = () => {
+    if (window.getSelection) {
+      window.getSelection().removeAllRanges();
+    } else if (document.selection) {
+      document.selection.empty();
+    }
+    ReactTooltip.hide(inviteTooltipRef.current);
   };
 
   const onGeneratePassword = async () => {
@@ -221,6 +325,24 @@ const Admin = ({ selected_faction: selectedFaction, enable_faction_invite: dispa
     });
 
     setPassword((await parseAPIresponse(response)).password);
+  };
+
+  const onGenerateInvite = async () => {
+    const body = JSON.stringify({
+      selectedFaction,
+    });
+    const response = await fetch('./api/factions/generateinvite', {
+      method: 'POST',
+      body,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    dispatchSetFactionInvite(
+      selectedFaction,
+      (await parseAPIresponse(response)).invite,
+    );
   };
 
   return (
@@ -303,7 +425,7 @@ const Admin = ({ selected_faction: selectedFaction, enable_faction_invite: dispa
             Generate New
           </button>
           <input
-            style={{ textAlign: 'center', width: '100%', marginTop: '5px' }}
+            style={copyInputStyle}
             value={password}
             onFocus={onPasswordFocus}
             onBlur={onPasswordBlur}
@@ -328,11 +450,39 @@ const Admin = ({ selected_faction: selectedFaction, enable_faction_invite: dispa
           <div className="hr" style={{ margin: '10px 5px' }} />
 
           <h2>Private Faction Invite</h2>
-          <p>Enable</p>
-          <MdToggleButtonHover
-            value={selectedFactionInfo.invite !== null}
-            onToggle={() => dispatchEnableFactionInvite(selectedFactionInfo.id)}
+          <p style={{ display: 'inline-block', margin: '0 10px' }}>Enable</p>
+          <div style={{ display: 'inline-block', margin: '0 10px' }}>
+            <MdToggleButtonHover
+              value={selectedFactionInfo.invite !== null}
+              onToggle={() => dispatchEnableFactionInvite(selectedFactionInfo.id)}
+            />
+          </div>
+
+          <button type="button" onClick={onGenerateInvite}>
+            Replace
+          </button>
+          <input
+            style={copyInputStyle}
+            value={selectedFactionInfo.invite ? `https://pixelplanet.fun/invite/${selectedFactionInfo.invite}` : ''}
+            onFocus={onInviteFocus}
+            onBlur={onInviteBlur}
+            onMouseEnter={onInviteMouseEnter}
+            placeholder="Click generate to generate the invite"
+            data-tip
+            data-for="copiedInvTooltip"
+            readOnly
+            ref={inviteTooltipRef}
           />
+          <div className={`tooltip ${showInvCopied ? 'show' : ''}`}>
+            <ReactTooltip
+              id="copiedInvTooltip"
+              place="bottom"
+              effect="solid"
+              type="dark"
+            >
+              Copied to Clipboard!
+            </ReactTooltip>
+          </div>
         </>
       )}
     </>
@@ -346,6 +496,7 @@ const FactionModal = ({
   own_factions: ownFactions,
   selected_faction: selectedFaction,
   enable_faction_invite: dispatchEnableFactionInvite,
+  set_faction_invite: dispatchSetFactionInvite,
 }) => {
   // New react hook, 2nd parameter of empty array makes it equivelant to componentDidMount
   useEffect(() => {
@@ -376,7 +527,11 @@ const FactionModal = ({
           )}
           {ownFactions.length > 0 ? (
             <div label="Admin">
-              <Admin selected_faction={selectedFaction} enable_faction_invite={dispatchEnableFactionInvite} />
+              <Admin
+                selected_faction={selectedFaction}
+                enable_faction_invite={dispatchEnableFactionInvite}
+                set_faction_invite={dispatchSetFactionInvite}
+              />
             </div>
           ) : (
             undefined
@@ -423,6 +578,9 @@ function mapDispatchToProps(dispatch) {
     enable_faction_invite(id) {
       dispatch(toggleFactionInvite(id));
     },
+    set_faction_invite(id, invite) {
+      dispatch(setFactionInvite(id, invite));
+    },
   };
 }
 
@@ -438,6 +596,7 @@ function mergeProps(propsFromState, propsFromDispatch) {
     recieve_faction_info: propsFromDispatch.recieve_faction_info,
     own_factions: propsFromState.own_factions,
     enable_faction_invite: propsFromDispatch.enable_faction_invite,
+    set_faction_invite: propsFromDispatch.set_faction_invite,
   };
 }
 

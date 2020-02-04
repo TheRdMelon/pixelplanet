@@ -32,6 +32,8 @@ export type UserState = {
   minecraftname: string,
   // if user is using touchscreen
   isOnMobile: boolean,
+  // if the user used an invite link
+  invited: boolean,
 };
 
 const initialState: UserState = {
@@ -50,6 +52,7 @@ const initialState: UserState = {
   chatMessages: [['info', 'Welcome to the PixelPlanet Chat']],
   minecraftname: null,
   isOnMobile: false,
+  invited: false,
 };
 
 export default function user(
@@ -259,13 +262,13 @@ export default function user(
       };
     }
 
-    case 'SET_FACTION_INVITE_ENABLED': {
-      const { id, inviteEnabled } = action;
+    case 'SET_FACTION_INVITE': {
+      const { id, invite } = action;
       const { factions } = state;
 
       return {
         ...state,
-        factions: factions.map((f) => (f.id === id ? { ...f, invite: inviteEnabled } : f)),
+        factions: factions.map((f) => (f.id === id ? { ...f, invite } : f)),
       };
     }
 
@@ -303,6 +306,13 @@ export default function user(
       return {
         ...state,
         mailreg,
+      };
+    }
+
+    case 'SET_INVITED': {
+      return {
+        ...state,
+        invited: true,
       };
     }
 

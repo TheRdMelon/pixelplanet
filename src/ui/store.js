@@ -9,7 +9,9 @@ import { fetchOwnFactions } from '../actions';
 
 const store = configureStore(() => {
   getRenderer().forceNextRender = true;
-  store.dispatch(fetchOwnFactions(store.getState().gui.selectedFaction));
+  if (!store.getState().user.invited) {
+    store.dispatch(fetchOwnFactions(store.getState().gui.selectedFaction));
+  }
   window.store = store;
 });
 

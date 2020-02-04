@@ -284,6 +284,10 @@ const modifyFaction = async (req: Request, res: Response) => {
   const errors = [];
   const leadCheck = !(!faction || faction.leader !== user.regUser.id);
 
+  console.log(factionIdParam);
+  console.log(faction);
+  console.log(user.regUser.id);
+
   if (!leadCheck) {
     errors.push('You do not lead this faction or it does not exist.');
   }
@@ -302,6 +306,8 @@ const modifyFaction = async (req: Request, res: Response) => {
   }
 
   const { set, value } = req.body;
+
+  console.log(req);
 
   switch (set) {
     case 'inviteEnabled':
@@ -338,16 +344,27 @@ const joinFaction = async (req: Request, res: Response) => {
     return;
   }
 
-  const faction = await Faction.findByPk(factionIdParam);
+  let faction = await Faction.findByPk(factionIdParam);
 
   // Validation
   let errorCode = '';
   const errors = [];
-  const existCheck = !(!faction || faction.private);
+  let existCheck = !(!faction || faction.private);
 
   if (!existCheck) {
-    errors.push('This faction does not exist.');
-    errorCode = 'ER001';
+    if (factionIdParam) {
+      faction = await Faction.findOne({
+        where: {
+          invite: factionIdParam,
+        },
+      });
+
+      existCheck = !!faction;
+    }
+    if (!existCheck) {
+      errors.push('This faction does not exist.');
+      errorCode = 'ER001';
+    }
   }
 
   if (existCheck) {
@@ -363,6 +380,9 @@ const joinFaction = async (req: Request, res: Response) => {
       success: false,
       errors,
       errorCode,
+      info: existCheck
+        ? factions.factionInfo.find((f) => f.id === faction.id)
+        : undefined,
     });
     return;
   }
