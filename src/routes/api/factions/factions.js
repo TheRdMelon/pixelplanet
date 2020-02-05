@@ -284,10 +284,6 @@ const modifyFaction = async (req: Request, res: Response) => {
   const errors = [];
   const leadCheck = !(!faction || faction.leader !== user.regUser.id);
 
-  console.log(factionIdParam);
-  console.log(faction);
-  console.log(user.regUser.id);
-
   if (!leadCheck) {
     errors.push('You do not lead this faction or it does not exist.');
   }
@@ -307,8 +303,6 @@ const modifyFaction = async (req: Request, res: Response) => {
 
   const { set, value } = req.body;
 
-  console.log(req);
-
   switch (set) {
     case 'inviteEnabled':
       await faction.update({
@@ -326,6 +320,48 @@ const modifyFaction = async (req: Request, res: Response) => {
   }
 
   await factions.updateFactionInfo();
+
+  res.json({
+    success: true,
+  });
+};
+
+const leaveFaction = async (req: Request, res: Response) => {
+  const { faction: factionIdParam } = req.params;
+  const { user } = req;
+
+  if (!user) {
+    res.status(401);
+    res.json({
+      errors: ['You are not authenticated.'],
+    });
+  }
+
+  const faction = await Faction.findByPk(factionIdParam);
+
+  // Validation
+  const errors = [];
+  const ownFactionCheck = faction && (await faction.hasUser(user.regUser));
+
+  if (!ownFactionCheck) {
+    errors.push('This factions does not exist or you are not a member of it.');
+  }
+
+  if (ownFactionCheck && faction.leader === user.regUser.id) {
+    errors.push('You cannot leave a faction you lead.');
+  }
+
+  if (errors.length > 0) {
+    res.status(400);
+    res.json({
+      success: false,
+      errors,
+    });
+    return;
+  }
+
+  await faction.removeUser(user.regUser);
+  await factions.update();
 
   res.json({
     success: true,
@@ -492,4 +528,5 @@ export {
   factionInfo,
   modifyFaction,
   generatePrivateInvite,
+  leaveFaction,
 };

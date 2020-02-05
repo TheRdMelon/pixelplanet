@@ -74,6 +74,15 @@ const copyInputStyle: React.CSSStyleDeclaration = {
   marginTop: '5px',
 };
 
+async function leaveFaction(id) {
+  const response = await fetch(`./api/factions/${id}/leave`, {
+    credentials: 'include',
+    method: 'PATCH',
+  });
+
+  return parseAPIresponse(response);
+}
+
 const JoinFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
   <p style={{ textAlign: 'center' }}>
     <p style={textStyle}>Join a faction to gain perks and work together.</p>
@@ -99,6 +108,7 @@ const FactionInfo = () => {
 
   const inviteTooltipRef = useRef(null);
   const [showCopied, setShowCopied] = useState<boolean>(false);
+  const [leaveErrors, setLeaveErrors] = useState<string[]>([]);
 
   useEffect(() => {
     if (inviteTooltipRef.current) {
@@ -131,6 +141,13 @@ const FactionInfo = () => {
       document.selection.empty();
     }
     ReactTooltip.hide(inviteTooltipRef.current);
+  };
+
+  const onLeave = async () => {
+    const response = await leaveFaction(selectedFactionInfo.id);
+    if (!response.success) {
+      setLeaveErrors(response.errors);
+    }
   };
 
   return (
@@ -184,7 +201,7 @@ const FactionInfo = () => {
       </div>
       {selectedFactionInfo.private || (
         <>
-          <h3 style={{ margin: '0' }}>Invite</h3>
+          <h3 style={{ margin: '12px 0' }}>Invite</h3>
           <input
             style={copyInputStyle}
             value={`https://pixelplanet.fun/invite/${selectedFactionInfo.id}`}
@@ -197,11 +214,18 @@ const FactionInfo = () => {
             ref={inviteTooltipRef}
           />
           <div className={`tooltip ${showCopied ? 'show' : ''}`}>
-            <ReactTooltip id="publicInvCopiedTooltip" place="bottom" effect="solid" type="dark">Copied to Clipboard!</ReactTooltip>
+            <ReactTooltip
+              id="publicInvCopiedTooltip"
+              place="bottom"
+              effect="solid"
+              type="dark"
+            >
+              Copied to Clipboard!
+            </ReactTooltip>
           </div>
         </>
       )}
-      <h3>Member List</h3>
+      <h3 style={{ margin: '12px 0' }}>Member List</h3>
       <table>
         <tr>
           <th style={{ maxWidth: 0 }}>Admin</th>
@@ -220,6 +244,17 @@ const FactionInfo = () => {
           ))
           : null}
       </table>
+
+      <button className="faction-leave" type="button" onClick={onLeave}>
+        Leave
+      </button>
+      <div className="leave-errors">
+        {leaveErrors.map((err) => (
+          <React.Fragment key={err.replace(' ', '_')}>
+            <p className="error">{err}</p>
+          </React.Fragment>
+        ))}
+      </div>
     </>
   );
 };
@@ -420,7 +455,7 @@ const Admin = ({
       {selectedFactionInfo.private && (
         <>
           <div className="hr" style={{ margin: '10px 5px' }} />
-          <h2>Private Faction Password</h2>
+          <h2 style={{ margin: '12px 0' }}>Private Faction Password</h2>
           <button type="button" onClick={onGeneratePassword}>
             Generate New
           </button>
@@ -449,7 +484,7 @@ const Admin = ({
 
           <div className="hr" style={{ margin: '10px 5px' }} />
 
-          <h2>Private Faction Invite</h2>
+          <h2 style={{ margin: '12px 0' }}>Private Faction Invite</h2>
           <p style={{ display: 'inline-block', margin: '0 10px' }}>Enable</p>
           <div style={{ display: 'inline-block', margin: '0 10px' }}>
             <MdToggleButtonHover
@@ -458,16 +493,24 @@ const Admin = ({
             />
           </div>
 
-          <button type="button" onClick={onGenerateInvite}>
+          <button
+            type="button"
+            onClick={onGenerateInvite}
+            style={{ display: 'block', margin: '20px auto 0' }}
+          >
             Replace
           </button>
           <input
             style={copyInputStyle}
-            value={selectedFactionInfo.invite ? `https://pixelplanet.fun/invite/${selectedFactionInfo.invite}` : ''}
+            value={
+              selectedFactionInfo.invite
+                ? `https://pixelplanet.fun/invite/${selectedFactionInfo.invite}`
+                : ''
+            }
             onFocus={onInviteFocus}
             onBlur={onInviteBlur}
             onMouseEnter={onInviteMouseEnter}
-            placeholder="Click generate to generate the invite"
+            placeholder="Click replace to generate the invite"
             data-tip
             data-for="copiedInvTooltip"
             readOnly

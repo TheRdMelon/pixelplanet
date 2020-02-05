@@ -17,6 +17,7 @@ import factions, {
   factionInfo,
   modifyFaction,
   generatePrivateInvite,
+  leaveFaction,
 } from './factions';
 
 import templates, { newTemplate } from './templates';
@@ -28,6 +29,7 @@ router.post('/create', newFaction);
 router.post('/generateinvite', generatePrivateInvite);
 router.get('/icon/:faction', factionIcon);
 router.patch('/:faction/join', joinFaction);
+router.patch('/:faction/leave', leaveFaction);
 router.patch('/:faction', modifyFaction);
 router.delete('/:faction', deleteFaction);
 router.put('/:faction', transferFaction);
