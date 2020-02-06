@@ -22,6 +22,8 @@ import {
   fetchOwnFactions,
   toggleFactionInvite,
   setFactionInvite,
+  showConfirmationModal,
+  closeConfirmationModal,
 } from '../actions';
 
 import type { State } from '../reducers';
@@ -103,7 +105,7 @@ const CreateFaction = ({ recieve_faction_info: recieveFactionInfoDisp }) => (
   </p>
 );
 
-const FactionInfo = () => {
+const FactionInfo = ({ confirm_leave: confirmLeave }) => {
   const { Selector, selectedFactionInfo } = useFactionSelect();
 
   const inviteTooltipRef = useRef(null);
@@ -143,11 +145,15 @@ const FactionInfo = () => {
     ReactTooltip.hide(inviteTooltipRef.current);
   };
 
-  const onLeave = async () => {
-    const response = await leaveFaction(selectedFactionInfo.id);
-    if (!response.success) {
-      setLeaveErrors(response.errors);
-    }
+  const onLeave = () => {
+    const callback = async () => {
+      const response = await leaveFaction(selectedFactionInfo.id);
+      if (!response.success) {
+        setLeaveErrors(response.errors);
+      }
+    };
+
+    confirmLeave(callback);
   };
 
   return (
@@ -245,7 +251,7 @@ const FactionInfo = () => {
           : null}
       </table>
 
-      <button className="faction-leave" type="button" onClick={onLeave}>
+      <button className="red-btn faction-leave" type="button" onClick={onLeave}>
         Leave
       </button>
       <div className="leave-errors">
@@ -540,6 +546,7 @@ const FactionModal = ({
   selected_faction: selectedFaction,
   enable_faction_invite: dispatchEnableFactionInvite,
   set_faction_invite: dispatchSetFactionInvite,
+  confirm_leave: confirmLeave,
 }) => {
   // New react hook, 2nd parameter of empty array makes it equivelant to componentDidMount
   useEffect(() => {
@@ -558,7 +565,7 @@ const FactionModal = ({
         >
           {ownFactions.length > 0 ? (
             <div label="Info">
-              <FactionInfo />
+              <FactionInfo confirm_leave={confirmLeave} />
             </div>
           ) : (
             undefined
@@ -624,6 +631,16 @@ function mapDispatchToProps(dispatch) {
     set_faction_invite(id, invite) {
       dispatch(setFactionInvite(id, invite));
     },
+    confirm_leave(confirmCB) {
+      dispatch(
+        showConfirmationModal(
+          'Are you sure you want to leave?',
+          'Leave Faction',
+          confirmCB,
+          () => dispatch(closeConfirmationModal()),
+        ),
+      );
+    },
   };
 }
 
@@ -640,6 +657,7 @@ function mergeProps(propsFromState, propsFromDispatch) {
     own_factions: propsFromState.own_factions,
     enable_faction_invite: propsFromDispatch.enable_faction_invite,
     set_faction_invite: propsFromDispatch.set_faction_invite,
+    confirm_leave: propsFromDispatch.confirm_leave,
   };
 }
 

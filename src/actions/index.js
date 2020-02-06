@@ -2,6 +2,7 @@
 
 import type { Action, ThunkAction, PromiseAction } from './types';
 import type { Cell } from '../core/Cell';
+import type { ConfirmationOptions } from '../reducers/modal';
 
 export function sweetAlert(
   title: string,
@@ -845,5 +846,31 @@ export function toggleTemplateOpen(): Action {
 export function toggleTemplateEnable(): Action {
   return {
     type: 'TOGGLE_TEMPLATE_ENABLE',
+  };
+}
+
+export function showConfirmationModal(
+  msg: string,
+  header: string,
+  confirmCB: () => void,
+  cancelCB: () => void,
+  text: ?string,
+): Action {
+  return {
+    type: 'SHOW_CONFIRMATION',
+    options: {
+      msg,
+      header,
+      confirmCB,
+      cancelCB,
+      text,
+      open: true,
+    },
+  };
+}
+
+export function closeConfirmationModal(): Action {
+  return {
+    type: 'CLOSE_CONFIRMATION',
   };
 }

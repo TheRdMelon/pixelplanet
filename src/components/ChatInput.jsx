@@ -12,7 +12,7 @@ import ProtocolClient from '../socket/ProtocolClient';
 
 import { showUserAreaModal } from '../actions';
 
-class ChatInput extends React.Component {
+class ChatInput extends React.Component<{}, { message: string }> {
   constructor() {
     super();
     this.state = {
@@ -46,13 +46,21 @@ class ChatInput extends React.Component {
               type="text"
               placeholder="Chat here"
             />
-            <button id="chatmsginput" type="submit">Send</button>
+            <button id="chatmsginput" type="submit">
+              Send
+            </button>
           </form>
         </div>
       );
     }
     return (
-      <div className="modallink" onClick={this.props.open} style={{ textAlign: 'center', fontSize: 13 }}>You must be logged in to chat</div>
+      <div
+        className="modallink"
+        onClick={this.props.open}
+        style={{ textAlign: 'center', fontSize: 13 }}
+      >
+        You must be logged in to chat
+      </div>
     );
   }
 }

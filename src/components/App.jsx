@@ -16,6 +16,7 @@ import UI from './UI';
 import ReCaptcha from './ReCaptcha';
 import ExpandMenuButton from './ExpandMenuButton';
 import ModalRoot from './ModalRoot';
+import ConfirmModal from './ConfirmModal';
 
 import baseCss from './base.tcss';
 
@@ -35,6 +36,7 @@ const App = () => (
       <ExpandMenuButton />
       <UI />
       <ModalRoot />
+      <ConfirmModal />
     </IconContext.Provider>
   </div>
 );

@@ -6,16 +6,27 @@
 
 import type { Action } from '../actions/types';
 
+export type ConfirmationOptions = {
+  text: ?string,
+  open: boolean,
+  heading: ?string,
+  cancelCB: ?() => void,
+  confirmCB: ?() => void,
+  msg: ?string,
+};
+
 export type ModalState = {
   modalType: ?string,
   modalProps: object,
   chatOpen: boolean,
+  confirmationModalOptions: ConfirmationOptions,
 };
 
 const initialState: ModalState = {
   modalType: null,
   modalProps: {},
   chatOpen: false,
+  confirmationModalOptions: {},
 };
 
 export default function modal(
@@ -57,6 +68,21 @@ export default function modal(
       return {
         ...state,
         chatOpen,
+      };
+    }
+
+    case 'SHOW_CONFIRMATION': {
+      const { options } = action;
+      return {
+        ...state,
+        confirmationModalOptions: options,
+      };
+    }
+
+    case 'CLOSE_CONFIRMATION': {
+      return {
+        ...state,
+        confirmationModalOptions: { open: false },
       };
     }
 
