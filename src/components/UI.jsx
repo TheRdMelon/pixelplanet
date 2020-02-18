@@ -25,7 +25,7 @@ const UI = ({ isHistoricalView, is3D, isOnMobile }) => {
       <PalselButton />
       <Palette />
       {(is3D) ? null : <GlobeButton />}
-      {(isOnMobile) ? <Mobile3DControls /> : null}
+      {(is3D && isOnMobile) ? <Mobile3DControls /> : null}
       <CoolDownBox />
       <NotifyBox />
     </div>

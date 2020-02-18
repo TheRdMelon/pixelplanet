@@ -1,6 +1,7 @@
 # PixelPlanet.fun
 
-![](https://github.com/pixelplanetdev/pixelplanet/workflows/Node%20CI/badge.svg)
+
+[![Discord](https://img.shields.io/badge/Discord-Support-blue.svg)](https://pixelplanet.fun/discord) ![](https://github.com/pixelplanetdev/pixelplanet/workflows/Node%20CI/badge.svg)
 
 Official  repository of [pixelplanet.fun](http://www.pixelplanet.fun).
 
