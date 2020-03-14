@@ -10,18 +10,9 @@ import { Sky } from './Sky';
 import InfiniteGridHelper from './InfiniteGridHelper';
 import VoxelPainterControls from '../controls/VoxelPainterControls';
 import ChunkLoader from './ChunkLoader3D';
-import {
-  getChunkOfPixel,
-} from '../core/utils';
-import {
-  THREE_TILE_SIZE,
-} from '../core/constants';
-import {
-  setHover,
-  tryPlacePixel,
-  selectColor,
-} from '../actions';
-
+import { getChunkOfPixel } from '../core/utils';
+import { THREE_TILE_SIZE } from '../core/constants';
+import { setHover, tryPlacePixel, selectColor } from '../actions';
 
 class Renderer {
   is3D = true;
@@ -34,6 +25,8 @@ class Renderer {
   objects: Array<Object>;
   loadedChunks: Array<Object>;
   plane: Object;
+  oobGeometry: Object;
+  oobMaterial: Object;
   //--
   controls: Object;
   threeRenderer: Object;
@@ -139,6 +132,19 @@ class Renderer {
     this.objects.push(plane);
     this.plane.position.y = -0.1;
 
+    // Out of bounds plane
+    const oobGeometry = new THREE.PlaneBufferGeometry(
+      THREE_TILE_SIZE,
+      THREE_TILE_SIZE,
+    );
+    oobGeometry.rotateX(-Math.PI / 2);
+    oobGeometry.translate(THREE_TILE_SIZE / 2, 0.2, THREE_TILE_SIZE / 2);
+    const oobMaterial = new THREE.MeshLambertMaterial({
+      color: '#C4C4C4',
+    });
+    this.oobGeometry = oobGeometry;
+    this.oobMaterial = oobMaterial;
+
     // renderer
     const threeRenderer = new THREE.WebGLRenderer({
       preserveDrawingBuffer: true,
@@ -150,23 +156,20 @@ class Renderer {
     const { domElement } = threeRenderer;
 
     // controls
-    const controls = new VoxelPainterControls(
-      camera,
-      domElement,
-      store,
-    );
+    const controls = new VoxelPainterControls(camera, domElement, store);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.10;
+    controls.dampingFactor = 0.1;
     controls.maxPolarAngle = Math.PI / 2;
-    controls.minDistance = 10.00;
-    controls.maxDistance = 100.00;
+    controls.minDistance = 10.0;
+    controls.maxDistance = 100.0;
     this.controls = controls;
-
 
     this.onDocumentMouseMove = this.onDocumentMouseMove.bind(this);
     this.onDocumentTouchMove = this.onDocumentTouchMove.bind(this);
     // eslint-disable-next-line max-len
-    this.onDocumentMouseDownOrTouchStart = this.onDocumentMouseDownOrTouchStart.bind(this);
+    this.onDocumentMouseDownOrTouchStart = this.onDocumentMouseDownOrTouchStart.bind(
+      this,
+    );
     this.onDocumentMouseUp = this.onDocumentMouseUp.bind(this);
     this.onWindowResize = this.onWindowResize.bind(this);
     this.onDocumentTouchEnd = this.onDocumentTouchEnd.bind(this);
@@ -211,10 +214,7 @@ class Renderer {
   }
 
   updateCanvasData(state: State) {
-    const {
-      canvasId,
-      view,
-    } = state.canvas;
+    const { canvasId, view } = state.canvas;
     if (canvasId !== this.canvasId) {
       this.canvasId = canvasId;
       if (canvasId !== null) {
@@ -248,12 +248,7 @@ class Renderer {
     return null;
   }
 
-  renderPixel(
-    i: number,
-    j: number,
-    offset: number,
-    color: number,
-  ) {
+  renderPixel(i: number, j: number, offset: number, color: number) {
     const { chunkLoader } = this;
     if (chunkLoader) {
       chunkLoader.getVoxelUpdate(i, j, offset, color);
@@ -266,17 +261,10 @@ class Renderer {
     }
     const renderDistance = 150;
     const state = this.store.getState();
-    const {
-      canvasSize,
-      view,
-    } = state.canvas;
+    const { canvasSize, view } = state.canvas;
     const x = view[0];
     const z = view[2] || 0;
-    const {
-      scene,
-      loadedChunks,
-      chunkLoader,
-    } = this;
+    const { scene, loadedChunks, chunkLoader } = this;
     const [xcMin, zcMin] = getChunkOfPixel(
       canvasSize,
       x - renderDistance,
@@ -289,6 +277,7 @@ class Renderer {
       0,
       z + renderDistance,
     );
+    const chunkMaxXY = canvasSize / THREE_TILE_SIZE;
     // console.log(`Get ${xcMin} - ${xcMax} - ${zcMin} - ${zcMax}`);
     const curLoadedChunks = [];
     for (let zc = zcMin; zc <= zcMax; ++zc) {
@@ -296,7 +285,13 @@ class Renderer {
         const chunkKey = `${xc}:${zc}`;
         curLoadedChunks.push(chunkKey);
         if (!loadedChunks.has(chunkKey)) {
-          const chunk = chunkLoader.getChunk(xc, zc, true);
+          let chunk = null;
+          if (xc < 0 || zc < 0 || xc >= chunkMaxXY || zc >= chunkMaxXY) {
+            // if out of bounds
+            chunk = new THREE.Mesh(this.oobGeometry, this.oobMaterial);
+          } else {
+            chunk = chunkLoader.getChunk(xc, zc, true);
+          }
           if (chunk) {
             loadedChunks.set(chunkKey, chunk);
             chunk.position.fromArray([
@@ -304,7 +299,6 @@ class Renderer {
               0,
               zc * THREE_TILE_SIZE - canvasSize / 2,
             ]);
-            window.chunk = chunk;
             scene.add(chunk);
           }
         }
@@ -344,46 +338,35 @@ class Renderer {
 
   onDocumentMouseMove(event) {
     event.preventDefault();
+    const { clientX, clientY } = event;
+    const { innerWidth, innerHeight } = window;
     const {
-      clientX,
-      clientY,
-    } = event;
-    const {
-      innerWidth,
-      innerHeight,
-    } = window;
-    const {
-      camera,
-      objects,
-      raycaster,
-      mouse,
-      rollOverMesh,
-      store,
+      camera, objects, raycaster, mouse, rollOverMesh, store,
     } = this;
-    const {
-      placeAllowed,
-    } = store.getState().user;
+    const { placeAllowed } = store.getState().user;
 
-    mouse.set(
-      (clientX / innerWidth) * 2 - 1,
-      -(clientY / innerHeight) * 2 + 1,
-    );
+    mouse.set((clientX / innerWidth) * 2 - 1, -(clientY / innerHeight) * 2 + 1);
 
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(objects);
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      const target = intersect.point.clone()
+      const target = intersect.point
+        .clone()
         .add(intersect.face.normal.multiplyScalar(0.5))
         .floor()
         .addScalar(0.5);
-      if (!placeAllowed
-        || target.clone().sub(camera.position).length() > 120) {
+      if (
+        !placeAllowed
+        || target
+          .clone()
+          .sub(camera.position)
+          .length() > 120
+      ) {
         rollOverMesh.position.y = -10;
       } else {
         rollOverMesh.position.copy(target);
-        const hover = target
-          .toArray().map((u) => Math.floor(u));
+        const hover = target.toArray().map((u) => Math.floor(u));
         this.store.dispatch(setHover(hover));
       }
     }
@@ -397,49 +380,41 @@ class Renderer {
 
   onDocumentTouchMove() {
     const {
-      camera,
-      objects,
-      raycaster,
-      mouse,
-      rollOverMesh,
-      store,
+      camera, objects, raycaster, mouse, rollOverMesh, store,
     } = this;
-    const {
-      placeAllowed,
-    } = store.getState().user;
+    const { placeAllowed } = store.getState().user;
 
     mouse.set(0, 0);
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(objects);
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      const target = intersect.point.clone()
+      const target = intersect.point
+        .clone()
         .add(intersect.face.normal.multiplyScalar(0.5))
         .floor()
         .addScalar(0.5);
-      if (!placeAllowed
-        || target.clone().sub(camera.position).length() > 50) {
+      if (
+        !placeAllowed
+        || target
+          .clone()
+          .sub(camera.position)
+          .length() > 50
+      ) {
         rollOverMesh.position.y = -10;
       } else {
         rollOverMesh.position.copy(target);
-        const hover = target
-          .toArray().map((u) => Math.floor(u));
+        const hover = target.toArray().map((u) => Math.floor(u));
         this.store.dispatch(setHover(hover));
       }
     }
   }
 
   multiTapEnd() {
-    const {
-      store,
-      mouseMoveStart,
-      multitap,
-    } = this;
+    const { store, mouseMoveStart, multitap } = this;
     this.multitap = 0;
     const state = store.getState();
-    const {
-      placeAllowed,
-    } = state.user;
+    const { placeAllowed } = state.user;
     if (!placeAllowed) {
       return;
     }
@@ -464,17 +439,15 @@ class Renderer {
         // double tap
         // Remove Voxel
         const {
-          mouse,
-          raycaster,
-          camera,
-          objects,
+          mouse, raycaster, camera, objects,
         } = this;
         mouse.set(0, 0);
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(objects);
         if (intersects.length > 0) {
           const intersect = intersects[0];
-          const target = intersect.point.clone()
+          const target = intersect.point
+            .clone()
             .add(intersect.face.normal.multiplyScalar(-0.5))
             .floor()
             .addScalar(0.5)
@@ -482,7 +455,12 @@ class Renderer {
           if (target.y < 0) {
             return;
           }
-          if (target.clone().sub(camera.position).length() <= 50) {
+          if (
+            target
+              .clone()
+              .sub(camera.position)
+              .length() <= 50
+          ) {
             const cell = target.toArray();
             store.dispatch(tryPlacePixel(cell, 0));
           }
@@ -522,10 +500,7 @@ class Renderer {
     }
 
     const state = this.store.getState();
-    const {
-      placeAllowed,
-      isOnMobile,
-    } = state.user;
+    const { placeAllowed, isOnMobile } = state.user;
     if (!placeAllowed || isOnMobile) {
       return;
     }
@@ -537,27 +512,13 @@ class Renderer {
     }
 
     event.preventDefault();
+    const { clientX, clientY, button } = event;
+    const { innerWidth, innerHeight } = window;
     const {
-      clientX,
-      clientY,
-      button,
-    } = event;
-    const {
-      innerWidth,
-      innerHeight,
-    } = window;
-    const {
-      camera,
-      objects,
-      raycaster,
-      mouse,
-      store,
+      camera, objects, raycaster, mouse, store,
     } = this;
 
-    mouse.set(
-      (clientX / innerWidth) * 2 - 1,
-      -(clientY / innerHeight) * 2 + 1,
-    );
+    mouse.set((clientX / innerWidth) * 2 - 1, -(clientY / innerHeight) * 2 + 1);
 
     raycaster.setFromCamera(mouse, camera);
 
@@ -567,18 +528,25 @@ class Renderer {
 
       if (button === 0) {
         // left mouse button
-        const target = intersect.point.clone()
+        const target = intersect.point
+          .clone()
           .add(intersect.face.normal.multiplyScalar(0.5))
           .floor()
           .addScalar(0.5)
           .floor();
-        if (target.clone().sub(camera.position).length() < 120) {
+        if (
+          target
+            .clone()
+            .sub(camera.position)
+            .length() < 120
+        ) {
           const cell = target.toArray();
           store.dispatch(tryPlacePixel(cell));
         }
       } else if (button === 1) {
         // middle mouse button
-        const target = intersect.point.clone()
+        const target = intersect.point
+          .clone()
           .add(intersect.face.normal.multiplyScalar(-0.5))
           .floor()
           .addScalar(0.5)
@@ -586,7 +554,12 @@ class Renderer {
         if (target.y < 0) {
           return;
         }
-        if (target.clone().sub(camera.position).length() < 120) {
+        if (
+          target
+            .clone()
+            .sub(camera.position)
+            .length() < 120
+        ) {
           const cell = target.toArray();
           if (this.chunkLoader) {
             const clr = this.chunkLoader.getVoxel(...cell);
@@ -597,7 +570,8 @@ class Renderer {
         }
       } else if (button === 2) {
         // right mouse button
-        const target = intersect.point.clone()
+        const target = intersect.point
+          .clone()
           .add(intersect.face.normal.multiplyScalar(-0.5))
           .floor()
           .addScalar(0.5)
@@ -605,7 +579,12 @@ class Renderer {
         if (target.y < 0) {
           return;
         }
-        if (target.clone().sub(camera.position).length() < 120) {
+        if (
+          target
+            .clone()
+            .sub(camera.position)
+            .length() < 120
+        ) {
           const cell = target.toArray();
           store.dispatch(tryPlacePixel(cell, 0));
         }

@@ -57,7 +57,8 @@ function getViewFromURL(canvases: Object) {
 
     // canvasId is null if canvas data isn't loaded yet and it's not
     // the default canvas.
-    // aka those few milliseconds before /api/me
+    // ie those few milliseconds before /api/me
+    // eslint-disable-next-line max-len
     const canvas = canvasId === null ? canvases[DEFAULT_CANVAS_ID] : canvases[canvasId];
     const {
       colors,

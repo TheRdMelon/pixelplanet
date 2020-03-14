@@ -118,7 +118,7 @@ export async function incrementialBackupRedis(
                 if (!tileBuffer) {
                   tileBuffer = new Uint32Array(TILE_SIZE * TILE_SIZE);
                 }
-                const color = palette.abgr[curChunk[pxl] & 0x1f];
+                const color = palette.abgr[curChunk[pxl] & 0x3f];
                 tileBuffer[pxl] = color;
               }
               pxl += 1;
@@ -177,7 +177,7 @@ export async function createPngBackup(
     }
 
     const canvas = canvases[id];
-    const palette = new Palette(canvas.colors, canvas.alpha);
+    const palette = new Palette(canvas.colors);
     const chunksXY = canvas.size / TILE_SIZE;
     console.log('Create PNG tiles from backup...');
     const startTime = Date.now();

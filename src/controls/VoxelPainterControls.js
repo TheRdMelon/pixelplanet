@@ -24,10 +24,8 @@ import {
   Vector2,
   Vector3,
 } from 'three';
-import {
-  onViewFinishChange,
-  setViewCoordinates,
-} from '../actions';
+import { onViewFinishChange, setViewCoordinates } from '../actions';
+import { THREE_CANVAS_HEIGHT } from '../core/constants';
 
 // This set of controls performs orbiting, dollying (zooming),
 // and panning and smooth moving by keys.
@@ -40,10 +38,18 @@ import {
 class VoxelPainterControls extends EventDispatcher {
   constructor(object, domElement, store) {
     super();
-    // eslint-disable-next-line max-len
-    if (domElement === undefined) console.warn('THREE.VoxelPainterControls: The second parameter "domElement" is now mandatory.');
-    // eslint-disable-next-line max-len
-    if (domElement === document) console.error('THREE.VoxelPainterControls: "document" should not be used as the target "domElement". Please use "renderer.domElement" instead.');
+    if (domElement === undefined) {
+      console.warn(
+        // eslint-disable-next-line max-len
+        'THREE.VoxelPainterControls: The second parameter "domElement" is now mandatory.',
+      );
+    }
+    if (domElement === document) {
+      console.error(
+        // eslint-disable-next-line max-len
+        'THREE.VoxelPainterControls: "document" should not be used as the target "domElement". Please use "renderer.domElement" instead.',
+      );
+    }
 
     this.object = object;
     this.domElement = domElement;
@@ -113,7 +119,6 @@ class VoxelPainterControls extends EventDispatcher {
     this.position0 = this.object.position.clone();
     this.zoom0 = this.object.zoom;
 
-
     //
     // internals
     //
@@ -167,7 +172,7 @@ class VoxelPainterControls extends EventDispatcher {
     const dollyDelta = new Vector2();
 
     function getAutoRotationAngle() {
-      return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+      return ((2 * Math.PI) / 60 / 60) * scope.autoRotateSpeed;
     }
 
     function getZoomScale() {
@@ -189,7 +194,6 @@ class VoxelPainterControls extends EventDispatcher {
 
       panOffset.add(v);
     };
-
 
     const panUp = (distance, objectMatrix) => {
       if (scope.screenSpacePanning === true) {
@@ -215,33 +219,39 @@ class VoxelPainterControls extends EventDispatcher {
         let targetDistance = v.length();
 
         // half of the fov is center to top of screen
-        targetDistance *= Math.tan((scope.object.fov / 2) * Math.PI / 180.0);
+        targetDistance *= Math.tan(((scope.object.fov / 2) * Math.PI) / 180.0);
 
         // we use only clientHeight here so aspect ratio does not distort speed
         panLeft(
-          2 * deltaX * targetDistance / element.clientHeight,
+          (2 * deltaX * targetDistance) / element.clientHeight,
           scope.object.matrix,
         );
         panUp(
-          2 * deltaY * targetDistance / element.clientHeight,
+          (2 * deltaY * targetDistance) / element.clientHeight,
           scope.object.matrix,
         );
       } else if (scope.object.isOrthographicCamera) {
         // orthographic
         panLeft(
           // eslint-disable-next-line max-len
-          deltaX * (scope.object.right - scope.object.left) / scope.object.zoom / element.clientWidth,
+          (deltaX * (scope.object.right - scope.object.left))
+            / scope.object.zoom
+            / element.clientWidth,
           scope.object.matrix,
         );
         panUp(
           // eslint-disable-next-line max-len
-          deltaY * (scope.object.top - scope.object.bottom) / scope.object.zoom / element.clientHeight,
+          (deltaY * (scope.object.top - scope.object.bottom))
+            / scope.object.zoom
+            / element.clientHeight,
           scope.object.matrix,
         );
       } else {
         // camera neither orthographic nor perspective
-        // eslint-disable-next-line max-len
-        console.warn('WARNING: VoxelPainterControls.js encountered an unknown camera type - pan disabled.');
+        console.warn(
+          // eslint-disable-next-line max-len
+          'WARNING: VoxelPainterControls.js encountered an unknown camera type - pan disabled.',
+        );
         scope.enablePan = false;
       }
     };
@@ -257,8 +267,10 @@ class VoxelPainterControls extends EventDispatcher {
         scope.object.updateProjectionMatrix();
         zoomChanged = true;
       } else {
-        // eslint-disable-next-line max-len
-        console.warn('WARNING: VoxelPainterControls.js encountered an unknown camera type - dolly/zoom disabled.');
+        console.warn(
+          // eslint-disable-next-line max-len
+          'WARNING: VoxelPainterControls.js encountered an unknown camera type - dolly/zoom disabled.',
+        );
         scope.enableZoom = false;
       }
     }
@@ -274,8 +286,10 @@ class VoxelPainterControls extends EventDispatcher {
         scope.object.updateProjectionMatrix();
         zoomChanged = true;
       } else {
-        // eslint-disable-next-line max-len
-        console.warn('WARNING: VoxelPainterControls.js encountered an unknown camera type - dolly/zoom disabled.');
+        console.warn(
+          // eslint-disable-next-line max-len
+          'WARNING: VoxelPainterControls.js encountered an unknown camera type - dolly/zoom disabled.',
+        );
         scope.enableZoom = false;
       }
     }
@@ -303,8 +317,8 @@ class VoxelPainterControls extends EventDispatcher {
         .subVectors(rotateEnd, rotateStart)
         .multiplyScalar(scope.rotateSpeed);
       const element = scope.domElement;
-      rotateLeft(Math.PI * rotateDelta.x / element.clientHeight); // yes, height
-      rotateUp(Math.PI * rotateDelta.y / element.clientHeight);
+      rotateLeft((Math.PI * rotateDelta.x) / element.clientHeight); // yes, height
+      rotateUp((Math.PI * rotateDelta.y) / element.clientHeight);
       rotateStart.copy(rotateEnd);
       scope.update();
     }
@@ -393,11 +407,12 @@ class VoxelPainterControls extends EventDispatcher {
         rotateEnd.set(x, y);
       }
 
-      rotateDelta.subVectors(rotateEnd, rotateStart)
+      rotateDelta
+        .subVectors(rotateEnd, rotateStart)
         .multiplyScalar(scope.rotateSpeed);
       const element = scope.domElement;
-      rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight);
-      rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+      rotateLeft((2 * Math.PI * rotateDelta.x) / element.clientHeight);
+      rotateUp((2 * Math.PI * rotateDelta.y) / element.clientHeight);
       rotateStart.copy(rotateEnd);
     }
 
@@ -446,7 +461,8 @@ class VoxelPainterControls extends EventDispatcher {
     function onDocumentKeyDown(event) {
       if (scope.enabled === false) return;
       // ignore key presses if modal is open or chat is used
-      if (event.target.nodeName === 'INPUT'
+      if (
+        event.target.nodeName === 'INPUT'
         || event.target.nodeName === 'TEXTAREA'
       ) {
         return;
@@ -488,7 +504,8 @@ class VoxelPainterControls extends EventDispatcher {
     function onDocumentKeyUp(event) {
       if (scope.enabled === false) return;
       // ignore key presses if modal is open or chat is used
-      if (event.target.nodeName === 'INPUT'
+      if (
+        event.target.nodeName === 'INPUT'
         || event.target.nodeName === 'TEXTAREA'
       ) {
         return;
@@ -527,7 +544,6 @@ class VoxelPainterControls extends EventDispatcher {
       }
     }
 
-
     function onMouseMove(event) {
       if (scope.enabled === false) return;
 
@@ -559,10 +575,10 @@ class VoxelPainterControls extends EventDispatcher {
     }
 
     function onMouseWheel(event) {
-      if (scope.enabled === false
+      if (
+        scope.enabled === false
         || scope.enableZoom === false
-        || (state !== STATE.NONE
-          && state !== STATE.ROTATE)
+        || (state !== STATE.NONE && state !== STATE.ROTATE)
       ) return;
 
       event.preventDefault();
@@ -580,7 +596,6 @@ class VoxelPainterControls extends EventDispatcher {
 
       switch (event.touches.length) {
         case 1:
-
           switch (scope.touches.ONE) {
             case TOUCH.ROTATE:
               if (scope.enableRotate === false) return;
@@ -603,21 +618,20 @@ class VoxelPainterControls extends EventDispatcher {
           break;
 
         case 2:
-
           switch (scope.touches.TWO) {
             case TOUCH.DOLLY_PAN:
-              if (scope.enableZoom === false
-                && scope.enablePan === false
-              ) return;
+              if (scope.enableZoom === false && scope.enablePan === false) {
+                return;
+              }
 
               handleTouchStartDollyPan(event);
               state = STATE.TOUCH_DOLLY_PAN;
               break;
 
             case TOUCH.DOLLY_ROTATE:
-              if (scope.enableZoom === false
-                && scope.enableRotate === false
-              ) return;
+              if (scope.enableZoom === false && scope.enableRotate === false) {
+                return;
+              }
 
               handleTouchStartDollyRotate(event);
               state = STATE.TOUCH_DOLLY_ROTATE;
@@ -630,7 +644,6 @@ class VoxelPainterControls extends EventDispatcher {
           break;
 
         default:
-
           state = STATE.NONE;
       }
 
@@ -661,15 +674,18 @@ class VoxelPainterControls extends EventDispatcher {
           break;
 
         case STATE.TOUCH_DOLLY_PAN:
-          if (scope.enableZoom === false && scope.enablePan === false) return;
+          if (scope.enableZoom === false && scope.enablePan === false) {
+            return;
+          }
 
           handleTouchMoveDollyPan(event);
           scope.update();
           break;
 
         case STATE.TOUCH_DOLLY_ROTATE:
-          if (scope.enableZoom === false
-            && scope.enableRotate === false) return;
+          if (scope.enableZoom === false && scope.enableRotate === false) {
+            return;
+          }
 
           handleTouchMoveDollyRotate(event);
           scope.update();
@@ -765,7 +781,6 @@ class VoxelPainterControls extends EventDispatcher {
       }
     }
 
-
     scope.domElement.addEventListener('contextmenu', onContextMenu, false);
 
     scope.domElement.addEventListener('mousedown', onMouseDown, false);
@@ -823,8 +838,10 @@ class VoxelPainterControls extends EventDispatcher {
       const offset = new Vector3();
 
       // so camera.up is the orbit axis
-      const quat = new Quaternion()
-        .setFromUnitVectors(object.up, new Vector3(0, 1, 0));
+      const quat = new Quaternion().setFromUnitVectors(
+        object.up,
+        new Vector3(0, 1, 0),
+      );
       const quatInverse = quat.clone().inverse();
 
       const lastPosition = new Vector3();
@@ -885,7 +902,6 @@ class VoxelPainterControls extends EventDispatcher {
 
         prevTime = time;
 
-
         const { position } = scope.object;
 
         offset.copy(position).sub(scope.target);
@@ -930,7 +946,6 @@ class VoxelPainterControls extends EventDispatcher {
         );
 
         // move target to panned location
-
         if (panOffset.length() > 1000) {
           panOffset.set(0, 0, 0);
         }
@@ -939,24 +954,38 @@ class VoxelPainterControls extends EventDispatcher {
         } else {
           scope.target.add(panOffset);
         }
+        /*
         if (scope.target.y < 10.0) {
           scope.target.y = 10.0;
         }
+        */
 
+        // clamp to boundaries
+        const { canvasSize } = scope.store.getState().canvas;
+        const bound = canvasSize / 2;
+        scope.target.clamp(
+          {
+            x: -bound,
+            y: 10,
+            z: -bound,
+          },
+          {
+            x: bound,
+            y: THREE_CANVAS_HEIGHT,
+            z: bound,
+          },
+        );
 
         offset.setFromSpherical(spherical);
 
         // rotate offset back to "camera-up-vector-is-up" space
         offset.applyQuaternion(quatInverse);
-
         position.copy(scope.target).add(offset);
-
-
         scope.object.lookAt(scope.target);
 
         if (scope.enableDamping === true) {
-          sphericalDelta.theta *= (1 - scope.dampingFactor);
-          sphericalDelta.phi *= (1 - scope.dampingFactor);
+          sphericalDelta.theta *= 1 - scope.dampingFactor;
+          sphericalDelta.phi *= 1 - scope.dampingFactor;
           panOffset.multiplyScalar(1 - scope.dampingFactor);
 
           if (panOffset.length() < 0.2 && panOffset.length() !== 0.0) {
@@ -991,9 +1020,11 @@ class VoxelPainterControls extends EventDispatcher {
         // min(camera displacement, camera rotation in radians)^2 > EPS
         // using small-angle approximation cos(x/2) = 1 - x^2 / 8
 
-        if (zoomChanged
+        if (
+          zoomChanged
           || lastPosition.distanceToSquared(scope.object.position) > EPS
-          || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
+          || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS
+        ) {
           scope.dispatchEvent(changeEvent);
 
           lastPosition.copy(scope.object.position);
@@ -1030,6 +1061,5 @@ class VoxelPainterControls extends EventDispatcher {
 
 // VoxelPainterControls.prototype = Object.create(EventDispatcher.prototype);
 // VoxelPainterControls.prototype.constructor = VoxelPainterControls;
-
 
 export default VoxelPainterControls;

@@ -204,6 +204,7 @@ export default function user(
       factions.forEach((faction) => {
         faction.private = false;
         if (newFactions.findIndex((f) => f.id === faction.id) > -1) {
+          // eslint-disable-next-line max-len
           newFactions = newFactions.map((fa) => (fa.id === faction.id ? { ...fa, ...faction } : fa));
         } else {
           newFactions.push(faction);
@@ -223,7 +224,12 @@ export default function user(
 
       return {
         ...state,
-        factions: state.factions.map((faction) => (faction.id === id ? { ...faction, icon: null } : faction)),
+        factions: state.factions.map((faction) => (faction.id === id
+          ? {
+            ...faction,
+            icon: null,
+          }
+          : faction)),
       };
     }
 
@@ -271,7 +277,9 @@ export default function user(
 
       return {
         ...state,
+        // eslint-disable-next-line max-len
         ownFactions: [...state.ownFactions, ownFaction].sort((a, b) => a.name.localeCompare(b.name)),
+        // eslint-disable-next-line max-len
         factions: joinOnId([ownFaction], factions, 'id').sort((a, b) => a.name.localeCompare(b.name)),
       };
     }

@@ -336,12 +336,9 @@ class Renderer {
           context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
         } else {
           chunk = this.chunkLoader.getChunk(tiledZoom, cx, cy, fetch);
-          templateChunk = templateEnabled ? this.chunkLoader.getTemplateChunk(
-            tiledZoom,
-            cx,
-            cy,
-            fetch,
-          ) : undefined;
+          templateChunk = templateEnabled
+            ? this.chunkLoader.getTemplateChunk(tiledZoom, cx, cy, fetch)
+            : undefined;
           if (chunk) {
             context.drawImage(chunk, x, y);
             if (templateChunk) {
@@ -394,8 +391,10 @@ class Renderer {
     const [cx, cy] = this.centerChunk;
 
     // if we have to render pixelnotify
+    // eslint-disable-next-line max-len
     const doRenderPixelnotify = viewscale >= 0.5 && showPixelNotify && pixelNotify.doRender();
     // if we have to render placeholder
+    // eslint-disable-next-line max-len
     const doRenderPlaceholder = viewscale >= 3 && placeAllowed && (hover || this.hover) && !isPotato;
     const doRenderPotatoPlaceholder = viewscale >= 3
       && placeAllowed

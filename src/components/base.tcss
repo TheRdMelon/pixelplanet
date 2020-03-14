@@ -150,6 +150,11 @@ kbd {
   background-color: rgb(213, 238, 255);
 }
 
+:global(#menu > div) {
+  z-index: 1;
+  background-color: rgb(213, 238, 255);
+}
+
 :global(#helpbutton) {
   left: 16px;
   top: 262px;
