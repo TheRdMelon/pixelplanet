@@ -18,12 +18,8 @@ import ExpandMenuButton from './ExpandMenuButton';
 import ModalRoot from './ModalRoot';
 import ConfirmModal from './ConfirmModal';
 
-import baseCss from './base.tcss';
-
 const App = () => (
-  <div>
-    {/* eslint-disable-next-line react/no-danger */}
-    <style dangerouslySetInnerHTML={{ __html: baseCss }} />
+  <>
     <div id="outstreamContainer" />
     <ReCaptcha />
     <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
@@ -38,7 +34,7 @@ const App = () => (
       <ModalRoot />
       <ConfirmModal />
     </IconContext.Provider>
-  </div>
+  </>
 );
 
 export default App;

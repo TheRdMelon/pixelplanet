@@ -4,11 +4,13 @@
  */
 
 import React from 'react';
+import { connect } from 'react-redux';
 import {
   validateFactionName,
   validateFactionIcon,
   parseAPIresponse,
 } from '../utils/validation';
+import { recieveJoinedFaction } from '../actions';
 
 function validate(name, icon) {
   const errors = [];
@@ -110,11 +112,7 @@ class CreateFactionForm extends React.Component {
     if (errors.length > 0) return;
 
     this.setState({ creating: true });
-    const { errors: resperrors, factionInfo } = await createFaction(
-      name,
-      priv,
-      icon,
-    );
+    const { errors: resperrors, info } = await createFaction(name, priv, icon);
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -122,8 +120,12 @@ class CreateFactionForm extends React.Component {
       });
       return;
     }
-    const { recieve_faction_info: recieveFactionInfo } = this.props;
-    recieveFactionInfo(factionInfo);
+    const {
+      reset_tabs: resetTabs,
+      join_faction: dispatchJoinFaction,
+    } = this.props;
+    dispatchJoinFaction(info);
+    resetTabs();
   }
 
   render() {
@@ -151,7 +153,9 @@ class CreateFactionForm extends React.Component {
           <input
             id="privateCheckbox"
             value={priv}
-            onChange={(e) => this.setState({ private: e.currentTarget.checked })}
+            onChange={
+              (e) => this.setState({ private: e.currentTarget.checked })
+            }
             type="checkbox"
           />
         </label>
@@ -173,4 +177,12 @@ class CreateFactionForm extends React.Component {
   }
 }
 
-export default CreateFactionForm;
+function mapDispatchToProps(dispatch) {
+  return {
+    join_faction(info) {
+      dispatch(recieveJoinedFaction(info));
+    },
+  };
+}
+
+export default connect(null, mapDispatchToProps)(CreateFactionForm);

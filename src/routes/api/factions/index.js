@@ -17,7 +17,15 @@ import factions, {
   factionInfo,
   modifyFaction,
   generatePrivateInvite,
+  generatePrivatePassword,
   leaveFaction,
+  joinFactionPassword,
+  kickFactionMember,
+  banFactionMember,
+  promoteMember,
+  demoteMember,
+  factionBans,
+  unbanFactionMember,
 } from './factions';
 
 import templates, { newTemplate } from './templates';
@@ -25,8 +33,16 @@ import templates, { newTemplate } from './templates';
 const router = express.Router();
 
 router.get('/', factions);
+router.post('/join', joinFactionPassword);
 router.post('/create', newFaction);
 router.post('/generateinvite', generatePrivateInvite);
+router.post('/generatepassword', generatePrivatePassword);
+router.post('/:faction/kick', kickFactionMember);
+router.patch('/:faction/bans', banFactionMember);
+router.delete('/:faction/bans', unbanFactionMember);
+router.get('/:faction/bans', factionBans);
+router.post('/:faction/promote', promoteMember);
+router.post('/:faction/demote', demoteMember);
 router.get('/icon/:faction', factionIcon);
 router.patch('/:faction/join', joinFaction);
 router.patch('/:faction/leave', leaveFaction);

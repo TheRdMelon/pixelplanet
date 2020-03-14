@@ -10,9 +10,13 @@ import Modal from './Modal';
 
 import type { State } from '../reducers';
 
-
 import {
-  showRegisterModal, showForgotPasswordModal, setName, setMailreg, receiveMe,
+  showRegisterModal,
+  showForgotPasswordModal,
+  setName,
+  setMailreg,
+  receiveMe,
+  resetUserFactions,
 } from '../actions';
 import LogInForm from './LogInForm';
 import Tabs from './Tabs';
@@ -50,43 +54,98 @@ const textStyle = {
 
 const LogInArea = ({ register, forgot_password, me }) => (
   <p style={{ textAlign: 'center' }}>
-    <p style={textStyle}>Login to access more features and stats.</p><br />
+    <p style={textStyle}>Login to access more features and stats.</p>
+    <br />
     <h2>Login with Mail:</h2>
     <LogInForm me={me} />
-    <p className="modallink" onClick={forgot_password}>I forgot my Password.</p>
+    <p className="modallink" onClick={forgot_password}>
+      I forgot my Password.
+    </p>
     <h2>or login with:</h2>
-    <a href="./api/auth/discord"><img style={logoStyle} width={32} src={`${window.assetserver}/discordlogo.svg`} alt="Discord" /></a>
-    <a href="./api/auth/google"><img style={logoStyle} width={32} src={`${window.assetserver}/googlelogo.svg`} alt="Google" /></a>
-    <a href="./api/auth/facebook"><img style={logoStyle} width={32} src={`${window.assetserver}/facebooklogo.svg`} alt="Facebook" /></a>
-    <a href="./api/auth/vk"><img style={logoStyle} width={32} src={`${window.assetserver}/vklogo.svg`} alt="vk" /></a>
-    <a href="./api/auth/reddit"><img style={logoStyle} width={32} src={`${window.assetserver}/redditlogo.svg`} alt="vk" /></a>
+    <a href="./api/auth/discord">
+      <img
+        style={logoStyle}
+        width={32}
+        src={`${window.assetserver}/discordlogo.svg`}
+        alt="Discord"
+      />
+    </a>
+    <a href="./api/auth/google">
+      <img
+        style={logoStyle}
+        width={32}
+        src={`${window.assetserver}/googlelogo.svg`}
+        alt="Google"
+      />
+    </a>
+    <a href="./api/auth/facebook">
+      <img
+        style={logoStyle}
+        width={32}
+        src={`${window.assetserver}/facebooklogo.svg`}
+        alt="Facebook"
+      />
+    </a>
+    <a href="./api/auth/vk">
+      <img
+        style={logoStyle}
+        width={32}
+        src={`${window.assetserver}/vklogo.svg`}
+        alt="vk"
+      />
+    </a>
+    <a href="./api/auth/reddit">
+      <img
+        style={logoStyle}
+        width={32}
+        src={`${window.assetserver}/redditlogo.svg`}
+        alt="vk"
+      />
+    </a>
     <h2>or register here:</h2>
-    <button type="button" onClick={register}>Register</button>
+    <button type="button" onClick={register}>
+      Register
+    </button>
   </p>
 );
 
 const UserAreaModal = ({
-  name, register, forgot_password, doMe, logout, setName, setMailreg,
+  name,
+  register,
+  forgot_password,
+  doMe,
+  logout,
+  setName,
+  setMailreg,
 }) => (
   <Modal title="User Area">
     <p style={{ textAlign: 'center' }}>
-      {(name === null)
-        ? <LogInArea register={register} forgot_password={forgot_password} me={doMe} />
-        : (
-          <Tabs>
-            <div label="Profile">
-              <UserArea
-                logout={logout}
-                set_name={setName}
-                set_mailreg={setMailreg}
-              />
-            </div>
-            <div label="Ranking">
-              <Rankings />
-            </div>
-          </Tabs>
-        )}
-      <p>Also join our Discord: <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
+      {name === null ? (
+        <LogInArea
+          register={register}
+          forgot_password={forgot_password}
+          me={doMe}
+        />
+      ) : (
+        <Tabs>
+          <div label="Profile">
+            <UserArea
+              logout={logout}
+              set_name={setName}
+              set_mailreg={setMailreg}
+            />
+          </div>
+          <div label="Ranking">
+            <Rankings />
+          </div>
+        </Tabs>
+      )}
+      <p>
+        Also join our Discord:{' '}
+        <a href="./discord" target="_blank">
+          pixelplanet.fun/discord
+        </a>
+      </p>
     </p>
   </Modal>
 );
@@ -109,10 +168,13 @@ function mapDispatchToProps(dispatch) {
       dispatch(setMailreg(mailreg));
     },
     async logout() {
-      const response = await fetch('./api/auth/logout', { credentials: 'include' });
+      const response = await fetch('./api/auth/logout', {
+        credentials: 'include',
+      });
       if (response.ok) {
         const resp = await response.json();
         dispatch(receiveMe(resp.me));
+        dispatch(resetUserFactions());
       }
     },
   };

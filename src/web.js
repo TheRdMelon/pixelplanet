@@ -158,7 +158,7 @@ const indexEtag = etag(`${assets.vendor.js},${assets.client.js}`, {
   weak: true,
 });
 
-app.get(['/', '/invite/*'], async (req, res) => {
+app.get(['/', '/invite/*', '/error'], async (req, res) => {
   res.set({
     'Cache-Control': `private, max-age=${15 * 60}`, // seconds
     'Content-Type': 'text/html; charset=utf-8',
@@ -187,6 +187,7 @@ promise.then(() => {
   server.listen(PORT, () => {
     rankings.updateRanking();
     factions.update();
+    factions.updateBans();
     const address = server.address();
     logger.info('info', `web is running at http://localhost:${address.port}/`);
   });

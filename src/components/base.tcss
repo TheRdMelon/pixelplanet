@@ -39,6 +39,17 @@ kbd {
   white-space: nowrap;
 }
 
+:global(.buttonlink) {
+  background: none !important;
+  border: none;
+  padding: 0 !important;
+  font-family: 'Montserrat', sans-serif;
+  color: #069;
+  cursor: pointer;
+  text-decoration: underline;
+  outline: none;
+}
+
 :global(.modallink) {
   text-decoration: none;
   color: #428bca;
@@ -258,6 +269,7 @@ kbd {
 
 :global(#templatealphaslider) {
   margin: auto;
+  width: 129px;
   height: 100%;
   margin: 0 10px;
 }
@@ -293,10 +305,16 @@ kbd {
   margin-left: auto;
 }
 
-:global(.red-btn:hover) {
+:global(.red-btn:not(:disabled):not([disabled]):hover) {
   background-color: #e00000;
   color: white;
   box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.75);
+}
+
+:global(.Modal.confirmation .confirmation-btns .red-btn:disabled),
+:global(.Modal.confirmation .confirmation-btns button[disabled].red-btn) {
+  color: black;
+  opacity: 0.5;
 }
 
 :global(.Modal) {
@@ -366,6 +384,22 @@ kbd {
 :global(.Modal.confirmation .confirmation-btns .confirmation-cancel:hover) {
   background-color: #6d6d6d;
   border: 1px solid #232323;
+}
+
+:global(.Modal.confirmation p span) {
+  font-weight: bold;
+}
+
+:global(.Modal.confirmation input) {
+  width: 100%;
+}
+
+:global(.Modal svg.admin) {
+  fill: #909090;
+}
+
+:global(.Modal svg.leader) {
+  fill: #b9a600;
 }
 
 :global(.chatbox div .chatarea) {
@@ -531,9 +565,14 @@ kbd {
   background-color: rgba(226, 226, 226, 0.8);
 }
 
+:global(.factionselectorlogobackground.border) {
+  background-color: transparent;
+  z-index: 1;
+}
+
 :global(.factionselectorlogo) {
   margin: auto;
-  z-index: 1;
+  z-index: 0;
 }
 
 :global(.factionselectorrowselected) {
@@ -594,8 +633,8 @@ kbd {
 @supports (-moz-appearance: meterbar) {
   /* Firefox Only */
 
-  :global(.factionselectorrowselected) {
-    padding-bottom: 15px;
+  :global(.factionselectorrow:nth-last-child(2)) {
+    border-bottom: 97px solid transparent;
   }
 
   :global(#factionselector) {
@@ -656,8 +695,25 @@ kbd {
   padding: 17px 16px 16px 36px;
 }
 
+:global(.tooltip) {
+  display: flex;
+  position: relative;
+  height: 0;
+  justify-content: center;
+}
+
 :global(.tooltip > *) {
   visibility: visible;
+  top: 0 !important;
+  left: 0 !important;
+  position: static;
+  display: block;
+  margin-top: 6px !important;
+  height: fit-content;
+}
+
+:global(.tooltip > div::after) {
+  top: 0 !important;
 }
 
 :global(.tooltip:not(.show) > *) {
@@ -767,6 +823,18 @@ kbd {
   visibility: hidden;
 }
 
+:global(.faction-joined) {
+  opacity: 0;
+  cursor: default;
+}
+
+:global(.faction-joined:first-of-type) {
+  pointer-events: none;
+  position: absolute;
+  opacity: 0.5;
+  z-index: 1;
+}
+
 :global(.factioninfobox) {
   flex-grow: 1;
   align-self: center;
@@ -804,4 +872,89 @@ kbd {
 :global(.leave-errors .error) {
   color: red;
   font-size: 12px;
+}
+
+:global(.copy-input) {
+  display: flex;
+}
+
+:global(.copy-input > input) {
+  text-align: center;
+  margin-top: 5px;
+  flex-grow: 1;
+}
+
+:global(.error-page) {
+  height: 100vh;
+  background-color: rgb(213, 238, 255);
+}
+
+:global(.error-page .content) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+
+:global(.error-page .content h2) {
+  font-size: 52px;
+  text-align: center;
+  margin-bottom: 0;
+  color: rgb(78, 78, 78);
+}
+
+:global(.error-page .content h1) {
+  text-align: center;
+  margin-top: 0;
+  font-size: 72px;
+  color: rgb(78, 78, 78);
+}
+
+:global(.error-page .content .btn-return) {
+  background-color: white;
+  border-radius: 50px;
+  outline: none;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 18px;
+  padding: 26px;
+  margin: 0 auto;
+  border: solid rgb(78, 78, 78);
+  text-decoration: none;
+  color: black;
+}
+
+:global(.error-page .error-logo) {
+  color: white;
+  font-weight: bold;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+:global(.error-page .error-logo img) {
+  width: 40px;
+  margin-right: 10px;
+}
+
+:global(.error-page .bubble) {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgb(78, 78, 78);
+  bottom: 0;
+  right: 0;
+  transform: translate(50%, 80%);
+  transition: height 0.25s ease-out, width 0.25s ease-out;
+  height: 900px;
+  width: 900px;
+}
+
+:global(.error-page .bubble:hover) {
+  height: 1200px;
+  width: 1200px;
 }

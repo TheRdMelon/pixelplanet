@@ -131,7 +131,7 @@ const RegUser = Model.define(
 
 RegUser.associate = (models) => {
   RegUser.belongsToMany(models.Faction, {
-    through: 'UserFactions',
+    through: models.UserFactions,
   });
 };
 

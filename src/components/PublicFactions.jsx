@@ -10,14 +10,19 @@ import 'intersection-observer';
 import { withIsVisible } from 'react-is-visible';
 
 import type { State } from '../reducers';
-import { fetchFactionIcon, recieveFactionInfo } from '../actions';
+import {
+  fetchFactionIcon,
+  recieveJoinedFaction,
+  showUserAreaModal,
+} from '../actions';
 import { parseAPIresponse } from '../utils/validation';
 
-const iconStyle = {
+const iconStyle: React.CSSStyleDeclaration = {
   width: '32px',
   maxHeight: '32px',
   display: 'block',
   margin: 'auto',
+  objectFit: 'contain',
 };
 
 async function joinFaction(id) {
@@ -29,11 +34,18 @@ async function joinFaction(id) {
   return parseAPIresponse(response);
 }
 
+function isMemberOf(ownFactions, factionId) {
+  return !!ownFactions.find((f) => f.id === factionId);
+}
+
 const FactionRow = ({
   isVisible,
-  recieve_faction_info: recieveFactionInfoDisp,
   faction,
   fetch_icon: fetchIcon,
+  join_faction: joinFactionDispatch,
+  member_of: memberOf,
+  open_login: openLogin,
+  own_name: ownName,
 }) => {
   if (isVisible && faction.icon === undefined) {
     fetchIcon(faction.id);
@@ -54,21 +66,47 @@ const FactionRow = ({
         />
       </td>
       <td>{faction.name}</td>
-      <td>{faction.leader}</td>
       <td>
-        <a
-          href="/"
-          onClick={(e) => {
-            e.preventDefault();
-            joinFaction(faction.id).then((factionInfo) => {
-              if (factionInfo.success) {
-                recieveFactionInfoDisp(factionInfo.info);
-              }
-            });
-          }}
-        >
-          Join
-        </a>
+        {faction.leader
+          || faction.Users.find((user) => user.id === faction.leaderId).name}
+      </td>
+      <td>
+        <div style={{ position: 'relative', padding: '0 5px' }}>
+          {ownName === null ? (
+            <>
+              <button type="button" onClick={openLogin} className="buttonlink">
+                Login
+              </button>
+            </>
+          ) : (
+            <>
+              {memberOf && (
+                <a
+                  href={`https://pixelplanet.fun/invite/${faction.id}`}
+                  className="faction-joined"
+                >
+                  Joined
+                </a>
+              )}
+              <a
+                href={`https://pixelplanet.fun/invite/${faction.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!memberOf) {
+                    joinFaction(faction.id).then((factionInfo) => {
+                      if (factionInfo.success) {
+                        joinFactionDispatch(factionInfo.info);
+                      }
+                    });
+                  }
+                }}
+                className={memberOf ? 'faction-joined' : ''}
+              >
+                {memberOf ? 'Joined' : 'Join'}
+              </a>
+            </>
+          )}
+        </div>
       </td>
     </tr>
   );
@@ -79,7 +117,10 @@ const VisibleFactionRow = withIsVisible(FactionRow);
 const PublicFactions = ({
   factions,
   fetch_icon: fetchIcon,
-  recieve_faction_info: recieveFactionInfoDisp,
+  join_faction: joinFactionDispatch,
+  own_factions: ownFactions,
+  open_login: openLogin,
+  own_name: ownName,
 }) => (
   <div style={{ overflowY: 'auto' }}>
     <table>
@@ -87,15 +128,18 @@ const PublicFactions = ({
         <th> </th>
         <th>Faction</th>
         <th>Leader</th>
-        <th> </th>
+        <th style={{ width: '1px' }}> </th>
       </tr>
       {factions
-        .filter((f) => !f.private)
+        .filter((f) => f.private === false) // Make sure private is FALSE, not just undefined
         .map((faction) => (
           <VisibleFactionRow
             faction={faction}
             fetch_icon={fetchIcon}
-            recieve_faction_info={recieveFactionInfoDisp}
+            join_faction={joinFactionDispatch}
+            member_of={isMemberOf(ownFactions, faction.id)}
+            open_login={openLogin}
+            own_name={ownName}
           />
         ))}
     </table>
@@ -103,8 +147,11 @@ const PublicFactions = ({
 );
 
 function mapStateToProps(state: State) {
-  const { factions } = state.user;
-  return { factions };
+  return {
+    factions: state.user.factions,
+    own_factions: state.user.ownFactions,
+    own_name: state.user.name,
+  };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -112,8 +159,11 @@ function mapDispatchToProps(dispatch) {
     fetch_icon(id) {
       dispatch(fetchFactionIcon(id));
     },
-    recieve_faction_info(info) {
-      dispatch(recieveFactionInfo(info));
+    join_faction(info) {
+      dispatch(recieveJoinedFaction(info));
+    },
+    open_login() {
+      dispatch(showUserAreaModal());
     },
   };
 }

@@ -42,6 +42,8 @@ const FactionSelector = ({
   const selectedFactionObj = useSelector((state) => state.user.factions.find((f) => f && f.id === selectedFaction));
   // Flag for if the faction loader is loaded and ready to transition
   const hasLoaded = useRef<boolean>(false);
+  // Faction selector wrapper ref
+  const wrapperEl = useRef<HTMLDivElement>(null);
   // Faction selector container ref
   const containerEl = useRef<HTMLDivElement>(null);
   // Faction icon ref
@@ -67,7 +69,13 @@ const FactionSelector = ({
     true,
   );
   // Faction hovered over
-  const [hoveredFaction, setHoveredFaction] = useState<number>(-1);
+  const [hoveredFaction, _setHoveredFaction] = useState<number>(-1);
+  // Ref for storing hoveredFaction, usestates don't work properly in event handlers
+  const hoveredFactionRef = useRef<number>(-1);
+  const setHoveredFaction = (newHoveredFaction: number) => {
+    hoveredFactionRef.current = newHoveredFaction;
+    _setHoveredFaction(newHoveredFaction);
+  };
   // Toggle transparent bottom row, can't be transparent unless completely closed, but must be transparent when closed to fit in with the rest of the UI
   const [transparentBase, setTransparentBase] = useState<boolean>(true);
   // Toggle disabled scrolling for faction selector
@@ -76,12 +84,36 @@ const FactionSelector = ({
   const scrollTicking = useRef<boolean>(false);
   // Ignore mouseMove if waiting for animation frame
   const mouseMoveTicking = useRef<boolean>(false);
+  // Styles for icon background border
+  const [backgroundBorderStyles, setBackgroundBorderStyles] = useState(
+    undefined,
+  );
+
+  const getLogoBackgroundStyles = () => {
+    const bound = hoveredFactionRef.current * 97;
+
+    if (bound < 0) {
+      return undefined;
+    }
+
+    if (bound < selectorEl.current.scrollTop) {
+      return {
+        top: `${-(bound - selectorEl.current.scrollTop) - 1}px`,
+        borderTop: '1px solid black',
+      };
+    }
+    return undefined;
+  };
 
   const onScroll = (e: Event) => {
     if (!scrollTicking.current) {
       requestAnimationFrame(() => {
         if (e.target === selectorEl.current && disableScrolling.current) {
           selectorEl.current.scrollTo(0, selectorEl.current.scrollHeight);
+          console.log('nope');
+        }
+        if (selectorEl.current) {
+          setBackgroundBorderStyles(getLogoBackgroundStyles());
         }
         scrollTicking.current = false;
       });
@@ -90,20 +122,43 @@ const FactionSelector = ({
     }
   };
 
-  const onMouseMove = (e: Event) => {
+  useEffect(() => {
+    if (selectorEl.current) {
+      setBackgroundBorderStyles(getLogoBackgroundStyles());
+    }
+  }, [selectorEl.current, hoveredFaction]);
+
+  const onMouseMove = (e: MouseEvent) => {
     if (!mouseMoveTicking.current) {
       requestAnimationFrame(() => {
-        const containerDist = mouseDistanceFromElement(e, containerEl.current);
-        const baseDist = mouseDistanceFromElement(e, baseEl.current);
-        if (containerDist > 50 && baseDist > 50) {
-          if (autoCloseTimeoutId.current < 0) {
-            autoCloseTimeoutId.current = window.setTimeout(() => {
-              setFactionSelectorClosed(true);
-            }, 500);
+        if (containerEl.current && baseEl.current) {
+          const containerDist = mouseDistanceFromElement(
+            e,
+            containerEl.current,
+          );
+          const baseDist = mouseDistanceFromElement(e, baseEl.current);
+          if (containerDist > 50 && baseDist > 50) {
+            if (autoCloseTimeoutId.current < 0) {
+              autoCloseTimeoutId.current = window.setTimeout(() => {
+                setFactionSelectorClosed(true);
+              }, 500);
+            }
+          } else {
+            window.clearTimeout(autoCloseTimeoutId.current);
+            autoCloseTimeoutId.current = -1;
           }
+        }
+        if (
+          e.clientX >= containerEl.current.offsetLeft
+          && e.clientX
+            <= containerEl.current.offsetLeft + containerEl.current.offsetWidth
+          && e.clientY >= containerEl.current.offsetTop
+          && e.clientY
+            <= containerEl.current.offsetTop + containerEl.current.offsetHeight
+        ) {
+          wrapperEl.current.style.pointerEvents = 'auto';
         } else {
-          window.clearTimeout(autoCloseTimeoutId.current);
-          autoCloseTimeoutId.current = -1;
+          wrapperEl.current.style.pointerEvents = 'none';
         }
         mouseMoveTicking.current = false;
       });
@@ -192,7 +247,7 @@ const FactionSelector = ({
             : {}
         }
       >
-        <div id="factionselectorwrapper">
+        <div id="factionselectorwrapper" ref={wrapperEl}>
           <div
             id="factionselector"
             style={{ maxHeight: `calc(100vh - ${getHeightOffset()}px)` }}
@@ -229,6 +284,10 @@ const FactionSelector = ({
                       <>
                         <div className="factionselectorlogocontainer">
                           <div className="factionselectorlogobackground" />
+                          <div
+                            className="factionselectorlogobackground border"
+                            style={backgroundBorderStyles}
+                          />
                           {thisFaction.icon ? (
                             <>
                               {/* If the icon is available */}
@@ -253,7 +312,9 @@ const FactionSelector = ({
                   </div>
                 );
               })}
-            {selectedFactionObj && (
+            {selectedFactionObj
+              && ownFactions
+              && ownFactions.find((f) => f.id === selectedFaction) && (
               <>
                 <div
                   ref={baseEl}
@@ -274,7 +335,7 @@ const FactionSelector = ({
                       className="factionselectorlogo"
                       src={`data:image/png;base64,${selectedFactionObj.icon}`}
                       alt="logo"
-                      /* Keep height of the icon odd, prevents icon jumping up and down by 1 pixel when closing or opening the selector */
+                        /* Keep height of the icon odd, prevents icon jumping up and down by 1 pixel when closing or opening the selector */
                       style={height % 2 === 0 ? { paddingBottom: '1px' } : {}}
                     />
                   </div>

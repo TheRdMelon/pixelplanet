@@ -17,7 +17,6 @@ import RegUser from './RegUser';
 
 import { ADMIN_IDS } from '../../core/config';
 
-
 class User {
   id: string;
   ip: string;
@@ -46,11 +45,12 @@ class User {
   async getWait(canvasId: number): Promise<?number> {
     let ttl: number = await redis.pttlAsync(`cd:${canvasId}:ip:${this.ip}`);
     if (this.id != null && ttl < 0) {
-      const ttlid: number = await redis.pttlAsync(`cd:${canvasId}:id:${this.id}`);
+      const ttlid: number = await redis.pttlAsync(
+        `cd:${canvasId}:id:${this.id}`,
+      );
       ttl = Math.max(ttl, ttlid);
     }
     logger.debug('ererer', ttl, typeof ttl);
-
 
     const wait = ttl < 0 ? null : Date.now() + ttl;
     this.wait = wait;
@@ -62,12 +62,15 @@ class User {
     if (!id) return false;
     if (this.isAdmin()) return false;
     try {
-      await RegUser.update({
-        totalPixels: Sequelize.literal('totalPixels + 1'),
-        dailyTotalPixels: Sequelize.literal('dailyTotalPixels + 1'),
-      }, {
-        where: { id },
-      });
+      await RegUser.update(
+        {
+          totalPixels: Sequelize.literal('totalPixels + 1'),
+          dailyTotalPixels: Sequelize.literal('dailyTotalPixels + 1'),
+        },
+        {
+          where: { id },
+        },
+      );
     } catch (err) {
       return false;
     }
@@ -82,10 +85,15 @@ class User {
       return this.regUser.totalPixels;
     }
     try {
-      const userq = await Model.query('SELECT totalPixels FROM Users WHERE id = $1',
+      const userq = await Model.query(
+        'SELECT totalPixels FROM Users WHERE id = $1',
         {
-          bind: [id], type: Sequelize.QueryTypes.SELECT, raw: true, plain: true,
-        });
+          bind: [id],
+          type: Sequelize.QueryTypes.SELECT,
+          raw: true,
+          plain: true,
+        },
+      );
       return userq.totalPixels;
     } catch (err) {
       return 0;
@@ -95,7 +103,9 @@ class User {
   async updateLogInTimestamp(): Promise<boolean> {
     if (!this.regUser) return false;
     try {
-      await this.regUser.update({ lastLogIn: Sequelize.literal('CURRENT_TIMESTAMP') });
+      await this.regUser.update({
+        lastLogIn: Sequelize.literal('CURRENT_TIMESTAMP'),
+      });
     } catch (err) {
       return false;
     }
@@ -115,6 +125,7 @@ class User {
     const { regUser } = this;
     return {
       name: regUser.name,
+      id: regUser.id,
       mailVerified: regUser.mailVerified,
       mcVerified: regUser.mcVerified,
       minecraftname: regUser.minecraftname,
@@ -122,7 +133,7 @@ class User {
       dailyTotalPixels: regUser.dailyTotalPixels,
       ranking: regUser.ranking,
       dailyRanking: regUser.dailyRanking,
-      mailreg: !!(regUser.password),
+      mailreg: !!regUser.password,
     };
   }
 }

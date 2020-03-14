@@ -49,8 +49,10 @@ const Faction = Model.define(
 
 Faction.associate = (models) => {
   Faction.belongsToMany(models.RegUser, {
-    through: 'UserFactions',
+    through: models.UserFactions,
   });
+
+  Faction.hasMany(models.FactionPassword);
 };
 
 export default Faction;

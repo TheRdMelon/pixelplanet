@@ -17,6 +17,7 @@ import auth from './auth';
 import ranking from './ranking';
 import factions from './factions';
 import history from './history';
+import { factionIcon } from './factions/factions';
 
 const router = express.Router();
 
@@ -52,6 +53,12 @@ router.use(bodyParser.json());
  * with nginx or whatever
  */
 router.post('/pixel', pixel);
+
+/*
+ * try to get faction icon without passport
+ * only works if faction is public
+ */
+router.get('/factions/icon/:faction', factionIcon);
 
 /*
  * passport authenticate

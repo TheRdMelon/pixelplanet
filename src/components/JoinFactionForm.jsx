@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
+import { connect } from 'react-redux';
 import { validateFactionPassword, parseAPIresponse } from '../utils/validation';
+import { recieveJoinedFaction } from '../actions';
 
 function validate(password) {
   const errors = [];
@@ -50,7 +52,7 @@ class JoinFactionForm extends React.Component {
   async handleJoin(e) {
     e.preventDefault();
 
-    const { recieve_faction_info: recieveFactionInfoDisp } = this.props;
+    const { join_faction: joinFactionDispatch } = this.props;
     const { password, joining } = this.state;
 
     if (joining) return;
@@ -61,7 +63,7 @@ class JoinFactionForm extends React.Component {
     if (errors.length > 0) return;
 
     this.setState({ joining: true });
-    const { errors: resperrors, factionInfo } = await joinFaction(password);
+    const { errors: resperrors, info, success } = await joinFaction(password);
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -69,7 +71,13 @@ class JoinFactionForm extends React.Component {
       });
       return;
     }
-    recieveFactionInfoDisp(factionInfo);
+    if (success) {
+      joinFactionDispatch(info);
+      this.setState({
+        errors: ['Success!'],
+        joining: false,
+      });
+    }
   }
 
   render() {
@@ -95,4 +103,12 @@ class JoinFactionForm extends React.Component {
   }
 }
 
-export default JoinFactionForm;
+function mapDispatchToProps(dispatch) {
+  return {
+    join_faction(info) {
+      dispatch(recieveJoinedFaction(info));
+    },
+  };
+}
+
+export default connect(null, mapDispatchToProps)(JoinFactionForm);

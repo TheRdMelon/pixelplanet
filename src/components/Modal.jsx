@@ -3,17 +3,14 @@
  * @flow
  */
 
-import React from 'react';
+import React, { useRef } from 'react';
 import Modal from 'react-modal';
 import { connect } from 'react-redux';
 import { MdClose } from 'react-icons/md';
 
-import {
-  hideModal,
-} from '../actions';
+import { hideModal } from '../actions';
 
 import type { State } from '../reducers';
-
 
 const closeStyles = {
   position: 'fixed',
@@ -33,9 +30,10 @@ const closeStyles = {
   right: 40,
 };
 
-
 // TODO appear with animation
-function MyModal({ close, title, children }) {
+function MyModal({
+  close, title, children, modal_ref: modalRef,
+}) {
   return (
     <Modal
       isOpen
@@ -44,9 +42,12 @@ function MyModal({ close, title, children }) {
       overlayClassName="Overlay"
       contentLabel={`${title} Modal`}
       onRequestClose={close}
+      ref={modalRef}
     >
       <h2>{title}</h2>
-      <div style={closeStyles} onClick={close}><MdClose /></div>
+      <div style={closeStyles} onClick={close}>
+        <MdClose />
+      </div>
       {children}
     </Modal>
   );

@@ -1,6 +1,5 @@
 /* @flow */
 
-
 import WebSocket from 'ws';
 
 import logger from '../core/logger';
@@ -21,7 +20,9 @@ import ChatHistory from './ChatHistory';
 import authenticateClient from './verifyClient';
 import WebSocketEvents from './WebSocketEvents';
 import webSockets from './websockets';
-
+import KickMember from './packets/Factions/KickMember';
+import PromoteMember from './packets/Factions/PromoteMember';
+import DemoteMember from './packets/Factions/DemoteMember';
 
 const ipCounter: Counter<string> = new Counter();
 
@@ -43,7 +44,6 @@ async function verifyClient(info, done) {
   ipCounter.add(ip);
   return done(true);
 }
-
 
 class SocketServer extends WebSocketEvents {
   wss: WebSocket.Server;
@@ -76,7 +76,7 @@ class SocketServer extends WebSocketEvents {
       ws.on('pong', heartbeat);
       const user = await authenticateClient(req);
       ws.user = user;
-      ws.name = (user.regUser) ? user.regUser.name : null;
+      ws.name = user.regUser ? user.regUser.name : null;
       ws.rateLimiter = new RateLimiter(20, 15, true);
       const ip = await getIPFromRequest(req);
 
@@ -109,7 +109,6 @@ class SocketServer extends WebSocketEvents {
     // https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
     setInterval(this.ping, 45 * 1000);
   }
-
 
   /**
    * https://github.com/websockets/ws/issues/617
@@ -160,7 +159,10 @@ class SocketServer extends WebSocketEvents {
     if (this.CHUNK_CLIENTS.has(chunkid)) {
       const clients = this.CHUNK_CLIENTS.get(chunkid);
       clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN && client.canvasId == canvasId) {
+        if (
+          client.readyState === WebSocket.OPEN
+          && client.canvasId == canvasId
+        ) {
           frame.forEach((buffer) => {
             try {
               client._socket.write(buffer);
@@ -177,6 +179,33 @@ class SocketServer extends WebSocketEvents {
     this.wss.clients.forEach((ws) => {
       if (ws.name == name) {
         const buffer = ChangedMe.dehydrate();
+        ws.send(buffer);
+      }
+    });
+  }
+
+  notifyKickedMember(userId, factionId) {
+    this.wss.clients.forEach((ws) => {
+      if (ws.user.regUser.id == userId) {
+        const buffer = KickMember.dehydrate(factionId);
+        ws.send(buffer);
+      }
+    });
+  }
+
+  notifyPromotedMember(userId, factionId) {
+    this.wss.clients.forEach((ws) => {
+      if (ws.user.regUser.id == userId) {
+        const buffer = PromoteMember.dehydrate(factionId);
+        ws.send(buffer);
+      }
+    });
+  }
+
+  notifyDemotedMember(userId, factionId) {
+    this.wss.clients.forEach((ws) => {
+      if (ws.user.regUser.id == userId) {
+        const buffer = DemoteMember.dehydrate(factionId);
         ws.send(buffer);
       }
     });
@@ -208,7 +237,14 @@ class SocketServer extends WebSocketEvents {
     if (ws.name && message) {
       const waitLeft = ws.rateLimiter.tick();
       if (waitLeft) {
-        ws.send(JSON.stringify(['info', `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`]));
+        ws.send(
+          JSON.stringify([
+            'info',
+            `You are sending messages too fast, you have to wait ${Math.floor(
+              waitLeft / 1000,
+            )}s :(`,
+          ]),
+        );
       } else {
         webSockets.broadcastChatMessage(ws.name, message);
       }
@@ -229,7 +265,7 @@ class SocketServer extends WebSocketEvents {
         }
         ws.canvasId = canvasId;
         const wait = await ws.user.getWait(canvasId);
-        const waitSeconds = (wait) ? Math.ceil((wait - Date.now()) / 1000) : 0;
+        const waitSeconds = wait ? Math.ceil((wait - Date.now()) / 1000) : 0;
         ws.send(CoolDownPacket.dehydrate(waitSeconds));
         break;
       case RegisterChunk.OP_CODE:
@@ -241,7 +277,7 @@ class SocketServer extends WebSocketEvents {
         const { length } = buffer;
         let posu = 2;
         while (posu < length) {
-          const chunkid = buffer[posu++] | buffer[posu++] << 8;
+          const chunkid = buffer[posu++] | (buffer[posu++] << 8);
           this.pushChunk(chunkid, ws);
         }
         break;
@@ -253,7 +289,7 @@ class SocketServer extends WebSocketEvents {
         const lengthl = buffer.length;
         let posl = 2;
         while (posl < lengthl) {
-          const chunkid = buffer[posl++] | buffer[posl++] << 8;
+          const chunkid = buffer[posl++] | (buffer[posl++] << 8);
           this.deleteChunk(chunkid, ws);
         }
         break;

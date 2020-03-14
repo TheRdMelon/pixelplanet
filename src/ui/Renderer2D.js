@@ -178,12 +178,9 @@ class Renderer {
   renderPixel(i: number, j: number, offset: number, color: ColorIndex) {
     const state: State = this.store.getState();
     const {
-      canvasSize,
-      palette,
-      scale,
-      isHistoricalView,
+      canvasSize, palette, scale, isHistoricalView,
     } = state.canvas;
-    const { templateAlpha } = state.gui;
+    const { templateAlpha, templateEnabled } = state.gui;
     const { tiledZoom } = this;
     this.chunkLoader.getPixelUpdate(i, j, offset, color);
 
@@ -206,23 +203,27 @@ class Renderer {
     context.fillStyle = palette.colors[color];
     context.fillRect(px, py, scaleM, scaleM);
 
-    const templateChunk = this.chunkLoader
-      .getTemplateChunk(tiledZoom, i, j, false);
-    if (templateChunk) {
-      const templateCtx = templateChunk.getContext(
-        '2d',
+    if (templateEnabled) {
+      const templateChunk = this.chunkLoader.getTemplateChunk(
+        tiledZoom,
+        i,
+        j,
+        false,
       );
-      const [rx, ry] = getCellInsideChunk([x, y]);
-      const pixelData = templateCtx.getImageData(rx, ry, 1, 1);
-      const a = pixelData.data[3];
-      if (a > 0) {
-        const r = pixelData.data[0];
-        const g = pixelData.data[1];
-        const b = pixelData.data[2];
-        context.fillStyle = `rgb(${r}, ${g}, ${b})`;
-        context.globalAlpha = templateAlpha / 100;
-        context.fillRect(px, py, scaleM, scaleM);
-        context.globalAlpha = 1;
+      if (templateChunk) {
+        const templateCtx = templateChunk.getContext('2d');
+        const [rx, ry] = getCellInsideChunk([x, y]);
+        const pixelData = templateCtx.getImageData(rx, ry, 1, 1);
+        const a = pixelData.data[3];
+        if (a > 0) {
+          const r = pixelData.data[0];
+          const g = pixelData.data[1];
+          const b = pixelData.data[2];
+          context.fillStyle = `rgb(${r}, ${g}, ${b})`;
+          context.globalAlpha = templateAlpha / 100;
+          context.fillRect(px, py, scaleM, scaleM);
+          context.globalAlpha = 1;
+        }
       }
     }
 
@@ -262,11 +263,8 @@ class Renderer {
       tiledZoom,
       viewport,
     } = this;
-    const {
-      viewscale: scale,
-      canvasSize,
-    } = state.canvas;
-    const { templateAlpha } = state.gui;
+    const { viewscale: scale, canvasSize } = state.canvas;
+    const { templateAlpha, templateEnabled } = state.gui;
 
     let { relScale } = this;
     // clear rect is just needed for Google Chrome, else it would flash regularly
@@ -299,7 +297,7 @@ class Renderer {
     // and update the timestamps of accessed chunks
     const curTime = Date.now();
     let fetch = false;
-    if (curTime > (this.lastFetch) + 150) {
+    if (curTime > this.lastFetch + 150) {
       this.lastFetch = curTime;
       fetch = true;
     }
@@ -338,14 +336,21 @@ class Renderer {
           context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
         } else {
           chunk = this.chunkLoader.getChunk(tiledZoom, cx, cy, fetch);
-          templateChunk = this.chunkLoader
-            .getTemplateChunk(tiledZoom, cx, cy, fetch);
+          templateChunk = templateEnabled ? this.chunkLoader.getTemplateChunk(
+            tiledZoom,
+            cx,
+            cy,
+            fetch,
+          ) : undefined;
           if (chunk) {
             context.drawImage(chunk, x, y);
             if (templateChunk) {
               context.globalAlpha = templateAlpha / 100;
               context.drawImage(templateChunk, x, y);
               context.globalAlpha = 1;
+              if (fetch) {
+                templateChunk.timestamp = curTime;
+              }
             }
             if (fetch) {
               chunk.timestamp = curTime;
@@ -383,37 +388,22 @@ class Renderer {
       isLightGrid,
     } = state.gui;
     const { placeAllowed } = state.user;
-    const {
-      view,
-      viewscale,
-      canvasSize,
-    } = state.canvas;
+    const { view, viewscale, canvasSize } = state.canvas;
 
     const [x, y] = view;
     const [cx, cy] = this.centerChunk;
 
     // if we have to render pixelnotify
-    const doRenderPixelnotify = (
-      viewscale >= 0.5
-      && showPixelNotify
-      && pixelNotify.doRender()
-    );
+    const doRenderPixelnotify = viewscale >= 0.5 && showPixelNotify && pixelNotify.doRender();
     // if we have to render placeholder
-    const doRenderPlaceholder = (
-      viewscale >= 3
-      && placeAllowed
-      && (hover || this.hover)
-      && !isPotato
-    );
-    const doRenderPotatoPlaceholder = (
-      viewscale >= 3
+    const doRenderPlaceholder = viewscale >= 3 && placeAllowed && (hover || this.hover) && !isPotato;
+    const doRenderPotatoPlaceholder = viewscale >= 3
       && placeAllowed
       && (hover !== this.hover
         || this.forceNextRender
         || this.forceNextSubrender
-        || doRenderPixelnotify
-      ) && isPotato
-    );
+        || doRenderPixelnotify)
+      && isPotato;
     //--
     // if we have nothing to render, return
     // note: this.hover is used to, to render without the placeholder one last time when cursor leaves window
@@ -574,8 +564,12 @@ class Renderer {
           context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
         } else {
           // full chunks
-          chunk = this.chunkLoader
-            .getHistoricalChunk(cx, cy, fetch, historicalDate);
+          chunk = this.chunkLoader.getHistoricalChunk(
+            cx,
+            cy,
+            fetch,
+            historicalDate,
+          );
           if (chunk) {
             context.drawImage(chunk, x, y);
             if (fetch) {
@@ -586,16 +580,26 @@ class Renderer {
           }
           // incremential chunks
           if (historicalTime === '0000') continue;
-          chunk = this.chunkLoader
-            .getHistoricalChunk(cx, cy, fetch, historicalDate, historicalTime);
+          chunk = this.chunkLoader.getHistoricalChunk(
+            cx,
+            cy,
+            fetch,
+            historicalDate,
+            historicalTime,
+          );
           if (chunk) {
             context.drawImage(chunk, x, y);
             if (fetch) {
               chunk.timestamp = curTime;
             }
           } else if (oldHistoricalTime) {
-            chunk = this.chunkLoader
-              .getHistoricalChunk(cx, cy, false, historicalDate, oldHistoricalTime);
+            chunk = this.chunkLoader.getHistoricalChunk(
+              cx,
+              cy,
+              false,
+              historicalDate,
+              oldHistoricalTime,
+            );
             if (chunk) {
               context.drawImage(chunk, x, y);
               if (fetch) {

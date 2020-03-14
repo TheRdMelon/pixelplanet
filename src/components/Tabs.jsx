@@ -15,6 +15,12 @@ class Tabs extends Component {
       activeTab: this.props.children.filter((c) => c !== undefined)[0].props
         .label,
     };
+
+    const { onloaded } = props;
+    if (onloaded) {
+      const { activeTab } = this.state;
+      onloaded(activeTab);
+    }
   }
 
   onClickTabItem = (tab) => {

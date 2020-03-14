@@ -70,7 +70,7 @@ export default function useFactionSelect(): {
     factions.find((f) => f.id === selectedFaction),
   );
 
-  // Run every re-render that either of the elements of the 2nd parameter change (only works on states, refs(?), props I believe).
+  // Run every re-render that either of the elements of the 2nd parameter change.
   useEffect(() => {
     // See if new faction info is available
     const selectedFactionInfo1 = factions.find((f) => f.id === selectedFaction);
@@ -81,5 +81,8 @@ export default function useFactionSelect(): {
     // Otherwise, use last faction info until it comes through
   }, [selectedFaction, factions]);
 
-  return { Selector: FactionSelectEl, selectedFactionInfo };
+  return {
+    Selector: FactionSelectEl,
+    selectedFactionInfo,
+  };
 }

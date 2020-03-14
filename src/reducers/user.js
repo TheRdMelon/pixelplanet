@@ -6,6 +6,7 @@ import type { Action } from '../actions/types';
 
 export type UserState = {
   name: string,
+  id: number,
   center: Cell,
   wait: ?Date,
   coolDown: ?number, // ms
@@ -32,12 +33,12 @@ export type UserState = {
   minecraftname: string,
   // if user is using touchscreen
   isOnMobile: boolean,
-  // if the user used an invite link
-  invited: boolean,
+  bannedFactionMembers: Map<string, Array>,
 };
 
 const initialState: UserState = {
   name: null,
+  id: undefined,
   center: [0, 0],
   wait: null,
   coolDown: null,
@@ -52,7 +53,7 @@ const initialState: UserState = {
   chatMessages: [['info', 'Welcome to the PixelPlanet Chat']],
   minecraftname: null,
   isOnMobile: false,
-  invited: false,
+  bannedFactionMembers: new Map<string, Array>(),
 };
 
 export default function user(
@@ -157,6 +158,7 @@ export default function user(
     case 'RECEIVE_ME': {
       const {
         name,
+        id,
         mailreg,
         totalPixels,
         dailyTotalPixels,
@@ -168,6 +170,7 @@ export default function user(
       return {
         ...state,
         name,
+        id,
         messages,
         mailreg,
         totalPixels,
@@ -191,7 +194,15 @@ export default function user(
       const { factions }: { factions: Array } = action;
       let newFactions = state.factions;
 
+      // Delete non-private factions that weren't returned from the server
+      state.factions.forEach((ef, index) => {
+        if (!factions.find((f) => f.id === ef.id) && !ef.private) {
+          newFactions.splice(index, 1);
+        }
+      });
+
       factions.forEach((faction) => {
+        faction.private = false;
         if (newFactions.findIndex((f) => f.id === faction.id) > -1) {
           newFactions = newFactions.map((fa) => (fa.id === faction.id ? { ...fa, ...faction } : fa));
         } else {
@@ -199,21 +210,11 @@ export default function user(
         }
       });
 
-      /* newFactions.forEach((newFaction) => {
-        if (
-          factions.findIndex((f) => f.id === newFaction.id) === -1
-          && !newFaction.private
-        ) {
-          newFactions.splice(
-            newFactions.findIndex((nf) => nf.id === newFaction.id),
-            1,
-          );
-        }
-      }); */
-
       return {
         ...state,
-        factions: newFactions.slice(0),
+        factions: newFactions
+          .slice()
+          .sort((a, b) => a.name.localeCompare(b.name)),
       };
     }
 
@@ -258,7 +259,20 @@ export default function user(
       return {
         ...state,
         ownFactions,
-        factions: joinOnId(ownFactions, factions, 'id'),
+        factions: joinOnId(ownFactions, factions, 'id')
+          .slice()
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      };
+    }
+
+    case 'RECIEVE_OWN_FACTION': {
+      const { ownFaction } = action;
+      const { factions } = state;
+
+      return {
+        ...state,
+        ownFactions: [...state.ownFactions, ownFaction].sort((a, b) => a.name.localeCompare(b.name)),
+        factions: joinOnId([ownFaction], factions, 'id').sort((a, b) => a.name.localeCompare(b.name)),
       };
     }
 
@@ -309,10 +323,86 @@ export default function user(
       };
     }
 
-    case 'SET_INVITED': {
+    case 'DELETE_FACTION': {
+      const { index } = action;
+      state.ownFactions.splice(index, 1);
+      state.factions.splice(index, 1);
       return {
         ...state,
-        invited: true,
+        ownFactions: state.ownFactions.slice(),
+        factions: state.factions.slice(),
+      };
+    }
+
+    case 'DELETE_OWN_FACTION': {
+      const { index } = action;
+      state.ownFactions.splice(index, 1);
+      return {
+        ...state,
+        ownFactions: state.ownFactions.slice(),
+      };
+    }
+
+    case 'REMOVE_USER_FACTION': {
+      const { userId, factionId } = action;
+      const faction = state.factions.find((f) => f.id === factionId);
+      const userIndex = faction.Users.findIndex((u) => u.id === userId);
+
+      faction.Users.splice(userIndex, 1);
+
+      return {
+        ...state,
+        factions: state.factions.slice(),
+      };
+    }
+
+    case 'SET_USER_RANK': {
+      const { userId, factionId, admin } = action;
+      const faction = state.factions.find((f) => f.id === factionId);
+      const u = faction.Users.find((fu) => fu.id === userId);
+
+      u.UserFactions.admin = admin;
+
+      return {
+        ...state,
+        factions: state.factions.slice(),
+      };
+    }
+
+    case 'RESET_USER_FACTIONS': {
+      return {
+        ...state,
+        ownFactions: undefined,
+        factions: [],
+      };
+    }
+
+    case 'RECEIVE_FACTION_BANNED_MEMBERS': {
+      const { bannedFactionMembers } = state;
+      const { factionId, banned } = action;
+
+      return {
+        ...state,
+        bannedFactionMembers: new Map(
+          bannedFactionMembers.set(factionId, banned),
+        ),
+      };
+    }
+
+    case 'HANDLE_FACTION_MEMBER_UNBAN': {
+      const { factionId, userId } = action;
+      const { bannedFactionMembers } = state;
+
+      const factionBanList = bannedFactionMembers.get(factionId);
+      const userIndex = factionBanList.findIndex((u) => u.id === userId);
+
+      factionBanList.splice(userIndex, 1);
+
+      return {
+        ...state,
+        bannedFactionMembers: new Set(
+          bannedFactionMembers.set(factionId, factionBanList.slice()),
+        ),
       };
     }
 

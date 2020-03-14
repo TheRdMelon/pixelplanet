@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
+import { connect } from 'react-redux';
 import { validatePassword, parseAPIresponse } from '../utils/validation';
+import { resetUserFactions } from '../actions';
 
 function validate(password) {
   const errors = [];
@@ -64,7 +66,12 @@ class DeleteAccount extends React.Component {
       });
       return;
     }
-    this.props.set_name(null);
+    const {
+      set_name: setName,
+      reset_own_factions: resetOwnFactions,
+    } = this.props;
+    setName(null);
+    resetOwnFactions();
   }
 
   render() {
@@ -73,7 +80,9 @@ class DeleteAccount extends React.Component {
       <div className="inarea" style={{ backgroundColor: '#ff6666' }}>
         <form onSubmit={this.handleSubmit}>
           {errors.map((error) => (
-            <p key={error} className="errormessage">Error: {error}</p>
+            <p key={error} className="errormessage">
+              Error: {error}
+            </p>
           ))}
           <input
             value={this.state.password}
@@ -82,12 +91,24 @@ class DeleteAccount extends React.Component {
             placeholder="Password"
           />
           <br />
-          <button type="submit">{(this.state.submitting) ? '...' : 'Yes, Delete My Account!'}</button>
-          <button type="button" onClick={this.props.done}>Cancel</button>
+          <button type="submit">
+            {this.state.submitting ? '...' : 'Yes, Delete My Account!'}
+          </button>
+          <button type="button" onClick={this.props.done}>
+            Cancel
+          </button>
         </form>
       </div>
     );
   }
 }
 
-export default DeleteAccount;
+function mapDispatchToProps(dispatch) {
+  return {
+    reset_own_factions() {
+      dispatch(resetUserFactions());
+    },
+  };
+}
+
+export default connect(mapDispatchToProps)(DeleteAccount);

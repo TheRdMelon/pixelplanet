@@ -3,6 +3,7 @@
 import type { Cell } from '../core/Cell';
 import type { ColorIndex } from '../core/Palette';
 import type { State } from '../reducers';
+import type { ConfirmationOptions } from '../reducers/modal';
 
 export type Action =
   | { type: 'LOGGED_OUT' }
@@ -64,6 +65,7 @@ export type Action =
   | {
       type: 'RECEIVE_ME',
       name: string,
+      id: number,
       waitSeconds: number,
       messages: Array,
       mailreg: boolean,
@@ -81,6 +83,7 @@ export type Action =
   | { type: 'RECIEVE_FACTION_ICON', icon: string, factionFor: string }
   | { type: 'RECIEVE_FACTION_INFO', info: Object }
   | { type: 'RECIEVE_OWN_FACTIONS', ownFactions: Array }
+  | { type: 'RECIEVE_OWN_FACTION', ownFaction: any }
   | { type: 'SET_NAME', name: string }
   | { type: 'SET_MINECRAFT_NAME', minecraftname: string }
   | { type: 'SET_MAILREG', mailreg: boolean }
@@ -93,7 +96,17 @@ export type Action =
   | { type: 'SET_HISTORICAL_TIME', date: string, time: string }
   | { type: 'ON_VIEW_FINISH_CHANGE' }
   | { type: 'TOGGLE_TEMPLATE_OPEN' }
-  | { type: 'TOGGLE_TEMPLATE_ENABLE' };
+  | { type: 'TOGGLE_TEMPLATE_ENABLE' }
+  | { type: 'CLOSE_CONFIRMATION' }
+  | { type: 'SHOW_CONFIRMATION', options: ConfirmationOptions }
+  | { type: 'REMOVE_USER_FACTION', userId: number, factionId: string }
+  | { type: 'RESET_USER_FACTIONS' }
+  | {
+      type: 'RECEIVE_FACTION_BANNED_MEMBERS',
+      factionId: string,
+      banned: Array,
+    }
+  | { type: 'HANDLE_FACTION_MEMBER_UNBAN', factionId: string, userId: number };
 export type PromiseAction = Promise<Action>;
 export type Dispatch = (
   // eslint-disable-next-line no-use-before-define

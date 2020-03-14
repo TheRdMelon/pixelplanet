@@ -41,7 +41,8 @@ export default (store) => (next) => (action) => {
     case 'REQUEST_BIG_TEMPLATE_CHUNK':
     case 'RECIEVE_BIG_TEMPLATE_CHUNK':
     case 'RECIEVE_BIG_TEMPLATE_CHUNK_FAILURE':
-    case 'CHANGE_TEMPLATE_ALPHA': {
+    case 'CHANGE_TEMPLATE_ALPHA':
+    case 'TOGGLE_TEMPLATE_ENABLE': {
       const renderer = getRenderer();
       renderer.forceNextRender = true;
       break;

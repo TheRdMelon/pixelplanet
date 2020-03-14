@@ -8,26 +8,29 @@
 /* eslint-disable class-methods-use-this */
 
 class WebSocketEvents {
-  broadcast(message: Buffer) {
-  }
+  broadcast(message: Buffer) {}
 
-  broadcastPixelBuffer(canvasId: number, chunkid: number, buffer: Buffer) {
-  }
+  broadcastPixelBuffer(canvasId: number, chunkid: number, buffer: Buffer) {}
 
-  broadcastChatMessage(name: string, message: string) {
-  }
+  broadcastChatMessage(name: string, message: string) {}
 
-  broadcastMinecraftLink(name: string, minecraftid: string, accepted: boolean) {
-  }
+  broadcastMinecraftLink(
+    name: string,
+    minecraftid: string,
+    accepted: boolean,
+  ) {}
 
-  notifyChangedMe(name: string) {
-  }
+  notifyChangedMe(name: string) {}
 
-  broadcastMinecraftTP(minecraftid: string, x: number, y: number) {
-  }
+  broadcastMinecraftTP(minecraftid: string, x: number, y: number) {}
 
-  broadcastOnlineCounter(data: Buffer) {
-  }
+  broadcastOnlineCounter(data: Buffer) {}
+
+  notifyKickedMember(userId, factionId) {}
+
+  notifyPromotedMember(userId, factionId) {}
+
+  notifyDemotedMember(userId, factionId) {}
 }
 
 export default WebSocketEvents;

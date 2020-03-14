@@ -53,6 +53,7 @@ class TemplateSettings extends React.Component {
             id="templatealphaslider"
             value={templateAlpha}
             onChange={this.onAlphaChange}
+            disabled={!templateEnable}
             type="range"
             min={0}
             max={100}

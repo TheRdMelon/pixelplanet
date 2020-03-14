@@ -3,14 +3,21 @@
  * @flow
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import {
-  validateEMail, validateName, validatePassword, parseAPIresponse,
+  validateEMail,
+  validateName,
+  validatePassword,
+  parseAPIresponse,
 } from '../utils/validation';
 
+import type { State } from '../reducers';
+
+import { fetchOwnFactions } from '../actions';
 
 function validate(nameoremail, password) {
   const errors = [];
-  const mailerror = (nameoremail.indexOf('@') !== -1)
+  const mailerror = nameoremail.indexOf('@') !== -1
     ? validateEMail(nameoremail)
     : validateName(nameoremail);
   if (mailerror) errors.push(mailerror);
@@ -67,7 +74,10 @@ class LogInForm extends React.Component {
     if (errors.length > 0) return;
 
     this.setState({ submitting: true });
-    const { errors: resperrors, me } = await submit_login(nameoremail, password);
+    const { errors: resperrors, me } = await submit_login(
+      nameoremail,
+      password,
+    );
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -75,7 +85,9 @@ class LogInForm extends React.Component {
       });
       return;
     }
-    this.props.me(me);
+    const { me: recieveMe, fetch_own_factions: ownFactions } = this.props;
+    recieveMe(me);
+    ownFactions();
   }
 
   render() {
@@ -100,10 +112,37 @@ class LogInForm extends React.Component {
           placeholder="Password"
         />
 
-        <button type="submit">{(this.state.submitting) ? '...' : 'LogIn'}</button>
+        <button type="submit">{this.state.submitting ? '...' : 'LogIn'}</button>
       </form>
     );
   }
 }
 
-export default LogInForm;
+function mapStateToProps(state: State) {
+  return {
+    selected_faction: state.gui.selectedFaction,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    fetch_own_factions(id) {
+      dispatch(fetchOwnFactions(id));
+    },
+  };
+}
+
+function mergeProps(propsFromState, propsFromDispatch, ownProps) {
+  return {
+    ...ownProps,
+    fetch_own_factions() {
+      propsFromDispatch.fetch_own_factions(propsFromState.selected_faction);
+    },
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  mergeProps,
+)(LogInForm);

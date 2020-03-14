@@ -2,7 +2,6 @@
 
 import type { Action, ThunkAction, PromiseAction } from './types';
 import type { Cell } from '../core/Cell';
-import type { ConfirmationOptions } from '../reducers/modal';
 
 export function sweetAlert(
   title: string,
@@ -442,6 +441,7 @@ export function receivePixelUpdate(
 export function receiveMe(me: Object): Action {
   const {
     name,
+    id,
     messages,
     mailreg,
     totalPixels,
@@ -455,6 +455,7 @@ export function receiveMe(me: Object): Action {
   return {
     type: 'RECEIVE_ME',
     name: name || null,
+    id,
     messages: messages || [],
     mailreg: mailreg || false,
     totalPixels,
@@ -512,10 +513,64 @@ export function recieveFactionInfo(info: Object): Action {
   };
 }
 
-export function recieveOwnFactions(ownFactions: Array): Action {
+export function setOwnFactions(ownFactions: Array): Action {
   return {
     type: 'RECIEVE_OWN_FACTIONS',
     ownFactions,
+  };
+}
+
+export function recieveOwnFaction(ownFaction: any): Action {
+  return {
+    type: 'RECIEVE_OWN_FACTION',
+    ownFaction,
+  };
+}
+
+export function selectNextFaction(fromId: ?string): ThunkAction {
+  return (dispatch, getState) => {
+    const state = getState();
+    const id = fromId !== undefined ? fromId : state.gui.selectedFaction;
+    const index = state.user.ownFactions.findIndex((f) => f.id === id);
+    const newIndex = index < state.user.ownFactions.length - 1 ? index + 1 : 0;
+    dispatch(selectFaction(state.user.ownFactions[newIndex].id));
+  };
+}
+
+function deleteLocalFactionIndex(index): Action {
+  return {
+    type: 'DELETE_FACTION',
+    index,
+  };
+}
+
+function deleteOwnLocalFactionIndex(index): Action {
+  return {
+    type: 'DELETE_OWN_FACTION',
+    index,
+  };
+}
+
+export function deleteLocalFaction(id, ownOnly): PromiseAction {
+  return (dispatch, getState) => {
+    const state = getState();
+    const index = state.user.factions.findIndex((f) => f.id === id);
+    dispatch(selectNextFaction(id));
+    if (ownOnly) {
+      dispatch(deleteOwnLocalFactionIndex(index));
+    } else {
+      dispatch(deleteLocalFactionIndex(index));
+    }
+  };
+}
+
+export function recieveOwnFactions(ownFactions: Array): ThunkAction {
+  return (dispatch, getState) => {
+    const state = getState();
+    dispatch(setOwnFactions(ownFactions));
+    if (!ownFactions.find((f) => f.id === state.gui.selectedFaction)) {
+      dispatch(selectNextFaction());
+    }
   };
 }
 
@@ -608,9 +663,12 @@ export function fetchFactionInfo(id): PromiseAction {
   };
 }
 
-export function fetchOwnFactions(id): ThunkAction {
+export function fetchOwnFactions(id, emptyIfNotLoggedIn): ThunkAction {
   return async (dispatch, getState) => {
-    if (getState().user.name === null) dispatch(recieveOwnFactions([]));
+    emptyIfNotLoggedIn = emptyIfNotLoggedIn !== undefined ? emptyIfNotLoggedIn : true;
+    if (getState().user.name === null && emptyIfNotLoggedIn) {
+      dispatch(recieveOwnFactions([]));
+    }
     id = id !== undefined ? id : 'first';
     const response = await fetch(
       `/api/factions/mine${id !== undefined ? `?selected=${id}` : ''}`,
@@ -765,13 +823,7 @@ export function hideModal(): Action {
   };
 }
 
-function setInvited(): Action {
-  return {
-    type: 'SET_INVITED',
-  };
-}
-
-export function joinFaction(id, successCB): PromiseAction {
+export function joinFaction(id, callback, errorCallback): PromiseAction {
   return async (dispatch) => {
     const response = await fetch(`/api/factions/${id}/join`, {
       credentials: 'include',
@@ -792,12 +844,11 @@ export function joinFaction(id, successCB): PromiseAction {
     }
 
     if (errorCode) {
-      window.location = `/error?code=${errorCode}`;
+      errorCallback(errorCode);
     } else {
       window.history.replaceState(undefined, undefined, '/');
-      dispatch(setInvited());
-      successCB();
-      await dispatch(fetchOwnFactions(id));
+      callback();
+      await dispatch(fetchOwnFactions(id, false));
       dispatch(selectFaction(id));
       dispatch(showFactionsAreaModal());
     }
@@ -872,5 +923,78 @@ export function showConfirmationModal(
 export function closeConfirmationModal(): Action {
   return {
     type: 'CLOSE_CONFIRMATION',
+  };
+}
+
+export function recieveJoinedFaction(factionInfo): ThunkAction {
+  return (dispatch) => {
+    dispatch(recieveFactionInfo(factionInfo));
+    dispatch(recieveOwnFaction({ id: factionInfo.id, name: factionInfo.name }));
+    dispatch(selectFaction(factionInfo.id));
+  };
+}
+
+export function removeUserFromFaction(userId, factionId): Action {
+  return {
+    type: 'REMOVE_USER_FACTION',
+    userId,
+    factionId,
+  };
+}
+
+export function setUserFactionRank(userId, factionId, admin): Action {
+  return {
+    type: 'SET_USER_RANK',
+    userId,
+    factionId,
+    admin,
+  };
+}
+
+export function resetUserFactions(): Action {
+  return {
+    type: 'RESET_USER_FACTIONS',
+  };
+}
+
+function receiveFactionBannedMembers(factionId, banned): Action {
+  return {
+    type: 'RECEIVE_FACTION_BANNED_MEMBERS',
+    factionId,
+    banned,
+  };
+}
+
+export function fetchFactionBannedMembers(id): PromiseAction {
+  return async (dispatch) => {
+    const response = await fetch(`/api/factions/${id}/bans`, {
+      headers: {
+        'Content-type': 'application/json',
+      },
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    let success = false;
+    let json;
+
+    if (response.ok) {
+      json = await response.json();
+      success = json.success;
+    }
+
+    if (!success) {
+      throw new Error('Failed to fetch ban list.');
+    }
+
+    dispatch(receiveFactionBannedMembers(id, json.banned));
+  };
+}
+
+export function handleFactionMemberUnbanned(factionId, userId): Action {
+  return {
+    type: 'HANDLE_FACTION_MEMBER_UNBAN',
+    factionId,
+    userId,
   };
 }

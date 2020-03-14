@@ -14,6 +14,9 @@ import RegisterMultipleChunks from './packets/RegisterMultipleChunks';
 import DeRegisterChunk from './packets/DeRegisterChunk';
 import RequestChatHistory from './packets/RequestChatHistory';
 import ChangedMe from './packets/ChangedMe';
+import KickMember from './packets/Factions/KickMember';
+import PromoteMember from './packets/Factions/PromoteMember';
+import DemoteMember from './packets/Factions/DemoteMember';
 
 const chunks = [];
 
@@ -143,6 +146,7 @@ class ProtocolClient extends EventEmitter {
         this.onBinaryMessage(message);
       }
     } catch (err) {
+      console.log(err);
       console.log(
         `An error occured while parsing websocket message ${message}`,
       );
@@ -188,6 +192,15 @@ class ProtocolClient extends EventEmitter {
       case ChangedMe.OP_CODE:
         console.log('Websocket requested api/me reload');
         this.emit('changedMe');
+        break;
+      case KickMember.OP_CODE:
+        this.emit('factionKick', KickMember.hydrate(buffer));
+        break;
+      case PromoteMember.OP_CODE:
+        this.emit('factionPromote', PromoteMember.hydrate(buffer));
+        break;
+      case DemoteMember.OP_CODE:
+        this.emit('factionDemote', DemoteMember.hydrate(buffer));
         break;
       default:
         console.error(`Unknown op_code ${opcode} received`);
