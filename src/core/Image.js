@@ -62,7 +62,7 @@ export async function imageABGR2Canvas(
           const clrY = cOffY + py;
           if (clrX >= 0 && clrY >= 0 && clrX < width && clrY < height) {
             const clr = imageData[clrX + clrY * width];
-            const clrIndex = (wipe)
+            const clrIndex = (wipe || protect)
               ? palette.abgr.indexOf(clr)
               : palette.abgr.indexOf(clr, 2);
             if (~clrIndex) {
