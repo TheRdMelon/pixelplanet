@@ -25,7 +25,7 @@ const Palette = ({
       display: (paletteOpen) ? 'flex' : 'none',
       height: ((colors.length - clrIgnore) > 30 || compactPalette)
         ? Math.ceil((colors.length - clrIgnore) / 5 * 28)
-        : undefined,
+        : ((colors.length - clrIgnore) * 24),
     }}
   >
     {colors.slice(2).map((color, index) => (
@@ -33,7 +33,10 @@ const Palette = ({
         style={{
           backgroundColor: color,
         }}
-        key={index + 2}
+        role="button"
+        tabIndex={0}
+        aria-label={`color ${index + 2}`}
+        key={color}
         className={selectedColor === (index + clrIgnore)
           ? 'selected'
           : 'unselected'}

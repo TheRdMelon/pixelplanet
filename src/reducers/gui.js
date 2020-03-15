@@ -114,6 +114,13 @@ export default function gui(
       };
     }
 
+    case 'SELECT_CANVAS': {
+      return {
+        ...state,
+        selectedColor: 2,
+      };
+    }
+
     case 'SET_NOTIFICATION': {
       return {
         ...state,

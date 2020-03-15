@@ -354,7 +354,6 @@ kbd {
 }
 
 :global(.widpalette) {
-    height: 720px; 
     width: 24px;
     flex-direction: column;
 }
