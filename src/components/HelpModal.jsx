@@ -58,7 +58,7 @@ const HelpModal = () => (
       <p style={textStyle}>The bare map data that we use, together with converted OpenStreetMap tiles for orientation,
         can be downloaded from mega.nz here: <a href="https://mega.nz/#!JpkBwAbJ!EnSLlZmKv3kEBE0HDhakTgAZZycD3ELjduajJxPGaXo">pixelplanetmap.zip</a> (422MB)</p>
       <p style={titleStyle}>GIMP Palette</p>
-      <p style={textStyle}>The Palettes for <a href="https://www.gimp.org">GIMP</a> can be found <a href="./palette0.gpl">here</a> and <a href="./palette1.gpl">here</a>. Credit for the Palette of the second planet goes to <a href="https://twitter.com/starhousedev">starhouse</a>.</p>
+      <p style={textStyle}>Palette downloads for <a href="https://www.gimp.org">GIMP</a>: <a href="./palette0.gpl">World</a>, <a href="./palette1.gpl">Moon</a> and <a href="./palette3.gpl">Corona</a>. Credit for the Palette of the Moon goes to <a href="https://twitter.com/starhousedev">starhouse</a>.</p>
       <p style={titleStyle}>Detected as Proxy?</p>
       <p style={textStyle}>If you got detected as proxy, but you are none, please send us an e-mail with <a href="https://www.whatismyip.com/">your IP</a> to pixelplanetdev@gmail.com. Do not post your IP anywhere else. We are sorry for the inconvenience.</p>
       <h3 style={titleStyle}>2D Controls</h3>
