@@ -72,7 +72,7 @@ class ChunkLoader {
       return 0;
     }
     return chunk.getColorIndex(
-      getCellInsideChunk([x, y]),
+      getCellInsideChunk(canvasSize, [x, y]),
     );
   }
 
