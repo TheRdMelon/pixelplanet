@@ -16,11 +16,11 @@ function getHeightOfPalette(colors, clrIgnore, compactPalette) {
     // compact Palette
     return Math.ceil(numCal / 5 * 28);
   } if (window.innerHeight < 801) {
-    // Palette one width
-    return numCal * 24;
+    // Palette two width
+    return numCal * 24 / 2;
   }
-  // Palette two width
-  return numCal * 24 / 2;
+  // Palette one width
+  return numCal * 24;
 }
 
 function getWidthOfPalette(colors, clrIgnore, compactPalette) {
@@ -29,11 +29,11 @@ function getWidthOfPalette(colors, clrIgnore, compactPalette) {
     // compact Palette
     return 140;
   } if (window.innerHeight < 801) {
-    // Palette one width
-    return 24;
+    // Palette two width
+    return 48;
   }
-  // Palette two width
-  return 48;
+  // Palette one width
+  return 24;
 }
 
 const Palette = ({
