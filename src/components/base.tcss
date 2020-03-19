@@ -354,7 +354,6 @@ kbd {
 }
 
 :global(.widpalette) {
-    width: 24px;
     flex-direction: column;
 }
 :global(.widpalette) > span {
@@ -379,7 +378,6 @@ kbd {
 :global(.compalette) {
     flex-direction: row;
     width: 140px;
-    height: 168px;
 }
 :global(.compalette) > span {
     width: 28px;

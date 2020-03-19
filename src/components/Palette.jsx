@@ -10,6 +10,31 @@ import { selectColor } from '../actions';
 
 import type { State } from '../reducers';
 
+function getHeightOfPalette(colors, clrIgnore, compactPalette) {
+  const numCal = colors.length - clrIgnore;
+  if (numCal > 30 || compactPalette) {
+    // compact Palette
+    return Math.ceil(numCal / 5 * 28);
+  } if (window.innerHeight < 801) {
+    // Palette one width
+    return numCal * 24;
+  }
+  // Palette two width
+  return numCal * 24 / 2;
+}
+
+function getWidthOfPalette(colors, clrIgnore, compactPalette) {
+  const numCal = colors.length - clrIgnore;
+  if (numCal > 30 || compactPalette) {
+    // compact Palette
+    return 140;
+  } if (window.innerHeight < 801) {
+    // Palette one width
+    return 24;
+  }
+  // Palette two width
+  return 48;
+}
 
 const Palette = ({
   colors, selectedColor, paletteOpen, compactPalette, select, clrIgnore,
@@ -23,9 +48,8 @@ const Palette = ({
     id="colors"
     style={{
       display: (paletteOpen) ? 'flex' : 'none',
-      height: ((colors.length - clrIgnore) > 30 || compactPalette)
-        ? Math.ceil((colors.length - clrIgnore) / 5 * 28)
-        : ((colors.length - clrIgnore) * 24),
+      height: getHeightOfPalette(colors, clrIgnore, compactPalette),
+      width: getWidthOfPalette(colors, clrIgnore, compactPalette),
     }}
   >
     {colors.slice(2).map((color, index) => (
