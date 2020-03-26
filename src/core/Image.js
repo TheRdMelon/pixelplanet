@@ -36,12 +36,13 @@ export async function imageABGR2Canvas(
     `Loading image with dim ${width}/${height} to ${x}/${y}/${canvasId}`,
   );
   const canvas = canvases[canvasId];
-  const palette = new Palette(canvas.colors);
-  const canvasMinXY = -(canvas.size / 2);
+  const { colors, cli, size } = canvas;
+  const palette = new Palette(colors);
+  const canvasMinXY = -(size / 2);
   const imageData = new Uint32Array(data.buffer);
 
-  const [ucx, ucy] = getChunkOfPixel(canvas.size, x, y);
-  const [lcx, lcy] = getChunkOfPixel(canvas.size, x + width, y + height);
+  const [ucx, ucy] = getChunkOfPixel(size, x, y);
+  const [lcx, lcy] = getChunkOfPixel(size, x + width, y + height);
 
   logger.info(`Loading to chunks from ${ucx} / ${ucy} to ${lcx} / ${lcy} ...`);
   let chunk;
@@ -64,8 +65,8 @@ export async function imageABGR2Canvas(
             const clr = imageData[clrX + clrY * width];
             const clrIndex = (wipe || protect)
               ? palette.abgr.indexOf(clr)
-              : palette.abgr.indexOf(clr, 2);
-            if (~clrIndex) {
+              : palette.abgr.indexOf(clr, cli);
+            if (clrIndex !== -1) {
               const pixel = (protect) ? (clrIndex | 0x80) : clrIndex;
               chunk[cOff] = pixel;
               pxlCnt += 1;
