@@ -199,7 +199,7 @@
     "cli": 2,
     "bcd": 500,
     "pcd": 500,
-    "cds": 900000,
+    "cds": 60000,
     "req": 0,
     "sd": "2020-03-15",
     "desc": "Special canvas to spread aweareness of coronavirus"
