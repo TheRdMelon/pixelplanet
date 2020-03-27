@@ -5,7 +5,7 @@
  */
 
 
-export default () => (next) => (action) => {
+export default (store) => (next) => (action) => {
   try {
     switch (action.type) {
       case 'PLACE_PIXEL': {
@@ -19,6 +19,14 @@ export default () => (next) => (action) => {
       }
 
       case 'COOLDOWN_END': {
+        const state = store.getState();
+
+        // do not notify if last cooldown end was <20s ago
+        const { lastCoolDownEnd } = state.user;
+        if (lastCoolDownEnd && lastCoolDownEnd.getTime() + 20000 > Date.now()) {
+          break;
+        }
+
         if (window.Notification && Notification.permission === 'granted') {
           // eslint-disable-next-line no-unused-vars
           const notification = new Notification('Your next pixels are ready', {

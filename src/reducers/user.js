@@ -8,6 +8,7 @@ export type UserState = {
   center: Cell,
   wait: ?Date,
   coolDown: ?number, // ms
+  lastCoolDownEnd: ?Date,
   placeAllowed: boolean,
   online: ?number,
   // messages are sent by api/me, like not_verified status
@@ -34,6 +35,7 @@ const initialState: UserState = {
   center: [0, 0],
   wait: null,
   coolDown: null,
+  lastCoolDownEnd: null,
   placeAllowed: true,
   online: null,
   messages: [],
@@ -62,6 +64,7 @@ export default function user(
       return {
         ...state,
         coolDown: null,
+        lastCoolDownEnd: new Date(),
         wait: null,
       };
     }

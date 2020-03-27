@@ -254,7 +254,7 @@ export function requestPlacePixel(
       if (waitSeconds) {
         dispatch(setWait(waitSeconds * 1000));
       }
-      if (coolDownSeconds) {
+      if (coolDownSeconds > 1.0) {
         dispatch(notify(Math.round(coolDownSeconds)));
       }
       if (response.ok) {

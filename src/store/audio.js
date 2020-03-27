@@ -136,6 +136,13 @@ export default (store) => (next) => (action) => {
 
     case 'COOLDOWN_END': {
       if (mute) break;
+
+      // do not play sound if last cooldown end was <20s ago
+      const { lastCoolDownEnd } = state.user;
+      if (lastCoolDownEnd && lastCoolDownEnd.getTime() + 20000 > Date.now()) {
+        break;
+      }
+
       const oscillatorNode = context.createOscillator();
       const gainNode = context.createGain();
 
