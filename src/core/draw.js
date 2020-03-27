@@ -116,10 +116,10 @@ async function draw(
   }
 
   if (color < 0 || color >= canvas.colors.length) {
-      return {
-        error: 'Invalid color selected',
-        success: false,
-      };
+    return {
+      error: 'Invalid color selected',
+      success: false,
+    };
   }
 
   if (canvas.req !== -1) {
@@ -176,7 +176,9 @@ async function draw(
   setPixel(canvasId, color, x, y, z);
 
   user.setWait(waitLeft, canvasId);
-  user.incrementPixelcount();
+  if (canvas.ranked) {
+    user.incrementPixelcount();
+  }
   return {
     success: true,
     waitSeconds: waitLeft / 1000,

@@ -41,6 +41,7 @@
     "bcd": 4000,
     "pcd" : 7000,
     "cds": 60000,
+    "ranked" : true,
     "req": -1,
     "sd": "2020-01-08",
     "desc": "Our main canvas, a huge map of the world. Place everywhere you like"
@@ -87,6 +88,7 @@
     "bcd": 15000,
     "pcd": 15000,
     "cds": 900000,
+    "ranked" : true,
     "req": 8000,
     "sd": "2020-01-08",
     "desc": "Moon canvas with a pastel tone palette and black background"
@@ -164,6 +166,7 @@
     "bcd": 2000,
     "pcd" : 2000,
     "cds": 60000,
+    "ranked" : true,
     "req": 0,
     "sd": "2020-01-08",
     "desc": "Place Voxels on a 3D canvas with others"
@@ -200,6 +203,7 @@
     "bcd": 500,
     "pcd": 500,
     "cds": 60000,
+    "ranked" : false,
     "req": 0,
     "sd": "2020-03-15",
     "desc": "Special canvas to spread aweareness of coronavirus"
