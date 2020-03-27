@@ -21,9 +21,9 @@ export default (store) => (next) => (action) => {
       case 'COOLDOWN_END': {
         const state = store.getState();
 
-        // do not notify if last cooldown end was <20s ago
+        // do not notify if last cooldown end was <15s ago
         const { lastCoolDownEnd } = state.user;
-        if (lastCoolDownEnd && lastCoolDownEnd.getTime() + 20000 > Date.now()) {
+        if (lastCoolDownEnd && lastCoolDownEnd.getTime() + 15000 > Date.now()) {
           break;
         }
 

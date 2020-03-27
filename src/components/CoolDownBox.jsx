@@ -16,7 +16,7 @@ const CoolDownBox = ({ coolDown }) => (
   <div
     className="cooldownbox"
     style={{
-      display: (coolDown) ? 'block' : 'none',
+      display: (coolDown >= 1000) ? 'block' : 'none',
     }}
   >
     {coolDown && durationToString(coolDown, true)}
