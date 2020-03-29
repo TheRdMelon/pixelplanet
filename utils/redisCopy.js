@@ -1,6 +1,5 @@
 /* @flow */
-//this script just copies chunks from one redis to another with a different
-//key as needed
+//this script just copies chunks from one redis to another
 
 import redis from 'redis';
 import bluebird from 'bluebird';
@@ -37,4 +36,27 @@ async function copyChunks() {
   }
 }
 
-copyChunks();
+function chunkOfCord(cor) {
+  return Math.floor((cor + CANVAS_SIZE / 2) / OUR_TILE_SIZE);
+}
+
+async function copyChunksByCoords(xMin, xMax, yMin, yMax) {
+  const chunkXMin = chunkOfCord(xMin);
+  const chunkXMax = chunkOfCord(xMax);
+  const chunkYMin = chunkOfCord(yMin);
+  const chunkYMax = chunkOfCord(yMax);
+  for (let x = chunkXMin; x <= chunkXMax; x++) {
+    for (let y = chunkYMin; y < chunkYMax; y++) {
+      const oldkey = `ch:2:${x}:${y}`;
+      const newkey = `ch:2:${x}:${y}`;
+      const chunk = await oldredis.getAsync(oldkey);
+      if (chunk) {
+        const setNXArgs = [newkey, chunk];
+        await newredis.sendCommandAsync('SET', setNXArgs);
+        console.log("Created Chunk ", newkey);
+      }
+    }
+  }
+}
+
+copyChunksByCoords(-160, 60, -60, 160);
