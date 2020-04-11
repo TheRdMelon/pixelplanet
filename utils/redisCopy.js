@@ -46,7 +46,7 @@ async function copyChunksByCoords(xMin, xMax, yMin, yMax) {
   const chunkYMin = chunkOfCord(yMin);
   const chunkYMax = chunkOfCord(yMax);
   for (let x = chunkXMin; x <= chunkXMax; x++) {
-    for (let y = chunkYMin; y < chunkYMax; y++) {
+    for (let y = chunkYMin; y <= chunkYMax; y++) {
       const oldkey = `ch:2:${x}:${y}`;
       const newkey = `ch:2:${x}:${y}`;
       const chunk = await oldredis.getAsync(oldkey);
