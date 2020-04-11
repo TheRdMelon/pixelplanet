@@ -165,7 +165,7 @@ async function draw(
 
   if (setColor & 0x80
     || (canvas.v
-      && x >= 96 && x <= 128 && y >= 35 && y <= 1000
+      && x >= 96 && x <= 128 && z >= 35 && z <= 100
       && !user.isAdmin())
   ) {
     logger.info(`${user.ip} tried to set on protected pixel (${x}, ${y})`);
