@@ -264,11 +264,13 @@ class Renderer {
     } = state.canvas;
 
     let { relScale } = this;
-    // clear rect is just needed for Google Chrome, else it would flash regularly
+    // clear rect is just needed for Google Chrome, else it would flash
+    // regularly
     context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // Disable smoothing
-    // making it dependent on the scale is needed for Google Chrome, else scale <1 would look shit
+    // making it dependent on the scale is needed for Google Chrome, else
+    // scale <1 would look shit
     if (scale >= 1) {
       context.msImageSmoothingEnabled = false;
       context.webkitImageSmoothingEnabled = false;
@@ -306,15 +308,26 @@ class Renderer {
     // CLEAN margin
     // draw new chunks. If not existing, just clear.
     let chunk;
-    for (let dx = -CHUNK_RENDER_RADIUS_X; dx <= CHUNK_RENDER_RADIUS_X; dx += 1) {
-      for (let dy = -CHUNK_RENDER_RADIUS_Y; dy <= CHUNK_RENDER_RADIUS_Y; dy += 1) {
+    for (
+      let dx = -CHUNK_RENDER_RADIUS_X;
+      dx <= CHUNK_RENDER_RADIUS_X;
+      dx += 1
+    ) {
+      for (
+        let dy = -CHUNK_RENDER_RADIUS_Y;
+        dy <= CHUNK_RENDER_RADIUS_Y;
+        dy += 1
+      ) {
         const cx = xc + dx;
         const cy = yc + dy;
         const x = xOffset + dx * TILE_SIZE;
         const y = yOffset + dy * TILE_SIZE;
 
         const chunkMaxXY = canvasSize / TILE_SIZE;
-        if (cx < 0 || cx >= chunkMaxXY * tiledScale || cy < 0 || cy >= chunkMaxXY * tiledScale) {
+        if (
+          cx < 0 || cx >= chunkMaxXY * tiledScale
+          || cy < 0 || cy >= chunkMaxXY * tiledScale
+        ) {
           // if out of bounds
           context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
         } else {
@@ -398,7 +411,8 @@ class Renderer {
     );
     //--
     // if we have nothing to render, return
-    // note: this.hover is used to, to render without the placeholder one last time when cursor leaves window
+    // note: this.hover is used to, to render without the placeholder one last
+    // time when cursor leaves window
     if (
       // no full rerender
       !this.forceNextRender
@@ -424,24 +438,28 @@ class Renderer {
     const viewportCtx = viewport.getContext('2d');
     if (!viewportCtx) return;
 
-    // canvas optimization: https://www.html5rocks.com/en/tutorials/canvas/performance/
+    // canvasopt: https://www.html5rocks.com/en/tutorials/canvas/performance/
     viewportCtx.msImageSmoothingEnabled = false;
     viewportCtx.webkitImageSmoothingEnabled = false;
     viewportCtx.imageSmoothingEnabled = false;
-    // If scale is so large that neighbouring chunks wouldn't fit in offscreen canvas,
-    // do scale = 1 in renderChunks and scale in render()
+    // If scale is so large that neighbouring chunks wouldn't fit in offscreen
+    // canvas, do scale = 1 in renderChunks and scale in render()
     const canvasCenter = canvasSize / 2;
     if (viewscale > SCALE_THREASHOLD) {
       viewportCtx.save();
       viewportCtx.scale(viewscale, viewscale);
-      viewportCtx.drawImage(this.canvas,
+      viewportCtx.drawImage(
+        this.canvas,
         width / 2 / viewscale - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE - canvasCenter - x),
-        height / 2 / viewscale - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y));
+        height / 2 / viewscale - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y),
+      );
       viewportCtx.restore();
     } else {
-      viewportCtx.drawImage(this.canvas,
+      viewportCtx.drawImage(
+        this.canvas,
         Math.floor(width / 2 - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE / this.tiledScale - canvasCenter - x) * viewscale),
-        Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE / this.tiledScale - canvasCenter - y) * viewscale));
+        Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE / this.tiledScale - canvasCenter - y) * viewscale),
+      );
     }
 
     if (showGrid && viewscale >= 8) {
@@ -478,10 +496,11 @@ class Renderer {
     } = state.canvas;
 
 
-    // clear rect is just needed for Google Chrome, else it would flash regularly
+    // clear rect is just needed for Google Chrome, else it would flash
     context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     // Disable smoothing
-    // making it dependent on the scale is needed for Google Chrome, else scale <1 would look shit
+    // making it dependent on the scale is needed for Google Chrome, else
+    // scale <1 would look shit
     if (viewscale >= 1) {
       context.msImageSmoothingEnabled = false;
       context.webkitImageSmoothingEnabled = false;
@@ -525,8 +544,16 @@ class Renderer {
     // CLEAN margin
     // draw  chunks. If not existing, just clear.
     let chunk;
-    for (let dx = -CHUNK_RENDER_RADIUS_X; dx <= CHUNK_RENDER_RADIUS_X; dx += 1) {
-      for (let dy = -CHUNK_RENDER_RADIUS_Y; dy <= CHUNK_RENDER_RADIUS_Y; dy += 1) {
+    for (
+      let dx = -CHUNK_RENDER_RADIUS_X;
+      dx <= CHUNK_RENDER_RADIUS_X;
+      dx += 1
+    ) {
+      for (
+        let dy = -CHUNK_RENDER_RADIUS_Y;
+        dy <= CHUNK_RENDER_RADIUS_Y;
+        dy += 1
+      ) {
         const cx = xc + dx;
         const cy = yc + dy;
         const x = xOffset + dx * TILE_SIZE;
@@ -559,7 +586,13 @@ class Renderer {
             }
           } else if (oldHistoricalTime) {
             chunk = this.chunkLoader
-              .getHistoricalChunk(cx, cy, false, historicalDate, oldHistoricalTime);
+              .getHistoricalChunk(
+                cx,
+                cy,
+                false,
+                historicalDate,
+                oldHistoricalTime,
+              );
             if (chunk) {
               context.drawImage(chunk, x, y);
               if (fetch) {
@@ -609,27 +642,32 @@ class Renderer {
     const viewportCtx = viewport.getContext('2d');
     if (!viewportCtx) return;
 
-    // canvas optimization: https://www.html5rocks.com/en/tutorials/canvas/performance/
     viewportCtx.msImageSmoothingEnabled = false;
     viewportCtx.webkitImageSmoothingEnabled = false;
     viewportCtx.imageSmoothingEnabled = false;
-    // If scale is so large that neighbouring chunks wouldn't fit in offscreen canvas,
-    // do scale = 1 in renderChunks and scale in render()
+    // If scale is so large that neighbouring chunks wouldn't fit in offscreen
+    // canvas, do scale = 1 in renderChunks and scale in render()
     const canvasCenter = canvasSize / 2;
     if (viewscale > SCALE_THREASHOLD) {
       viewportCtx.save();
       viewportCtx.scale(viewscale, viewscale);
-      viewportCtx.drawImage(this.canvas,
+      viewportCtx.drawImage(
+        this.canvas,
         width / 2 / viewscale - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE - canvasCenter - x),
-        height / 2 / viewscale - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y));
+        height / 2 / viewscale - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y),
+      );
       viewportCtx.restore();
     } else {
-      viewportCtx.drawImage(this.canvas,
+      viewportCtx.drawImage(
+        this.canvas,
         Math.floor(width / 2 - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE - canvasCenter - x) * viewscale),
-        Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y) * viewscale));
+        Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y) * viewscale),
+      );
     }
 
-    if (showGrid && viewscale >= 8) renderGrid(state, viewport, viewscale, isLightGrid);
+    if (showGrid && viewscale >= 8) {
+      renderGrid(state, viewport, viewscale, isLightGrid);
+    }
   }
 }
 

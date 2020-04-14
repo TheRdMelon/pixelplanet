@@ -20,7 +20,12 @@ function parseHashCoords() {
     const array = hash.substring(1).split(',');
     const ident = array.shift();
     const [id, size, x, y] = array.map((z) => parseInt(z, 10));
-    if (!ident || isNaN(x) || isNaN(y) || isNaN(id) || isNaN(size)) {
+    if (!ident
+      || Number.isNaN(x)
+      || Number.isNaN(y)
+      || Number.isNaN(id)
+      || Number.isNaN(size)
+    ) {
       throw new Error('NaN');
     }
     return [ident, id, size, x, y];

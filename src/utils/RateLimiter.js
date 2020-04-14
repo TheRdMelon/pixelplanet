@@ -6,23 +6,23 @@
 
 /*
  * RateLimiter
- * @param ticks_per_min How many ticks per min are allowed
+ * @param ticksPerMin How many ticks per min are allowed
  * @param burst Amount of ticks that are allowed before limiter kicks in
- * @param on_cooldown If we force to wait the whole burst time once the limit is reached
+ * @param onCooldown If we force to wait the whole burst time once the limit is reached
  */
 class RateLimiter {
-  ms_per_tick: number;
-  burst_time: number;
-  cooldown_completely: boolean;
-  on_cooldown: boolean;
+  msPerTick: number;
+  burstTime: number;
+  cooldownCompletely: boolean;
+  onCooldown: boolean;
   wait: number;
 
-  constructor(ticks_per_min = 20, burst = 20, cooldown_completely = false) {
+  constructor(ticksPerMin = 20, burst = 20, cooldownCompletely = false) {
     this.wait = Date.now();
-    this.ms_per_tick = 60 / ticks_per_min * 1000;
-    this.burst_time = burst * this.ms_per_tick;
-    this.cooldown_completely = cooldown_completely;
-    this.on_cooldown = false;
+    this.msPerTick = 60 / ticksPerMin * 1000;
+    this.burstTime = burst * this.msPerTick;
+    this.cooldownCompletely = cooldownCompletely;
+    this.onCooldown = false;
   }
 
   /*
@@ -33,19 +33,19 @@ class RateLimiter {
   tick() {
     const now = Date.now();
     const waitLeft = this.wait - now;
-    if (waitLeft >= this.burst_time) {
-      this.on_cooldown = true;
+    if (waitLeft >= this.burstTime) {
+      this.onCooldown = true;
       return waitLeft;
     }
     if (waitLeft > 0) {
-      if (this.cooldown_completely && this.on_cooldown) {
+      if (this.cooldownCompletely && this.onCooldown) {
         return waitLeft;
       }
-      this.wait += this.ms_per_tick;
+      this.wait += this.msPerTick;
       return false;
     }
-    this.wait = now + this.ms_per_tick;
-    this.on_cooldown = false;
+    this.wait = now + this.msPerTick;
+    this.onCooldown = false;
     return false;
   }
 }

@@ -13,7 +13,17 @@ import { toggleOpenPalette } from '../actions';
 const PalselButton = ({
   palette, onToggle, selectedColor, paletteOpen,
 }) => (
-  <div id="palselbutton" className={`actionbuttons ${(paletteOpen) ? '' : 'pressed'}`} style={{ color: palette.isDark(selectedColor) ? 'white' : 'black', backgroundColor: palette.colors[selectedColor] }} onClick={onToggle}>
+  <div
+    id="palselbutton"
+    className={`actionbuttons ${(paletteOpen) ? '' : 'pressed'}`}
+    style={{
+      color: palette.isDark(selectedColor) ? 'white' : 'black',
+      backgroundColor: palette.colors[selectedColor],
+    }}
+    role="button"
+    tabIndex={0}
+    onClick={onToggle}
+  >
     <MdPalette />
   </div>
 );

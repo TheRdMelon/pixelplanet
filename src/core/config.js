@@ -5,7 +5,7 @@ import path from 'path';
 
 if (process.env.BROWSER) {
   throw new Error(
-    'Do not import `config.js` from inside the client-side code.'
+    'Do not import `config.js` from inside the client-side code.',
   );
 }
 
