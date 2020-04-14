@@ -340,8 +340,6 @@ kbd {
 }
 
 :global(.palettebox) {
-    text-align: center; 
-    line-height: 0; 
     z-index: 1;
     bottom: 59px;
     padding: 3px; 
@@ -349,53 +347,6 @@ kbd {
     right: 16px; 
     margin-left: auto; 
     margin-right: auto; 
-    display: flex; 
-    flex-wrap: wrap;
-}
-
-:global(.widpalette) {
-    flex-direction: column;
-}
-:global(.widpalette) > span {
-    width: 24px;
-    height: 24px;
-    margin: 0px;
-}
-
-@media (max-height: 801px) {
-  :global(.widpalette) {
-    height: 360px;
-    width: 48px; 
-  }
-}
-
-:global(.selected), :global(.unselected) {
-    display: block;
-    cursor: pointer;
-    padding: 0;
-}
-
-:global(.compalette) {
-    flex-direction: row;
-    width: 140px;
-}
-:global(.compalette) > span {
-    width: 28px;
-    height: 28px;
-    margin: 0px;
-}
-
-@media (max-width: 300px),  (max-height: 432px) {
-  :global(.widpalette), :global(.compalette) {
-    flex-direction: row;
-    width: 120px;
-    height: 144px;
-  }
-  :global(.widpalette) > span, :global(.compalette) > span {
-    width: 24px;
-    height: 24px;
-    margin: 0px;
-  }
 }
 
 :global(#colors) :global(.selected),

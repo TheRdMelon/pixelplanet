@@ -3,73 +3,139 @@
  * @flow
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { selectColor } from '../actions';
 
 import type { State } from '../reducers';
 
-function getHeightOfPalette(colors, clrIgnore, compactPalette) {
+
+/*
+ * defines the style of the palette
+ * based on windowSize
+ */
+function getStylesByWindowSize(
+  windowSize,
+  colors,
+  clrIgnore,
+  compactPalette,
+) {
+  const {
+    width: windowWidth,
+    height: windowHeight,
+  } = windowSize;
   const numCal = colors.length - clrIgnore;
-  if (numCal > 30 || compactPalette) {
-    // compact Palette
-    return Math.ceil(numCal / 5 * 28);
-  } if (window.innerHeight < 801) {
-    // Palette two width
-    return numCal * 24 / 2;
+
+  let width;
+  let height;
+  let flexDirection;
+  let spanSize;
+  if (windowWidth <= 300 || windowHeight <= 432) {
+    // tiny compact palette
+    spanSize = 24;
+    height = Math.ceil(numCal / 5 * spanSize);
+    width = 5 * spanSize;
+    flexDirection = 'row';
+  } else if (numCal > 30 || compactPalette) {
+    // compact palette
+    spanSize = 28;
+    height = Math.ceil(numCal / 5 * spanSize);
+    width = 5 * spanSize;
+    flexDirection = 'row';
+  } else {
+    // ordinary palette (one or two colums)
+    spanSize = 24;
+    const paletteCols = (windowHeight < 801) ? 2 : 1;
+    height = numCal * spanSize / paletteCols;
+    width = spanSize * paletteCols;
+    flexDirection = 'column';
   }
-  // Palette one width
-  return numCal * 24;
+
+  return [{
+    display: 'flex',
+    flexWrap: 'wrap',
+    textAlign: 'center',
+    lineHeight: 0,
+    height,
+    width,
+    flexDirection,
+  }, {
+    display: 'block',
+    width: spanSize,
+    height: spanSize,
+    margin: 0,
+    padding: 0,
+    cursor: 'pointer',
+  }];
 }
 
-function getWidthOfPalette(colors, clrIgnore, compactPalette) {
-  const numCal = colors.length - clrIgnore;
-  if (numCal > 30 || compactPalette) {
-    // compact Palette
-    return 140;
-  } if (window.innerHeight < 801) {
-    // Palette two width
-    return 48;
-  }
-  // Palette one width
-  return 24;
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowSize;
 }
 
-const Palette = ({
-  colors, selectedColor, paletteOpen, compactPalette, select, clrIgnore,
-}) => (
-  <div
-    className={`palettebox ${
-      ((colors.length - clrIgnore) > 30 || compactPalette)
-        ? 'compalette'
-        : 'widpalette'
-    }`}
-    id="colors"
-    style={{
-      display: (paletteOpen) ? 'flex' : 'none',
-      height: getHeightOfPalette(colors, clrIgnore, compactPalette),
-      width: getWidthOfPalette(colors, clrIgnore, compactPalette),
-    }}
-  >
-    {colors.slice(2).map((color, index) => (
-      <span
-        style={{
-          backgroundColor: color,
-        }}
-        role="button"
-        tabIndex={0}
-        aria-label={`color ${index + 2}`}
-        key={color}
-        className={selectedColor === (index + clrIgnore)
-          ? 'selected'
-          : 'unselected'}
-        color={color}
-        onClick={() => select(index + clrIgnore)}
-      />
-    ))}
-  </div>
-);
+function Palette({
+  colors,
+  selectedColor,
+  paletteOpen,
+  compactPalette,
+  select,
+  clrIgnore,
+}) {
+  if (!paletteOpen) {
+    return null;
+  }
+
+  const [paletteStyle, spanStyle] = getStylesByWindowSize(
+    useWindowSize(),
+    colors,
+    clrIgnore,
+    compactPalette,
+  );
+
+  return (
+    <div
+      className="palettebox"
+      id="colors"
+      style={paletteStyle}
+    >
+      {colors.slice(2).map((color, index) => (
+        <span
+          style={{
+            backgroundColor: color,
+            ...spanStyle,
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label={`color ${index + 2}`}
+          key={color}
+          className={selectedColor === (index + clrIgnore)
+            ? 'selected'
+            : 'unselected'}
+          color={color}
+          onClick={() => select(index + clrIgnore)}
+        />
+      ))}
+    </div>
+  );
+}
 
 function mapStateToProps(state: State) {
   const { selectedColor, paletteOpen, compactPalette } = state.gui;
