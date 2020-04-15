@@ -332,9 +332,9 @@ class Chunk {
   }
 
   renderChunk() {
-    const time1 = Date.now();
+    // const time1 = Date.now();
     const [positions, normals, colors, indices] = this.calculateGeometryData();
-    const time2 = Date.now();
+    // const time2 = Date.now();
 
     const geometry = (this.mesh)
       ? this.mesh.geometry
@@ -371,9 +371,8 @@ class Chunk {
       this.mesh.name = this.key;
     }
 
-    const time3 = Date.now();
-    // eslint-disable-next-line no-console, max-len
-    console.log(`Created mesh with ${this.faceCnt} faces in ${time3 - time2}ms webgl and ${time2 - time1}ms data creation`);
+    // const time3 = Date.now();
+    // console.log(`Created mesh with ${this.faceCnt} faces in ${time3 - time2}ms webgl and ${time2 - time1}ms data creation`);
   }
 }
 
