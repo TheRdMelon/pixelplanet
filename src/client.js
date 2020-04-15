@@ -96,10 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
       chunks.forEach((value, key) => {
         if (curTime > value.timestamp + 300000) {
           cnt++;
-          const [z, i, j] = value.cell;
-          if (!renderer.isChunkInView(z, i, j)) {
+          const [zc, xc, yc] = value.cell;
+          if (!renderer.isChunkInView(zc, xc, yc)) {
             if (value.isBasechunk) {
-              ProtocolClient.deRegisterChunk([i, j]);
+              ProtocolClient.deRegisterChunk([xc, yc]);
             }
             chunks.delete(key);
           }

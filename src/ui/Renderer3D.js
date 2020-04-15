@@ -277,37 +277,9 @@ class Renderer {
     }
   }
 
-  static getChunkViewDistance(state) {
-    const {
-      canvasSize,
-      view,
-    } = state.canvas;
-    const x = view[0];
-    const z = view[2] || 0;
-    const [xcMin, zcMin] = getChunkOfPixel(
-      canvasSize,
-      x - renderDistance,
-      0,
-      z - renderDistance,
-    );
-    const [xcMax, zcMax] = getChunkOfPixel(
-      canvasSize,
-      x + renderDistance,
-      0,
-      z + renderDistance,
-    );
-    return [xcMin, zcMin, xcMax, zcMax];
-  }
-
-  isChunkInView(y, x, z) {
-    const state = this.store.getState();
-    const [xcMin, zcMin, xcMax, zcMax] = Renderer.getChunkViewDistance(state);
-    if (
-      x >= xcMin
-      && x <= xcMax
-      && z >= zcMin
-      && z <= zcMax
-    ) {
+  isChunkInView(yc, xc, zc) {
+    const chunkKey = `${xc}:${zc}`;
+    if (this.loadedChunks.has(chunkKey)) {
       return true;
     }
     return false;
@@ -329,7 +301,18 @@ class Renderer {
       loadedChunks,
       chunkLoader,
     } = this;
-    const [xcMin, zcMin, xcMax, zcMax] = Renderer.getChunkViewDistance(state);
+    const [xcMin, zcMin] = getChunkOfPixel(
+      canvasSize,
+      x - renderDistance,
+      0,
+      z - renderDistance,
+    );
+    const [xcMax, zcMax] = getChunkOfPixel(
+      canvasSize,
+      x + renderDistance,
+      0,
+      z + renderDistance,
+    );
     const chunkMaxXY = canvasSize / THREE_TILE_SIZE;
     // console.log(`Get ${xcMin} - ${xcMax} - ${zcMin} - ${zcMax}`);
     const curLoadedChunks = [];

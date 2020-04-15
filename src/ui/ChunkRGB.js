@@ -31,45 +31,6 @@ class ChunkRGB {
     this.timestamp = Date.now();
   }
 
-  /*
-  preLoad(chunks) {
-    // what to display while chunk is loading
-    // NOTE: i tried to create from smaller chunk, but that is
-    // unreasonably slow, so we just default to a loading pic.
-    //
-    // Creating from larger chunk is faster, but still slow.
-    // so i also commented it out.
-    //
-    // Since we now just load the loading tile always
-    // i commented this also out and do it in ui/render instead
-    const ctx = this.image.getContext('2d');
-    const [cz, cx, cy] = this.cell;
-    if (cz > 0) {
-      const target = cz - 1;
-      const key = ChunkRGB.getKey(target, Math.floor(cx / TILE_ZOOM_LEVEL), Math.floor(cy / TILE_ZOOM_LEVEL));
-      console.log("ask for key", key);
-      const chunk = chunks.get(ChunkRGB.getKey(target, Math.floor(cx / TILE_ZOOM_LEVEL), Math.floor(cy / TILE_ZOOM_LEVEL)));
-      if (chunk) {
-        const dx = -mod(cx, TILE_ZOOM_LEVEL) * TILE_SIZE;
-        const dy = -mod(cy, TILE_ZOOM_LEVEL) * TILE_SIZE;
-        console.log("create from larger chunk with dx", dx, "dy", dy);
-        ctx.save();
-        ctx.scale(TILE_ZOOM_LEVEL, TILE_ZOOM_LEVEL);
-        ctx.drawImage(chunk.image, dx / TILE_ZOOM_LEVEL, dy / TILE_ZOOM_LEVEL);
-        ctx.restore();
-        return;
-      }
-    }
-    if (loadingTiles.hasTiles) {
-      ctx.drawImage(loadingTiles.getTile(0), 0, 0);
-      return;
-    } else {
-      ctx.fillStyle = this.palette.colors[2];
-      ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
-    }
-  }
-  */
-
   fromBuffer(chunkBuffer: Uint8Array) {
     const imageData = new ImageData(TILE_SIZE, TILE_SIZE);
     const imageView = new Uint32Array(imageData.data.buffer);
@@ -86,6 +47,9 @@ class ChunkRGB {
     this.ready = true;
     const ctx = this.image.getContext('2d');
     ctx.save();
+    ctx.msImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
     ctx.scale(zoomDiffAbs, zoomDiffAbs);
     const sDim = TILE_SIZE / zoomDiffAbs;
     ctx.drawImage(img, sx, sy, sDim, sDim, 0, 0, sDim, sDim);

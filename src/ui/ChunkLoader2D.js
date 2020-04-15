@@ -14,6 +14,7 @@ import {
   requestBigChunk,
   receiveBigChunk,
   receiveBigChunkFailure,
+  preLoadedBigChunk,
 } from '../actions';
 import {
   getCellInsideChunk,
@@ -82,6 +83,7 @@ class ChunkLoader {
     cy: number,
     fetch: boolean,
     showLoadingTile: boolean = true,
+    chunkPreLoading: boolean = true,
   ) {
     const chunkKey = `${zoom}:${cx}:${cy}`;
     const chunk = this.chunks.get(chunkKey);
@@ -93,19 +95,25 @@ class ChunkLoader {
     } else if (fetch) {
       const chunkRGB = new ChunkRGB(this.palette, chunkKey, zoom, cx, cy);
       this.chunks.set(chunkKey, chunkRGB);
-      // preLoad chunk from lower zoom chunk
-      if (zoom > 0) {
-        const plZoom = (zoom > 2) ? zoom - 2 : 0;
-        const zoomDiffAbs = TILE_ZOOM_LEVEL ** (zoom - plZoom);
-        const plX = Math.floor(cx / zoomDiffAbs);
-        const plY = Math.floor(cy / zoomDiffAbs);
-        const plChunk = this.getChunk(plZoom, plX, plY, true, false);
-        if (plChunk && plChunk.ready) {
-          const pcX = (cx % zoomDiffAbs) * TILE_SIZE / zoomDiffAbs;
-          const pcY = (cy % zoomDiffAbs) * TILE_SIZE / zoomDiffAbs;
-          chunkRGB.preLoad(plChunk.image, zoomDiffAbs, pcX, pcY);
-          this.store.dispatch(receiveBigChunk([zoom, cx, cy]));
+      try {
+        // preLoad chunk from lower zoom chunk
+        if (zoom > 0 && chunkPreLoading) {
+          const plZoom = (zoom > 2) ? zoom - 2 : 0;
+          const zoomDiffAbs = TILE_ZOOM_LEVEL ** (zoom - plZoom);
+          const plX = Math.floor(cx / zoomDiffAbs);
+          const plY = Math.floor(cy / zoomDiffAbs);
+          const plChunk = this.getChunk(plZoom, plX, plY, true, false, false);
+          if (plChunk) {
+            const pcX = (cx % zoomDiffAbs) * TILE_SIZE / zoomDiffAbs;
+            const pcY = (cy % zoomDiffAbs) * TILE_SIZE / zoomDiffAbs;
+            chunkRGB.preLoad(plChunk, zoomDiffAbs, pcX, pcY);
+            this.store.dispatch(preLoadedBigChunk([zoom, cx, cy]));
+          }
         }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn(`Error occured while preloading for ${zoom}:${cx}:${cy}`,
+          error);
       }
       // fetch chunk
       if (this.canvasMaxTiledZoom === zoom) {
