@@ -58,6 +58,10 @@ class ChunkLoader {
     return 0;
   }
 
+  getAllChunks() {
+    return this.chunks;
+  }
+
   getVoxelUpdate(
     xc: number,
     zc: number,

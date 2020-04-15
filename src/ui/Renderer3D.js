@@ -262,7 +262,7 @@ class Renderer {
   // TODO use GC to dispose unused chunks
   // eslint-disable-next-line class-methods-use-this
   getAllChunks() {
-    return null;
+    return this.chunkLoader.getAllChunks();
   }
 
   renderPixel(

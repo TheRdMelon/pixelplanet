@@ -102,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
               ProtocolClient.deRegisterChunk([xc, yc]);
             }
             chunks.delete(key);
+            value.destructor();
           }
         }
       });
