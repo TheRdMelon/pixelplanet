@@ -5,7 +5,7 @@
  */
 
 import ChunkRGB from './ChunkRGB';
-import { TILE_SIZE } from '../core/constants';
+import { TILE_SIZE, TILE_ZOOM_LEVEL } from '../core/constants';
 import {
   loadingTiles,
   loadImage,
@@ -76,7 +76,13 @@ class ChunkLoader {
     );
   }
 
-  getChunk(zoom, cx: number, cy: number, fetch: boolean) {
+  getChunk(
+    zoom: number,
+    cx: number,
+    cy: number,
+    fetch: boolean,
+    showLoadingTile: boolean = true,
+  ) {
     const chunkKey = `${zoom}:${cx}:${cy}`;
     const chunk = this.chunks.get(chunkKey);
     const { canvasId } = this;
@@ -84,20 +90,31 @@ class ChunkLoader {
       if (chunk.ready) {
         return chunk.image;
       }
-      return loadingTiles.getTile(canvasId);
-    }
-    if (fetch) {
-      // fetch chunk
+    } else if (fetch) {
       const chunkRGB = new ChunkRGB(this.palette, chunkKey);
       this.chunks.set(chunkKey, chunkRGB);
-
+      // preLoad chunk from lower zoom chunk
+      if (zoom > 0) {
+        const plZoom = (zoom > 2) ? zoom - 2 : 0;
+        const zoomDiffAbs = TILE_ZOOM_LEVEL ** (zoom - plZoom);
+        const plX = Math.floor(cx / zoomDiffAbs);
+        const plY = Math.floor(cy / zoomDiffAbs);
+        const plChunk = this.getChunk(plZoom, plX, plY, true, false);
+        if (plChunk && plChunk.ready) {
+          const pcX = (cx % zoomDiffAbs) * TILE_SIZE / zoomDiffAbs;
+          const pcY = (cy % zoomDiffAbs) * TILE_SIZE / zoomDiffAbs;
+          chunkRGB.preLoad(plChunk.image, zoomDiffAbs, pcX, pcY);
+          this.store.dispatch(receiveBigChunk([zoom, cx, cy]));
+        }
+      }
+      // fetch chunk
       if (this.canvasMaxTiledZoom === zoom) {
         this.fetchBaseChunk(zoom, cx, cy, chunkRGB);
       } else {
         this.fetchTile(zoom, cx, cy, chunkRGB);
       }
     }
-    return loadingTiles.getTile(canvasId);
+    return (showLoadingTile) ? loadingTiles.getTile(canvasId) : null;
   }
 
   getHistoricalChunk(cx, cy, fetch, historicalDate, historicalTime = null) {

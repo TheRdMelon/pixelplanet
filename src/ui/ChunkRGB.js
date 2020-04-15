@@ -80,6 +80,16 @@ class ChunkRGB {
     this.ready = true;
   }
 
+  preLoad(img, zoomDiffAbs: number, sx: number, sy: number) {
+    this.ready = true;
+    const ctx = this.image.getContext('2d');
+    ctx.save();
+    ctx.scale(zoomDiffAbs, zoomDiffAbs);
+    const sDim = TILE_SIZE / zoomDiffAbs;
+    ctx.drawImage(img, sx, sy, sDim, sDim, 0, 0, sDim, sDim);
+    ctx.restore();
+  }
+
   fromImage(img: Image) {
     this.ready = true;
     const ctx = this.image.getContext('2d');
