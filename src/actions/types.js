@@ -42,6 +42,7 @@ export type Action =
   | { type: 'SET_VIEW_COORDINATES', view: Cell }
   | { type: 'SET_SCALE', scale: number, zoompoint: Cell }
   | { type: 'REQUEST_BIG_CHUNK', center: Cell }
+  | { type: 'PRE_LOADED_BIG_CHUNK', center: Cell }
   | { type: 'RECEIVE_BIG_CHUNK', center: Cell }
   | { type: 'RECEIVE_BIG_CHUNK_FAILURE', center: Cell, error: Error }
   | { type: 'RECEIVE_COOLDOWN', waitSeconds: number }

@@ -384,6 +384,15 @@ export function requestBigChunk(center: Cell): Action {
   };
 }
 
+export function preLoadedBigChunk(
+  center: Cell,
+): Action {
+  return {
+    type: 'PRE_LOADED_BIG_CHUNK',
+    center,
+  };
+}
+
 export function receiveBigChunk(
   center: Cell,
 ): Action {

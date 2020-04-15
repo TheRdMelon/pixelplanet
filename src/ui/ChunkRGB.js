@@ -44,6 +44,9 @@ class ChunkRGB {
   }
 
   preLoad(img, zoomDiffAbs: number, sx: number, sy: number) {
+    if (this.ready) {
+      return;
+    }
     this.ready = true;
     const ctx = this.image.getContext('2d');
     ctx.save();

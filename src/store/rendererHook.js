@@ -39,6 +39,7 @@ export default (store) => (next) => (action) => {
 
     case 'SET_HISTORICAL_TIME':
     case 'REQUEST_BIG_CHUNK':
+    case 'PRE_LOADED_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK':
     case 'RECEIVE_BIG_CHUNK_FAILURE': {
       const renderer = getRenderer();

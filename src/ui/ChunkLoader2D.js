@@ -14,7 +14,7 @@ import {
   requestBigChunk,
   receiveBigChunk,
   receiveBigChunkFailure,
-  preLoadedBigChunk,
+  // preLoadedBigChunk,
 } from '../actions';
 import {
   getCellInsideChunk,
@@ -77,6 +77,52 @@ class ChunkLoader {
     );
   }
 
+  /*
+   * preLoad chunks by generating them out of
+   * available lower zoomlevel chunks
+   */
+  preLoadChunk(
+    zoom: number,
+    cx: number,
+    cy: number,
+    chunkRGB,
+  ) {
+    if (zoom <= 0) return null;
+
+    try {
+      // first try if one zoomlevel higher is available (without fetching it)
+      let plZoom = zoom - 1;
+      let zoomDiffAbs = TILE_ZOOM_LEVEL;
+      let [plX, plY] = [cx, cy].map((z) => (Math.floor(z / zoomDiffAbs)));
+      let plChunk = this.getChunk(plZoom, plX, plY, false, false, true);
+      if (!plChunk) {
+        // if not, try one more zoomlevel higher, fetching it if not available
+        if (plZoom > 0) {
+          plZoom -= 1;
+        }
+        zoomDiffAbs = TILE_ZOOM_LEVEL ** (zoom - plZoom);
+        [plX, plY] = [cx, cy].map((z) => (Math.floor(z / zoomDiffAbs)));
+        plChunk = this.getChunk(plZoom, plX, plY, true, false, true);
+      }
+      if (plChunk) {
+        const pcX = (cx % zoomDiffAbs) * TILE_SIZE / zoomDiffAbs;
+        const pcY = (cy % zoomDiffAbs) * TILE_SIZE / zoomDiffAbs;
+        chunkRGB.preLoad(plChunk, zoomDiffAbs, pcX, pcY);
+        // fetching of preLoad chunk triggers rerender already
+        // lets keep this commented out for now
+        // this.store.dispatch(preLoadedBigChunk([zoom, cx, cy]));
+        return chunkRGB.image;
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn(`Error occured while preloading for ${zoom}:${cx}:${cy}`,
+        error);
+      return null;
+    }
+    return null;
+  }
+
+
   getChunk(
     zoom: number,
     cx: number,
@@ -86,41 +132,25 @@ class ChunkLoader {
     chunkPreLoading: boolean = true,
   ) {
     const chunkKey = `${zoom}:${cx}:${cy}`;
-    const chunk = this.chunks.get(chunkKey);
+    let chunkRGB = this.chunks.get(chunkKey);
     const { canvasId } = this;
-    if (chunk) {
-      if (chunk.ready) {
-        return chunk.image;
+    if (chunkRGB) {
+      if (chunkRGB.ready) {
+        return chunkRGB.image;
       }
     } else if (fetch) {
-      const chunkRGB = new ChunkRGB(this.palette, chunkKey, zoom, cx, cy);
+      chunkRGB = new ChunkRGB(this.palette, chunkKey, zoom, cx, cy);
       this.chunks.set(chunkKey, chunkRGB);
-      try {
-        // preLoad chunk from lower zoom chunk
-        if (zoom > 0 && chunkPreLoading) {
-          const plZoom = (zoom > 2) ? zoom - 2 : 0;
-          const zoomDiffAbs = TILE_ZOOM_LEVEL ** (zoom - plZoom);
-          const plX = Math.floor(cx / zoomDiffAbs);
-          const plY = Math.floor(cy / zoomDiffAbs);
-          const plChunk = this.getChunk(plZoom, plX, plY, true, false, false);
-          if (plChunk) {
-            const pcX = (cx % zoomDiffAbs) * TILE_SIZE / zoomDiffAbs;
-            const pcY = (cy % zoomDiffAbs) * TILE_SIZE / zoomDiffAbs;
-            chunkRGB.preLoad(plChunk, zoomDiffAbs, pcX, pcY);
-            this.store.dispatch(preLoadedBigChunk([zoom, cx, cy]));
-          }
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.warn(`Error occured while preloading for ${zoom}:${cx}:${cy}`,
-          error);
-      }
       // fetch chunk
       if (this.canvasMaxTiledZoom === zoom) {
         this.fetchBaseChunk(zoom, cx, cy, chunkRGB);
       } else {
         this.fetchTile(zoom, cx, cy, chunkRGB);
       }
+    }
+    if (chunkPreLoading && chunkRGB) {
+      const preLoad = this.preLoadChunk(zoom, cx, cy, chunkRGB);
+      if (preLoad) return preLoad;
     }
     return (showLoadingTile) ? loadingTiles.getTile(canvasId) : null;
   }
