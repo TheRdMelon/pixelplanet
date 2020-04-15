@@ -91,7 +91,7 @@ class ChunkLoader {
         return chunk.image;
       }
     } else if (fetch) {
-      const chunkRGB = new ChunkRGB(this.palette, chunkKey);
+      const chunkRGB = new ChunkRGB(this.palette, chunkKey, zoom, cx, cy);
       this.chunks.set(chunkKey, chunkRGB);
       // preLoad chunk from lower zoom chunk
       if (zoom > 0) {
@@ -131,7 +131,13 @@ class ChunkLoader {
       return (historicalTime) ? null : loadingTiles.getTile(canvasId);
     } if (fetch) {
       // fetch tile
-      const chunkRGB = new ChunkRGB(this.palette, chunkKey);
+      const chunkRGB = new ChunkRGB(
+        this.palette,
+        chunkKey,
+        this.canvasMaxTiledZoom,
+        cx,
+        cy,
+      );
       this.chunks.set(chunkKey, chunkRGB);
       this.fetchHistoricalChunk(
         cx,

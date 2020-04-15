@@ -7,6 +7,7 @@ import { TILE_SIZE } from '../core/constants';
 
 
 class ChunkRGB {
+  cell: Array;
   key: string;
   image: HTMLCanvasElement;
   ready: boolean;
@@ -14,7 +15,7 @@ class ChunkRGB {
   palette: Palette;
   isBasechunk: boolean;
 
-  constructor(palette: Palette, key) {
+  constructor(palette: Palette, key, zoom = 0, cx = 0, cy = 0) {
     // isBasechunk gets set to true by RECEIVE_BIG_CHUNK
     // if true => chunk got requested from api/chunk and
     //            receives websocket pixel updates
@@ -25,6 +26,7 @@ class ChunkRGB {
     this.image.width = TILE_SIZE;
     this.image.height = TILE_SIZE;
     this.key = key;
+    this.cell = [zoom, cx, cy];
     this.ready = false;
     this.timestamp = Date.now();
   }

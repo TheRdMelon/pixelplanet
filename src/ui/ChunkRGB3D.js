@@ -75,6 +75,7 @@ const material = new THREE.MeshLambertMaterial({
 
 
 class Chunk {
+  cell: Array;
   key: string;
   ready: boolean = false;
   palette: Object;
@@ -83,10 +84,13 @@ class Chunk {
   faceCnt: number;
   lastPixel: number;
   heightMap: Array;
+  timestamp: number;
 
-  constructor(palette, key) {
+  constructor(palette, key, xc, zc) {
+    this.array = [0, xc, zc];
     this.key = key;
     this.palette = palette;
+    this.timestamp = Date.now();
   }
 
   destructor() {

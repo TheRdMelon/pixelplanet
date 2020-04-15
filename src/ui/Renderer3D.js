@@ -23,6 +23,8 @@ import {
 } from '../actions';
 
 
+const renderDistance = 150;
+
 class Renderer {
   is3D = true;
   //--
@@ -275,23 +277,13 @@ class Renderer {
     }
   }
 
-  reloadChunks() {
-    if (!this.chunkLoader) {
-      return;
-    }
-    const renderDistance = 150;
-    const state = this.store.getState();
+  static getChunkViewDistance(state) {
     const {
       canvasSize,
       view,
     } = state.canvas;
     const x = view[0];
     const z = view[2] || 0;
-    const {
-      scene,
-      loadedChunks,
-      chunkLoader,
-    } = this;
     const [xcMin, zcMin] = getChunkOfPixel(
       canvasSize,
       x - renderDistance,
@@ -304,6 +296,40 @@ class Renderer {
       0,
       z + renderDistance,
     );
+    return [xcMin, zcMin, xcMax, zcMax];
+  }
+
+  isChunkInView(y, x, z) {
+    const state = this.store.getState();
+    const [xcMin, zcMin, xcMax, zcMax] = Renderer.getChunkViewDistance(state);
+    if (
+      x >= xcMin
+      && x <= xcMax
+      && z >= zcMin
+      && z <= zcMax
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  reloadChunks() {
+    if (!this.chunkLoader) {
+      return;
+    }
+    const state = this.store.getState();
+    const {
+      canvasSize,
+      view,
+    } = state.canvas;
+    const x = view[0];
+    const z = view[2] || 0;
+    const {
+      scene,
+      loadedChunks,
+      chunkLoader,
+    } = this;
+    const [xcMin, zcMin, xcMax, zcMax] = Renderer.getChunkViewDistance(state);
     const chunkMaxXY = canvasSize / THREE_TILE_SIZE;
     // console.log(`Get ${xcMin} - ${xcMax} - ${zcMin} - ${zcMax}`);
     const curLoadedChunks = [];

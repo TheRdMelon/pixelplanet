@@ -77,13 +77,14 @@ class ChunkLoader {
     let chunk = this.chunks.get(chunkKey);
     if (chunk) {
       if (chunk.ready) {
+        chunk.timestamp = Date.now();
         return chunk.mesh;
       }
       return null;
     }
     if (fetch) {
       // fetch chunk
-      chunk = new Chunk(this.palette, chunkKey);
+      chunk = new Chunk(this.palette, chunkKey, xc, zc);
       this.chunks.set(chunkKey, chunk);
       this.fetchChunk(xc, zc, chunk);
     }
