@@ -87,9 +87,7 @@ class SocketServer extends WebSocketEvents {
       }
 
       ws.on('error', (e) => {
-        logger.error(`WebSocket Client Connection Error ${e.message}`);
-        ipCounter.delete(ip);
-        this.deleteAllChunks(ws);
+        logger.error(`WebSocket Client Error for ${ws.name}: ${e.message}`);
       });
       ws.on('close', () => {
         // is close called on terminate?
@@ -98,7 +96,6 @@ class SocketServer extends WebSocketEvents {
         this.deleteAllChunks(ws);
       });
       ws.on('message', (message) => {
-        logger.error(`WebSocket Client Connection Error ${message}`);
         if (typeof message === 'string') {
           this.onTextMessage(message, ws);
         } else {
@@ -136,7 +133,7 @@ class SocketServer extends WebSocketEvents {
           try {
             ws._socket.write(buffer);
           } catch (error) {
-            logger.error('(!) Catched error on write socket:', error);
+            logger.error(`WebSocket broadcast error: ${error.message}`);
           }
         });
       }
