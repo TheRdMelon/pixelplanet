@@ -67,7 +67,9 @@ class SocketServer extends WebSocketEvents {
     });
     this.wss = wss;
 
-    wss.on('error', logger.error);
+    wss.on('error', (e) => {
+      logger.error(`WebSocket Server Error ${e.message}`);
+    });
 
     wss.on('connection', async (ws, req) => {
       ws.isAlive = true;
@@ -84,7 +86,11 @@ class SocketServer extends WebSocketEvents {
         ws.send(`"${ws.name}"`);
       }
 
-      ws.on('error', logger.error);
+      ws.on('error', (e) => {
+        logger.error(`WebSocket Client Connection Error ${e.message}`);
+        ipCounter.delete(ip);
+        this.deleteAllChunks(ws);
+      });
       ws.on('close', () => {
         // is close called on terminate?
         // possible memory leak?
@@ -92,6 +98,7 @@ class SocketServer extends WebSocketEvents {
         this.deleteAllChunks(ws);
       });
       ws.on('message', (message) => {
+        logger.error(`WebSocket Client Connection Error ${message}`);
         if (typeof message === 'string') {
           this.onTextMessage(message, ws);
         } else {
