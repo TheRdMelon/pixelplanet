@@ -67,7 +67,9 @@ class SocketServer extends WebSocketEvents {
     });
     this.wss = wss;
 
-    wss.on('error', logger.error);
+    wss.on('error', (e) => {
+      logger.error(`WebSocket Server Error ${e.message}`);
+    });
 
     wss.on('connection', async (ws, req) => {
       ws.isAlive = true;
@@ -84,7 +86,9 @@ class SocketServer extends WebSocketEvents {
         ws.send(`"${ws.name}"`);
       }
 
-      ws.on('error', logger.error);
+      ws.on('error', (e) => {
+        logger.error(`WebSocket Client Error for ${ws.name}: ${e.message}`);
+      });
       ws.on('close', () => {
         // is close called on terminate?
         // possible memory leak?
@@ -129,7 +133,7 @@ class SocketServer extends WebSocketEvents {
           try {
             ws._socket.write(buffer);
           } catch (error) {
-            logger.error('(!) Catched error on write socket:', error);
+            logger.error(`WebSocket broadcast error: ${error.message}`);
           }
         });
       }

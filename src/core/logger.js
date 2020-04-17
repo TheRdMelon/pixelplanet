@@ -17,6 +17,9 @@ const logger = createLogger({
     new transports.Console(),
   ],
 });
+logger.error.bind(logger);
+logger.info.bind(logger);
+logger.warn.bind(logger);
 
 export const proxyLogger = createLogger({
   transports: [
