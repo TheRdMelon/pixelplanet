@@ -97,7 +97,7 @@ class SocketServer extends WebSocketEvents {
       });
       ws.on('message', (message) => {
         if (typeof message === 'string') {
-          this.onTextMessage(message, ws);
+          SocketServer.onTextMessage(message, ws);
         } else {
           this.onBinaryMessage(message, ws);
         }
@@ -131,6 +131,7 @@ class SocketServer extends WebSocketEvents {
       if (ws.readyState === WebSocket.OPEN) {
         frame.forEach((buffer) => {
           try {
+            // eslint-disable-next-line no-underscore-dangle
             ws._socket.write(buffer);
           } catch (error) {
             logger.error(`WebSocket broadcast error: ${error.message}`);
@@ -147,14 +148,14 @@ class SocketServer extends WebSocketEvents {
   broadcastChatMessage(name: string, message: string) {
     const text = JSON.stringify([name, message]);
     this.wss.clients.forEach((ws) => {
-      if (ws.readyState == WebSocket.OPEN) {
+      if (ws.readyState === WebSocket.OPEN) {
         ws.send(text);
       }
     });
   }
 
-  broadcastPixelBuffer(canvasId, chunkid, buffer) {
-    const frame = WebSocket.Sender.frame(buffer, {
+  broadcastPixelBuffer(canvasId: number, chunkid, data: Buffer) {
+    const frame = WebSocket.Sender.frame(data, {
       readOnly: true,
       mask: false,
       rsv1: false,
@@ -164,9 +165,15 @@ class SocketServer extends WebSocketEvents {
     if (this.CHUNK_CLIENTS.has(chunkid)) {
       const clients = this.CHUNK_CLIENTS.get(chunkid);
       clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN && client.canvasId == canvasId) {
+        if (client.readyState === WebSocket.OPEN
+          // canvasId can be number or string, caused by
+          // js disctionaries not being able to have numbers as keys
+          // eslint-disable-next-line eqeqeq
+          && client.canvasId == canvasId
+        ) {
           frame.forEach((buffer) => {
             try {
+              // eslint-disable-next-line no-underscore-dangle
               client._socket.write(buffer);
             } catch (error) {
               logger.error('(!) Catched error on write socket:', error);
@@ -179,7 +186,7 @@ class SocketServer extends WebSocketEvents {
 
   notifyChangedMe(name) {
     this.wss.clients.forEach((ws) => {
-      if (ws.name == name) {
+      if (ws.name === name) {
         const buffer = ChangedMe.dehydrate();
         ws.send(buffer);
       }
@@ -196,10 +203,12 @@ class SocketServer extends WebSocketEvents {
 
   ping() {
     this.wss.clients.forEach((ws) => {
-      if (!ws.isAlive) return ws.terminate();
-
-      ws.isAlive = false;
-      ws.ping(() => {});
+      if (!ws.isAlive) {
+        ws.terminate();
+      } else {
+        ws.isAlive = false;
+        ws.ping(() => {});
+      }
     });
   }
 
@@ -208,10 +217,11 @@ class SocketServer extends WebSocketEvents {
     webSockets.broadcastOnlineCounter(online);
   }
 
-  onTextMessage(message, ws) {
+  static onTextMessage(message, ws) {
     if (ws.name && message) {
       const waitLeft = ws.rateLimiter.tick();
       if (waitLeft) {
+        // eslint-disable-next-line max-len
         ws.send(JSON.stringify(['info', `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`]));
       } else {
         webSockets.broadcastChatMessage(ws.name, message);
@@ -226,7 +236,7 @@ class SocketServer extends WebSocketEvents {
     const opcode = buffer[0];
 
     switch (opcode) {
-      case RegisterCanvas.OP_CODE:
+      case RegisterCanvas.OP_CODE: {
         const canvasId = RegisterCanvas.hydrate(buffer);
         if (ws.canvasId !== null && ws.canvasId !== canvasId) {
           this.deleteAllChunks(ws);
@@ -236,35 +246,39 @@ class SocketServer extends WebSocketEvents {
         const waitSeconds = (wait) ? Math.ceil((wait - Date.now()) / 1000) : 0;
         ws.send(CoolDownPacket.dehydrate(waitSeconds));
         break;
-      case RegisterChunk.OP_CODE:
+      }
+      case RegisterChunk.OP_CODE: {
         const chunkid = RegisterChunk.hydrate(buffer);
         this.pushChunk(chunkid, ws);
         break;
-      case RegisterMultipleChunks.OP_CODE:
+      }
+      case RegisterMultipleChunks.OP_CODE: {
         this.deleteAllChunks(ws);
-        const { length } = buffer;
         let posu = 2;
-        while (posu < length) {
+        while (posu < buffer.length) {
           const chunkid = buffer[posu++] | buffer[posu++] << 8;
           this.pushChunk(chunkid, ws);
         }
         break;
-      case DeRegisterChunk.OP_CODE:
+      }
+      case DeRegisterChunk.OP_CODE: {
         const chunkidn = DeRegisterChunk.hydrate(buffer);
         this.deleteChunk(chunkidn, ws);
         break;
-      case DeRegisterMultipleChunks.OP_CODE:
-        const lengthl = buffer.length;
+      }
+      case DeRegisterMultipleChunks.OP_CODE: {
         let posl = 2;
-        while (posl < lengthl) {
+        while (posl < buffer.length) {
           const chunkid = buffer[posl++] | buffer[posl++] << 8;
           this.deleteChunk(chunkid, ws);
         }
         break;
-      case RequestChatHistory.OP_CODE:
+      }
+      case RequestChatHistory.OP_CODE: {
         const history = JSON.stringify(ChatHistory.history);
         ws.send(history);
         break;
+      }
       default:
         break;
     }
