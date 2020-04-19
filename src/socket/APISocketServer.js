@@ -188,7 +188,7 @@ class APISocketServer extends WebSocketEvents {
         user.ip = ip;
         const {
           error, success, waitSeconds, coolDownSeconds,
-        } = await drawUnsafe(user, 0, clr, x, y, null);
+        } = await drawUnsafe(user, "0", clr, x, y, null);
         ws.send(JSON.stringify([
           'retpxl',
           (minecraftid) || ip,
