@@ -180,7 +180,7 @@ class APISocketServer extends WebSocketEvents {
         if (clr < 0 || clr > 32) return;
         // be aware that user null has no cd
         if (!minecraftid && !ip) {
-          setPixel(0, clr, x, y);
+          setPixel("0", clr, x, y);
           ws.send(JSON.stringify(['retpxl', null, null, true, 0, 0]));
           return;
         }
