@@ -139,7 +139,7 @@ class ChunkLoader {
         return chunkRGB.image;
       }
     } else if (fetch) {
-      chunkRGB = new ChunkRGB(this.palette, chunkKey, zoom, cx, cy);
+      chunkRGB = new ChunkRGB(this.palette, zoom, cx, cy);
       this.chunks.set(chunkKey, chunkRGB);
       // fetch chunk
       if (this.canvasMaxTiledZoom === zoom) {
@@ -171,7 +171,6 @@ class ChunkLoader {
       // fetch tile
       const chunkRGB = new ChunkRGB(
         this.palette,
-        chunkKey,
         this.canvasMaxTiledZoom,
         cx,
         cy,
