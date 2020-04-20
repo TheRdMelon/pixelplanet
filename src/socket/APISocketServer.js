@@ -59,7 +59,9 @@ class APISocketServer extends WebSocketEvents {
     this.wss = wss;
     this.mc = new Minecraft();
 
-    wss.on('error', logger.error);
+    wss.on('error', (e) => {
+      logger.error(`APIWebSocket Server Error ${e.message}`);
+    });
 
     wss.on('connection', async (ws) => {
       ws.isAlive = true;
