@@ -28,6 +28,8 @@ export type UserState = {
   minecraftname: string,
   // if user is using touchscreen
   isOnMobile: boolean,
+  // small notifications for received cooldown
+  notification: string,
 };
 
 const initialState: UserState = {
@@ -45,6 +47,7 @@ const initialState: UserState = {
   chatMessages: [['info', 'Welcome to the PixelPlanet Chat']],
   minecraftname: null,
   isOnMobile: false,
+  notification: null,
 };
 
 export default function user(
@@ -193,6 +196,20 @@ export default function user(
       return {
         ...state,
         minecraftname,
+      };
+    }
+
+    case 'SET_NOTIFICATION': {
+      return {
+        ...state,
+        notification: action.notification,
+      };
+    }
+
+    case 'UNSET_NOTIFICATION': {
+      return {
+        ...state,
+        notification: null,
       };
     }
 

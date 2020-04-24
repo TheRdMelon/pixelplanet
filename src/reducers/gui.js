@@ -12,7 +12,6 @@ export type GUIState = {
   hover: ?Cell,
   pixelsPlaced: number,
   autoZoomIn: boolean,
-  notification: string,
   isPotato: boolean,
   isLightGrid: boolean,
   compactPalette: boolean,
@@ -27,7 +26,6 @@ const initialState: GUIState = {
   hover: null,
   pixelsPlaced: 0,
   autoZoomIn: false,
-  notification: null,
   isPotato: false,
   isLightGrid: false,
   compactPalette: false,
@@ -118,20 +116,6 @@ export default function gui(
       return {
         ...state,
         selectedColor: 2,
-      };
-    }
-
-    case 'SET_NOTIFICATION': {
-      return {
-        ...state,
-        notification: action.notification,
-      };
-    }
-
-    case 'UNSET_NOTIFICATION': {
-      return {
-        ...state,
-        notification: null,
       };
     }
 

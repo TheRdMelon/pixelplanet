@@ -28,7 +28,7 @@ const NotifyBox = ({ notification }) => (
 );
 
 function mapStateToProps(state: State) {
-  const { notification } = state.gui;
+  const { notification } = state.user;
   return { notification };
 }
 
