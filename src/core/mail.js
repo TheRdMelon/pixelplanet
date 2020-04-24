@@ -9,6 +9,7 @@ import nodemailer from 'nodemailer';
 import logger from './logger';
 import { HOUR, MINUTE } from './constants';
 import { DailyCron, HourlyCron } from '../utils/cron';
+import { GMAIL_USER, GMAIL_PW } from './config';
 
 import RegUser from '../data/models/RegUser';
 
@@ -17,11 +18,22 @@ import RegUser from '../data/models/RegUser';
  * define mail transport
  * using unix command sendmail
  */
-const transporter = nodemailer.createTransport({
-  sendmail: true,
-  newline: 'unix',
-  path: '/usr/sbin/sendmail',
-});
+const transporter = (GMAIL_USER && GMAIL_PW)
+  ? nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: GMAIL_USER,
+      pass: GMAIL_PW,
+    },
+  })
+  : nodemailer.createTransport({
+    sendmail: true,
+    newline: 'unix',
+    path: '/usr/sbin/sendmail',
+  });
+const from = (GMAIL_USER && GMAIL_PW)
+  ? GMAIL_USER
+  : 'donotreply@pixelplanet.fun';
 
 
 // TODO make code expire
@@ -54,16 +66,18 @@ class MailProvider {
     const code = this.setCode(to);
     const verifyUrl = `${host}/api/auth/verify?token=${code}`;
     transporter.sendMail({
-      from: 'donotreply@pixelplanet.fun',
+      from,
       to,
       replyTo: 'donotreply@pixelplanet.fun',
       // eslint-disable-next-line max-len
       subject: `Welcome ${name} to PixelPlanet, plese verify your mail`,
       // eslint-disable-next-line max-len
-      text: `Hello,\nwelcome to our little community of pixelplacers, to use your account, you have to verify your mail. You can do that here:\n ${verifyUrl} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nThanks`,
+      // text: `Hello,\nwelcome to our little community of pixelplacers, to use your account, you have to verify your mail. You can do that here:\n ${verifyUrl} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nThanks`,
+      // eslint-disable-next-line max-len
+      html: `<em>Hello ${name}</em>,<br />\nwelcome to our little community of pixelplacers, to use your account, you have to verify your mail. You can do that <a href="${verifyUrl}">here</a>. Or by copying following url:<br />${verifyUrl}\n<br />\nHave fun and don&#39;t hesitate to contact us if you encouter any problems :)<br />\nThanks<br /><br />\n<img alt="" src="https://assets.pixelplanet.fun/tile.png" style="height:64px; width:64px" />`,
     }, (err) => {
       if (err) {
-        logger.error(err & err.stack);
+        logger.error(err);
       }
     });
     return null;
@@ -101,13 +115,14 @@ class MailProvider {
     const code = this.setCode(to);
     const restoreUrl = `${host}/reset_password?token=${code}`;
     transporter.sendMail({
-      from: 'donotreply@pixelplanet.fun',
+      from,
       to,
       replyTo: 'donotreply@pixelplanet.fun',
-      // eslint-disable-next-line max-len
       subject: 'You forgot your password for PixelPlanet? Get a new one here',
       // eslint-disable-next-line max-len
-      text: `Hello,\nYou requested to get a new password. You can change your password within the next 30min here:\n ${restoreUrl} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nIf you did not request this mail, please just ignore it (the ip that requested this mail was ${ip}).\nThanks`,
+      // text: `Hello,\nYou requested to get a new password. You can change your password within the next 30min here:\n ${restoreUrl} \nHave fun and don't hesitate to contact us if you encouter any problems :)\nIf you did not request this mail, please just ignore it (the ip that requested this mail was ${ip}).\nThanks`,
+      // eslint-disable-next-line max-len
+      html: `<em>Hello</em>,<br />\nYou requested to get a new password. You can change your password within the next 30min <a href="${restoreUrl}">here</a>. Or by copying following url:<br />${restoreUrl}\n<br />\nIf you did not request this mail, please just ignore it (the ip that requested this mail was ${ip}).<br />\nThanks<br /><br />\n<img alt="" src="https://assets.pixelplanet.fun/tile.png" style="height:64px; width:64px" />`,
     }, (err) => {
       if (err) {
         logger.error(err & err.stack);

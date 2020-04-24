@@ -11,6 +11,9 @@ if (process.env.BROWSER) {
 
 export const PORT = process.env.PORT || 80;
 
+export const GMAIL_USER = process.env.GMAIL_USER || null;
+export const GMAIL_PW = process.env.GMAIL_PW || null;
+
 const TILE_FOLDER_REL = process.env.TILE_FOLDER || 'tiles';
 export const TILE_FOLDER = path.join(__dirname, `./${TILE_FOLDER_REL}`);
 

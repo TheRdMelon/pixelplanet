@@ -89,12 +89,15 @@ Configuration takes place in the environment variables that are defined in ecosy
 | USE_XREALIP       | see cloudflare section                | 1                  |
 | BACKUP_URL        | url of backup server (see Backup)     | "http://localhost" |
 | BACKUP_DIR        | mounted directory of backup server    | "/mnt/backup/"     |
+| GMAIL_USER        | gmail username if used for mails      | "ppfun@gmail.com"  |
+| GMAIL_PW          | gmail password if used for mails      | "lolrofls"         |
 
 Notes:
 
 - to be able to use USE_PROXYCHECK, you have to have an account on proxycheck.io or getipintel or another checker setup and you might set some proxies in `src/proxies.json` (before building) that get used for making proxycheck requests. Look into `src/isProxy.js` to see how things work, but keep in mind that this isn't neccessarily how pixelplanet.fun uses it.
 - Admins are users with 0cd and access to `./admintools` for image-upload and whatever
 - You can find out the id of a user by looking into the logs (i.e. `info: {ip} / {id} wants to place 2 in (1701, -8315)`) when he places a pixel or by checking the MySql Users database
+- If you use gmail as mail transport, make sure that less-secure apps are allowed to access it in your settings [here](https://myaccount.google.com/lesssecureapps)
 
 #### Social Media
 
