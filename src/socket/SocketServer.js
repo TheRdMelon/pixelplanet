@@ -223,6 +223,9 @@ class SocketServer extends WebSocketEvents {
       if (waitLeft) {
         // eslint-disable-next-line max-len
         ws.send(JSON.stringify(['info', `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`]));
+      } else if (message.length > 300) {
+        // eslint-disable-next-line max-len
+        ws.send(JSON.stringify(['info', 'You can\'t send a message this long :(']));
       } else {
         webSockets.broadcastChatMessage(ws.name, message);
       }
