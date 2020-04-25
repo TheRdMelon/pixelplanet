@@ -214,7 +214,7 @@ class Renderer {
     const px = ((x - canX) * scaleM) + (CANVAS_WIDTH / 2);
     const py = ((y - canY) * scaleM) + (CANVAS_HEIGHT / 2);
     // if not part of our current canvas, do not render
-    if (px < 0 || py >= CANVAS_WIDTH || py < 0 || py >= CANVAS_HEIGHT) return;
+    if (px < 0 || px >= CANVAS_WIDTH || py < 0 || py >= CANVAS_HEIGHT) return;
 
     context.fillStyle = palette.colors[color];
     context.fillRect(px, py, scaleM, scaleM);
