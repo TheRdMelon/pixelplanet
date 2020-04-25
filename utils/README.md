@@ -31,3 +31,6 @@ Script that connects to the mysql database and does some stuff, just for testing
 
 ## proxyConvert.sh
 Converts a proxy list in specific txt format to a better readable list
+
+## imageClean.py
+python3 script that takes an input image and cleares spare pixels and bot remains
