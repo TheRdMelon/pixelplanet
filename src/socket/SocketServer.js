@@ -229,6 +229,20 @@ class SocketServer extends WebSocketEvents {
       if (errorMsg) {
         ws.send(JSON.stringify(['info', errorMsg]));
       }
+      if (ws.last_message && ws.last_message === message) {
+        ws.message_repeat += 1;
+        if (ws.message_repeat >= 3) {
+          logger.info(`User ${ws.name} got automuted`);
+          chatProvider.automute(ws.name);
+          ws.message_repeat = 0;
+        }
+      } else {
+        ws.message_repeat = 0;
+        ws.last_message = message;
+      }
+      logger.info(
+        `Received chat message ${message} from ${ws.name} / ${ws.user.ip}`,
+      );
     } else {
       logger.info('Got empty message or message from unidentified ws');
     }

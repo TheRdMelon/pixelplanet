@@ -7,10 +7,11 @@
 import type { Request, Response } from 'express';
 import Sequelize from 'sequelize';
 
+import logger from '../../../core/logger';
 import { RegUser } from '../../../data/models';
 import mailProvider from '../../../core/mail';
 import getMe from '../../../core/me';
-import { getHostFromRequest } from '../../../utils/ip';
+import { getIPFromRequest, getHostFromRequest } from '../../../utils/ip';
 import {
   validateEMail,
   validateName,
@@ -60,6 +61,9 @@ export default async (req: Request, res: Response) => {
     });
     return;
   }
+
+  const ip = await getIPFromRequest(req);
+  logger.info(`Created new user ${name} ${email} ${ip}`);
 
   const user = req.noauthUser;
   user.id = newuser.id;

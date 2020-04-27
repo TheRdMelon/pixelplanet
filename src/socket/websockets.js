@@ -65,7 +65,6 @@ class WebSockets {
     message: string,
     sendapi: boolean = true,
   ) {
-    logger.info(`Received chat message ${message} from ${name}`);
     this.listeners.forEach(
       (listener) => listener.broadcastChatMessage(name, message, sendapi),
     );

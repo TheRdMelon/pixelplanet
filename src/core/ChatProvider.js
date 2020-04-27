@@ -16,6 +16,28 @@ class ChatProvider {
 
   constructor() {
     this.history = [];
+    this.filters = [
+      {
+        regexp: /ADMIN/g,
+        matches: 2,
+      },
+      {
+        regexp: /FUCK/g,
+        matches: 2,
+      },
+      {
+        regexp: /admin/g,
+        matches: 3,
+      },
+      {
+        regexp: /fuck/g,
+        matches: 3,
+      },
+      {
+        regexp: /FACK/g,
+        matches: 3,
+      },
+    ];
   }
 
   addMessage(name, message) {
@@ -31,16 +53,37 @@ class ChatProvider {
       return 'You can\'t send a message this long :(';
     }
     const name = (user.regUser) ? user.regUser.name : null;
+
     if (!name) {
       // eslint-disable-next-line max-len
       return 'Couldn\'t send your message, pls log out and back in again.';
+    }
+    if (!user.regUser.verified) {
+      return 'Your mail has to be verified in order to chat';
+    }
+
+    if (message === message.toUpperCase()) {
+      return null;
+    }
+
+    for (let i = 0; i < this.filters.length; i += 1) {
+      const filter = this.filters[i];
+      const count = (message.match(filter.regexp) || []).length;
+      if (count >= filter.matches) {
+        ChatProvider.mute(name, 30);
+        return 'Ow no! Spam protection decided to mute you';
+      }
     }
 
     if (user.isAdmin() && message.charAt(0) === '/') {
       // admin commands
       const cmd = message.split(' ');
       if (cmd[0] === '/mute') {
-        return ChatProvider.mute(cmd.slice(1, -1).join(' '), cmd.slice(-1));
+        const timeMin = Number(cmd.slice(-1));
+        if (Number.isNaN(timeMin)) {
+          return ChatProvider.mute(cmd.slice(1).join(' '));
+        }
+        return ChatProvider.mute(cmd.slice(1, -1).join(' '), timeMin);
       } if (cmd[0] === '/unmute') {
         return ChatProvider.unmute(cmd.slice(1).join(' '));
       }
@@ -67,13 +110,22 @@ class ChatProvider {
     webSockets.broadcastChatMessage(name, message, sendapi);
   }
 
+  /*
+   * that is really just because i do not like to import the class AND the
+   * singleton
+   */
+  // eslint-disable-next-line class-methods-use-this
+  automute(name) {
+    ChatProvider.mute(name, 600);
+  }
+
   static async checkIfMuted(user) {
     const key = `mute:${user.id}`;
     const ttl: number = await redis.ttlAsync(key);
     return ttl;
   }
 
-  static async mute(name, timeMin) {
+  static async mute(name, timeMin = null) {
     const id = await User.name2Id(name);
     if (!id) {
       return `Couldn't find user ${name}`;
