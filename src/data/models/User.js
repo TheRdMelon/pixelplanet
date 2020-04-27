@@ -9,7 +9,6 @@
 
 import Sequelize from 'sequelize';
 import redis from '../redis';
-import { randomDice } from '../../utils/random';
 import logger from '../../core/logger';
 
 import Model from '../sequelize';
@@ -32,8 +31,23 @@ class User {
     this.regUser = null;
   }
 
+  static async name2Id(name: string) {
+    try {
+      const userq = await Model.query('SELECT id FROM Users WHERE name = $1',
+        {
+          bind: [name],
+          type: Sequelize.QueryTypes.SELECT,
+          raw: true,
+          plain: true,
+        });
+      return userq.id;
+    } catch {
+      return null;
+    }
+  }
+
   async setWait(coolDown: number, canvasId: number): Promise<boolean> {
-    if (coolDown == 0) return false;
+    if (!coolDown) return false;
     this.wait = Date.now() + coolDown;
     // PX is milliseconds expire
     await redis.setAsync(`cd:${canvasId}:ip:${this.ip}`, '', 'PX', coolDown);
@@ -46,7 +60,9 @@ class User {
   async getWait(canvasId: number): Promise<?number> {
     let ttl: number = await redis.pttlAsync(`cd:${canvasId}:ip:${this.ip}`);
     if (this.id != null && ttl < 0) {
-      const ttlid: number = await redis.pttlAsync(`cd:${canvasId}:id:${this.id}`);
+      const ttlid: number = await redis.pttlAsync(
+        `cd:${canvasId}:id:${this.id}`,
+      );
       ttl = Math.max(ttl, ttlid);
     }
     logger.debug('ererer', ttl, typeof ttl);
@@ -82,10 +98,15 @@ class User {
       return this.regUser.totalPixels;
     }
     try {
-      const userq = await Model.query('SELECT totalPixels FROM Users WHERE id = $1',
+      const userq = await Model.query(
+        'SELECT totalPixels FROM Users WHERE id = $1',
         {
-          bind: [id], type: Sequelize.QueryTypes.SELECT, raw: true, plain: true,
-        });
+          bind: [id],
+          type: Sequelize.QueryTypes.SELECT,
+          raw: true,
+          plain: true,
+        },
+      );
       return userq.totalPixels;
     } catch (err) {
       return 0;
@@ -95,7 +116,9 @@ class User {
   async updateLogInTimestamp(): Promise<boolean> {
     if (!this.regUser) return false;
     try {
-      await this.regUser.update({ lastLogIn: Sequelize.literal('CURRENT_TIMESTAMP') });
+      await this.regUser.update({
+        lastLogIn: Sequelize.literal('CURRENT_TIMESTAMP'),
+      });
     } catch (err) {
       return false;
     }

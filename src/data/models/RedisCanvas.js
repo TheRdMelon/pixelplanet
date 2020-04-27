@@ -6,6 +6,7 @@ import {
   THREE_TILE_SIZE,
   THREE_CANVAS_HEIGHT,
 } from '../../core/constants';
+// eslint-disable-next-line import/no-unresolved
 import canvases from './canvases.json';
 import logger from '../../core/logger';
 

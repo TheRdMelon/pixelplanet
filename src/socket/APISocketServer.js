@@ -18,6 +18,7 @@ import Minecraft from '../core/minecraft';
 import { drawUnsafe, setPixel } from '../core/draw';
 import logger from '../core/logger';
 import { APISOCKET_KEY } from '../core/config';
+import chatProvider from '../core/ChatProvider';
 
 function heartbeat() {
   this.isAlive = true;
@@ -182,7 +183,7 @@ class APISocketServer extends WebSocketEvents {
         if (clr < 0 || clr > 32) return;
         // be aware that user null has no cd
         if (!minecraftid && !ip) {
-          setPixel("0", clr, x, y);
+          setPixel('0', clr, x, y);
           ws.send(JSON.stringify(['retpxl', null, null, true, 0, 0]));
           return;
         }
@@ -190,7 +191,7 @@ class APISocketServer extends WebSocketEvents {
         user.ip = ip;
         const {
           error, success, waitSeconds, coolDownSeconds,
-        } = await drawUnsafe(user, "0", clr, x, y, null);
+        } = await drawUnsafe(user, '0', clr, x, y, null);
         ws.send(JSON.stringify([
           'retpxl',
           (minecraftid) || ip,
@@ -237,13 +238,13 @@ class APISocketServer extends WebSocketEvents {
         const chatname = (user.id)
           ? `[MC] ${user.regUser.name}`
           : `[MC] ${minecraftname}`;
-        webSockets.broadcastChatMessage(chatname, msg, false);
+        chatProvider.broadcastChatMessage(chatname, msg, false);
         this.broadcastChatMessage(chatname, msg, true, ws);
         return;
       }
       if (command == 'chat') {
         const [name, msg] = packet;
-        webSockets.broadcastChatMessage(name, msg, false);
+        chatProvider.broadcastChatMessage(name, msg, false);
         this.broadcastChatMessage(name, msg, true, ws);
         return;
       }

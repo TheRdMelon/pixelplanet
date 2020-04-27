@@ -7,6 +7,7 @@
 
 import isoFetch from 'isomorphic-fetch';
 import HttpProxyAgent from 'http-proxy-agent';
+// eslint-disable-next-line import/no-unresolved
 import proxylist from './proxies.json';
 
 import logger from '../core/logger';

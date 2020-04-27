@@ -24,6 +24,7 @@ import {
   createPngBackup,
   incrementialBackupRedis,
 } from './core/tilesBackup';
+// eslint-disable-next-line import/no-unresolved
 import canvases from './canvases.json';
 
 /*

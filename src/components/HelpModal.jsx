@@ -48,7 +48,7 @@ const HelpModal = () => (
         Some canvases have a different cooldown for replacing a user-set pixels than placing on a unset pixel. i.e. 4s/7s means 4s on fresh
         pixels and 7s on already set pixels.
         Higher zoomlevels take some time to update, the 3D globe gets updated at least once per day.
-      Have fun!</p>
+        Have fun!</p>
       <p>Discord: <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
       <p>Source on <a href="https://github.com/pixelplanetdev/pixelplanet" target="_blank">github</a></p>
       <p>Reddit: <a href="https://www.reddit.com/r/PixelPlanetFun/" target="_blank">r/PixelPlanetFun</a></p>

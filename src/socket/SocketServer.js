@@ -17,7 +17,7 @@ import RequestChatHistory from './packets/RequestChatHistory';
 import CoolDownPacket from './packets/CoolDownPacket';
 import ChangedMe from './packets/ChangedMe';
 
-import ChatHistory from './ChatHistory';
+import chatProvider from '../core/ChatProvider';
 import authenticateClient from './verifyClient';
 import WebSocketEvents from './WebSocketEvents';
 import webSockets from './websockets';
@@ -217,17 +217,17 @@ class SocketServer extends WebSocketEvents {
     webSockets.broadcastOnlineCounter(online);
   }
 
-  static onTextMessage(message, ws) {
+  static async onTextMessage(message, ws) {
     if (ws.name && message) {
       const waitLeft = ws.rateLimiter.tick();
       if (waitLeft) {
         // eslint-disable-next-line max-len
         ws.send(JSON.stringify(['info', `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`]));
-      } else if (message.length > 300) {
-        // eslint-disable-next-line max-len
-        ws.send(JSON.stringify(['info', 'You can\'t send a message this long :(']));
-      } else {
-        webSockets.broadcastChatMessage(ws.name, message);
+        return;
+      }
+      const errorMsg = await chatProvider.sendMessage(ws.user, message);
+      if (errorMsg) {
+        ws.send(JSON.stringify(['info', errorMsg]));
       }
     } else {
       logger.info('Got empty message or message from unidentified ws');
@@ -278,7 +278,7 @@ class SocketServer extends WebSocketEvents {
         break;
       }
       case RequestChatHistory.OP_CODE: {
-        const history = JSON.stringify(ChatHistory.history);
+        const history = JSON.stringify(chatProvider.history);
         ws.send(history);
         break;
       }

@@ -5,6 +5,7 @@
  *
  * @flow
  */
+// eslint-disable-next-line import/no-unresolved
 import canvases from './canvases.json';
 
 

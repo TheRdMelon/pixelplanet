@@ -9,6 +9,7 @@
 
 import type { Request, Response } from 'express';
 
+// eslint-disable-next-line import/no-unresolved
 import canvases from './canvases.json';
 import webSockets from '../../socket/websockets';
 

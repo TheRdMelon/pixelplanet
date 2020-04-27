@@ -33,6 +33,7 @@ passport.deserializeUser((req, id, done) => {
     RegUser.findOne({ where: { id } }).then((reguser) => {
       if (reguser) {
         user.regUser = reguser;
+        user.id = id;
       } else {
         user.id = null;
       }

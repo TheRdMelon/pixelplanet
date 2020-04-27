@@ -8,6 +8,7 @@ import { getChunkOfPixel, getOffsetOfPixel } from './utils';
 import webSockets from '../socket/websockets';
 import logger from './logger';
 import RedisCanvas from '../data/models/RedisCanvas';
+// eslint-disable-next-line import/no-unresolved
 import canvases from './canvases.json';
 
 import { THREE_CANVAS_HEIGHT } from './constants';

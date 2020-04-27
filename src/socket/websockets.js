@@ -6,7 +6,6 @@
  */
 
 import logger from '../core/logger';
-import ChatHistory from './ChatHistory';
 import OnlineCounter from './packets/OnlineCounter';
 import PixelUpdate from './packets/PixelUpdate';
 
@@ -67,7 +66,6 @@ class WebSockets {
     sendapi: boolean = true,
   ) {
     logger.info(`Received chat message ${message} from ${name}`);
-    ChatHistory.addMessage(name, message);
     this.listeners.forEach(
       (listener) => listener.broadcastChatMessage(name, message, sendapi),
     );
