@@ -14,6 +14,8 @@ async function copy() {
   await Promise.all([
     copyFile('LICENSE', 'build/LICENSE'),
     copyDir('public', 'build/public'),
+    copyFile('src/canvases.json', 'build/canvases.json'),
+    copyFile('src/proxies.json', 'build/proxies.json'),
     copyFile('tools/example-ecosystem.yml', 'build/ecosystem.example.yml'),
     copyFile('tools/example-ecosystem-backup.yml', 'build/ecosystem-backup.example.yml'),
   ]);

@@ -333,6 +333,8 @@ const webConfig = {
 
   // needed because webpack tries to pack socket.io
   externals: [
+    /\/proxies\.json$/,
+    /\/canvases\.json$/,
     /^\.\/assets\.json$/,
     (context, request, callback) => {
       const isExternal = request.match(/^[@a-z][a-z/.\-0-9]*$/i)

@@ -8,7 +8,7 @@ import fs from 'fs';
 
 import type { Cell } from './Cell';
 import logger from './logger';
-import canvases from '../canvases.json';
+import canvases from './canvases.json';
 import Palette from './Palette';
 import RedisCanvas from '../data/models/RedisCanvas';
 

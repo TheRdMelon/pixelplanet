@@ -5,7 +5,7 @@
  *
  * @flow
  */
-import canvases from '../canvases.json';
+import canvases from './canvases.json';
 
 
 export default async function getMe(user) {

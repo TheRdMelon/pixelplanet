@@ -9,7 +9,7 @@
 
 import type { Request, Response } from 'express';
 
-import canvases from '../../canvases.json';
+import canvases from './canvases.json';
 import webSockets from '../../socket/websockets';
 
 const CANVAS_MAX_XY = (canvases[0].size / 2);

@@ -8,7 +8,7 @@ import RedisCanvas from '../data/models/RedisCanvas';
 import logger from './logger';
 import { getChunkOfPixel } from './utils';
 import { TILE_SIZE } from './constants';
-import canvases from '../canvases.json';
+import canvases from './canvases.json';
 import Palette from './Palette';
 
 

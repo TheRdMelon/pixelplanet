@@ -20,7 +20,7 @@ import logger from '../core/logger';
 import { Blacklist, Whitelist } from '../data/models';
 
 import { MINUTE } from '../core/constants';
-import canvases from '../canvases.json';
+import canvases from './canvases.json';
 import { imageABGR2Canvas } from '../core/Image';
 
 import adminHtml from '../components/Admin';

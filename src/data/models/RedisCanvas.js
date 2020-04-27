@@ -6,7 +6,7 @@ import {
   THREE_TILE_SIZE,
   THREE_CANVAS_HEIGHT,
 } from '../../core/constants';
-import canvases from '../../canvases.json';
+import canvases from './canvases.json';
 import logger from '../../core/logger';
 
 import redis from '../redis';

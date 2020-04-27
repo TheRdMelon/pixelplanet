@@ -7,7 +7,7 @@
 
 import isoFetch from 'isomorphic-fetch';
 import HttpProxyAgent from 'http-proxy-agent';
-import proxylist from '../proxies.json';
+import proxylist from './proxies.json';
 
 import logger from '../core/logger';
 

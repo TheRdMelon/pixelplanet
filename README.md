@@ -94,7 +94,7 @@ Configuration takes place in the environment variables that are defined in ecosy
 
 Notes:
 
-- to be able to use USE_PROXYCHECK, you have to have an account on proxycheck.io or getipintel or another checker setup and you might set some proxies in `src/proxies.json` (before building) that get used for making proxycheck requests. Look into `src/isProxy.js` to see how things work, but keep in mind that this isn't neccessarily how pixelplanet.fun uses it.
+- to be able to use USE_PROXYCHECK, you have to have an account on proxycheck.io or getipintel or another checker setup and you might set some proxies in`proxies.json that get used for making proxycheck requests. Look into `src/isProxy.js` to see how things work, but keep in mind that this isn't neccessarily how pixelplanet.fun uses it.
 - Admins are users with 0cd and access to `./admintools` for image-upload and whatever
 - You can find out the id of a user by looking into the logs (i.e. `info: {ip} / {id} wants to place 2 in (1701, -8315)`) when he places a pixel or by checking the MySql Users database
 - If you use gmail as mail transport, make sure that less-secure apps are allowed to access it in your settings [here](https://myaccount.google.com/lesssecureapps)
@@ -120,7 +120,7 @@ Notes:
 - The HTML for SocialMedia logins is in src/componets/UserAreaModal.js , delete stuff from there if you don't need it
 - The HTML for the Help Screen is in src/components/HelpModal.js
 
-Canvas specific configuartion like colors and cooldown is in `src/canvases.json` for all canvases.
+Canvas specific configuartion like colors and cooldown is in canvases.json` for all canvases.
 The CanvasSize is expected to be a power of 4 (4096, 16384, 65536) and not smaller than 256 and not larger than 65536 (you can however change the websocket packages in src/socket/packages/ to send chunk coordinates in 16bit and surpas that limit).
 bcd is base cooldown for unset pixels, pcd is cooldown for placing on top of others, cds is stacktime, ranked if it counts towards the pixelPlaced stats, req is the requirement to be allowed to set on canvas in total pixels placed (or -1 for no requirement or 0 for having to be registered). `sd` is the start-date of the canvas, its used to know the oldest available backup (see Backup & Historical View section). All the cooldown values are in ms.
 cli is the numbers of colors to ignore for the player palette, i.e. the given world is made out of blue ocean and white continents with those two colors being the first two in the palette and they are used to know if a pixel got set by a player or not, so cli = 2 here.
