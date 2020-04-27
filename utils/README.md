@@ -34,3 +34,6 @@ Converts a proxy list in specific txt format to a better readable list
 
 ## imageClean.py
 python3 script that takes an input image and cleares spare pixels and bot remains
+
+## backupSync.sh
+shell script that can be launched with backup.js to sync to a storage server after every backup. It uses rsync which is much faster than ftp, sftp or any other methode
