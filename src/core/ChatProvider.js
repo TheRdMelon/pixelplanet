@@ -1,7 +1,7 @@
 /* @flow */
 
 
-import logger from '../core/logger';
+import logger from './logger';
 import redis from '../data/redis';
 import User from '../data/models/User';
 import webSockets from '../socket/websockets';
@@ -38,11 +38,11 @@ class ChatProvider {
 
     if (user.isAdmin() && message.charAt(0) === '/') {
       // admin commands
-      const cmd = message.split(' ', 3);
+      const cmd = message.split(' ');
       if (cmd[0] === '/mute') {
-        return ChatProvider.mute(cmd[1], cmd[2]);
+        return ChatProvider.mute(cmd.slice(1, -1).join(' '), cmd.slice(-1));
       } if (cmd[0] === '/unmute') {
-        return ChatProvider.unmute(cmd[1]);
+        return ChatProvider.unmute(cmd.slice(1).join(' '));
       }
     }
 
