@@ -16,6 +16,7 @@ class ChatProvider {
 
   constructor() {
     this.history = [];
+    this.caseCheck = /^[A-Z !.]*$/;
     this.filters = [
       {
         regexp: /ADMIN/gi,
@@ -64,7 +65,7 @@ class ChatProvider {
       return 'Your mail has to be verified in order to chat';
     }
 
-    if (message === message.toUpperCase()) {
+    if (message.match(this.caseCheck)) {
       return 'Stop shouting';
     }
 
