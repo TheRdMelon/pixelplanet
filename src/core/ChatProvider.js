@@ -61,7 +61,10 @@ class ChatProvider {
       return 'Your mail has to be verified in order to chat';
     }
 
-    if (message.match(this.caseCheck)) {
+    if (message.length > 1
+      && message === message.toUpperCase()
+      && message !== message.toLowerCase()
+    ) {
       return 'Stop shouting';
     }
 
