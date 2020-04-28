@@ -40,15 +40,20 @@ const Chat = ({ chatMessages }) => {
                   <div>
                     <img
                       alt=""
+                      title={`${message[2]}`}
                       src={`${window.assetserver}/cf/${message[2]}.gif`}
                       onError={onError}
                     />
+                    &nbsp;
                     <span
                       className="chatname"
-                      style={{ color: colorFromText(message[0]) }}
+                      style={{
+                        color: colorFromText(message[0]),
+                      }}
                     >
-                      {` ${message[0]}: `}
+                      {`${message[0]}`}
                     </span>
+                    : &nbsp;
                     {
                     splitCoordsInString(message[1]).map((text, i) => {
                       if (i % 2 === 0) {

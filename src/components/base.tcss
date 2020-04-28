@@ -116,6 +116,7 @@ kbd {
 }
 :global(.coorbox) {
     left: 16px;
+    cursor: pointer;
     bottom: 16px;
 }
 :global(.onlinebox) {
@@ -262,10 +263,12 @@ kbd {
 :global(.chatname) {
   color: #4B0000;
   font-size: 13px;
+  user-select: all;
 }
 :global(.chatmsg) {
   color: #030303;
   font-size: 13px;
+  user-select: text;
   margin: 0;
 }
 
@@ -288,6 +291,7 @@ kbd {
 }
 
 :global(.notifyboxvis), :global(.notifyboxhid) {
+    background-color: rgba(226, 226, 226, 0.80);
     position: absolute;
     top: 57px;
     left: 0px;

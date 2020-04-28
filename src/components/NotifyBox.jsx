@@ -8,14 +8,17 @@ import { connect } from 'react-redux';
 
 import type { State } from '../reducers';
 
-let style = {};
 function getStyle(notification) {
-  if (notification) {
-    style = {
-      backgroundColor: (notification >= 0) ? '#a9ffb0cc' : '#ffa9a9cc',
+  if (!notification) return {};
+
+  if (typeof notification === 'string') {
+    return {
+      width: 50,
     };
   }
-  return style;
+  return {
+    backgroundColor: (notification >= 0) ? '#a9ffb0cc' : '#ffa9a9cc',
+  };
 }
 
 const NotifyBox = ({ notification }) => (

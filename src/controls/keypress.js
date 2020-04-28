@@ -5,10 +5,12 @@
 import keycode from 'keycode';
 
 import store from '../ui/store';
+import copy from '../utils/clipboard';
 import {
   toggleGrid,
   togglePixelNotify,
   toggleMute,
+  notify,
 } from '../actions';
 
 
@@ -24,12 +26,20 @@ function onKeyPress(event: KeyboardEvent) {
     case 'g':
       store.dispatch(toggleGrid());
       break;
-    case 'c':
+    case 'x':
       store.dispatch(togglePixelNotify());
       break;
     case 'm':
       store.dispatch(toggleMute());
       break;
+    case 'c': {
+      const state = store.getState();
+      const { hover } = state.gui;
+      const text = hover.join('_');
+      copy(text);
+      store.dispatch(notify('Copied!'));
+      break;
+    }
     default:
   }
 }

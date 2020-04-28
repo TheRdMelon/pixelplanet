@@ -5,6 +5,8 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
+import copy from '../utils/clipboard';
+import { notify } from '../actions';
 
 import type { State } from '../reducers';
 
@@ -13,12 +15,28 @@ function renderCoordinates(cell): string {
   return `(${cell.join(', ')})`;
 }
 
-const CoordinatesBox = ({ view, hover }) => (
-  <div className="coorbox">{
+
+const CoordinatesBox = ({ view, hover, notifyCopy }) => (
+  <div
+    className="coorbox"
+  // eslint-disable-next-line no-restricted-globals
+    onClick={() => { copy(location.hash); notifyCopy(); }}
+    role="button"
+    title="Copy to Clipboard"
+    tabIndex="0"
+  >{
     renderCoordinates(hover
     || view.map(Math.round))
   }</div>
 );
+
+function mapDispatchToProps(dispatch) {
+  return {
+    notifyCopy() {
+      dispatch(notify('Copied!'));
+    },
+  };
+}
 
 function mapStateToProps(state: State) {
   const { view } = state.canvas;
@@ -26,4 +44,4 @@ function mapStateToProps(state: State) {
   return { view, hover };
 }
 
-export default connect(mapStateToProps)(CoordinatesBox);
+export default connect(mapStateToProps, mapDispatchToProps)(CoordinatesBox);
