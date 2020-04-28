@@ -18,26 +18,19 @@ class ChatProvider {
     this.history = [];
     this.filters = [
       {
-        regexp: /ADMIN/g,
+        regexp: /ADMIN/gi,
         matches: 2,
       },
       {
-        regexp: /FUCK/g,
+        regexp: /FUCK/gi,
         matches: 2,
       },
       {
-        regexp: /admin/g,
-        matches: 3,
-      },
-      {
-        regexp: /fuck/g,
-        matches: 3,
-      },
-      {
-        regexp: /FACK/g,
+        regexp: /FACK/gi,
         matches: 3,
       },
     ];
+    this.substitutes = [];
   }
 
   addMessage(name, message) {
@@ -48,7 +41,7 @@ class ChatProvider {
   }
 
   async sendMessage(user, message) {
-    if (message.length > 300) {
+    if (message.length > 200) {
       // eslint-disable-next-line max-len
       return 'You can\'t send a message this long :(';
     }
@@ -63,7 +56,7 @@ class ChatProvider {
     }
 
     if (message === message.toUpperCase()) {
-      return null;
+      return 'Stop shouting';
     }
 
     for (let i = 0; i < this.filters.length; i += 1) {
@@ -73,6 +66,11 @@ class ChatProvider {
         ChatProvider.mute(name, 30);
         return 'Ow no! Spam protection decided to mute you';
       }
+    }
+
+    for (let i = 0; i < this.substitutes.length; i += 1) {
+      const subsitute = this.substitutes[i];
+      message = message.replace(subsitute.regexp, subsitute.replace);
     }
 
     if (user.isAdmin() && message.charAt(0) === '/') {
