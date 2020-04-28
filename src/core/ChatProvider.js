@@ -30,7 +30,12 @@ class ChatProvider {
         matches: 3,
       },
     ];
-    this.substitutes = [];
+    this.substitutes = [
+      {
+        regexp: /http[s]?:\/\/(old.)?pixelplanet\.fun\/#/g,
+        replace: '#',
+      },
+    ];
     this.mutedCountries = [];
   }
 
