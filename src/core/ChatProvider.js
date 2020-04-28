@@ -48,10 +48,6 @@ class ChatProvider {
   }
 
   async sendMessage(user, message) {
-    if (message.length > 200) {
-      // eslint-disable-next-line max-len
-      return 'You can\'t send a message this long :(';
-    }
     const name = (user.regUser) ? user.regUser.name : null;
     const country = (name.endsWith('berg') || name.endsWith('stein'))
       ? 'il'
@@ -81,6 +77,15 @@ class ChatProvider {
     for (let i = 0; i < this.substitutes.length; i += 1) {
       const subsitute = this.substitutes[i];
       message = message.replace(subsitute.regexp, subsitute.replace);
+    }
+
+    if (message.includes('http')) {
+      return 'no shitty links pls';
+    }
+
+    if (message.length > 200) {
+      // eslint-disable-next-line max-len
+      return 'You can\'t send a message this long :(';
     }
 
     if (user.isAdmin() && message.charAt(0) === '/') {
