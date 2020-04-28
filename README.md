@@ -120,12 +120,28 @@ Notes:
 - The HTML for SocialMedia logins is in src/componets/UserAreaModal.js , delete stuff from there if you don't need it
 - The HTML for the Help Screen is in src/components/HelpModal.js
 
-Canvas specific configuartion like colors and cooldown is in canvases.json` for all canvases.
-The CanvasSize is expected to be a power of 4 (4096, 16384, 65536) and not smaller than 256 and not larger than 65536 (you can however change the websocket packages in src/socket/packages/ to send chunk coordinates in 16bit and surpas that limit).
-bcd is base cooldown for unset pixels, pcd is cooldown for placing on top of others, cds is stacktime, ranked if it counts towards the pixelPlaced stats, req is the requirement to be allowed to set on canvas in total pixels placed (or -1 for no requirement or 0 for having to be registered). `sd` is the start-date of the canvas, its used to know the oldest available backup (see Backup & Historical View section). All the cooldown values are in ms.
-cli is the numbers of colors to ignore for the player palette, i.e. the given world is made out of blue ocean and white continents with those two colors being the first two in the palette and they are used to know if a pixel got set by a player or not, so cli = 2 here.
+Canvas specific configuartion like colors and cooldown is in `canvases.json` for all canvases.
+Meaning of some values:
+
+| Key    | Description                                       |
+|--------|:--------------------------------------------------|
+| itent  | Unique character used in the url                  |
+| title  | Title                                             |
+| size   | canvas size, power of 4 and between 256 and 65536 |
+| bcd    | Base cooldown for unset pixels                    |
+| pcd    | Cooldown for placing on set pixels                |
+| cds    | Stack time of Cooldown                            |
+| cli    | Number of colors on the palette to ignore         |
+| ranked | If pixels on canvas count on player statistic     |
+| req    | requieremt to place on the canvas                 |
+| sd     | Start-date of the canvas for historical view      |
+| desc   | Small desctiption text                            |
+| v      | If 3D voxel canvas (boolean)                      |
+
+The canvas size limit can be surpassed by changing the websocket packages in src/socket/packages/ to send chunk coordinates in 16bit.
+req is an integer and if >0 is the amount of total pixels placed before being allowed to play there,  if -1 it has no requirement and if 0 it is limited to registered users. 
+The colors that are ignored via cli are used for making the canvas (blue ocean and white continents) and to know if the pixel is already set by a user or not.
 If you want to add a new canvas, be sure that you additionally create `public/loading${canvasId}.png`, `public/assets3d/normal${canvasId}.jpg`, `public/preview${canvasId}.png` and `public/assets3d/specular${canvasId}.jpg`, check out the existing ones to see what those files are for.
-If `v` is set to true for a canvas, it will be a 3D canvas.
 
 The default configuration values can be seen in `src/core/config.js` and for the canvases in `src/core/constats.js`
 
