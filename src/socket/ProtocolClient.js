@@ -95,6 +95,7 @@ class ProtocolClient extends EventEmitter {
   setName(name) {
     if (this.isConnected && this.name !== name) {
       console.log('Name change requieres WebSocket restart');
+      this.name = name;
       this.reconnect();
     }
   }
