@@ -63,10 +63,17 @@ class WebSockets {
   broadcastChatMessage(
     name: string,
     message: string,
+    country: string,
     sendapi: boolean = true,
   ) {
+    country == country || 'xx';
     this.listeners.forEach(
-      (listener) => listener.broadcastChatMessage(name, message, sendapi),
+      (listener) => listener.broadcastChatMessage(
+        name,
+        message,
+        country,
+        sendapi,
+      ),
     );
   }
 

@@ -31,13 +31,14 @@ class ChatProvider {
       },
     ];
     this.substitutes = [];
+    this.mutedCountries = [];
   }
 
-  addMessage(name, message) {
+  addMessage(name, message, country) {
     if (this.history.length > 20) {
       this.history.shift();
     }
-    this.history.push([name, message]);
+    this.history.push([name, message, country]);
   }
 
   async sendMessage(user, message) {
@@ -46,6 +47,7 @@ class ChatProvider {
       return 'You can\'t send a message this long :(';
     }
     const name = (user.regUser) ? user.regUser.name : null;
+    const country = user.country || 'xx';
 
     if (!name) {
       // eslint-disable-next-line max-len
@@ -75,16 +77,41 @@ class ChatProvider {
 
     if (user.isAdmin() && message.charAt(0) === '/') {
       // admin commands
-      const cmd = message.split(' ');
-      if (cmd[0] === '/mute') {
-        const timeMin = Number(cmd.slice(-1));
+      const cmdArr = message.split(' ');
+      const cmd = cmdArr[0].substr(1);
+      const args = cmdArr.slice(1);
+      if (cmd === 'mute') {
+        const timeMin = Number(args.slice(-1));
         if (Number.isNaN(timeMin)) {
-          return ChatProvider.mute(cmd.slice(1).join(' '));
+          return ChatProvider.mute(args.join(' '));
         }
-        return ChatProvider.mute(cmd.slice(1, -1).join(' '), timeMin);
-      } if (cmd[0] === '/unmute') {
-        return ChatProvider.unmute(cmd.slice(1).join(' '));
+        return ChatProvider.mute(args.slice(0, -1).join(' '), timeMin);
+      } if (cmd === 'unmute') {
+        return ChatProvider.unmute(args.join(' '));
+      } if (cmd === 'mutec' && args[0]) {
+        const cc = args[0].toLowerCase();
+        this.mutedCountries.push(cc);
+        webSockets.broadcastChatMessage(
+          'info',
+          `Country ${cc} has been muted`,
+        );
+        return null;
+      } if (cmd === 'unmutec' && args[0]) {
+        const cc = args[0].toLowerCase();
+        if (!this.mutedCountries.includes(cc)) {
+          return `Country ${cc} is not muted`;
+        }
+        this.mutedCountries = this.mutedCountries.filter((c) => c !== cc);
+        webSockets.broadcastChatMessage(
+          'info',
+          `Country ${cc} has been unmuted`,
+        );
+        return null;
       }
+    }
+
+    if (this.mutedCountries.includes(country)) {
+      return 'Your country is temporary muted from chat';
     }
 
     const muted = await ChatProvider.checkIfMuted(user);
@@ -98,14 +125,19 @@ class ChatProvider {
       }
       return `You are muted for another ${muted} seconds`;
     }
-    this.addMessage(name, message);
-    webSockets.broadcastChatMessage(name, message);
+    this.addMessage(name, message, country);
+    webSockets.broadcastChatMessage(name, message, country);
     return null;
   }
 
-  broadcastChatMessage(name, message, sendapi: boolean = true) {
-    this.addMessage(name, message);
-    webSockets.broadcastChatMessage(name, message, sendapi);
+  broadcastChatMessage(
+    name,
+    message,
+    country: string = 'xx',
+    sendapi: boolean = true,
+  ) {
+    this.addMessage(name, message, country);
+    webSockets.broadcastChatMessage(name, message, country, sendapi);
   }
 
   /*

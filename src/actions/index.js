@@ -185,11 +185,16 @@ export function receiveOnline(online: number): Action {
   };
 }
 
-export function receiveChatMessage(name: string, text: string): Action {
+export function receiveChatMessage(
+  name: string,
+  text: string,
+  country: string,
+): Action {
   return {
     type: 'RECEIVE_CHAT_MESSAGE',
     name,
     text,
+    country,
   };
 }
 

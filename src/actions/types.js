@@ -53,7 +53,10 @@ export type Action =
     color: ColorIndex,
   }
   | { type: 'RECEIVE_ONLINE', online: number }
-  | { type: 'RECEIVE_CHAT_MESSAGE', name: string, text: string }
+  | { type: 'RECEIVE_CHAT_MESSAGE',
+    name: string,
+    text: string,
+    country: string }
   | { type: 'RECEIVE_CHAT_HISTORY', data: Array }
   | { type: 'RECEIVE_ME',
     name: string,
@@ -78,6 +81,9 @@ export type Action =
   | { type: 'SET_HISTORICAL_TIME', date: string, time: string }
   | { type: 'ON_VIEW_FINISH_CHANGE' };
 export type PromiseAction = Promise<Action>;
-export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
+export type Dispatch = (action: Action
+  | ThunkAction
+  | PromiseAction
+  | Array<Action>) => any;
 export type GetState = () => State;
 export type ThunkAction = (dispatch: Dispatch, getState: GetState) => any;

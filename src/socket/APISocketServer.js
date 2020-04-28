@@ -82,7 +82,7 @@ class APISocketServer extends WebSocketEvents {
     setInterval(this.ping, 45 * 1000);
   }
 
-  broadcastChatMessage(name, msg, sendapi, ws = null) {
+  broadcastChatMessage(name, msg, country, sendapi, ws = null) {
     if (!sendapi) return;
 
     const sendmsg = JSON.stringify(['msg', name, msg]);
@@ -238,14 +238,14 @@ class APISocketServer extends WebSocketEvents {
         const chatname = (user.id)
           ? `[MC] ${user.regUser.name}`
           : `[MC] ${minecraftname}`;
-        chatProvider.broadcastChatMessage(chatname, msg, false);
-        this.broadcastChatMessage(chatname, msg, true, ws);
+        chatProvider.broadcastChatMessage(chatname, msg, 'xx', false);
+        this.broadcastChatMessage(chatname, msg, 'xx', true, ws);
         return;
       }
       if (command == 'chat') {
         const [name, msg] = packet;
-        chatProvider.broadcastChatMessage(name, msg, false);
-        this.broadcastChatMessage(name, msg, true, ws);
+        chatProvider.broadcastChatMessage(name, msg, 'xx', false);
+        this.broadcastChatMessage(name, msg, 'xx', true, ws);
         return;
       }
       if (command == 'linkacc') {

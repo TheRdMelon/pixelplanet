@@ -159,10 +159,10 @@ class ProtocolClient extends EventEmitter {
         this.emit('chatHistory', data);
         return;
       }
-      if (data.length == 2) {
+      if (data.length === 3) {
         // Ordinary array: Chat message
-        const [name, text] = data;
-        this.emit('chatMessage', name, text);
+        const [name, text, country] = data;
+        this.emit('chatMessage', name, text, country);
       }
     } else {
       // string = name
@@ -202,7 +202,7 @@ class ProtocolClient extends EventEmitter {
     // reconnect in 1s if last connect was longer than 7s ago, else 5s
     const timeout = this.timeConnected < Date.now() - 7000 ? 1000 : 5000;
     console.warn(
-      'Socket is closed. ' + `Reconnect will be attempted in ${timeout} ms.`,
+      `Socket is closed. Reconnect will be attempted in ${timeout} ms.`,
       e.reason,
     );
 

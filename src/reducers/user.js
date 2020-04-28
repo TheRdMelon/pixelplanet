@@ -44,7 +44,7 @@ const initialState: UserState = {
   mailreg: false,
   totalRanking: {},
   totalDailyRanking: {},
-  chatMessages: [['info', 'Welcome to the PixelPlanet Chat']],
+  chatMessages: [['info', 'Welcome to the PixelPlanet Chat', 'il']],
   minecraftname: null,
   isOnMobile: false,
   notification: null,
@@ -119,14 +119,14 @@ export default function user(
     }
 
     case 'RECEIVE_CHAT_MESSAGE': {
-      const { name, text } = action;
+      const { name, text, country } = action;
       let { chatMessages } = state;
       if (chatMessages.length > 50) {
         chatMessages = chatMessages.slice(-50);
       }
       return {
         ...state,
-        chatMessages: chatMessages.concat([[name, text]]),
+        chatMessages: chatMessages.concat([[name, text, country]]),
       };
     }
 

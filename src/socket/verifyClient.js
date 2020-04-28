@@ -35,11 +35,10 @@ function authenticateClient(req) {
   return new Promise(
     ((resolve) => {
       router(req, {}, () => {
-        if (req.user) {
-          resolve(req.user);
-        } else {
-          resolve(req.noauthUser);
-        }
+        const user = req.user || req.noauthUser;
+        const country = req.headers['cf-ipcountry'];
+        user.country = country.toLowerCase();
+        resolve(user);
       });
     }),
   );

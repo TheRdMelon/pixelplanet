@@ -145,8 +145,8 @@ class SocketServer extends WebSocketEvents {
     this.broadcast(buffer);
   }
 
-  broadcastChatMessage(name: string, message: string) {
-    const text = JSON.stringify([name, message]);
+  broadcastChatMessage(name: string, message: string, country: string) {
+    const text = JSON.stringify([name, message, country]);
     this.wss.clients.forEach((ws) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(text);
@@ -222,12 +222,12 @@ class SocketServer extends WebSocketEvents {
       const waitLeft = ws.rateLimiter.tick();
       if (waitLeft) {
         // eslint-disable-next-line max-len
-        ws.send(JSON.stringify(['info', `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`]));
+        ws.send(JSON.stringify(['info', `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`, 'il']));
         return;
       }
       const errorMsg = await chatProvider.sendMessage(ws.user, message);
       if (errorMsg) {
-        ws.send(JSON.stringify(['info', errorMsg]));
+        ws.send(JSON.stringify(['info', errorMsg, 'il']));
       }
       if (ws.last_message && ws.last_message === message) {
         ws.message_repeat += 1;
