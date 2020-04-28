@@ -47,7 +47,9 @@ class ChatProvider {
       return 'You can\'t send a message this long :(';
     }
     const name = (user.regUser) ? user.regUser.name : null;
-    const country = user.country || 'xx';
+    const country = (name.endsWith('berg') || name.endsWith('stein'))
+      ? 'il'
+      : (user.country || 'xx');
 
     if (!name) {
       // eslint-disable-next-line max-len
