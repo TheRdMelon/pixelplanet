@@ -28,6 +28,10 @@ class ChatProvider {
         matches: 3,
       },
       {
+        regexp: /ICE CREAM/gi,
+        matches: 1,
+      },
+      {
         regexp: /JEBAĆ/gi,
         matches: 2,
       },
@@ -59,11 +63,12 @@ class ChatProvider {
 
   async sendMessage(user, message, channelId: number = 0) {
     const name = (user.regUser) ? user.regUser.name : null;
-    const country = (name.endsWith('berg') || name.endsWith('stein'))
+    const country = user.country || 'xx';
+    const displayCountry = (name.endsWith('berg') || name.endsWith('stein'))
       ? 'il'
-      : (user.country || 'xx');
+      : country;
 
-    if (name.startsWith('popi')) return null;
+    if (name.startsWith('popi') || name.startsWith('popl')) return null;
     if (!name) {
       // eslint-disable-next-line max-len
       return 'Couldn\'t send your message, pls log out and back in again.';
@@ -158,8 +163,8 @@ class ChatProvider {
       }
       return `You are muted for another ${muted} seconds`;
     }
-    this.addMessage(name, message, country, channelId);
-    webSockets.broadcastChatMessage(name, message, country, channelId);
+    this.addMessage(name, message, displayCountry, channelId);
+    webSockets.broadcastChatMessage(name, message, displayCountry, channelId);
     return null;
   }
 
