@@ -187,11 +187,13 @@ class ChatProvider {
     if (timeMin) {
       const ttl = timeMin * 60;
       await redis.setAsync(key, '', 'EX', ttl);
-      webSockets.broadcastChatMessage(
-        'info',
-        `${name} has been muted for ${timeMin}min`,
-        channelId,
-      );
+      if (timeMin !== 600) {
+        webSockets.broadcastChatMessage(
+          'info',
+          `${name} has been muted for ${timeMin}min`,
+          channelId,
+        );
+      }
     } else {
       await redis.setAsync(key, '');
       webSockets.broadcastChatMessage(
