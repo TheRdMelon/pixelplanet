@@ -17,7 +17,9 @@ All requests are made as JSON encoded array.
 
 All chat messages, except the once you send with `chat` or `mcchat`, will be sent to you in the form:
 
-```["msg", name, message]```
+```["msg", name, message, country, channelId]```
+channelId is an integer, channel 0 is `en` channel 1 is `int` and maybe more to come.
+country is the [two-letter country code](https://www.nationsonline.org/oneworld/country_code_list.htm) in lowercase
 ### Subscribe to online user counter
 ```["sub", "online"]```
 
@@ -61,8 +63,9 @@ wait Seconds is the cooldown like in `retpixel` above.
 
 (got an extra command because minecraftname gets resolved to linked pixelplanet user if possible)
 ### Send Chat Message
-```["chat", name, message]```
+```["chat", name, message, country, channelId]```
 
+channelId is an integer, channel 0 is `en` channel 1 is `int` and maybe more to come.
 (messages with the name "info" will be displayed as red notifications in the chat window)
 ### Link Minecraft Account to pixelplanet Account
 ```["linkacc", minecraftid, minecraftname, pixelplanetname]```

@@ -90,9 +90,9 @@ class APISocketServer extends WebSocketEvents {
     sendapi,
     ws = null,
   ) {
-    if (!sendapi || channelId !== 0) return;
+    if (!sendapi) return;
 
-    const sendmsg = JSON.stringify(['msg', name, msg]);
+    const sendmsg = JSON.stringify(['msg', name, msg, country, channelId]);
     this.wss.clients.forEach((client) => {
       if (client !== ws
         && client.subChat
@@ -250,9 +250,9 @@ class APISocketServer extends WebSocketEvents {
         return;
       }
       if (command == 'chat') {
-        const [name, msg] = packet;
-        chatProvider.broadcastChatMessage(name, msg, 'xx', 0, false);
-        this.broadcastChatMessage(name, msg, 'xx', 0, true, ws);
+        const [name, msg, country, channelId] = packet;
+        chatProvider.broadcastChatMessage(name, msg, country, channelId, false);
+        this.broadcastChatMessage(name, msg, country, channelId, true, ws);
         return;
       }
       if (command == 'linkacc') {
