@@ -68,7 +68,7 @@ class ChatProvider {
       ? 'il'
       : country;
 
-    if (name.startsWith('popi') || name.startsWith('popl')) return null;
+    if (name.startsWith('pop')) return null;
     if (!name) {
       // eslint-disable-next-line max-len
       return 'Couldn\'t send your message, pls log out and back in again.';
