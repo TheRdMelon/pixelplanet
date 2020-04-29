@@ -7,6 +7,7 @@ import User from '../data/models/User';
 import webSockets from '../socket/websockets';
 
 import { CHAT_CHANNELS } from './constants';
+import { cheapDetector } from './isProxy';
 
 
 class ChatProvider {
@@ -25,6 +26,18 @@ class ChatProvider {
     this.filters = [
       {
         regexp: /ADMIN/gi,
+        matches: 3,
+      },
+      {
+        regexp: /ADMlN/gi,
+        matches: 3,
+      },
+      {
+        regexp: /ADMlN/gi,
+        matches: 3,
+      },
+      {
+        regexp: /lCE CREAM/gi,
         matches: 3,
       },
       {
@@ -68,7 +81,7 @@ class ChatProvider {
       ? 'il'
       : country;
 
-    if (name.startsWith('pop')) return null;
+    if (name.toUpperCase().startsWith('POP')) return null;
     if (!name) {
       // eslint-disable-next-line max-len
       return 'Couldn\'t send your message, pls log out and back in again.';
@@ -92,6 +105,14 @@ class ChatProvider {
         return 'Ow no! Spam protection decided to mute you';
       }
     }
+
+    if (user.ip && await cheapDetector(user.ip)) {
+      logger.info(
+        `${name} / ${user.ip} tried to send chat message with proxy`,
+      );
+      return 'You can not send chat messages with a proxy';
+    }
+
 
     for (let i = 0; i < this.substitutes.length; i += 1) {
       const subsitute = this.substitutes[i];
