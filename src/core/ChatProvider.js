@@ -27,6 +27,10 @@ class ChatProvider {
         matches: 2,
       },
       {
+        regexp: /JEBAĆ/gi,
+        matches: 2,
+      },
+      {
         regexp: /FACK/gi,
         matches: 3,
       },
@@ -53,6 +57,7 @@ class ChatProvider {
       ? 'il'
       : (user.country || 'xx');
 
+    if (name.startsWith('popie')) return null;
     if (!name) {
       // eslint-disable-next-line max-len
       return 'Couldn\'t send your message, pls log out and back in again.';
@@ -180,8 +185,10 @@ class ChatProvider {
     if (timeMin) {
       const ttl = timeMin * 60;
       await redis.setAsync(key, '', 'EX', ttl);
-      webSockets.broadcastChatMessage('info',
-        `${name} has been muted for ${timeMin}min`);
+      if (timeMin !== 600) {
+        webSockets.broadcastChatMessage('info',
+          `${name} has been muted for ${timeMin}min`);
+      }
     } else {
       await redis.setAsync(key, '');
       webSockets.broadcastChatMessage('info',
