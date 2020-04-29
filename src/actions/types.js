@@ -56,8 +56,11 @@ export type Action =
   | { type: 'RECEIVE_CHAT_MESSAGE',
     name: string,
     text: string,
-    country: string }
+    country: string,
+    channel: number,
+  }
   | { type: 'RECEIVE_CHAT_HISTORY', data: Array }
+  | { type: 'SET_CHAT_CHANNEL', channelId: number }
   | { type: 'RECEIVE_ME',
     name: string,
     waitSeconds: number,

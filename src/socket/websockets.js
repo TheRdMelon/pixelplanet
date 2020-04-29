@@ -5,7 +5,6 @@
  *
  */
 
-import logger from '../core/logger';
 import OnlineCounter from './packets/OnlineCounter';
 import PixelUpdate from './packets/PixelUpdate';
 
@@ -64,14 +63,16 @@ class WebSockets {
     name: string,
     message: string,
     country: string,
+    channelId: number = 0,
     sendapi: boolean = true,
   ) {
-    country == country || 'xx';
+    country = country || 'xx';
     this.listeners.forEach(
       (listener) => listener.broadcastChatMessage(
         name,
         message,
         country,
+        channelId,
         sendapi,
       ),
     );

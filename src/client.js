@@ -43,8 +43,8 @@ function init() {
   ProtocolClient.on('onlineCounter', ({ online }) => {
     store.dispatch(receiveOnline(online));
   });
-  ProtocolClient.on('chatMessage', (name, text, country) => {
-    store.dispatch(receiveChatMessage(name, text, country));
+  ProtocolClient.on('chatMessage', (name, text, country, channelId) => {
+    store.dispatch(receiveChatMessage(name, text, country, channelId));
   });
   ProtocolClient.on('chatHistory', (data) => {
     store.dispatch(receiveChatHistory(data));

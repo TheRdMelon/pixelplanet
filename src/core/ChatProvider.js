@@ -24,7 +24,7 @@ class ChatProvider {
       },
       {
         regexp: /FUCK/gi,
-        matches: 2,
+        matches: 3,
       },
       {
         regexp: /FACK/gi,
@@ -40,14 +40,14 @@ class ChatProvider {
     this.mutedCountries = [];
   }
 
-  addMessage(name, message, country) {
+  addMessage(name, message, country, channelId = 0) {
     if (this.history.length > 20) {
       this.history.shift();
     }
-    this.history.push([name, message, country]);
+    this.history.push([name, message, country, channelId]);
   }
 
-  async sendMessage(user, message) {
+  async sendMessage(user, message, channelId: number = 0) {
     const name = (user.regUser) ? user.regUser.name : null;
     const country = (name.endsWith('berg') || name.endsWith('stein'))
       ? 'il'
@@ -72,7 +72,7 @@ class ChatProvider {
       const filter = this.filters[i];
       const count = (message.match(filter.regexp) || []).length;
       if (count >= filter.matches) {
-        ChatProvider.mute(name, 30);
+        ChatProvider.mute(name, channelId, 30);
         return 'Ow no! Spam protection decided to mute you';
       }
     }
@@ -99,17 +99,22 @@ class ChatProvider {
       if (cmd === 'mute') {
         const timeMin = Number(args.slice(-1));
         if (Number.isNaN(timeMin)) {
-          return ChatProvider.mute(args.join(' '));
+          return ChatProvider.mute(args.join(' '), channelId);
         }
-        return ChatProvider.mute(args.slice(0, -1).join(' '), timeMin);
+        return ChatProvider.mute(
+          args.slice(0, -1).join(' '),
+          channelId,
+          timeMin,
+        );
       } if (cmd === 'unmute') {
-        return ChatProvider.unmute(args.join(' '));
+        return ChatProvider.unmute(args.join(' '), channelId);
       } if (cmd === 'mutec' && args[0]) {
         const cc = args[0].toLowerCase();
         this.mutedCountries.push(cc);
         webSockets.broadcastChatMessage(
           'info',
           `Country ${cc} has been muted`,
+          channelId,
         );
         return null;
       } if (cmd === 'unmutec' && args[0]) {
@@ -121,6 +126,7 @@ class ChatProvider {
         webSockets.broadcastChatMessage(
           'info',
           `Country ${cc} has been unmuted`,
+          channelId,
         );
         return null;
       }
@@ -141,8 +147,8 @@ class ChatProvider {
       }
       return `You are muted for another ${muted} seconds`;
     }
-    this.addMessage(name, message, country);
-    webSockets.broadcastChatMessage(name, message, country);
+    this.addMessage(name, message, country, channelId);
+    webSockets.broadcastChatMessage(name, message, country, channelId);
     return null;
   }
 
@@ -150,10 +156,11 @@ class ChatProvider {
     name,
     message,
     country: string = 'xx',
+    channelId: number = 0,
     sendapi: boolean = true,
   ) {
-    this.addMessage(name, message, country);
-    webSockets.broadcastChatMessage(name, message, country, sendapi);
+    this.addMessage(name, message, country, channelId);
+    webSockets.broadcastChatMessage(name, message, country, channelId, sendapi);
   }
 
   /*
@@ -161,8 +168,8 @@ class ChatProvider {
    * singleton
    */
   // eslint-disable-next-line class-methods-use-this
-  automute(name) {
-    ChatProvider.mute(name, 600);
+  automute(name, channelId = 0) {
+    ChatProvider.mute(name, channelId, 600);
   }
 
   static async checkIfMuted(user) {
@@ -171,7 +178,7 @@ class ChatProvider {
     return ttl;
   }
 
-  static async mute(name, timeMin = null) {
+  static async mute(name, channelId = 0, timeMin = null) {
     const id = await User.name2Id(name);
     if (!id) {
       return `Couldn't find user ${name}`;
@@ -180,18 +187,24 @@ class ChatProvider {
     if (timeMin) {
       const ttl = timeMin * 60;
       await redis.setAsync(key, '', 'EX', ttl);
-      webSockets.broadcastChatMessage('info',
-        `${name} has been muted for ${timeMin}min`);
+      webSockets.broadcastChatMessage(
+        'info',
+        `${name} has been muted for ${timeMin}min`,
+        channelId,
+      );
     } else {
       await redis.setAsync(key, '');
-      webSockets.broadcastChatMessage('info',
-        `${name} has been muted forever`);
+      webSockets.broadcastChatMessage(
+        'info',
+        `${name} has been muted forever`,
+        channelId,
+      );
     }
     logger.info(`Muted user ${id}`);
     return null;
   }
 
-  static async unmute(name) {
+  static async unmute(name, channelId = 0) {
     const id = await User.name2Id(name);
     if (!id) {
       return `Couldn't find user ${name}`;
@@ -201,8 +214,11 @@ class ChatProvider {
     if (delKeys !== 1) {
       return `User ${name} is not muted`;
     }
-    webSockets.broadcastChatMessage('info',
-      `${name} has been unmuted`);
+    webSockets.broadcastChatMessage(
+      'info',
+      `${name} has been unmuted`,
+      channelId,
+    );
     logger.info(`Unmuted user ${id}`);
     return null;
   }

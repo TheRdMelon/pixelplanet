@@ -30,7 +30,7 @@ async function verifyClient(info, done) {
   const ip = await getIPFromRequest(req);
 
   if (!headers.authorization
-    || headers.authorization != `Bearer ${APISOCKET_KEY}`) {
+    || headers.authorization !== `Bearer ${APISOCKET_KEY}`) {
     logger.warn(`API ws request from ${ip} authenticated`);
     return done(false);
   }
@@ -82,8 +82,15 @@ class APISocketServer extends WebSocketEvents {
     setInterval(this.ping, 45 * 1000);
   }
 
-  broadcastChatMessage(name, msg, country, sendapi, ws = null) {
-    if (!sendapi) return;
+  broadcastChatMessage(
+    name,
+    msg,
+    country,
+    channelId,
+    sendapi,
+    ws = null,
+  ) {
+    if (!sendapi || channelId !== 0) return;
 
     const sendmsg = JSON.stringify(['msg', name, msg]);
     this.wss.clients.forEach((client) => {
@@ -238,14 +245,14 @@ class APISocketServer extends WebSocketEvents {
         const chatname = (user.id)
           ? `[MC] ${user.regUser.name}`
           : `[MC] ${minecraftname}`;
-        chatProvider.broadcastChatMessage(chatname, msg, 'xx', false);
-        this.broadcastChatMessage(chatname, msg, 'xx', true, ws);
+        chatProvider.broadcastChatMessage(chatname, msg, 'xx', 0, false);
+        this.broadcastChatMessage(chatname, msg, 'xx', 0, true, ws);
         return;
       }
       if (command == 'chat') {
         const [name, msg] = packet;
-        chatProvider.broadcastChatMessage(name, msg, 'xx', false);
-        this.broadcastChatMessage(name, msg, 'xx', true, ws);
+        chatProvider.broadcastChatMessage(name, msg, 'xx', 0, false);
+        this.broadcastChatMessage(name, msg, 'xx', 0, true, ws);
         return;
       }
       if (command == 'linkacc') {

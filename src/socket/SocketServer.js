@@ -145,8 +145,13 @@ class SocketServer extends WebSocketEvents {
     this.broadcast(buffer);
   }
 
-  broadcastChatMessage(name: string, message: string, country: string) {
-    const text = JSON.stringify([name, message, country]);
+  broadcastChatMessage(
+    name: string,
+    message: string,
+    country: string,
+    channelId: number = 0,
+  ) {
+    const text = JSON.stringify([name, message, country, channelId]);
     this.wss.clients.forEach((ws) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(text);
@@ -217,15 +222,40 @@ class SocketServer extends WebSocketEvents {
     webSockets.broadcastOnlineCounter(online);
   }
 
-  static async onTextMessage(message, ws) {
+  static async onTextMessage(text, ws) {
+    let message; let
+      channelId;
+    try {
+      const data = JSON.parse(text);
+      [message, channelId] = data;
+      channelId = Number(channelId);
+      if (Number.isNaN(channelId)) {
+        throw new Error('NaN');
+      }
+    } catch {
+      logger.warn(
+        `Received unparseable message from ${ws.name} on websocket: ${text}`,
+      );
+      return;
+    }
+
     if (ws.name && message) {
       const waitLeft = ws.rateLimiter.tick();
       if (waitLeft) {
-        // eslint-disable-next-line max-len
-        ws.send(JSON.stringify(['info', `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`, 'il']));
+        ws.send(JSON.stringify([
+          'info',
+          // eslint-disable-next-line max-len
+          `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`,
+          'il',
+          channelId,
+        ]));
         return;
       }
-      const errorMsg = await chatProvider.sendMessage(ws.user, message);
+      const errorMsg = await chatProvider.sendMessage(
+        ws.user,
+        message,
+        channelId,
+      );
       if (errorMsg) {
         ws.send(JSON.stringify(['info', errorMsg, 'il']));
       }
@@ -233,7 +263,7 @@ class SocketServer extends WebSocketEvents {
         ws.message_repeat += 1;
         if (ws.message_repeat >= 3) {
           logger.info(`User ${ws.name} got automuted`);
-          chatProvider.automute(ws.name);
+          chatProvider.automute(ws.name, channelId);
           ws.message_repeat = 0;
         }
       } else {

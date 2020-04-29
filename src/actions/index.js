@@ -189,12 +189,14 @@ export function receiveChatMessage(
   name: string,
   text: string,
   country: string,
+  channel: number,
 ): Action {
   return {
     type: 'RECEIVE_CHAT_MESSAGE',
     name,
     text,
     country,
+    channel,
   };
 }
 
@@ -618,6 +620,13 @@ export function showCanvasSelectionModal(): Action {
 export function showChatModal(): Action {
   if (window.innerWidth > 604) { return toggleChatBox(); }
   return showModal('CHAT');
+}
+
+export function setChatChannel(channelId: number): Action {
+  return {
+    type: 'SET_CHAT_CHANNEL',
+    channelId,
+  };
 }
 
 export function hideModal(): Action {
