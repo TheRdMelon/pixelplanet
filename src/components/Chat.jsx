@@ -12,27 +12,23 @@ import ChatInput from './ChatInput';
 import { colorFromText, splitCoordsInString } from '../core/utils';
 
 
-function onError() {
-  this.onerror = null;
-  this.src = './cf/xx.gif';
-}
-
-
-const Chat = ({ chatMessages }) => {
+const Chat = ({ chatMessages, chatChannel }) => {
   const listRef = useRef();
   const { stayScrolled } = useStayScrolled(listRef, {
     initialScroll: Infinity,
   });
 
+  const channelMessages = chatMessages[chatChannel];
+
   useLayoutEffect(() => {
     stayScrolled();
-  }, [chatMessages.length]);
+  }, [channelMessages.length]);
 
   return (
     <div style={{ height: '100%' }}>
       <ul className="chatarea" ref={listRef}>
         {
-          chatMessages.map((message) => (
+          channelMessages.map((message) => (
             <p className="chatmsg">
               {(message[0] === 'info')
                 ? <span style={{ color: '#cc0000' }}>{message[1]}</span>
@@ -42,7 +38,10 @@ const Chat = ({ chatMessages }) => {
                       alt=""
                       title={`${message[2]}`}
                       src={`${window.assetserver}/cf/${message[2]}.gif`}
-                      onError={onError}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = './cf/xx.gif';
+                      }}
                     />
                     &nbsp;
                     <span
@@ -75,7 +74,8 @@ const Chat = ({ chatMessages }) => {
 
 function mapStateToProps(state: State) {
   const { chatMessages } = state.user;
-  return { chatMessages };
+  const { chatChannel } = state.gui;
+  return { chatMessages, chatChannel };
 }
 
 export default connect(mapStateToProps)(Chat);

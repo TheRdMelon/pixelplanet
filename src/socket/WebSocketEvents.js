@@ -14,7 +14,7 @@ class WebSocketEvents {
   broadcastPixelBuffer(canvasId: number, chunkid: number, buffer: Buffer) {
   }
 
-  broadcastChatMessage(name: string, message: string) {
+  broadcastChatMessage(name: string, message: string, channelId: number) {
   }
 
   broadcastMinecraftLink(name: string, minecraftid: string, accepted: boolean) {

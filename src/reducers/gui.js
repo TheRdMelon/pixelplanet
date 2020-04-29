@@ -17,6 +17,7 @@ export type GUIState = {
   compactPalette: boolean,
   paletteOpen: boolean,
   menuOpen: boolean,
+  chatChannel: number,
 };
 
 const initialState: GUIState = {
@@ -31,6 +32,7 @@ const initialState: GUIState = {
   compactPalette: false,
   paletteOpen: true,
   menuOpen: false,
+  chatChannel: 0,
 };
 
 
@@ -92,6 +94,13 @@ export default function gui(
       return {
         ...state,
         menuOpen: !state.menuOpen,
+      };
+    }
+
+    case 'SET_CHAT_CHANNEL': {
+      return {
+        ...state,
+        chatChannel: action.channelId,
       };
     }
 

@@ -173,6 +173,12 @@ export default (store) => (next) => (action) => {
 
     case 'RECEIVE_CHAT_MESSAGE': {
       if (!chatNotify) break;
+
+      const { chatChannel } = state.gui;
+      if (action.channel !== chatChannel) {
+        break;
+      }
+
       const oscillatorNode = context.createOscillator();
       const gainNode = context.createGain();
 

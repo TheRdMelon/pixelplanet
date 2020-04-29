@@ -10,7 +10,8 @@ import { connect } from 'react-redux';
 import type { State } from '../reducers';
 import ProtocolClient from '../socket/ProtocolClient';
 
-import { showUserAreaModal } from '../actions';
+import { showUserAreaModal, setChatChannel } from '../actions';
+import { CHAT_CHANNELS } from '../core/constants';
 
 class ChatInput extends React.Component {
   constructor() {
@@ -22,50 +23,89 @@ class ChatInput extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleSubmit(e) {
+  handleSubmit(e, channelId) {
     e.preventDefault();
 
     const { message } = this.state;
     if (!message) return;
     // send message via websocket
-    ProtocolClient.sendMessage(message);
+    ProtocolClient.sendChatMessage(message, channelId);
     this.setState({
       message: '',
     });
   }
 
   render() {
-    if (this.props.name) {
+    const {
+      name, chatChannel, open, setChannel,
+    } = this.props;
+    const {
+      message,
+    } = this.state;
+    const selectedChannel = CHAT_CHANNELS[chatChannel];
+
+    if (name) {
       return (
         <div className="chatinput">
-          <form onSubmit={this.handleSubmit}>
+          <form
+            onSubmit={(e) => { this.handleSubmit(e, chatChannel); }}
+            style={{ display: 'inline' }}
+          >
             <input
-              style={{ maxWidth: '80%', width: '240px' }}
-              value={this.state.message}
+              style={{ maxWidth: '58%', width: '240px' }}
+              value={message}
               onChange={(evt) => this.setState({ message: evt.target.value })}
               type="text"
               placeholder="Chat here"
             />
-            <button id="chatmsginput" type="submit">Send</button>
+            <button
+              id="chatmsginput"
+              type="submit"
+              style={{ height: 22 }}
+            >
+              ‣
+            </button>
           </form>
+          <select
+            onChange={(evt) => setChannel(evt.target.selectedIndex)}
+            style={{ height: 22 }}
+          >
+            {
+              CHAT_CHANNELS.map((ch) => (
+                <option selected={ch === selectedChannel}>{ch}</option>
+              ))
+            }
+          </select>
         </div>
       );
     }
     return (
-      <div className="modallink" onClick={this.props.open} style={{ textAlign: 'center', fontSize: 13 }}>You must be logged in to chat</div>
+      <div
+        className="modallink"
+        onClick={open}
+        style={{ textAlign: 'center', fontSize: 13 }}
+        role="button"
+        tabIndex={0}
+      >
+        You must be logged in to chat
+      </div>
     );
   }
 }
 
 function mapStateToProps(state: State) {
   const { name } = state.user;
-  return { name };
+  const { chatChannel } = state.gui;
+  return { name, chatChannel };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     open() {
       dispatch(showUserAreaModal());
+    },
+    setChannel(channelId) {
+      dispatch(setChatChannel(channelId));
     },
   };
 }

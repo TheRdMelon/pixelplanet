@@ -132,8 +132,10 @@ class ProtocolClient extends EventEmitter {
     if (this.isConnected) this.ws.send(buffer);
   }
 
-  sendMessage(message) {
-    if (this.isConnected) this.ws.send(message);
+  sendChatMessage(message, channelId) {
+    if (this.isConnected) {
+      this.ws.send(JSON.stringify([message, channelId]));
+    }
   }
 
   onMessage({ data: message }) {
@@ -160,10 +162,10 @@ class ProtocolClient extends EventEmitter {
         this.emit('chatHistory', data);
         return;
       }
-      if (data.length === 3) {
+      if (data.length === 4) {
         // Ordinary array: Chat message
-        const [name, text, country] = data;
-        this.emit('chatMessage', name, text, country);
+        const [name, text, country, channelId] = data;
+        this.emit('chatMessage', name, text, country, channelId);
       }
     } else {
       // string = name
