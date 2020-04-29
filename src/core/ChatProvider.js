@@ -8,6 +8,9 @@ import webSockets from '../socket/websockets';
 
 import { CHAT_CHANNELS } from './constants';
 import { cheapDetector } from './isProxy';
+import {
+  USE_PROXYCHECK,
+} from './config';
 
 
 class ChatProvider {
@@ -106,7 +109,7 @@ class ChatProvider {
       }
     }
 
-    if (user.ip && await cheapDetector(user.ip)) {
+    if (USE_PROXYCHECK && user.ip && await cheapDetector(user.ip)) {
       logger.info(
         `${name} / ${user.ip} tried to send chat message with proxy`,
       );
