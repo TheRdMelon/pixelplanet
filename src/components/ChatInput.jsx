@@ -47,22 +47,32 @@ class ChatInput extends React.Component {
     if (name) {
       return (
         <div className="chatinput">
-          <form onSubmit={(e) => { this.handleSubmit(e, chatChannel); }}>
+          <form
+            onSubmit={(e) => { this.handleSubmit(e, chatChannel); }}
+            style={{ display: 'inline' }}
+          >
             <input
-              style={{ maxWidth: '80%', width: '240px' }}
+              style={{ maxWidth: '58%', width: '240px' }}
               value={message}
               onChange={(evt) => this.setState({ message: evt.target.value })}
               type="text"
               placeholder="Chat here"
             />
-            <button id="chatmsginput" type="submit">Send</button>
+            <button
+              id="chatmsginput"
+              type="submit"
+              style={{ height: 22 }}
+            >
+              ‣
+            </button>
           </form>
           <select
             onChange={(evt) => setChannel(evt.target.selectedIndex)}
+            style={{ height: 22 }}
           >
             {
               CHAT_CHANNELS.map((ch) => (
-                <option selected={ch === selectedChannel}>ch</option>
+                <option selected={ch === selectedChannel}>{ch}</option>
               ))
             }
           </select>

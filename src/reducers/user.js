@@ -45,8 +45,8 @@ const initialState: UserState = {
   totalRanking: {},
   totalDailyRanking: {},
   chatMessages: [
-    ['info', 'Welcome to the PixelPlanet Chat', 'il'],
-    ['info', 'Welcome to the PixelPlanet Chat', 'il'],
+    [['info', 'Welcome to the PixelPlanet Chat', 'il']],
+    [['info', 'Welcome to the PixelPlanet Chat', 'il']],
   ],
   minecraftname: null,
   isOnMobile: false,
@@ -125,19 +125,15 @@ export default function user(
       const {
         name, text, country, channel,
       } = action;
-      let { chatMessages } = state;
+      const chatMessages = state.chatMessages.slice();
       let channelMessages = chatMessages[channel];
       if (channelMessages.length > 50) {
         channelMessages = channelMessages.slice(-50);
       }
       channelMessages = channelMessages.concat([
-        [name, text, country, channel],
+        [name, text, country]
       ]);
-      chatMessages = Object.assign(
-        [],
-        chatMessages,
-        { channel: channelMessages },
-      );
+      chatMessages[channel] = channelMessages;
       return {
         ...state,
         chatMessages,

@@ -18,15 +18,17 @@ const Chat = ({ chatMessages, chatChannel }) => {
     initialScroll: Infinity,
   });
 
+  const channelMessages = chatMessages[chatChannel];
+
   useLayoutEffect(() => {
     stayScrolled();
-  }, [chatMessages.length]);
+  }, [channelMessages.length]);
 
   return (
     <div style={{ height: '100%' }}>
       <ul className="chatarea" ref={listRef}>
         {
-          chatMessages[chatChannel].map((message) => (
+          channelMessages.map((message) => (
             <p className="chatmsg">
               {(message[0] === 'info')
                 ? <span style={{ color: '#cc0000' }}>{message[1]}</span>

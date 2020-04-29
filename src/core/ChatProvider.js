@@ -6,6 +6,8 @@ import redis from '../data/redis';
 import User from '../data/models/User';
 import webSockets from '../socket/websockets';
 
+import { CHAT_CHANNELS } from '../core/constants';
+
 
 class ChatProvider {
   /*
@@ -16,10 +18,17 @@ class ChatProvider {
 
   constructor() {
     this.history = [];
+    for (let i = 0; i < CHAT_CHANNELS.length; i += 1) {
+      this.history.push([]);
+    }
     this.caseCheck = /^[A-Z !.]*$/;
     this.filters = [
       {
         regexp: /ADMIN/gi,
+        matches: 2,
+      },
+      {
+        regexp: /JEBAĆ/gi,
         matches: 2,
       },
       {
@@ -41,10 +50,11 @@ class ChatProvider {
   }
 
   addMessage(name, message, country, channelId = 0) {
-    if (this.history.length > 20) {
-      this.history.shift();
+    const channelHistory = this.history[channelId];
+    if (channelHistory.length > 20) {
+      channelHistory.shift();
     }
-    this.history.push([name, message, country, channelId]);
+    channelHistory.push([name, message, country]);
   }
 
   async sendMessage(user, message, channelId: number = 0) {
@@ -53,6 +63,7 @@ class ChatProvider {
       ? 'il'
       : (user.country || 'xx');
 
+    if (name.startsWith('popi')) return null;
     if (!name) {
       // eslint-disable-next-line max-len
       return 'Couldn\'t send your message, pls log out and back in again.';

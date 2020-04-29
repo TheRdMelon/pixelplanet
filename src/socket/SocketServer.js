@@ -223,8 +223,8 @@ class SocketServer extends WebSocketEvents {
   }
 
   static async onTextMessage(text, ws) {
-    let message; let
-      channelId;
+    let message;
+    let channelId;
     try {
       const data = JSON.parse(text);
       [message, channelId] = data;
@@ -257,7 +257,7 @@ class SocketServer extends WebSocketEvents {
         channelId,
       );
       if (errorMsg) {
-        ws.send(JSON.stringify(['info', errorMsg, 'il']));
+        ws.send(JSON.stringify(['info', errorMsg, 'il', channelId]));
       }
       if (ws.last_message && ws.last_message === message) {
         ws.message_repeat += 1;
