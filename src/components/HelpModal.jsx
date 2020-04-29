@@ -65,7 +65,7 @@ const HelpModal = () => (
       <p style={textStyle}>Click a color in palette to select</p>
       <p style={textStyle}>Press <kbd>G</kbd> to toggle grid</p>
       <p style={textStyle}>Press <kbd>X</kbd> to toggle showing of pixel activity</p>
-      <p style={textStyle}>Press <kbd>C</kbd> to copy coordinates</p>
+      <p style={textStyle}>Press <kbd>R</kbd> to copy coordinates</p>
       <p style={textStyle}>Press <kbd>Q</kbd> or <kbd>E</kbd> to zoom</p>
       <p style={textStyle}>Press <kbd>W</kbd>,<kbd>A</kbd>,<kbd>S</kbd>, <kbd>D</kbd> to move</p>
       <p style={textStyle}>Press <kbd>↑</kbd>,<kbd>←</kbd>,<kbd>↓</kbd>, <kbd>→</kbd> to move</p>

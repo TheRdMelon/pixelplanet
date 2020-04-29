@@ -32,7 +32,7 @@ function onKeyPress(event: KeyboardEvent) {
     case 'm':
       store.dispatch(toggleMute());
       break;
-    case 'c': {
+    case 'r': {
       const state = store.getState();
       const { hover } = state.gui;
       const text = hover.join('_');
