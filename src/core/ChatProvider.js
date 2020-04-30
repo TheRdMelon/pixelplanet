@@ -209,7 +209,7 @@ class ChatProvider {
    */
   // eslint-disable-next-line class-methods-use-this
   automute(name, channelId = 0) {
-    ChatProvider.mute(name, channelId, 600);
+    ChatProvider.mute(name, channelId, 60);
   }
 
   static async checkIfMuted(user) {
@@ -227,7 +227,7 @@ class ChatProvider {
     if (timeMin) {
       const ttl = timeMin * 60;
       await redis.setAsync(key, '', 'EX', ttl);
-      if (timeMin !== 600) {
+      if (timeMin !== 600 && timeMin !== 60) {
         webSockets.broadcastChatMessage(
           'info',
           `${name} has been muted for ${timeMin}min`,
