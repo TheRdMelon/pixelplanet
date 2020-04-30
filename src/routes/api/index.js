@@ -4,18 +4,11 @@
 
 import express from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors';
 
 import session from '../../core/session';
 import passport from '../../core/passport';
 import { User } from '../../data/models';
 import { getIPFromRequest, getIPv6Subnet } from '../../utils/ip';
-
-import {
-  MINUTE,
-  SECOND,
-  DAY,
-} from '../../core/constants';
 
 import me from './me';
 import mctp from './mctp';
@@ -42,8 +35,9 @@ router.use(session);
  * (cut IPv6 to subnet to prevent abuse)
  */
 router.use(async (req, res, next) => {
-  const { session } = req;
-  const id = (session.passport && session.passport.user) ? session.passport.user : null;
+  const { session: sess } = req;
+  const id = (sess.passport && sess.passport.user)
+    ? sess.passport.user : null;
   const ip = await getIPFromRequest(req);
   const trueIp = ip || '0.0.0.1';
   req.trueIp = trueIp;

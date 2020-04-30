@@ -18,7 +18,22 @@ const logger = createLogger({
   ],
 });
 
+export const pixelLogger = createLogger({
+  transports: [
+    new transports.File({
+      level: 'info',
+      filename: './pixels.log',
+      maxsize: 10428800, // 10MB
+      colorize: false,
+    }),
+  ],
+});
+
 export const proxyLogger = createLogger({
+  format: format.combine(
+    format.splat(),
+    format.simple(),
+  ),
   transports: [
     new transports.File({
       level: 'info',

@@ -12,7 +12,7 @@ import {
   strongDetector,
 } from '../../core/isProxy';
 import verifyCaptcha from '../../utils/recaptcha';
-import logger from '../../core/logger';
+import logger, { pixelLogger } from '../../core/logger';
 import redis from '../../data/redis';
 import {
   USE_PROXYCHECK,
@@ -193,7 +193,15 @@ async function place(req: Request, res: Response) {
   const { user, trueIp } = req;
 
   // eslint-disable-next-line max-len
-  logger.info(`${trueIp} / ${user.id} wants to place ${clr} in (${x}, ${y}, ${z}) on canvas ${cn}`);
+  pixelLogger.info({
+    ip: trueIp,
+    id: user.id,
+    cn,
+    x,
+    y,
+    z,
+    clr,
+  });
 
   const {
     errorTitle, error, success, waitSeconds, coolDownSeconds,

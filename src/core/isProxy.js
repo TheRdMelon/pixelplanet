@@ -7,7 +7,9 @@ import fetch from '../utils/proxiedFetch';
 import redis from '../data/redis';
 import { getIPv6Subnet } from '../utils/ip';
 import { Blacklist, Whitelist } from '../data/models';
-import logger from './logger';
+import { proxyLogger } from './logger';
+
+const logger = proxyLogger;
 
 
 /*
