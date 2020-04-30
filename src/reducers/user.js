@@ -131,7 +131,7 @@ export default function user(
         channelMessages = channelMessages.slice(-50);
       }
       channelMessages = channelMessages.concat([
-        [name, text, country]
+        [name, text, country],
       ]);
       chatMessages[channel] = channelMessages;
       return {

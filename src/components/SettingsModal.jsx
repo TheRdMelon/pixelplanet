@@ -121,12 +121,13 @@ function SettingsModal({
       <SettingsItem
         title="Show Pixel Activity"
         description="Show circles where pixels are placed."
-        keyBind="C"
+        keyBind="X"
         value={isPixelNotifyShown}
         onToggle={onTogglePixelNotify}
       />
       <SettingsItem
         title="Disable Game Sounds"
+        // eslint-disable-next-line max-len
         description="All sound effects except Chat Notification will be disabled."
         keyBind="M"
         value={isMuted}
@@ -140,12 +141,14 @@ function SettingsModal({
       />
       <SettingsItem
         title="Auto Zoom In"
+        // eslint-disable-next-line max-len
         description="Zoom in instead of placing a pixel when you tap the canvas and your zoom is small."
         value={autoZoomIn}
         onToggle={onToggleAutoZoomIn}
       />
       <SettingsItem
         title="Compact Palette"
+        // eslint-disable-next-line max-len
         description="Display Palette in a compact form that takes less screen space."
         value={compactPalette}
         onToggle={onToggleCompactPalette}
