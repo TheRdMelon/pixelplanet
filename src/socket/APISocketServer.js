@@ -164,7 +164,6 @@ class APISocketServer extends WebSocketEvents {
   }
 
   async onTextMessage(message, ws) {
-    logger.info(`Got message ${message}`);
     try {
       const packet = JSON.parse(message);
       const command = packet[0];
@@ -183,6 +182,7 @@ class APISocketServer extends WebSocketEvents {
         if (even == 'online') {
           ws.subOnline = true;
         }
+        logger.info(`APISocket client subscribed to  ${command}`);
         return;
       }
       if (command == 'setpxl') {
@@ -209,6 +209,7 @@ class APISocketServer extends WebSocketEvents {
         ]));
         return;
       }
+      logger.info(`APISocket message  ${message}`);
       if (command == 'login') {
         const [minecraftid, minecraftname, ip] = packet;
         const user = await this.mc.report_login(minecraftid, minecraftname);
