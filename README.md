@@ -163,7 +163,7 @@ ALTER TABLE Users CONVERT TO CHARACTER SET utf8mb4 COLLATE 'utf8mb4_unicode_ci';
 ```
 
 ### Logging
-logs are in ~/pm2/log/, you can view them with
+General logs are in `~/pm2/log/`, you can view them with
 
 ```
 pm2 log web 
@@ -174,6 +174,8 @@ you can flush the logs with
 ```
 pm2 log flush
 ```
+
+Pixel placing logs are in `./pixels.log`and proxycheck logs in `./proxies.log` in the directory where you start pixelplaent.
 
 ### Stopping
 ```
