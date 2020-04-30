@@ -16,7 +16,7 @@ export default async (req: Request, res: Response) => {
     return;
   }
 
-  const me = await getMe(req.user);
+  const me = await getMe(user);
   req.logout();
   res.status(200);
   res.json({

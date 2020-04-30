@@ -190,7 +190,7 @@ class MailProvider {
       mailVerified: true,
       verificationReqAt: null,
     });
-    return true;
+    return reguser.name;
   }
 
   static createCode() {

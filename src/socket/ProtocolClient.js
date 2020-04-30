@@ -191,6 +191,7 @@ class ProtocolClient extends EventEmitter {
       case ChangedMe.OP_CODE:
         console.log('Websocket requested api/me reload');
         this.emit('changedMe');
+        this.reconnect();
         break;
       default:
         console.error(`Unknown op_code ${opcode} received`);
