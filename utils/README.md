@@ -35,5 +35,21 @@ Converts a proxy list in specific txt format to a better readable list
 ## imageClean.py
 python3 script that takes an input image and cleares spare pixels and bot remains
 
+## areaDownload.py
+downloads an area of the canvas into a png file.
+Usage: `areaDownload.py startX_startY endX_endY filename.png`
+(note that you can copy the current coordinates in this format on the site by pressing R)
+
+## historyDownload.py
+downloads the history from an canvas area between two dates.
+Useage: `historyDownload.py startX_startY endX_endY start_date end_date
+This is used for creating timelapses, see the cmd help to know how
+
+## historyCopy.py
+same as historyDownload, just that its designed for running on the storage server by copying the chunks. Also instead of time you define the amount of days you want to make a timelapse of.
+
 ## backupSync.sh
 shell script that can be launched with backup.js to sync to a storage server after every backup. It uses rsync which is much faster than ftp, sftp or any other methode
+
+## pp-center\*.png
+center logo of pixelplanet

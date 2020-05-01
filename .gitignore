@@ -1,4 +1,6 @@
 build
+timelapse
+output.webm
 chunks
 players.json
 .digitalocean
