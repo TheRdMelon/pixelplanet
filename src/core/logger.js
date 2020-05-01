@@ -6,6 +6,7 @@
  */
 
 import { createLogger, format, transports } from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
 const logger = createLogger({
   level: 'info',
@@ -19,11 +20,13 @@ const logger = createLogger({
 });
 
 export const pixelLogger = createLogger({
+  format: format.printf(({ message }) => message),
   transports: [
-    new transports.File({
+    new DailyRotateFile({
       level: 'info',
-      filename: './pixels.log',
-      maxsize: 10428800, // 10MB
+      filename: './log/pixels-%DATE%.log',
+      maxsize: '20m',
+      maxFiles: '14d',
       colorize: false,
     }),
   ],
@@ -35,10 +38,11 @@ export const proxyLogger = createLogger({
     format.simple(),
   ),
   transports: [
-    new transports.File({
+    new DailyRotateFile({
       level: 'info',
-      filename: './proxies.log',
-      maxsize: 10428800, // 10MB
+      filename: './log/proxycheck-%DATE%.log',
+      maxsize: '10m',
+      maxFiles: '14d',
       colorize: false,
     }),
   ],

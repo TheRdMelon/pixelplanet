@@ -175,7 +175,7 @@ you can flush the logs with
 pm2 log flush
 ```
 
-Pixel placing logs are in `./pixels.log`and proxycheck logs in `./proxies.log` in the directory where you start pixelplaent.
+Pixel placing logs are in `./log/pixels.log`and proxycheck logs in `./log/proxies.log` in the directory where you start pixelplaent. They get rotated daily and deleted if >14d old.
 
 ### Stopping
 ```

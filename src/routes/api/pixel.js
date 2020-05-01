@@ -193,15 +193,7 @@ async function place(req: Request, res: Response) {
   const { user, trueIp } = req;
 
   // eslint-disable-next-line max-len
-  pixelLogger.info({
-    ip: trueIp,
-    id: user.id,
-    cn,
-    x,
-    y,
-    z,
-    clr,
-  });
+  pixelLogger.info(`${trueIp} ${user.id} ${cn} ${x} ${y} ${z} ${clr}`);
 
   const {
     errorTitle, error, success, waitSeconds, coolDownSeconds,

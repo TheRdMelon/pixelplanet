@@ -11,6 +11,7 @@ import pkg from '../package.json';
  */
 async function copy() {
   await makeDir('build');
+  await makeDir('build/log');
   await Promise.all([
     copyFile('LICENSE', 'build/LICENSE'),
     copyDir('public', 'build/public'),
