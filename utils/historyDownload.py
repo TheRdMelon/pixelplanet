@@ -68,8 +68,13 @@ async def get_area(x, y, w, h, start_date, end_date):
             cnt += 1
             #frames.append(image.copy())
             image.save('./timelapse/t%s.png' % (cnt))
-            async with session.get('https://pixelplanet.fun/api/history?day=%s&id=%s' % (iter_date, canvas_id)) as resp:
-                time_list = json.loads(await resp.text())
+            while True:
+                async with session.get('https://pixelplanet.fun/api/history?day=%s&id=%s' % (iter_date, canvas_id)) as resp:
+                    try:
+                        time_list = json.loads(await resp.text())
+                        break
+                    except:
+                        print('Couldn\'t decode json for day %s, trying again' % (iter_date))
             i = 0
             for time in time_list:
                 i += 1
