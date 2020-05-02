@@ -27,11 +27,11 @@ class Ranks {
     // recalculate ranking column
     await Model.query(
       // eslint-disable-next-line max-len
-      'SET @r=0; UPDATE Users SET ranking= @r:= (@r + 1) WHERE NOT id= 18 ORDER BY totalPixels DESC;',
+      'SET @r=0; UPDATE Users SET ranking= @r:= (@r + 1) ORDER BY totalPixels DESC;',
     );
     await Model.query(
       // eslint-disable-next-line max-len
-      'SET @r=0; UPDATE Users SET dailyRanking= @r:= (@r + 1) WHERE NOT id= 18 ORDER BY dailyTotalPixels DESC;',
+      'SET @r=0; UPDATE Users SET dailyRanking= @r:= (@r + 1) ORDER BY dailyTotalPixels DESC;',
     );
     // populate dictionaries
     const ranking = await RegUser.findAll({
