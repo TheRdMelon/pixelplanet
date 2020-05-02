@@ -7,6 +7,7 @@ import bodyParser from 'body-parser';
 
 import session from '../../core/session';
 import passport from '../../core/passport';
+import logger from '../../core/logger';
 import { User } from '../../data/models';
 import { getIPFromRequest, getIPv6Subnet } from '../../utils/ip';
 
@@ -48,6 +49,16 @@ router.use(async (req, res, next) => {
 
 router.use(bodyParser.json());
 
+router.use((err, req, res, next) => {
+  if (err) {
+    logger.warn(`Got invalid json from ${req.trueIp} on ${req.originalUrl}`);
+    res.status(400);
+    res.status(400).json({ errors: [{ msg: 'Invalid Request' }] });
+  } else {
+    next();
+  }
+});
+
 /*
  * rate limiting should occure outside,
  * with nginx or whatever
@@ -68,6 +79,5 @@ router.get('/me', me);
 router.post('/mctp', mctp);
 
 router.use('/auth', auth(passport));
-
 
 export default router;
