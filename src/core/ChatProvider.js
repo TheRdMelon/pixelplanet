@@ -29,35 +29,19 @@ class ChatProvider {
     this.filters = [
       {
         regexp: /ADMIN/gi,
-        matches: 3,
+        matches: 4,
       },
       {
         regexp: /ADMlN/gi,
-        matches: 3,
+        matches: 4,
       },
       {
         regexp: /ADMlN/gi,
-        matches: 3,
-      },
-      {
-        regexp: /lCE CREAM/gi,
-        matches: 3,
-      },
-      {
-        regexp: /ICE CREAM/gi,
-        matches: 1,
-      },
-      {
-        regexp: /JEBAĆ/gi,
-        matches: 2,
+        matches: 4,
       },
       {
         regexp: /FUCK/gi,
-        matches: 3,
-      },
-      {
-        regexp: /FACK/gi,
-        matches: 3,
+        matches: 4,
       },
     ];
     this.substitutes = [
@@ -93,7 +77,7 @@ class ChatProvider {
       return 'Your mail has to be verified in order to chat';
     }
 
-    if (message.length > 1
+    if (message.length > 2
       && message === message.toUpperCase()
       && message !== message.toLowerCase()
     ) {
