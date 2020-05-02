@@ -119,8 +119,12 @@ async function dailyBackup() {
   if (!fs.existsSync(backupDir)) {
     fs.mkdirSync(backupDir);
   }
-  await updateBackupRedis(canvasRedis, backupRedis, canvases);
-  await createPngBackup(backupRedis, canvases, backupDir);
+  try {
+    await updateBackupRedis(canvasRedis, backupRedis, canvases);
+    await createPngBackup(backupRedis, canvases, backupDir);
+  } catch (e) {
+    console.log('Error occured during daily backup', e);
+  }
   console.log('Daily full backup done');
 }
 
@@ -129,12 +133,16 @@ async function incrementialBackup() {
   if (!fs.existsSync(backupDir)) {
     fs.mkdirSync(backupDir);
   }
-  await incrementialBackupRedis(
-    canvasRedis,
-    backupRedis,
-    canvases,
-    backupDir,
-  );
+  try {
+    await incrementialBackupRedis(
+      canvasRedis,
+      backupRedis,
+      canvases,
+      backupDir,
+    );
+  } catch (e) {
+    console.log('Error occured during incremential backup', e);
+  }
 }
 
 async function trigger() {
