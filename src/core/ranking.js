@@ -25,20 +25,54 @@ class Ranks {
 
   async updateRanking() {
     // recalculate ranking column
-    await Model.query('SET @r=0; UPDATE Users SET ranking= @r:= (@r + 1) WHERE NOT id= 18 ORDER BY totalPixels DESC;');
-    await Model.query('SET @r=0; UPDATE Users SET dailyRanking= @r:= (@r + 1) WHERE NOT id= 18 ORDER BY dailyTotalPixels DESC;');
+    await Model.query(
+      // eslint-disable-next-line max-len
+      'SET @r=0; UPDATE Users SET ranking= @r:= (@r + 1) WHERE NOT id= 18 ORDER BY totalPixels DESC;',
+    );
+    await Model.query(
+      // eslint-disable-next-line max-len
+      'SET @r=0; UPDATE Users SET dailyRanking= @r:= (@r + 1) WHERE NOT id= 18 ORDER BY dailyTotalPixels DESC;',
+    );
     // populate dictionaries
     const ranking = await RegUser.findAll({
-      attributes: ['name', 'totalPixels', 'ranking', 'dailyRanking', 'dailyTotalPixels', [Sequelize.fn('DATEDIFF', Sequelize.literal('CURRENT_TIMESTAMP'), Sequelize.col('createdAt')), 'age']],
+      attributes: [
+        'name',
+        'totalPixels',
+        'ranking',
+        'dailyRanking',
+        'dailyTotalPixels',
+        [
+          Sequelize.fn(
+            'DATEDIFF',
+            Sequelize.literal('CURRENT_TIMESTAMP'),
+            Sequelize.col('createdAt'),
+          ),
+          'age',
+        ],
+      ],
       limit: 100,
-      where: { id: { [Sequelize.Op.notIn]: [18, 51] } },
+      where: { id: { [Sequelize.Op.notIn]: [51, 1] } },
       order: ['ranking'],
       raw: true,
     });
     const dailyRanking = await RegUser.findAll({
-      attributes: ['name', 'totalPixels', 'ranking', 'dailyRanking', 'dailyTotalPixels', [Sequelize.fn('DATEDIFF', Sequelize.literal('CURRENT_TIMESTAMP'), Sequelize.col('createdAt')), 'age']],
+      attributes: [
+        'name',
+        'totalPixels',
+        'ranking',
+        'dailyRanking',
+        'dailyTotalPixels',
+        [
+          Sequelize.fn(
+            'DATEDIFF',
+            Sequelize.literal('CURRENT_TIMESTAMP'),
+            Sequelize.col('createdAt'),
+          ),
+          'age',
+        ],
+      ],
       limit: 100,
-      where: { id: { [Sequelize.Op.notIn]: [18, 51] } },
+      where: { id: { [Sequelize.Op.notIn]: [51, 1] } },
       order: ['dailyRanking'],
       raw: true,
     });
