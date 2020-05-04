@@ -72,6 +72,17 @@ function init() {
 
   store.dispatch(fetchStats());
   setInterval(() => { store.dispatch(fetchStats()); }, 300000);
+
+  // mess with void bot :)
+  function ayylmao() {
+    if (typeof window.$jscomp !== 'undefined') {
+      window.setPixel = () => true;
+      window.panel.window.childNodes[0].innerHTML = 'STOP BOTTING YOU NI**ER!';
+      fetch('https://assets.pixelplanet.fun/iamabot');
+    }
+  }
+  ayylmao();
+  setInterval(ayylmao, 120000);
 }
 init();
 
