@@ -259,8 +259,7 @@ class Renderer {
     return null;
   }
 
-  // TODO use GC to dispose unused chunks
-  // eslint-disable-next-line class-methods-use-this
+  // TODO check if GC even works on 3D canvas
   getAllChunks() {
     return this.chunkLoader.getAllChunks();
   }
