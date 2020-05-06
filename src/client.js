@@ -75,10 +75,20 @@ function init() {
 
   // mess with void bot :)
   function ayylmao() {
-    if (typeof window.$jscomp !== 'undefined') {
-      window.setPixel = () => true;
-      window.panel.window.childNodes[0].innerHTML = 'STOP BOTTING YOU NI**ER!';
+    let cnt = 0;
+    for (let i = 0; i < document.body.children.length; i += 1) {
+      const node = document.body.children[i];
+      if (node.nodeName === 'SCRIPT' && node.src === '') {
+        cnt += 1;
+      }
+    }
+    if (cnt > 1) {
+      document.body.style.setProperty(
+        "-webkit-transform", "rotate(-180deg)",
+        null,
+      );
       fetch('https://assets.pixelplanet.fun/iamabot');
+      window.fetch = () => true;
     }
   }
   ayylmao();
