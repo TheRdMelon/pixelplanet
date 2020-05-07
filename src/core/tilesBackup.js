@@ -126,7 +126,7 @@ export async function incrementialBackupRedis(
               pxl += 1;
             }
           } else {
-            tileBuffer = curChunk;
+            tileBuffer = palette.buffer2RGB(curChunk);
           }
         }
         if (tileBuffer) {
