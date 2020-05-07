@@ -6,6 +6,9 @@ players.json
 .digitalocean
 database.sqlite
 .ftpquota
+lol.png
+lol-cleaned.png
+clean.png
 
 
 # Created by https://www.gitignore.io/api/node,webstorm

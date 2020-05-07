@@ -57,3 +57,6 @@ Usage: `./liveLog.sh LOGFILE CANVASID STARTX_STARTY ENDX_ENDY`
 
 ## pp-center\*.png
 center logo of pixelplanet
+
+## change-canvasbackup
+just a script that got run once to add the missing tiles in historical view when  increasing the size of the moon canvas.

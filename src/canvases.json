@@ -83,7 +83,7 @@
       [ 122,	148,	156 ],
       [ 174,	215,	185	]
     ],
-    "size" : 1024,
+    "size" : 4096,
     "cli": 2,
     "bcd": 15000,
     "pcd": 15000,
@@ -206,6 +206,6 @@
     "ranked" : false,
     "req": 0,
     "sd": "2020-03-15",
-    "desc": "Special canvas to spread aweareness of coronavirus (doesn't count towards statistics)"
+    "desc": "Special canvas to spread awareness of SARS-CoV2 (doesn't count towards statistics)"
   }
 }
