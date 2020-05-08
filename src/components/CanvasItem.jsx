@@ -75,6 +75,7 @@ const CanvasItem = ({ canvasId, canvas, changeCanvas }) => (
       <span style={titleStyle}>{canvas.title}</span><br />
       <span style={infoStyle}>{canvas.desc}</span><br />
       Cooldown:
+      &nbsp;
       <span style={infoStyle}>
         {(canvas.bcd !== canvas.pcd)
           ? <span> {canvas.bcd / 1000}s / {canvas.pcd / 1000}s</span>
@@ -82,6 +83,9 @@ const CanvasItem = ({ canvasId, canvas, changeCanvas }) => (
       </span><br />
       Stacking till
       <span style={infoStyle}> {canvas.cds / 1000}s</span><br />
+      Ranked:
+      &nbsp;
+      <span style={infoStyle}>{(canvas.ranked) ? 'Yes' : 'No'}</span><br />
       {(canvas.req !== -1) ? <span>Requirements:<br /></span> : null}
       <span style={infoStyle}>
         {(canvas.req !== -1) ? <span>User Account </span> : null}

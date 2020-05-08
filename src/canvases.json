@@ -166,7 +166,7 @@
     "bcd": 2000,
     "pcd" : 2000,
     "cds": 60000,
-    "ranked" : true,
+    "ranked" : false,
     "req": 0,
     "sd": "2020-01-08",
     "desc": "Place Voxels on a 3D canvas with others"
@@ -206,6 +206,6 @@
     "ranked" : false,
     "req": 0,
     "sd": "2020-03-15",
-    "desc": "Special canvas to spread awareness of SARS-CoV2 (doesn't count towards statistics)"
+    "desc": "Special canvas to spread awareness of SARS-CoV2"
   }
 }
