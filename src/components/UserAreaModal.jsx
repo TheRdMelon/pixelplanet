@@ -3,12 +3,14 @@
  * @flow
  */
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { connect } from 'react-redux';
 
 import Modal from './Modal';
 
 import type { State } from '../reducers';
+
+const Converter = React.lazy(() => import(/* webpackChunkName: "converter" */ './Converter'));
 
 
 import {
@@ -66,7 +68,7 @@ const LogInArea = ({ register, forgot_password, me }) => (
 );
 
 const UserAreaModal = ({
-  name, register, forgot_password, doMe, logout, setName, setMailreg,
+  name, register, forgot_password, doMe, logout, setName, setMailreg, canvases,
 }) => (
   <Modal title="User Area">
     <p style={{ textAlign: 'center' }}>
@@ -83,6 +85,11 @@ const UserAreaModal = ({
             </div>
             <div label="Ranking">
               <Rankings />
+            </div>
+            <div label="Converter">
+              <Suspense fallback={<div>Loading...</div>}>
+                <Converter />
+              </Suspense>
             </div>
           </Tabs>
         )}
@@ -120,7 +127,8 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state: State) {
   const { name } = state.user;
-  return { name };
+  const { canvases } = state.canvas;
+  return { name, canvases };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserAreaModal);

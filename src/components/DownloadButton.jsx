@@ -6,7 +6,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { MdFileDownload } from 'react-icons/md';
-import fileDownload from 'react-file-download';
+import fileDownload from 'js-file-download';
 
 import { getRenderer } from '../ui/renderer';
 
