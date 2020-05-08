@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import type { State } from '../reducers';
 
 const TotalRankings = ({ totalRanking }) => (
-  <div style={{ overflowY: 'auto' }}>
+  <div style={{ overflowY: 'auto', display: 'inline-block' }}>
     <table>
       <tr>
         <th>#</th>

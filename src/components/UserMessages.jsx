@@ -79,7 +79,7 @@ class UserMessages extends React.Component {
         {(messages.includes('not_verified') && messages.splice(messages.indexOf('not_verified'), 1))
           ? (
             <p className="usermessages">
-              Please verify your mail address or your account could get deleted after a few days.
+              Please verify your mail address or your account could get deleted after a few days.&nbsp;
               {(this.state.verify_answer)
                 ? <span className="modallink">{this.state.verify_answer}</span>
                 : <span className="modallink" onClick={this.submit_resend_verify}>Click here to request a new verification mail.</span>}

@@ -20,7 +20,7 @@ function validate(nameoremail, password) {
   return errors;
 }
 
-async function submit_login(nameoremail, password, component) {
+async function submitLogin(nameoremail, password) {
   const body = JSON.stringify({
     nameoremail,
     password,
@@ -37,8 +37,9 @@ async function submit_login(nameoremail, password, component) {
 }
 
 const inputStyles = {
-  display: 'block',
+  display: 'inline-block',
   width: '100%',
+  maxWidth: '35em',
 };
 
 class LogInForm extends React.Component {
@@ -59,6 +60,7 @@ class LogInForm extends React.Component {
     e.preventDefault();
 
     const { nameoremail, password, submitting } = this.state;
+    const { me: setMe } = this.props;
     if (submitting) return;
 
     const errors = validate(nameoremail, password);
@@ -67,7 +69,10 @@ class LogInForm extends React.Component {
     if (errors.length > 0) return;
 
     this.setState({ submitting: true });
-    const { errors: resperrors, me } = await submit_login(nameoremail, password);
+    const { errors: resperrors, me } = await submitLogin(
+      nameoremail,
+      password,
+    );
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -75,32 +80,37 @@ class LogInForm extends React.Component {
       });
       return;
     }
-    this.props.me(me);
+    setMe(me);
   }
 
   render() {
-    const { errors } = this.state;
+    const {
+      errors, nameoremail, password, submitting,
+    } = this.state;
     return (
       <form onSubmit={this.handleSubmit}>
         {errors.map((error) => (
           <p key={error}>Error: {error}</p>
         ))}
         <input
+          value={nameoremail}
           style={inputStyles}
-          value={this.state.nameoremail}
           onChange={(evt) => this.setState({ nameoremail: evt.target.value })}
           type="text"
           placeholder="Name or Email"
         />
         <input
+          value={password}
           style={inputStyles}
-          value={this.state.password}
           onChange={(evt) => this.setState({ password: evt.target.value })}
           type="password"
           placeholder="Password"
         />
-
-        <button type="submit">{(this.state.submitting) ? '...' : 'LogIn'}</button>
+        <p>
+          <button type="submit">
+            {(submitting) ? '...' : 'LogIn'}
+          </button>
+        </p>
       </form>
     );
   }

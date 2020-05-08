@@ -84,7 +84,7 @@ function init() {
     }
     if (cnt > 1) {
       document.body.style.setProperty(
-        "-webkit-transform", "rotate(-180deg)",
+        '-webkit-transform', 'rotate(-180deg)',
         null,
       );
       fetch('https://assets.pixelplanet.fun/iamabot');

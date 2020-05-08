@@ -10,8 +10,6 @@ import Modal from './Modal';
 
 import type { State } from '../reducers';
 
-const Converter = React.lazy(() => import(/* webpackChunkName: "converter" */ './Converter'));
-
 
 import {
   showRegisterModal, showForgotPasswordModal, setName, setMailreg, receiveMe,
@@ -21,21 +19,11 @@ import Tabs from './Tabs';
 import UserArea from './UserArea';
 import Rankings from './Rankings';
 
+// eslint-disable-next-line max-len
+const Converter = React.lazy(() => import(/* webpackChunkName: "converter" */ './Converter'));
+
 const logoStyle = {
   marginRight: 5,
-};
-
-const titleStyle = {
-  color: '#4f545c',
-  marginLeft: 0,
-  marginRight: 10,
-  overflow: 'hidden',
-  wordWrap: 'break-word',
-  lineHeight: '24px',
-  fontSize: 16,
-  fontWeight: 500,
-  // marginTop: 0,
-  marginBottom: 0,
 };
 
 const textStyle = {
@@ -55,32 +43,77 @@ const LogInArea = ({ register, forgot_password, me }) => (
     <p style={textStyle}>Login to access more features and stats.</p><br />
     <h2>Login with Mail:</h2>
     <LogInForm me={me} />
-    <p className="modallink" onClick={forgot_password}>I forgot my Password.</p>
+    <p
+      className="modallink"
+      onClick={forgot_password}
+    >
+      I forgot my Password.</p>
     <h2>or login with:</h2>
-    <a href="./api/auth/discord"><img style={logoStyle} width={32} src={`${window.assetserver}/discordlogo.svg`} alt="Discord" /></a>
-    <a href="./api/auth/google"><img style={logoStyle} width={32} src={`${window.assetserver}/googlelogo.svg`} alt="Google" /></a>
-    <a href="./api/auth/facebook"><img style={logoStyle} width={32} src={`${window.assetserver}/facebooklogo.svg`} alt="Facebook" /></a>
-    <a href="./api/auth/vk"><img style={logoStyle} width={32} src={`${window.assetserver}/vklogo.svg`} alt="vk" /></a>
-    <a href="./api/auth/reddit"><img style={logoStyle} width={32} src={`${window.assetserver}/redditlogo.svg`} alt="vk" /></a>
+    <a href="./api/auth/discord">
+      <img
+        style={logoStyle}
+        width={32}
+        src={`${window.assetserver}/discordlogo.svg`}
+        alt="Discord"
+      />
+    </a>
+    <a href="./api/auth/google">
+      <img
+        style={logoStyle}
+        width={32}
+        src={`${window.assetserver}/googlelogo.svg`}
+        alt="Google"
+      />
+    </a>
+    <a href="./api/auth/facebook">
+      <img
+        style={logoStyle}
+        width={32}
+        src={`${window.assetserver}/facebooklogo.svg`}
+        alt="Facebook"
+      />
+    </a>
+    <a href="./api/auth/vk">
+      <img
+        style={logoStyle}
+        width={32}
+        src={`${window.assetserver}/vklogo.svg`}
+        alt="vk"
+      />
+    </a>
+    <a href="./api/auth/reddit">
+      <img
+        style={logoStyle}
+        width={32}
+        src={`${window.assetserver}/redditlogo.svg`}
+        alt="vk"
+      />
+    </a>
     <h2>or register here:</h2>
     <button type="button" onClick={register}>Register</button>
   </p>
 );
 
 const UserAreaModal = ({
-  name, register, forgot_password, doMe, logout, setName, setMailreg, canvases,
+  name, register, forgot_password, doMe, logout, setUserName, setUserMailreg,
 }) => (
   <Modal title="User Area">
     <p style={{ textAlign: 'center' }}>
       {(name === null)
-        ? <LogInArea register={register} forgot_password={forgot_password} me={doMe} />
+        ? (
+          <LogInArea
+            register={register}
+            forgot_password={forgot_password}
+            me={doMe}
+          />
+        )
         : (
           <Tabs>
             <div label="Profile">
               <UserArea
                 logout={logout}
-                set_name={setName}
-                set_mailreg={setMailreg}
+                set_name={setUserName}
+                set_mailreg={setUserMailreg}
               />
             </div>
             <div label="Ranking">
@@ -93,7 +126,9 @@ const UserAreaModal = ({
             </div>
           </Tabs>
         )}
-      <p>Also join our Discord: <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
+      <p>Also join our Discord:&nbsp;
+        <a href="./discord" target="_blank">pixelplanet.fun/discord</a>
+      </p>
     </p>
   </Modal>
 );
@@ -109,14 +144,17 @@ function mapDispatchToProps(dispatch) {
     doMe(me) {
       dispatch(receiveMe(me));
     },
-    setName(name) {
+    setUserName(name) {
       dispatch(setName(name));
     },
-    setMailreg(mailreg) {
+    setUserMailreg(mailreg) {
       dispatch(setMailreg(mailreg));
     },
     async logout() {
-      const response = await fetch('./api/auth/logout', { credentials: 'include' });
+      const response = await fetch(
+        './api/auth/logout',
+        { credentials: 'include' },
+      );
       if (response.ok) {
         const resp = await response.json();
         dispatch(receiveMe(resp.me));
@@ -127,8 +165,7 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state: State) {
   const { name } = state.user;
-  const { canvases } = state.canvas;
-  return { name, canvases };
+  return { name };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserAreaModal);
