@@ -42,6 +42,8 @@ function downloadOutput() {
 function readFile(
   file,
   selectFile,
+  selectScaleWidth,
+  selectScaleHeight,
 ) {
   if (!file) {
     return;
@@ -50,6 +52,8 @@ function readFile(
   fr.onload = () => {
     const img = new Image();
     img.onload = () => {
+      selectScaleWidth(img.width);
+      selectScaleHeight(img.height);
       selectFile(img);
     };
     img.src = fr.result;
@@ -89,17 +93,37 @@ function addGrid(img, lightGrid, offsetX, offsetY) {
   ctx.drawImage(img, 0, 0);
   ctx.restore();
   ctx.fillStyle = (lightGrid) ? '#DDDDDD' : '#222222';
-
   for (let i = 0; i <= img.width; i += 1) {
     const thick = ((i + (offsetX * 1)) % 10 === 0) ? 2 : 1;
     ctx.fillRect(i * 5, 0, thick, can.height);
   }
-
   for (let j = 0; j <= img.height; j += 1) {
     const thick = ((j + (offsetY * 1)) % 10 === 0) ? 2 : 1;
     ctx.fillRect(0, j * 5, can.width, thick);
   }
+  return can;
+}
 
+function scaleImage(img, width, height, doAA) {
+  const can = document.createElement('canvas');
+  const ctx = can.getContext('2d');
+  can.width = width;
+  can.height = height;
+  if (doAA) {
+    ctx.imageSmoothingEnabled = true;
+    ctx.mozImageSmoothingEnabled = true;
+    ctx.webkitImageSmoothingEnabled = true;
+    ctx.msImageSmoothingEnabled = true;
+  } else {
+    ctx.imageSmoothingEnabled = false;
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.msImageSmoothingEnabled = false;
+  }
+  ctx.save();
+  ctx.scale(width / img.width, height / img.height);
+  ctx.drawImage(img, 0, 0);
+  ctx.restore();
   return can;
 }
 
@@ -114,9 +138,22 @@ function renderOutputImage(
   selectedLightGrid,
   selectedGridOffsetX,
   selectedGridOffsetY,
+  selectedDoScaling,
+  selectedScaleWidth,
+  selectedScaleHeight,
+  selectedScaleAA,
 ) {
   if (!selectedFile) {
     return;
+  }
+  let image = selectedFile;
+  if (selectedDoScaling) {
+    image = scaleImage(
+      image,
+      selectedScaleWidth,
+      selectedScaleHeight,
+      selectedScaleAA,
+    );
   }
   const rgbQuant = new RgbQuant({
     colors: colors.length,
@@ -128,23 +165,23 @@ function renderOutputImage(
     useCache: false,
     colorDist: selectedColorDist,
   });
-  rgbQuant.sample(selectedFile);
+  rgbQuant.sample(image);
   rgbQuant.palette();
-  const pxls = rgbQuant.reduce(selectedFile);
-  let can = drawPixels(pxls, selectedFile.width, selectedFile.height);
+  const pxls = rgbQuant.reduce(image);
+  image = drawPixels(pxls, image.width, image.height);
   const output = document.getElementById('imgoutput');
   if (selectedAddGrid) {
-    can = addGrid(
-      can,
+    image = addGrid(
+      image,
       selectedLightGrid,
       selectedGridOffsetX,
       selectedGridOffsetY,
     );
   }
-  output.width = can.width;
-  output.height = can.height;
+  output.width = image.width;
+  output.height = image.height;
   const ctx = output.getContext('2d');
-  ctx.drawImage(can, 0, 0);
+  ctx.drawImage(image, 0, 0);
 }
 
 
@@ -162,6 +199,11 @@ function Converter({
   const [selectedLightGrid, selectLightGrid] = useState(false);
   const [selectedGridOffsetX, selectGridOffsetX] = useState(0);
   const [selectedGridOffsetY, selectGridOffsetY] = useState(0);
+  const [selectedDoScaling, selectDoScaling] = useState(false);
+  const [selectedScaleWidth, selectScaleWidth] = useState(0);
+  const [selectedScaleHeight, selectScaleHeight] = useState(0);
+  const [selectedScaleKeepRatio, selectScaleKeepRatio] = useState(true);
+  const [selectedScaleAA, selectScaleAA] = useState(false);
   const input = document.createElement('canvas');
 
   useEffect(() => {
@@ -178,6 +220,10 @@ function Converter({
         selectedLightGrid,
         selectedGridOffsetX,
         selectedGridOffsetY,
+        selectedDoScaling,
+        selectedScaleWidth,
+        selectedScaleHeight,
+        selectedScaleAA,
       );
     } else {
       const output = document.getElementById('imgoutput');
@@ -245,7 +291,7 @@ function Converter({
           const fileSel = evt.target;
           const file = (!fileSel.files || !fileSel.files[0])
             ? null : fileSel.files[0];
-          readFile(file, selectFile);
+          readFile(file, selectFile, selectScaleWidth, selectScaleHeight);
         }}
       />
       <p style={textStyle}>Choose Strategy:&nbsp;
@@ -318,7 +364,7 @@ function Converter({
             selectAddGrid(e.target.checked);
           }}
         />
-        Add Grid
+        Add Grid (uncheck if you need a 1:1 template)
       </p>
       {(selectedAddGrid)
         ? (
@@ -368,10 +414,103 @@ function Converter({
           </div>
         )
         : null}
+      <p style={{ ...textStyle, fontHeight: 16 }}>
+        <input
+          type="checkbox"
+          checked={selectedDoScaling}
+          onChange={(e) => {
+            selectDoScaling(e.target.checked);
+          }}
+        />
+        Scale Image
+      </p>
+      {(selectedDoScaling)
+        ? (
+          <div style={{
+            borderStyle: 'solid',
+            borderColor: '#D4D4D4',
+            borderWidth: 2,
+            padding: 5,
+            display: 'inline-block',
+          }}
+          >
+            <span style={textStyle}>Width:&nbsp;
+              <input
+                type="number"
+                step="1"
+                min="1"
+                max="16564"
+                style={{ width: '3em' }}
+                value={selectedScaleWidth}
+                onChange={(e) => {
+                  const newWidth = e.target.value;
+                  if (!newWidth) return;
+                  if (selectedScaleKeepRatio && selectedFile) {
+                    const ratio = selectedFile.width / selectedFile.height;
+                    const newHeight = Math.round(newWidth / ratio);
+                    selectScaleHeight(newHeight);
+                  }
+                  selectScaleWidth(newWidth);
+                }}
+              />%
+            </span>
+            <span style={textStyle}>Height:&nbsp;
+              <input
+                type="number"
+                step="1"
+                min="1"
+                max="16564"
+                style={{ width: '3em' }}
+                value={selectedScaleHeight}
+                onChange={(e) => {
+                  const nuHeight = e.target.value;
+                  if (!nuHeight) return;
+                  if (selectedScaleKeepRatio && selectedFile) {
+                    const ratio = selectedFile.width / selectedFile.height;
+                    const nuWidth = Math.round(ratio * nuHeight);
+                    selectScaleWidth(nuWidth);
+                  }
+                  selectScaleHeight(nuHeight);
+                }}
+              />%
+            </span>
+            <p style={{ ...textStyle, fontHeight: 16 }}>
+              <input
+                type="checkbox"
+                checked={selectedScaleKeepRatio}
+                onChange={(e) => {
+                  selectScaleKeepRatio(e.target.checked);
+                }}
+              />
+              Keep Ratio
+            </p>
+            <p style={{ ...textStyle, fontHeight: 16 }}>
+              <input
+                type="checkbox"
+                onChange={(e) => {
+                  selectScaleAA(e.target.checked);
+                }}
+              />
+              Anti Aliasing
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                if (selectedFile) {
+                  selectScaleWidth(selectedFile.width);
+                  selectScaleHeight(selectedFile.height);
+                }
+              }}
+            >
+              Reset
+            </button>
+          </div>
+        )
+        : null}
       <p>
         <canvas
           id="imgoutput"
-          style={{ width: '80%' }}
+          style={{ width: '80%', imageRendering: 'crisp-edges' }}
         />
       </p>
       <button

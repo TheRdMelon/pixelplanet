@@ -52,8 +52,6 @@ const HelpModal = () => (
       <p>Discord: <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
       <p>Source on <a href="https://github.com/pixelplanetdev/pixelplanet" target="_blank">github</a></p>
       <p>Reddit: <a href="https://www.reddit.com/r/PixelPlanetFun/" target="_blank">r/PixelPlanetFun</a></p>
-      <p>Image Converter: <a href="./convert" target="_blank">pixelplanet.fun/convert</a></p>
-      <p>Image Converter for 2nd Planet: <a href="./convert2" target="_blank">pixelplanet.fun/convert2</a></p>
       <p style={titleStyle}>Map Data</p>
       <p style={textStyle}>The bare map data that we use, together with converted OpenStreetMap tiles for orientation,
         can be downloaded from mega.nz here: <a href="https://mega.nz/#!JpkBwAbJ!EnSLlZmKv3kEBE0HDhakTgAZZycD3ELjduajJxPGaXo">pixelplanetmap.zip</a> (422MB)</p>
