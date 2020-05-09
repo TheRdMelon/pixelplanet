@@ -41,7 +41,7 @@ const textStyle = {
 
 const HelpModal = () => (
   <Modal title="Welcome to PixelPlanet.fun">
-    <p style={{ textAlign: 'center' }}>
+    <p style={{ textAlign: 'center', paddingLeft: '5%', paddingRight: '5%' }}>
       <p style={textStyle}>Place color pixels on a large canvas with other players online!
         Our main canvas is a huge worldmap, you can place wherever you like, but you will have to wait a specific
         Cooldown between pixels. You can check out the cooldown and requiremnts on the Canvas Selection menu (globe button on top).
@@ -56,7 +56,7 @@ const HelpModal = () => (
       <p style={textStyle}>The bare map data that we use, together with converted OpenStreetMap tiles for orientation,
         can be downloaded from mega.nz here: <a href="https://mega.nz/#!JpkBwAbJ!EnSLlZmKv3kEBE0HDhakTgAZZycD3ELjduajJxPGaXo">pixelplanetmap.zip</a> (422MB)</p>
       <p style={titleStyle}>Detected as Proxy?</p>
-      <p style={textStyle}>If you got detected as proxy, but you are none, please send us an e-mail with <a href="https://www.whatismyip.com/">your IP</a> to pixelplanetdev@gmail.com. Do not post your IP anywhere else. We are sorry for the inconvenience.</p>
+      <p style={textStyle}>If you got detected as proxy, but you are none, please send us an e-mail with <a href="https://www.whatismyip.com/">your IP</a> to <a href="mailto:pixelplanetdev@gmail.com">pixelplanetdev@gmail.com</a>. Do not post your IP anywhere else. We are sorry for the inconvenience.</p>
       <h3 style={titleStyle}>2D Controls</h3>
       <p style={textStyle}>Click a color in palette to select</p>
       <p style={textStyle}>Press <kbd>G</kbd> to toggle grid</p>

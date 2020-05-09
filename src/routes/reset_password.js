@@ -12,7 +12,7 @@ import type { Request, Response } from 'express';
 
 import redis from '../data/redis';
 import logger from '../core/logger';
-import { getPasswordResetHtml } from '../components/PasswordReset';
+import getPasswordResetHtml from '../components/PasswordReset';
 import { MINUTE } from '../core/constants';
 
 import mailProvider from '../core/mail';

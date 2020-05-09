@@ -12,7 +12,7 @@ function validate(email) {
   return errors;
 }
 
-async function submit_newpass(email, component) {
+async function submitNewpass(email) {
   const body = JSON.stringify({
     email,
   });
@@ -28,8 +28,9 @@ async function submit_newpass(email, component) {
 }
 
 const inputStyles = {
-  display: 'block',
+  display: 'inline-block',
   width: '100%',
+  maxWidth: '35em',
 };
 
 class NewPasswordForm extends React.Component {
@@ -58,7 +59,7 @@ class NewPasswordForm extends React.Component {
     if (errors.length > 0) return;
 
     this.setState({ submitting: true });
-    const { errors: resperrors } = await submit_newpass(email);
+    const { errors: resperrors } = await submitNewpass(email);
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -76,7 +77,9 @@ class NewPasswordForm extends React.Component {
     if (this.state.success) {
       return (
         <div>
-          <p className="modalmessage">Sent you a mail with instructions to reset your password.</p>
+          <p className="modalmessage">
+            Sent you a mail with instructions to reset your password.
+          </p>
           <button type="button" onClick={this.props.back}>Back</button>
         </div>
       );
@@ -93,8 +96,10 @@ class NewPasswordForm extends React.Component {
           type="text"
           placeholder="Email"
         />
-
-        <button type="submit">{(this.state.submitting) ? '...' : 'Submit'}</button>
+        <br />
+        <button type="submit">
+          {(this.state.submitting) ? '...' : 'Submit'}
+        </button>
         <button type="button" onClick={this.props.back}>Cancel</button>
       </form>
     );

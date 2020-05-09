@@ -8,7 +8,7 @@ import {
   validateEMail, validateName, validatePassword, parseAPIresponse,
 } from '../utils/validation';
 
-function validate(name, email, password, confirm_password) {
+function validate(name, email, password, confirmPassword) {
   const errors = [];
   const mailerror = validateEMail(email);
   if (mailerror) errors.push(mailerror);
@@ -17,14 +17,14 @@ function validate(name, email, password, confirm_password) {
   const passworderror = validatePassword(password);
   if (passworderror) errors.push(passworderror);
 
-  if (password !== confirm_password) {
+  if (password !== confirmPassword) {
     errors.push('Passwords do not match');
   }
   return errors;
 }
 
 
-async function submit_registration(name, email, password, component) {
+async function submitRegistration(name, email, password) {
   const body = JSON.stringify({
     name,
     email,
@@ -43,8 +43,9 @@ async function submit_registration(name, email, password, component) {
 }
 
 const inputStyles = {
-  display: 'block',
+  display: 'inline-block',
   width: '100%',
+  maxWidth: '35em',
 };
 
 class SignUpForm extends React.Component {
@@ -54,7 +55,7 @@ class SignUpForm extends React.Component {
       name: '',
       email: '',
       password: '',
-      confirm_password: '',
+      confirmPassword: '',
       submitting: false,
 
       errors: [],
@@ -67,17 +68,21 @@ class SignUpForm extends React.Component {
     e.preventDefault();
 
     const {
-      name, email, password, confirm_password, submitting,
+      name, email, password, confirmPassword, submitting,
     } = this.state;
     if (submitting) return;
 
-    const errors = validate(name, email, password, confirm_password);
+    const errors = validate(name, email, password, confirmPassword);
 
     this.setState({ errors });
     if (errors.length > 0) return;
 
     this.setState({ submitting: true });
-    const { errors: resperrors, me } = await submit_registration(name, email, password);
+    const { errors: resperrors, me } = await submitRegistration(
+      name,
+      email,
+      password,
+    );
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -119,13 +124,17 @@ class SignUpForm extends React.Component {
         />
         <input
           style={inputStyles}
-          value={this.state.confirm_password}
-          onChange={(evt) => this.setState({ confirm_password: evt.target.value })}
+          value={this.state.confirmPassword}
+          onChange={(evt) => this.setState({
+            confirmPassword: evt.target.value,
+          })}
           type="password"
           placeholder="Confirm Password"
         />
-
-        <button type="submit">{(this.state.submitting) ? '...' : 'Submit'}</button>
+        <br />
+        <button type="submit">
+          {(this.state.submitting) ? '...' : 'Submit'}
+        </button>
       </form>
     );
   }

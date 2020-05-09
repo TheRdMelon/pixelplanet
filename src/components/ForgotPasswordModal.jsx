@@ -8,8 +8,6 @@ import { connect } from 'react-redux';
 
 import Modal from './Modal';
 
-import type { State } from '../reducers';
-
 import { showUserAreaModal } from '../actions';
 import NewPasswordForm from './NewPasswordForm';
 
@@ -21,16 +19,21 @@ const textStyle = {
   textAlign: 'inherit',
   float: 'none',
   margin: 0,
-  padding: 0,
+  paddingLeft: '5%',
   lineHeight: 'normal',
 };
 
 const ForgotPasswordModal = ({ login }) => (
   <Modal title="Restore my Password">
-    <p style={textStyle}>Enter your mail adress and we will send you a new password:</p><br />
-    <p style={{ textAlign: 'center' }}>
-      <NewPasswordForm back={login} />
-      <p>Also join our Discord: <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
+    <p style={{ paddingLeft: '5%', paddingRight: '5%' }}>
+      <p style={textStyle}>
+        Enter your mail adress and we will send you a new password:
+      </p><br />
+      <p style={{ textAlign: 'center' }}>
+        <NewPasswordForm back={login} />
+        <p>Also join our Discord:&nbsp;
+          <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
+      </p>
     </p>
   </Modal>
 );
@@ -43,8 +46,5 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-function mapStateToProps(state: State) {
 
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ForgotPasswordModal);
+export default connect(null, mapDispatchToProps)(ForgotPasswordModal);

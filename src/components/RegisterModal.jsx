@@ -8,8 +8,6 @@ import { connect } from 'react-redux';
 
 import Modal from './Modal';
 
-import type { State } from '../reducers';
-
 import { showUserAreaModal, receiveMe } from '../actions';
 
 // import { send_registration } from '../ui/register';
@@ -24,7 +22,7 @@ const textStyle = {
   textAlign: 'inherit',
   float: 'none',
   margin: 0,
-  padding: 0,
+  paddingLeft: '5%',
   lineHeight: 'normal',
 };
 
@@ -34,7 +32,9 @@ const RegisterModal = ({ login, doMe }) => (
     <p style={{ textAlign: 'center' }}>
       <SignUpForm userarea={login} me={doMe} />
       <button type="button" onClick={login}>Cancel</button>
-      <p>Also join our Discord: <a href="./discord" target="_blank">pixelplanet.fun/discord</a></p>
+      <p>Also join our Discord:&nbsp;
+        <a href="./discord" target="_blank">pixelplanet.fun/discord</a>
+      </p>
     </p>
   </Modal>
 );
@@ -50,8 +50,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-function mapStateToProps(state: State) {
-
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(RegisterModal);
+export default connect(null, mapDispatchToProps)(RegisterModal);

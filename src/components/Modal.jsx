@@ -12,8 +12,6 @@ import {
   hideModal,
 } from '../actions';
 
-import type { State } from '../reducers';
-
 
 const closeStyles = {
   position: 'fixed',
@@ -45,15 +43,17 @@ function MyModal({ close, title, children }) {
       contentLabel={`${title} Modal`}
       onRequestClose={close}
     >
-      <h2>{title}</h2>
-      <div style={closeStyles} onClick={close}><MdClose /></div>
+      <h2 style={{ paddingLeft: '5%' }}>{title}</h2>
+      <div
+        style={closeStyles}
+        onClick={close}
+        role="button"
+        label="close"
+        tabIndex={-1}
+      ><MdClose /></div>
       {children}
     </Modal>
   );
-}
-
-function mapStateToProps(state: State) {
-  return {};
 }
 
 function mapDispatchToProps(dispatch) {
@@ -64,4 +64,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MyModal);
+export default connect(null, mapDispatchToProps)(MyModal);
