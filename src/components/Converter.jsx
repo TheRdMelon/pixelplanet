@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import fileDownload from 'js-file-download';
-import RgbQuant from 'rgbquant';
+import { utils, applyPalette } from 'image-q';
 
 import printGIMPPalette from '../core/exportGPL';
 import type { State } from '../reducers';
@@ -42,8 +42,7 @@ function downloadOutput() {
 function readFile(
   file,
   selectFile,
-  selectScaleWidth,
-  selectScaleHeight,
+  setScaleData,
 ) {
   if (!file) {
     return;
@@ -52,8 +51,12 @@ function readFile(
   fr.onload = () => {
     const img = new Image();
     img.onload = () => {
-      selectScaleWidth(img.width);
-      selectScaleHeight(img.height);
+      setScaleData({
+        enabled: false,
+        width: img.width,
+        height: img.height,
+        aa: true,
+      });
       selectFile(img);
     };
     img.src = fr.result;
@@ -106,82 +109,123 @@ function addGrid(img, lightGrid, offsetX, offsetY) {
 
 function scaleImage(img, width, height, doAA) {
   const can = document.createElement('canvas');
-  const ctx = can.getContext('2d');
+  const ctxo = can.getContext('2d');
   can.width = width;
   can.height = height;
+  const scaleX = width / img.width;
+  const scaleY = height / img.height;
   if (doAA) {
-    ctx.imageSmoothingEnabled = true;
-    ctx.mozImageSmoothingEnabled = true;
-    ctx.webkitImageSmoothingEnabled = true;
-    ctx.msImageSmoothingEnabled = true;
-  } else {
-    ctx.imageSmoothingEnabled = false;
-    ctx.mozImageSmoothingEnabled = false;
-    ctx.webkitImageSmoothingEnabled = false;
-    ctx.msImageSmoothingEnabled = false;
+    // scale with canvas for antialiasing
+    ctxo.save();
+    ctxo.scale(scaleX, scaleY);
+    ctxo.drawImage(img, 0, 0);
+    ctxo.restore();
+    return can;
   }
-  ctx.save();
-  ctx.scale(width / img.width, height / img.height);
-  ctx.drawImage(img, 0, 0);
-  ctx.restore();
+  // scale manually
+  const imdo = ctxo.createImageData(width, height);
+  const { data: datao } = imdo;
+  const cani = document.createElement('canvas');
+  cani.width = img.width;
+  cani.height = img.height;
+  const ctxi = cani.getContext('2d');
+  ctxi.drawImage(img, 0, 0);
+  const imdi = ctxi.getImageData(0, 0, img.width, img.height);
+  const { data: datai } = imdi;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      let posi = (Math.round(x / scaleX) + Math.round(y / scaleY)
+          * img.width) * 4;
+      let poso = (x + y * width) * 4;
+      datao[poso++] = datai[posi++];
+      datao[poso++] = datai[posi++];
+      datao[poso++] = datai[posi++];
+      datao[poso] = datai[posi];
+    }
+  }
+  ctxo.putImageData(imdo, 0, 0);
   return can;
 }
 
-function renderOutputImage(
-  colors,
-  selectedFile,
-  selectedStrategy,
-  selectedSerp,
-  selectedColorDist,
-  selectedDithDelta,
-  selectedAddGrid,
-  selectedLightGrid,
-  selectedGridOffsetX,
-  selectedGridOffsetY,
-  selectedDoScaling,
-  selectedScaleWidth,
-  selectedScaleHeight,
-  selectedScaleAA,
-) {
-  if (!selectedFile) {
+let newOpts = null;
+let rendering = false;
+async function renderOutputImage(opts) {
+  if (!opts.file) {
     return;
   }
-  let image = selectedFile;
-  if (selectedDoScaling) {
-    image = scaleImage(
-      image,
-      selectedScaleWidth,
-      selectedScaleHeight,
-      selectedScaleAA,
-    );
+  if (rendering) {
+    newOpts = opts;
+    return;
   }
-  const rgbQuant = new RgbQuant({
-    colors: colors.length,
-    dithKern: selectedStrategy,
-    dithDelta: selectedDithDelta / 100,
-    dithSerp: selectedSerp,
-    palette: colors,
-    reIndex: false,
-    useCache: false,
-    colorDist: selectedColorDist,
-  });
-  rgbQuant.sample(image);
-  rgbQuant.palette();
-  const pxls = rgbQuant.reduce(image);
-  image = drawPixels(pxls, image.width, image.height);
-  const output = document.getElementById('imgoutput');
-  if (selectedAddGrid) {
-    image = addGrid(
-      image,
-      selectedLightGrid,
-      selectedGridOffsetX,
-      selectedGridOffsetY,
-    );
+  rendering = true;
+  let renderOpts = opts;
+  while (renderOpts) {
+    newOpts = null;
+    const {
+      file, dither, grid, scaling,
+    } = renderOpts;
+    if (file) {
+      let image = file;
+      let pointContainer = null;
+      if (scaling.enabled) {
+        // scale
+        const { width, height, aa } = scaling;
+        image = scaleImage(
+          file,
+          width,
+          height,
+          aa,
+        );
+        pointContainer = utils.PointContainer.fromHTMLCanvasElement(image);
+      } else {
+        pointContainer = utils.PointContainer.fromHTMLImageElement(image);
+      }
+      // dither
+      const { colors, strategy, colorDist } = dither;
+      const palette = new utils.Palette();
+      palette.add(utils.Point.createByRGBA(0, 0, 0, 0));
+      colors.forEach((clr) => {
+        const [r, g, b] = clr;
+        const point = utils.Point.createByRGBA(r, g, b, 255);
+        palette.add(point);
+      });
+      const progEl = document.getElementById('qprog');
+      progEl.style.display = 'block';
+      // eslint-disable-next-line no-await-in-loop
+      pointContainer = await applyPalette(pointContainer, palette, {
+        colorDistanceFormula: colorDist,
+        imageQuantization: strategy,
+        onProgress: (progress) => {
+          progEl.innerHTML = `Loading... ${Math.round(progress)} %`;
+        },
+      });
+      progEl.style.display = 'none';
+      image = drawPixels(
+        pointContainer.toUint8Array(),
+        image.width,
+        image.height,
+      );
+      // grid
+      if (grid.enabled) {
+        const { light, offsetX, offsetY } = grid;
+        image = addGrid(
+          image,
+          light,
+          offsetX,
+          offsetY,
+        );
+      }
+      // draw
+      const output = document.getElementById('imgoutput');
+      output.width = image.width;
+      output.height = image.height;
+      const ctx = output.getContext('2d');
+      ctx.drawImage(image, 0, 0);
+    }
+    // render again if requested in the meantime
+    renderOpts = newOpts;
   }
-  output.width = image.width;
-  output.height = image.height;
-  const ctx = output.getContext('2d');
-  ctx.drawImage(image, 0, 0);
+  rendering = false;
 }
 
 
@@ -191,41 +235,39 @@ function Converter({
 }) {
   const [selectedCanvas, selectCanvas] = useState(canvasId);
   const [selectedFile, selectFile] = useState(null);
-  const [selectedStrategy, selectStrategy] = useState('');
-  const [selectedSerp, selectSerp] = useState(false);
+  const [selectedStrategy, selectStrategy] = useState('nearest');
   const [selectedColorDist, selectColorDist] = useState('euclidean');
-  const [selectedDithDelta, selectDithDelta] = useState(0);
-  const [selectedAddGrid, selectAddGrid] = useState(true);
-  const [selectedLightGrid, selectLightGrid] = useState(false);
-  const [selectedGridOffsetX, selectGridOffsetX] = useState(0);
-  const [selectedGridOffsetY, selectGridOffsetY] = useState(0);
-  const [selectedDoScaling, selectDoScaling] = useState(false);
-  const [selectedScaleWidth, selectScaleWidth] = useState(0);
-  const [selectedScaleHeight, selectScaleHeight] = useState(0);
   const [selectedScaleKeepRatio, selectScaleKeepRatio] = useState(true);
-  const [selectedScaleAA, selectScaleAA] = useState(false);
+  const [scaleData, setScaleData] = useState({
+    enabled: false,
+    width: 10,
+    height: 10,
+    aa: true,
+  });
+  const [gridData, setGridData] = useState({
+    enabled: true,
+    light: false,
+    offsetX: 0,
+    offsetY: 0,
+  });
   const input = document.createElement('canvas');
 
   useEffect(() => {
     if (selectedFile) {
       const canvas = canvases[selectedCanvas];
-      renderOutputImage(
-        canvas.colors.slice(canvas.cli),
-        selectedFile,
-        selectedStrategy,
-        selectedSerp,
-        selectedColorDist,
-        selectedDithDelta,
-        selectedAddGrid,
-        selectedLightGrid,
-        selectedGridOffsetX,
-        selectedGridOffsetY,
-        selectedDoScaling,
-        selectedScaleWidth,
-        selectedScaleHeight,
-        selectedScaleAA,
-      );
+      const dither = {
+        colors: canvas.colors.slice(canvas.cli),
+        strategy: selectedStrategy,
+        colorDist: selectedColorDist,
+      };
+      renderOutputImage({
+        file: selectedFile,
+        dither,
+        grid: gridData,
+        scaling: scaleData,
+      });
     } else {
+      // draw gray rectanglue if no file selected
       const output = document.getElementById('imgoutput');
       const ctx = output.getContext('2d');
       output.width = 128;
@@ -234,6 +276,19 @@ function Converter({
       ctx.fillRect(0, 0, 128, 100);
     }
   });
+
+  const {
+    enabled: gridEnabled,
+    light: gridLight,
+    offsetX: gridOffsetX,
+    offsetY: gridOffsetY,
+  } = gridData;
+  const {
+    enabled: scalingEnabled,
+    width: scalingWidth,
+    height: scalingHeight,
+    aa: scalingAA,
+  } = scaleData;
 
   return (
     <p style={{ textAlign: 'center' }}>
@@ -291,7 +346,7 @@ function Converter({
           const fileSel = evt.target;
           const file = (!fileSel.files || !fileSel.files[0])
             ? null : fileSel.files[0];
-          readFile(file, selectFile, selectScaleWidth, selectScaleHeight);
+          readFile(file, selectFile, setScaleData);
         }}
       />
       <p style={textStyle}>Choose Strategy:&nbsp;
@@ -301,20 +356,18 @@ function Converter({
             selectStrategy(sel.options[sel.selectedIndex].value);
           }}
         >
-          <option
-            value=""
-            selected={(selectedStrategy === '')}
-          >Default</option>
           {
-            ['FloydSteinberg',
-              'Stucki',
-              'Atkinson',
-              'Jarvis',
-              'Burkes',
-              'Sierra',
-              'TwoSierra',
-              'SierraLite',
-              'FalseFloydSteinberg'].map((strat) => (
+            ['nearest',
+              'riemersma',
+              'floyd-steinberg',
+              'false-floyd-steinberg',
+              'stucki',
+              'atkinson',
+              'jarvis',
+              'burkes',
+              'sierra',
+              'two-sierra',
+              'sierra-lite'].map((strat) => (
                 <option
                   value={strat}
                   selected={(selectedStrategy === strat)}
@@ -323,50 +376,47 @@ function Converter({
           }
         </select>
       </p>
-      <span style={{ ...textStyle, fontHeight: 16 }}>
-        <input
-          type="checkbox"
+      <p style={textStyle}>Choose Color Mode:&nbsp;
+        <select
           onChange={(e) => {
-            selectSerp(e.target.checked);
+            const sel = e.target;
+            selectColorDist(sel.options[sel.selectedIndex].value);
           }}
-        />
-        Serpentine Pattern Dithering
-      </span>&nbsp;
-      <span style={{ ...textStyle, fontHeight: 16 }}>
-        <input
-          type="checkbox"
-          onClick={(e) => {
-            const colorDist = (e.target.checked)
-              ? 'euclidean' : 'manhatten';
-            selectColorDist(colorDist);
-          }}
-        />
-        Manhatten Color Distance
-      </span>
-      <p style={textStyle}>Dithering Delta:&nbsp;
-        <input
-          type="number"
-          step="1"
-          min="0"
-          max="100"
-          style={{ width: '3em' }}
-          value={selectedDithDelta}
-          onChange={(e) => {
-            selectDithDelta(e.target.value);
-          }}
-        />%
+        >
+          {
+            ['cie94-textiles',
+              'cie94-graphic-arts',
+              'ciede2000',
+              'color-metric',
+              'euclidean',
+              'euclidean-bt709-noalpha',
+              'euclidean-bt709',
+              'manhattan',
+              'manhattan-bt709',
+              'manhattan-nommyde',
+              'pngquant'].map((strat) => (
+                <option
+                  value={strat}
+                  selected={(selectedColorDist === strat)}
+                >{strat}</option>
+            ))
+          }
+        </select>
       </p>
       <p style={{ ...textStyle, fontHeight: 16 }}>
         <input
           type="checkbox"
-          checked={selectedAddGrid}
+          checked={gridEnabled}
           onChange={(e) => {
-            selectAddGrid(e.target.checked);
+            setGridData({
+              ...gridData,
+              enabled: e.target.checked,
+            });
           }}
         />
         Add Grid (uncheck if you need a 1:1 template)
       </p>
-      {(selectedAddGrid)
+      {(gridEnabled)
         ? (
           <div style={{
             borderStyle: 'solid',
@@ -379,8 +429,12 @@ function Converter({
             <p style={{ ...textStyle, fontHeight: 16 }}>
               <input
                 type="checkbox"
+                checked={gridLight}
                 onChange={(e) => {
-                  selectLightGrid(e.target.checked);
+                  setGridData({
+                    ...gridData,
+                    light: e.target.checked,
+                  });
                 }}
               />
               Light Grid
@@ -392,9 +446,12 @@ function Converter({
                 min="0"
                 max="10"
                 style={{ width: '2em' }}
-                value={selectedGridOffsetX}
+                value={gridOffsetX}
                 onChange={(e) => {
-                  selectGridOffsetX(e.target.value);
+                  setGridData({
+                    ...gridData,
+                    offsetX: e.target.value,
+                  });
                 }}
               />%
             </span>
@@ -405,9 +462,12 @@ function Converter({
                 min="0"
                 max="10"
                 style={{ width: '2em' }}
-                value={selectedGridOffsetY}
+                value={gridOffsetY}
                 onChange={(e) => {
-                  selectGridOffsetY(e.target.value);
+                  setGridData({
+                    ...gridData,
+                    offsetY: e.target.value,
+                  });
                 }}
               />%
             </span>
@@ -417,14 +477,17 @@ function Converter({
       <p style={{ ...textStyle, fontHeight: 16 }}>
         <input
           type="checkbox"
-          checked={selectedDoScaling}
+          checked={scalingEnabled}
           onChange={(e) => {
-            selectDoScaling(e.target.checked);
+            setScaleData({
+              ...scaleData,
+              enabled: e.target.checked,
+            });
           }}
         />
         Scale Image
       </p>
-      {(selectedDoScaling)
+      {(scalingEnabled)
         ? (
           <div style={{
             borderStyle: 'solid',
@@ -439,18 +502,27 @@ function Converter({
                 type="number"
                 step="1"
                 min="1"
-                max="16564"
+                max="1024"
                 style={{ width: '3em' }}
-                value={selectedScaleWidth}
+                value={scalingWidth}
                 onChange={(e) => {
-                  const newWidth = e.target.value;
+                  const newWidth = (e.target.value > 1024)
+                    ? 1024 : e.target.value;
                   if (!newWidth) return;
                   if (selectedScaleKeepRatio && selectedFile) {
                     const ratio = selectedFile.width / selectedFile.height;
                     const newHeight = Math.round(newWidth / ratio);
-                    selectScaleHeight(newHeight);
+                    setScaleData({
+                      ...scaleData,
+                      width: newWidth,
+                      height: newHeight,
+                    });
+                    return;
                   }
-                  selectScaleWidth(newWidth);
+                  setScaleData({
+                    ...scaleData,
+                    width: newWidth,
+                  });
                 }}
               />%
             </span>
@@ -459,18 +531,27 @@ function Converter({
                 type="number"
                 step="1"
                 min="1"
-                max="16564"
+                max="1024"
                 style={{ width: '3em' }}
-                value={selectedScaleHeight}
+                value={scalingHeight}
                 onChange={(e) => {
-                  const nuHeight = e.target.value;
+                  const nuHeight = (e.target.value > 1024)
+                    ? 1024 : e.target.value;
                   if (!nuHeight) return;
                   if (selectedScaleKeepRatio && selectedFile) {
                     const ratio = selectedFile.width / selectedFile.height;
                     const nuWidth = Math.round(ratio * nuHeight);
-                    selectScaleWidth(nuWidth);
+                    setScaleData({
+                      ...scaleData,
+                      width: nuWidth,
+                      height: nuHeight,
+                    });
+                    return;
                   }
-                  selectScaleHeight(nuHeight);
+                  setScaleData({
+                    ...scaleData,
+                    height: nuHeight,
+                  });
                 }}
               />%
             </span>
@@ -487,8 +568,12 @@ function Converter({
             <p style={{ ...textStyle, fontHeight: 16 }}>
               <input
                 type="checkbox"
+                checked={scalingAA}
                 onChange={(e) => {
-                  selectScaleAA(e.target.checked);
+                  setScaleData({
+                    ...scaleData,
+                    aa: e.target.checked,
+                  });
                 }}
               />
               Anti Aliasing
@@ -497,8 +582,11 @@ function Converter({
               type="button"
               onClick={() => {
                 if (selectedFile) {
-                  selectScaleWidth(selectedFile.width);
-                  selectScaleHeight(selectedFile.height);
+                  setScaleData({
+                    ...scaleData,
+                    width: selectedFile.width,
+                    height: selectedFile.height,
+                  });
                 }
               }}
             >
@@ -507,6 +595,7 @@ function Converter({
           </div>
         )
         : null}
+      <p id="qprog" />
       <p>
         <canvas
           id="imgoutput"
