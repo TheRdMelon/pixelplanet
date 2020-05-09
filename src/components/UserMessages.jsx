@@ -75,7 +75,7 @@ class UserMessages extends React.Component {
     const messages = [...this.props.messages];
 
     return (
-      <div>
+      <div style={{ paddingLeft: '5%', paddingRight: '5%' }}>
         {(messages.includes('not_verified') && messages.splice(messages.indexOf('not_verified'), 1))
           ? (
             <p className="usermessages">
@@ -98,7 +98,7 @@ class UserMessages extends React.Component {
             </p>
           ) : null}
         {messages.map((message) => (
-          <p className="usermessages" key={message} className="message">{message}</p>
+          <p className="usermessages" key={message}>{message}</p>
         ))}
       </div>
     );

@@ -24,7 +24,27 @@ function fallbackCopyTextToClipboard(text) {
   }
 }
 
-export default async function copyTextToClipboard(text) {
+export async function copyCanvasToClipboard(canvas) {
+  canvas.toBlob((blob) => {
+    try {
+      if (!navigator.clipboard) {
+        throw new Error('Clipboard API not implemented');
+      }
+      navigator.clipboard.write([
+        // this is defined in current chrome, but not firefox
+        // eslint-disable-next-line no-undef
+        new ClipboardItem({
+          'image/png': blob,
+        }),
+      ]);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log("Couldn't copy canvas to clipboard", e);
+    }
+  }, 'image/png');
+}
+
+async function copyTextToClipboard(text) {
   if (!navigator.clipboard) {
     return fallbackCopyTextToClipboard(text);
   }
@@ -35,3 +55,5 @@ export default async function copyTextToClipboard(text) {
     return false;
   }
 }
+
+export default copyTextToClipboard;

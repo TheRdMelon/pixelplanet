@@ -111,7 +111,7 @@ function SettingsModal({
 }) {
   return (
     <Modal title="Settings">
-      <p style={{ paddingLeft: '5%', paddingRight: '5%' }}>
+      <p style={{ paddingLeft: '5%', paddingRight: '5%', paddingTop: 30 }}>
         <SettingsItem
           title="Show Grid"
           description="Turn on grid to highlight pixel borders."

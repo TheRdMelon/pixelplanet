@@ -8,8 +8,9 @@ import { connect } from 'react-redux';
 import fileDownload from 'js-file-download';
 import { utils, applyPalette } from 'image-q';
 
-import printGIMPPalette from '../core/exportGPL';
 import type { State } from '../reducers';
+import printGIMPPalette from '../core/exportGPL';
+import { copyCanvasToClipboard } from '../utils/clipboard';
 
 const titleStyle = {
   color: '#4f545c',
@@ -190,7 +191,6 @@ async function renderOutputImage(opts) {
         palette.add(point);
       });
       const progEl = document.getElementById('qprog');
-      progEl.style.display = 'block';
       // eslint-disable-next-line no-await-in-loop
       pointContainer = await applyPalette(pointContainer, palette, {
         colorDistanceFormula: colorDist,
@@ -199,7 +199,7 @@ async function renderOutputImage(opts) {
           progEl.innerHTML = `Loading... ${Math.round(progress)} %`;
         },
       });
-      progEl.style.display = 'none';
+      progEl.innerHTML = 'Done';
       image = drawPixels(
         pointContainer.toUint8Array(),
         image.width,
@@ -267,13 +267,9 @@ function Converter({
         scaling: scaleData,
       });
     } else {
-      // draw gray rectanglue if no file selected
       const output = document.getElementById('imgoutput');
-      const ctx = output.getContext('2d');
-      output.width = 128;
-      output.height = 100;
-      ctx.fillStyle = '#C4C4C4';
-      ctx.fillRect(0, 0, 128, 100);
+      output.width = 0;
+      output.height = 0;
     }
   });
 
@@ -595,7 +591,7 @@ function Converter({
           </div>
         )
         : null}
-      <p id="qprog" />
+      <p id="qprog">Select an Image</p>
       <p>
         <canvas
           id="imgoutput"
@@ -608,6 +604,19 @@ function Converter({
       >
         Download Template
       </button>
+      {(typeof ClipboardItem === 'undefined')
+        ? null
+        : (
+          <button
+            type="button"
+            onClick={() => {
+              const output = document.getElementById('imgoutput');
+              copyCanvasToClipboard(output);
+            }}
+          >
+            Copy to Clipboard
+          </button>
+        )}
     </p>
   );
 }

@@ -107,21 +107,21 @@ class SignUpForm extends React.Component {
           onChange={(evt) => this.setState({ name: evt.target.value })}
           type="text"
           placeholder="Name"
-        />
+        /><br />
         <input
           style={inputStyles}
           value={this.state.email}
           onChange={(evt) => this.setState({ email: evt.target.value })}
           type="text"
           placeholder="Email"
-        />
+        /><br />
         <input
           style={inputStyles}
           value={this.state.password}
           onChange={(evt) => this.setState({ password: evt.target.value })}
           type="password"
           placeholder="Password"
-        />
+        /><br />
         <input
           style={inputStyles}
           value={this.state.confirmPassword}
@@ -130,8 +130,7 @@ class SignUpForm extends React.Component {
           })}
           type="password"
           placeholder="Confirm Password"
-        />
-        <br />
+        /><br />
         <button type="submit">
           {(this.state.submitting) ? '...' : 'Submit'}
         </button>

@@ -98,7 +98,7 @@ class LogInForm extends React.Component {
           onChange={(evt) => this.setState({ nameoremail: evt.target.value })}
           type="text"
           placeholder="Name or Email"
-        />
+        /><br />
         <input
           value={password}
           style={inputStyles}
