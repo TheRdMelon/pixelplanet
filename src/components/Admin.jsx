@@ -39,11 +39,18 @@ const Admin = () => (
   </form>
 );
 
-const data = {
-  title: 'PixelPlanet.fun AdminTools',
-  description: 'admin access on pixelplanet',
-  body: <Admin />,
-};
-const adminHtml = `<!doctype html>${ReactDOM.renderToStaticMarkup(<Html {...data} />)}`;
+const title = 'PixelPlanet.fun AdminTools';
+const description = 'admin access on pixelplanet';
+const body = <Admin />;
+
+const adminHtml = `<!doctype html>${
+  ReactDOM.renderToStaticMarkup(
+    <Html
+      title={title}
+      description={description}
+      body={body}
+    />,
+  )
+}`;
 
 export default adminHtml;

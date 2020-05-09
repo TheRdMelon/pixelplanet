@@ -10,18 +10,23 @@ import Html from './Html';
 const RedirectionPage = ({ text, host }) => (
   <div>
     <h3>{text}</h3>
-    <p>You will be automatically redirected after 5s</p>
+    <p>You will be automatically redirected after 15s</p>
     <p>Or <a href={host}>Click here</a> to go back to pixelplanet</p>
   </div>
 );
 
-export function getHtml(description, text, host) {
-  const data = {
-    title: 'PixelPlanet.fun Accounts',
-    description,
-    body: <RedirectionPage text={text} host={host} />,
-    code: `window.setTimeout(function(){window.location.href="${host}";},4000)`,
-  };
-  const index = `<!doctype html>${ReactDOM.renderToStaticMarkup(<Html {...data} />)}`;
+function getHtml(description, text, host) {
+  const title = 'PixelPlanet.fun Accounts';
+  const body = <RedirectionPage text={text} host={host} />;
+  // eslint-disable-next-line max-len
+  const code = `window.setTimeout(function(){window.location.href="${host}";},15000)`;
+
+  const index = `<!doctype html>${
+    ReactDOM.renderToStaticMarkup(
+      <Html title={title} description={description} body={body} code={code} />,
+    )
+  }`;
   return index;
 }
+
+export default getHtml;

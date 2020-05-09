@@ -6,7 +6,7 @@
 import type { Request, Response } from 'express';
 
 import webSockets from '../../../socket/websockets';
-import { getHtml } from '../../../components/RedirectionPage';
+import getHtml from '../../../components/RedirectionPage';
 import { getHostFromRequest } from '../../../utils/ip';
 import mailProvider from '../../../core/mail';
 
