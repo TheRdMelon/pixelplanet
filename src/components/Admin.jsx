@@ -33,7 +33,8 @@ const Admin = () => (
       <option value="whitelist">whitelist</option>
       <option value="unwhitelist">unwhitelist</option>
     </select>
-    <input type="text" name="ip" /><br />
+    <br />
+    <textarea rows="10" cols="100" name="ip" /><br />
     <p>-----------------------</p>
     <button type="submit" name="upload">Submit</button>
   </form>

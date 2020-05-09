@@ -2,7 +2,10 @@
  * basic admin api
  *
  * @flow
+ *
  */
+
+/* eslint-disable no-await-in-loop */
 
 import express from 'express';
 import expressLimiter from 'express-limiter';
@@ -88,40 +91,57 @@ router.use(async (req, res, next) => {
  * @param ip already sanizized ip
  * @return true if successful
  */
-async function executeAction(action: string, ip: string): boolean {
-  const ipKey = getIPv6Subnet(ip);
-  const key = `isprox:${ipKey}`;
+async function executeAction(action: string, ips: string): boolean {
+  const ipArray = ips.split('\n');
+  let out = '';
+  const splitRegExp = /\s+/;
+  for (let i = 0; i < ipArray.length; i += 1) {
+    let ip = ipArray[i].trim();
+    const ipLine = ip.split(splitRegExp);
+    if (ipLine.length === 7) {
+      // logger output
+      // eslint-disable-next-line prefer-destructuring
+      ip = ipLine[2];
+    }
+    if (!ip || ip.length < 8 || ip.indexOf(' ') !== -1) {
+      out += `Couln't parse ${action} ${ip}<br>\n`;
+      continue;
+    }
+    const ipKey = getIPv6Subnet(ip);
+    const key = `isprox:${ipKey}`;
 
-  logger.info(`ADMINTOOLS: ${action} ${ip}`);
-  switch (action) {
-    case 'ban':
-      await Blacklist.findOrCreate({
-        where: { ip: ipKey },
-      });
-      await redis.setAsync(key, 'y', 'EX', 24 * 3600);
-      break;
-    case 'unban':
-      await Blacklist.destroy({
-        where: { ip: ipKey },
-      });
-      await redis.del(key);
-      break;
-    case 'whitelist':
-      await Whitelist.findOrCreate({
-        where: { ip: ipKey },
-      });
-      await redis.setAsync(key, 'n', 'EX', 24 * 3600);
-      break;
-    case 'unwhitelist':
-      await Whitelist.destroy({
-        where: { ip: ipKey },
-      });
-      await redis.del(key);
-      break;
-    default:
-      return false;
+    logger.info(`ADMINTOOLS: ${action} ${ip}`);
+    switch (action) {
+      case 'ban':
+        await Blacklist.findOrCreate({
+          where: { ip: ipKey },
+        });
+        await redis.setAsync(key, 'y', 'EX', 24 * 3600);
+        break;
+      case 'unban':
+        await Blacklist.destroy({
+          where: { ip: ipKey },
+        });
+        await redis.del(key);
+        break;
+      case 'whitelist':
+        await Whitelist.findOrCreate({
+          where: { ip: ipKey },
+        });
+        await redis.setAsync(key, 'n', 'EX', 24 * 3600);
+        break;
+      case 'unwhitelist':
+        await Whitelist.destroy({
+          where: { ip: ipKey },
+        });
+        await redis.del(key);
+        break;
+      default:
+        out += `Failed to ${action} ${ip}<br>\n`;
+    }
+    out += `Succseefully did ${action} ${ip}<br>\n`;
   }
-  return true;
+  return out;
 }
 
 
@@ -195,13 +215,7 @@ router.post('/', upload.single('image'), async (req, res, next) => {
 
     if (req.body.ip) {
       const ret = await executeAction(req.body.action, req.body.ip);
-      if (!ret) {
-        res.status(403).send('Failed');
-      } else {
-        res.status(200).send(
-          `Succseefully did ${req.body.action} ${req.body.ip}`,
-        );
-      }
+      res.status(200).send(ret);
       return;
     }
 
@@ -229,11 +243,7 @@ router.get('/', async (req: Request, res: Response, next) => {
 
     const ret = await executeAction(action, ip);
 
-    if (!ret) {
-      res.status(403).json({ errors: ['action not available'] });
-    }
-
-    res.json({ action: 'success' });
+    res.json({ action: 'success', messages: ret.split('\n') });
   } catch (error) {
     next(error);
   }
