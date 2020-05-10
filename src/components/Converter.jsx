@@ -266,10 +266,6 @@ function Converter({
         grid: gridData,
         scaling: scaleData,
       });
-    } else {
-      const output = document.getElementById('imgoutput');
-      output.width = 0;
-      output.height = 0;
     }
   });
 
@@ -591,32 +587,37 @@ function Converter({
           </div>
         )
         : null}
-      <p id="qprog">Select an Image</p>
-      <p>
-        <canvas
-          id="imgoutput"
-          style={{ width: '80%', imageRendering: 'crisp-edges' }}
-        />
-      </p>
-      <button
-        type="button"
-        onClick={downloadOutput}
-      >
-        Download Template
-      </button>
-      {(typeof ClipboardItem === 'undefined')
-        ? null
-        : (
-          <button
-            type="button"
-            onClick={() => {
-              const output = document.getElementById('imgoutput');
-              copyCanvasToClipboard(output);
-            }}
-          >
-            Copy to Clipboard
-          </button>
-        )}
+      {(selectedFile)
+        ? (
+          <div>
+            <p id="qprog">...</p>
+            <p>
+              <canvas
+                id="imgoutput"
+                style={{ width: '80%', imageRendering: 'crisp-edges' }}
+              />
+            </p>
+            <button
+              type="button"
+              onClick={downloadOutput}
+            >
+              Download Template
+            </button>
+            {(typeof ClipboardItem === 'undefined')
+              ? null
+              : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const output = document.getElementById('imgoutput');
+                    copyCanvasToClipboard(output);
+                  }}
+                >
+                  Copy to Clipboard
+                </button>
+              )}
+          </div>
+        ) : null}
     </p>
   );
 }
