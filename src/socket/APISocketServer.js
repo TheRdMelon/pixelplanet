@@ -132,6 +132,7 @@ class APISocketServer extends WebSocketEvents {
       if (client.subOnline && client.readyState === WebSocket.OPEN) {
         frame.forEach((data) => {
           try {
+            // eslint-disable-next-line no-underscore-dangle
             client._socket.write(data);
           } catch (error) {
             logger.error('(!) Catched error on write apisocket:', error);
@@ -142,7 +143,7 @@ class APISocketServer extends WebSocketEvents {
   }
 
   broadcastPixelBuffer(canvasId, chunkid, buffer) {
-    if (canvasId !== 0) return;
+    if (canvasId !== 0 && canvasId !== '0') return;
     const frame = WebSocket.Sender.frame(buffer, {
       readOnly: true,
       mask: false,
@@ -154,6 +155,7 @@ class APISocketServer extends WebSocketEvents {
       if (client.subPxl && client.readyState === WebSocket.OPEN) {
         frame.forEach((data) => {
           try {
+            // eslint-disable-next-line no-underscore-dangle
             client._socket.write(data);
           } catch (error) {
             logger.error('(!) Catched error on write apisocket:', error);
@@ -171,21 +173,21 @@ class APISocketServer extends WebSocketEvents {
       if (!command) {
         return;
       }
-      if (command == 'sub') {
+      if (command === 'sub') {
         const even = packet[0];
-        if (even == 'chat') {
+        if (even === 'chat') {
           ws.subChat = true;
         }
-        if (even == 'pxl') {
+        if (even === 'pxl') {
           ws.subPxl = true;
         }
-        if (even == 'online') {
+        if (even === 'online') {
           ws.subOnline = true;
         }
         logger.info(`APISocket client subscribed to  ${command}`);
         return;
       }
-      if (command == 'setpxl') {
+      if (command === 'setpxl') {
         const [minecraftid, ip, x, y, clr] = packet;
         if (clr < 0 || clr > 32) return;
         // be aware that user null has no cd
@@ -210,7 +212,7 @@ class APISocketServer extends WebSocketEvents {
         return;
       }
       logger.info(`APISocket message  ${message}`);
-      if (command == 'login') {
+      if (command === 'login') {
         const [minecraftid, minecraftname, ip] = packet;
         const user = await this.mc.report_login(minecraftid, minecraftname);
         // get userinfo
@@ -226,7 +228,7 @@ class APISocketServer extends WebSocketEvents {
         ]));
         return;
       }
-      if (command == 'userlst') {
+      if (command === 'userlst') {
         const [userlist] = packet;
         if (!Array.isArray(userlist) || !Array.isArray(userlist[0])) {
           logger.error('Got invalid minecraft userlist on APISocketServer');
@@ -235,12 +237,12 @@ class APISocketServer extends WebSocketEvents {
         this.mc.report_userlist(userlist);
         return;
       }
-      if (command == 'logout') {
+      if (command === 'logout') {
         const [minecraftid] = packet;
         this.mc.report_logout(minecraftid);
         return;
       }
-      if (command == 'mcchat') {
+      if (command === 'mcchat') {
         const [minecraftname, msg] = packet;
         const user = this.mc.minecraftname2User(minecraftname);
         const chatname = (user.id)
@@ -250,13 +252,13 @@ class APISocketServer extends WebSocketEvents {
         this.broadcastChatMessage(chatname, msg, 'xx', 0, true, ws);
         return;
       }
-      if (command == 'chat') {
+      if (command === 'chat') {
         const [name, msg, country, channelId] = packet;
         chatProvider.broadcastChatMessage(name, msg, country, channelId, false);
         this.broadcastChatMessage(name, msg, country, channelId, true, ws);
         return;
       }
-      if (command == 'linkacc') {
+      if (command === 'linkacc') {
         const [minecraftid, minecraftname, name] = packet;
         const ret = await this.mc.linkacc(minecraftid, minecraftname, name);
         if (!ret) {

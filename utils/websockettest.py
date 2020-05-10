@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 
+from struct import *
 import websocket
 import json
+
 try:
     import thread
 except ImportError:
@@ -9,7 +11,25 @@ except ImportError:
 import time
 
 def on_message(ws, message):
-    print("Got message: " + str(message))
+    if type(message) is str:
+        print("Got message: " + str(message))
+        return
+    if unpack_from('B', message, 0)[0] == 193:
+        x = unpack_from('B', message, 1)[0]
+        y = unpack_from('B', message, 2)[0]
+        a = unpack_from('!h', message, 4)[0]
+        if x != 10000 and y != 10000:
+            return
+        color = int(unpack_from('!B', message, 6)[0])
+        if color == 0:
+            color = 19
+        elif color == 1:
+            color = 2
+        color -= 2
+        number = (65520 & a) >> 4
+        x = int(x * 256 + a % 256 - 256 * 256 / 2)
+        y = int(y * 256 + a // 256 + 256 - 256 * 256 / 2)
+        print('Pixel Received: @%s,%s - color %s' % (str(x), str(y), str(color)))
 
 def on_error(ws, error):
     print(error)
@@ -19,10 +39,11 @@ def on_close(ws):
 
 def on_open(ws):
     def run(*args):
-        ws.send(json.dumps(["sub", "chat"]))
-        ws.send(json.dumps(["chat", "name", "message"]))
-        ws.send(json.dumps(["linkacc", "someid", "mymcname", "hallo"]))
-        #ws.send(json.dumps(["login", "someid", "mymcname", "127.0.0.1"]))
+        ws.send(json.dumps(["sub", "pxl"]))
+        time.sleep(3)
+        print('Send pixel 10.000 10.000 7')
+        ws.send(json.dumps(["setpxl", "07ef7f62-a631-45c9-a150-a52d5f9f1b42", "123.123.123.123", 10000, 10000, 7]))
+        #ws.send(json.dumps(["setpxl", None, None, 10000, 10000, 7]))
         time.sleep(120)
         ws.close()
     thread.start_new_thread(run, ())
@@ -30,7 +51,7 @@ def on_open(ws):
 
 if __name__ == "__main__":
     websocket.enableTrace(True)
-    ws = websocket.WebSocketApp("wss://old.pixelplanet.fun/mcws",
+    ws = websocket.WebSocketApp("wss://pixelplanet.fun/mcws",
                               on_message = on_message,
                               on_error = on_error,
                               on_close = on_close,
