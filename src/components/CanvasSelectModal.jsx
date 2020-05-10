@@ -30,7 +30,13 @@ const textStyle = {
 
 const CanvasSelectModal = ({ canvases }) => (
   <Modal title="Canvas Selection">
-    <p style={{ textAlign: 'center' }}>
+    <p style={{
+      textAlign: 'center',
+      paddingLeft: '5%',
+      paddingRight: '5%',
+      paddingTop: 20,
+    }}
+    >
       <p style={textStyle}>
         Select the canvas you want to use.
         Every canvas is unique and has different palettes,
