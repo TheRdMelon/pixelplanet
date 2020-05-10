@@ -18,8 +18,6 @@ def on_message(ws, message):
         x = unpack_from('B', message, 1)[0]
         y = unpack_from('B', message, 2)[0]
         a = unpack_from('!h', message, 4)[0]
-        if x != 10000 and y != 10000:
-            return
         color = int(unpack_from('!B', message, 6)[0])
         if color == 0:
             color = 19
@@ -29,6 +27,8 @@ def on_message(ws, message):
         number = (65520 & a) >> 4
         x = int(x * 256 + a % 256 - 256 * 256 / 2)
         y = int(y * 256 + a // 256 + 256 - 256 * 256 / 2)
+        if x != 10000 and y != 10000:
+            return
         print('Pixel Received: @%s,%s - color %s' % (str(x), str(y), str(color)))
 
 def on_error(ws, error):

@@ -73,17 +73,19 @@ class NewPasswordForm extends React.Component {
   }
 
   render() {
-    const { errors } = this.state;
-    if (this.state.success) {
+    const { success } = this.state;
+    const { back } = this.props;
+    if (success) {
       return (
         <div>
           <p className="modalmessage">
             Sent you a mail with instructions to reset your password.
           </p>
-          <button type="button" onClick={this.props.back}>Back</button>
+          <button type="button" onClick={back}>Back</button>
         </div>
       );
     }
+    const { errors, email, submitting } = this.state;
     return (
       <form onSubmit={this.handleSubmit}>
         {errors.map((error) => (
@@ -91,16 +93,16 @@ class NewPasswordForm extends React.Component {
         ))}
         <input
           style={inputStyles}
-          value={this.state.email}
+          value={email}
           onChange={(evt) => this.setState({ email: evt.target.value })}
           type="text"
           placeholder="Email"
         />
         <br />
         <button type="submit">
-          {(this.state.submitting) ? '...' : 'Submit'}
+          {(submitting) ? '...' : 'Submit'}
         </button>
-        <button type="button" onClick={this.props.back}>Cancel</button>
+        <button type="button" onClick={back}>Cancel</button>
       </form>
     );
   }

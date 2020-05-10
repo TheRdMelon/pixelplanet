@@ -26,26 +26,15 @@ const logoStyle = {
   marginRight: 5,
 };
 
-const textStyle = {
-  color: 'hsla(218, 5%, 47%, .6)',
-  fontSize: 14,
-  fontWeight: 500,
-  position: 'relative',
-  textAlign: 'inherit',
-  float: 'none',
-  margin: 0,
-  padding: 0,
-  lineHeight: 'normal',
-};
-
-const LogInArea = ({ register, forgot_password, me }) => (
+const LogInArea = ({ register, forgotPassword, me }) => (
   <p style={{ textAlign: 'center' }}>
-    <p style={textStyle}>Login to access more features and stats.</p><br />
+    <p className="modaltext">Login to access more features and stats.</p><br />
     <h2>Login with Mail:</h2>
     <LogInForm me={me} />
     <p
       className="modallink"
-      onClick={forgot_password}
+      onClick={forgotPassword}
+      role="presentation"
     >
       I forgot my Password.</p>
     <h2>or login with:</h2>
@@ -95,7 +84,7 @@ const LogInArea = ({ register, forgot_password, me }) => (
 );
 
 const UserAreaModal = ({
-  name, register, forgot_password, doMe, logout, setUserName, setUserMailreg,
+  name, register, forgotPassword, doMe, logout, setUserName, setUserMailreg,
 }) => (
   <Modal title="User Area">
     <p style={{ textAlign: 'center' }}>
@@ -103,7 +92,7 @@ const UserAreaModal = ({
         ? (
           <LogInArea
             register={register}
-            forgot_password={forgot_password}
+            forgotPassword={forgotPassword}
             me={doMe}
           />
         )
@@ -112,8 +101,8 @@ const UserAreaModal = ({
             <div label="Profile">
               <UserArea
                 logout={logout}
-                set_name={setUserName}
-                set_mailreg={setUserMailreg}
+                setName={setUserName}
+                setMailreg={setUserMailreg}
               />
             </div>
             <div label="Ranking">
@@ -138,7 +127,7 @@ function mapDispatchToProps(dispatch) {
     register() {
       dispatch(showRegisterModal());
     },
-    forgot_password() {
+    forgotPassword() {
       dispatch(showForgotPasswordModal());
     },
     doMe(me) {

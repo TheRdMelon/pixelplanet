@@ -8,13 +8,11 @@ import type { Action } from '../actions/types';
 
 export type ModalState = {
   modalType: ?string,
-  modalProps: object,
   chatOpen: boolean,
 };
 
 const initialState: ModalState = {
   modalType: null,
-  modalProps: {},
   chatOpen: false,
 };
 
@@ -27,12 +25,11 @@ export default function modal(
     // clear hover when placing a pixel
     // fixes a bug with iPad
     case 'SHOW_MODAL': {
-      const { modalType, modalProps } = action;
+      const { modalType } = action;
       const chatOpen = (modalType === 'CHAT') ? false : state.chatOpen;
       return {
         ...state,
         modalType,
-        modalProps,
         chatOpen,
       };
     }
@@ -42,7 +39,6 @@ export default function modal(
       return {
         ...state,
         modalType: null,
-        modalProps: {},
       };
 
     case 'TOGGLE_CHAT_BOX': {

@@ -62,7 +62,7 @@ async function exportVox(
       return zc - 1;
     }
     const zcMax = zc + VOX_OBJECT_CSIZE / 2 + 1;
-    return (zcMin <= posMax) ? zcMax : zc;
+    return (zcMax <= posMax) ? zcMax : zc;
   });
 
   //  Size Chunk
@@ -79,7 +79,7 @@ async function exportVox(
   // 4 bytes numVoxels
   // 4 bytes (x, y, z, clr) for every voxel
   let numVoxels = 0;
-  for (let j = yxcMin; j <= ycMax; j += 1) {
+  for (let j = ycMin; j <= ycMax; j += 1) {
     for (let i = xcMin; i <= xcMax; i += 1) {
       const key = `${i}:${j}`;
       const { buffer } = chunks.get(key);

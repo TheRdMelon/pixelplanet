@@ -18,8 +18,11 @@ const logger = proxyLogger;
  * @param ip IP to check
  * @return true if proxy, false if not
  */
+// eslint-disable-next-line no-unused-vars
 async function getIPIntel(ip: string): Promise<boolean> {
+  // eslint-disable-next-line max-len
   const email = `${Math.random().toString(36).substring(8)}-${Math.random().toString(36).substring(4)}@gmail.com`;
+  // eslint-disable-next-line max-len
   const url = `http://check.getipintel.net/check.php?ip=${ip}&contact=${email}&flags=m`;
   logger.info(`PROXYCHECK fetching getipintel ${url}`);
   const response = await fetch(url, {
@@ -27,6 +30,7 @@ async function getIPIntel(ip: string): Promise<boolean> {
       Accept: '*/*',
       'Accept-Language': 'de,en-US;q=0.7,en;q=0.3',
       Referer: 'http://check.getipintel.net/',
+      // eslint-disable-next-line max-len
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
     },
   });
@@ -54,6 +58,7 @@ async function getProxyCheck(ip: string): Promise<boolean> {
   logger.info('PROXYCHECK fetching proxycheck %s', url);
   const response = await fetch(url, {
     headers: {
+      // eslint-disable-next-line max-len
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
     },
   });
@@ -63,7 +68,7 @@ async function getProxyCheck(ip: string): Promise<boolean> {
   }
   const data = await response.json();
   logger.info('PROXYCHECK proxycheck is proxy?', data);
-  return data.status == 'ok' && data[ip].proxy === 'yes';
+  return data.status === 'ok' && data[ip].proxy === 'yes';
 }
 
 /*
@@ -75,11 +80,13 @@ async function getProxyCheck(ip: string): Promise<boolean> {
  */
 async function getShroomey(ip: string): Promise<boolean> {
   logger.info('PROXYCHECK fetching shroomey %s', ip);
+  // eslint-disable-next-line max-len
   const response = await fetch(`http://www.shroomery.org/ythan/proxycheck.php?ip=${ip}`, {
     headers: {
       Accept: '*/*',
       'Accept-Language': 'es-ES,es;q=0.8,en;q=0.6',
       Referer: 'http://www.shroomery.org/',
+      // eslint-disable-next-line max-len
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
     },
   });
@@ -87,21 +94,6 @@ async function getShroomey(ip: string): Promise<boolean> {
   const body = await response.text();
   logger.info('PROXYCHECK fetch shroomey is proxy? %s %s', ip, body);
   return body === 'Y';
-}
-
-/*
- * check shroomey, and if positive there, check
- * getipintel
- * @param ip IP to check
- * @return true if proxy, false if not
- */
-async function getCombined(ip: string): Promise<boolean> {
-  if (ip.indexOf(':') == -1) {
-    const shroom = await getShroomey(ip);
-    if (!shroom) return false;
-  }
-  const ipintel = await getIPIntel(ip);
-  return ipintel;
 }
 
 /*
@@ -150,7 +142,14 @@ async function dummy(): Promise<boolean> {
 async function withoutCache(f, ip) {
   if (!ip) return true;
   const ipKey = getIPv6Subnet(ip);
-  return !(await isWhitelisted(ipKey)) && (await isBlacklisted(ipKey) || await f(ip));
+  if (await isWhitelisted(ipKey)) {
+    return false;
+  }
+  if (await isBlacklisted(ipKey)) {
+    return true;
+  }
+  const result = f(ip);
+  return result;
 }
 
 /*
@@ -170,7 +169,12 @@ async function withCache(f, ip) {
   const cache = await redis.getAsync(key);
   if (cache) {
     const str = cache.toString('utf8');
-    logger.debug('PROXYCHECK fetch isproxy from cache %s %s %s %s %s', key, cache, typeof cache, str, typeof str);
+    logger.debug('PROXYCHECK fetch isproxy from cache %s %s %s %s %s',
+      key,
+      cache,
+      typeof cache,
+      str,
+      typeof str);
     return str === 'y';
   }
   logger.debug('PROXYCHECK fetch isproxy not from cache %s', key);
@@ -178,7 +182,7 @@ async function withCache(f, ip) {
   // else make asynchronous ipcheck and assume no proxy in the meantime
   // use lock to just check three at a time
   // do not check ip that currently gets checked
-  if (checking.indexOf(ipKey) == -1 && lock > 0) {
+  if (checking.indexOf(ipKey) === -1 && lock > 0) {
     lock -= 1;
     checking.push(ipKey);
     withoutCache(f, ip)
@@ -199,16 +203,16 @@ async function withCache(f, ip) {
   return false;
 }
 
-export async function cheapDetector(ip: string): Promise<boolean> {
-  return (await withCache(getProxyCheck, ip));
+export function cheapDetector(ip: string): Promise<boolean> {
+  return withCache(getProxyCheck, ip);
 }
 
-export async function strongDetector(ip: string): Promise<boolean> {
-  return (await withCache(getShroomey, ip));
+export function strongDetector(ip: string): Promise<boolean> {
+  return withCache(getShroomey, ip);
 }
 
-export async function blacklistDetector(ip: string): Promise<boolean> {
-  return (await withCache(dummy, ip));
+export function blacklistDetector(ip: string): Promise<boolean> {
+  return withCache(dummy, ip);
 }
 
 // export default cheapDetector;

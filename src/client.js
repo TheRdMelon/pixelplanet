@@ -1,11 +1,8 @@
 /* @flow */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
 import fetch from 'isomorphic-fetch'; // TODO put in the beggining with webpack!
 
-import './components/font.css';
+import './styles/font.css';
 
 // import initAds, { requestAds } from './ui/ads';
 import onKeyPress from './controls/keypress';
@@ -24,7 +21,7 @@ import {
 import store from './ui/store';
 
 
-import App from './components/App';
+import renderApp from './components/App';
 
 import { initRenderer, getRenderer } from './ui/renderer';
 import ProtocolClient from './socket/ProtocolClient';
@@ -97,12 +94,7 @@ function init() {
 init();
 
 document.addEventListener('DOMContentLoaded', () => {
-  ReactDOM.render(
-    <Provider store={store}>
-      <App />
-    </Provider>,
-    document.getElementById('app'),
-  );
+  renderApp(document.getElementById('app'));
 
   document.addEventListener('keydown', onKeyPress, false);
 

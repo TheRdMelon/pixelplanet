@@ -159,7 +159,9 @@ class Renderer {
     canvasSize,
   ) {
     pixelNotify.updateScale(viewscale);
-    let tiledScale = (viewscale > 0.5) ? 0 : Math.round(Math.log2(viewscale) / 2);
+    let tiledScale = (viewscale > 0.5)
+      ? 0
+      : Math.round(Math.log2(viewscale) / 2);
     tiledScale = 4 ** tiledScale;
     const tiledZoom = canvasMaxTiledZoom + Math.log2(tiledScale) / 2;
     const relScale = viewscale / tiledScale;
@@ -174,7 +176,11 @@ class Renderer {
   updateView(view, canvasSize) {
     const [x, y] = view;
     let [cx, cy] = this.centerChunk;
-    const [curcx, curcy] = getTileOfPixel(this.tiledScale, [x, y], canvasSize);
+    const [curcx, curcy] = getTileOfPixel(
+      this.tiledScale,
+      [x, y],
+      canvasSize,
+    );
     if (cx !== curcx || cy !== curcy) {
       cx = curcx;
       cy = curcy;
@@ -233,8 +239,12 @@ class Renderer {
       return false;
     }
     const { width, height } = this.viewport;
-    const CHUNK_RENDER_RADIUS_X = Math.ceil(width / TILE_SIZE / 2 / this.relScale);
-    const CHUNK_RENDER_RADIUS_Y = Math.ceil(height / TILE_SIZE / 2 / this.relScale);
+    const CHUNK_RENDER_RADIUS_X = Math.ceil(
+      width / TILE_SIZE / 2 / this.relScale,
+    );
+    const CHUNK_RENDER_RADIUS_Y = Math.ceil(
+      height / TILE_SIZE / 2 / this.relScale,
+    );
     const [xc, yc] = this.centerChunk;
     if (Math.abs(cx - xc)
       <= CHUNK_RENDER_RADIUS_X && Math.abs(cy - yc)
@@ -450,15 +460,21 @@ class Renderer {
       viewportCtx.scale(viewscale, viewscale);
       viewportCtx.drawImage(
         this.canvas,
-        width / 2 / viewscale - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE - canvasCenter - x),
-        height / 2 / viewscale - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y),
+        width / 2 / viewscale - CANVAS_WIDTH / 2 + (
+          (cx + 0.5) * TILE_SIZE - canvasCenter - x),
+        height / 2 / viewscale - CANVAS_HEIGHT / 2 + (
+          (cy + 0.5) * TILE_SIZE - canvasCenter - y),
       );
       viewportCtx.restore();
     } else {
       viewportCtx.drawImage(
         this.canvas,
-        Math.floor(width / 2 - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE / this.tiledScale - canvasCenter - x) * viewscale),
-        Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE / this.tiledScale - canvasCenter - y) * viewscale),
+        Math.floor(width / 2 - CANVAS_WIDTH / 2
+          + ((cx + 0.5) * TILE_SIZE / this.tiledScale
+          - canvasCenter - x) * viewscale),
+        Math.floor(height / 2 - CANVAS_HEIGHT / 2
+          + ((cy + 0.5) * TILE_SIZE / this.tiledScale
+          - canvasCenter - y) * viewscale),
       );
     }
 
@@ -653,14 +669,18 @@ class Renderer {
       viewportCtx.scale(viewscale, viewscale);
       viewportCtx.drawImage(
         this.canvas,
+        // eslint-disable-next-line max-len
         width / 2 / viewscale - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE - canvasCenter - x),
+        // eslint-disable-next-line max-len
         height / 2 / viewscale - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y),
       );
       viewportCtx.restore();
     } else {
       viewportCtx.drawImage(
         this.canvas,
+        // eslint-disable-next-line max-len
         Math.floor(width / 2 - CANVAS_WIDTH / 2 + ((cx + 0.5) * TILE_SIZE - canvasCenter - x) * viewscale),
+        // eslint-disable-next-line max-len
         Math.floor(height / 2 - CANVAS_HEIGHT / 2 + ((cy + 0.5) * TILE_SIZE - canvasCenter - y) * viewscale),
       );
     }

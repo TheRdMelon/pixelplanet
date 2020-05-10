@@ -11,8 +11,8 @@ import pkg from '../package.json';
  */
 async function copy() {
   await makeDir('build');
-  await makeDir('build/log');
   await Promise.all([
+    makeDir('build/log'),
     copyFile('LICENSE', 'build/LICENSE'),
     copyDir('public', 'build/public'),
     copyFile('src/canvases.json', 'build/canvases.json'),
@@ -20,6 +20,7 @@ async function copy() {
     copyFile('tools/example-ecosystem.yml', 'build/ecosystem.example.yml'),
     copyFile('tools/example-ecosystem-backup.yml', 'build/ecosystem-backup.example.yml'),
   ]);
+  await makeDir('build/public/assets');
 }
 
 export default copy;

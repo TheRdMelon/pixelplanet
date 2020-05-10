@@ -16,7 +16,7 @@ function validate(name) {
   return errors;
 }
 
-async function submit_namechange(name) {
+async function submitNamechange(name) {
   const body = JSON.stringify({
     name,
   });
@@ -57,7 +57,7 @@ class ChangeName extends React.Component {
     if (errors.length > 0) return;
     this.setState({ submitting: true });
 
-    const { errors: resperrors } = await submit_namechange(name);
+    const { errors: resperrors } = await submitNamechange(name);
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -65,12 +65,14 @@ class ChangeName extends React.Component {
       });
       return;
     }
-    this.props.set_name(name);
-    this.props.done();
+    const { setName, done } = this.props;
+    setName(name);
+    done();
   }
 
   render() {
-    const { errors } = this.state;
+    const { errors, name, submitting } = this.state;
+    const { done } = this.props;
     return (
       <div className="inarea">
         <form onSubmit={this.handleSubmit}>
@@ -78,14 +80,16 @@ class ChangeName extends React.Component {
             <p key={error} className="errormessage">Error: {error}</p>
           ))}
           <input
-            value={this.state.name}
+            value={name}
             onChange={(evt) => this.setState({ name: evt.target.value })}
             type="text"
             placeholder="New Username"
           />
           <br />
-          <button type="submit">{(this.state.submitting) ? '...' : 'Save'}</button>
-          <button type="button" onClick={this.props.done}>Cancel</button>
+          <button type="submit">
+            {(submitting) ? '...' : 'Save'}
+          </button>
+          <button type="button" onClick={done}>Cancel</button>
         </form>
       </div>
     );

@@ -30,13 +30,13 @@ const MODAL_COMPONENTS = {
   /* other modals */
 };
 
-const ModalRoot = ({ modalType, modalProps }) => {
+const ModalRoot = ({ modalType }) => {
   if (!modalType) {
     return null;
   }
 
   const SpecificModal = MODAL_COMPONENTS[modalType];
-  return <SpecificModal {...modalProps} />;
+  return <SpecificModal />;
 };
 
 export default connect(

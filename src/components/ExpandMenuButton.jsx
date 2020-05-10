@@ -1,5 +1,7 @@
 /*
  * espand menu / show other menu buttons
+ *
+ * @flow
  */
 
 import React from 'react';
@@ -9,7 +11,13 @@ import { MdExpandMore, MdExpandLess } from 'react-icons/md';
 import { toggleOpenMenu } from '../actions';
 
 const ExpandMenuButton = ({ menuOpen, expand }) => (
-  <div id="menubutton" className="actionbuttons" onClick={expand}>
+  <div
+    id="menubutton"
+    className="actionbuttons"
+    role="button"
+    tabIndex={-1}
+    onClick={expand}
+  >
     {(menuOpen) ? <MdExpandLess /> : <MdExpandMore /> }
   </div>
 );

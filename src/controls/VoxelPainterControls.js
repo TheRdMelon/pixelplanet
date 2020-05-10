@@ -948,8 +948,8 @@ class VoxelPainterControls extends EventDispatcher {
         */
 
         // clamp to boundaries
-        const state = scope.store.getState();
-        const { canvasSize } = state.canvas;
+        const reduxState = scope.store.getState();
+        const { canvasSize } = reduxState.canvas;
         const bound = canvasSize / 2;
         scope.target.clamp({
           x: -bound,

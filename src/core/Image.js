@@ -4,6 +4,9 @@
  *
  */
 
+// Tile creation is allowed to be slow
+/* eslint-disable no-await-in-loop */
+
 import RedisCanvas from '../data/models/RedisCanvas';
 import logger from './logger';
 import { getChunkOfPixel } from './utils';

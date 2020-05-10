@@ -15,7 +15,7 @@ function validate(password) {
   return errors;
 }
 
-async function submit_delete_account(password) {
+async function submitDeleteAccount(password) {
   const body = JSON.stringify({
     password,
   });
@@ -56,7 +56,7 @@ class DeleteAccount extends React.Component {
     if (errors.length > 0) return;
     this.setState({ submitting: true });
 
-    const { errors: resperrors } = await submit_delete_account(password);
+    const { errors: resperrors } = await submitDeleteAccount(password);
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -64,11 +64,13 @@ class DeleteAccount extends React.Component {
       });
       return;
     }
-    this.props.set_name(null);
+    const { setName } = this.props;
+    setName(null);
   }
 
   render() {
-    const { errors } = this.state;
+    const { errors, password, submitting } = this.state;
+    const { done } = this.props;
     return (
       <div className="inarea" style={{ backgroundColor: '#ff6666' }}>
         <form onSubmit={this.handleSubmit}>
@@ -76,14 +78,16 @@ class DeleteAccount extends React.Component {
             <p key={error} className="errormessage">Error: {error}</p>
           ))}
           <input
-            value={this.state.password}
+            value={password}
             onChange={(evt) => this.setState({ password: evt.target.value })}
             type="password"
             placeholder="Password"
           />
           <br />
-          <button type="submit">{(this.state.submitting) ? '...' : 'Yes, Delete My Account!'}</button>
-          <button type="button" onClick={this.props.done}>Cancel</button>
+          <button type="submit">
+            {(submitting) ? '...' : 'Yes, Delete My Account!'}
+          </button>
+          <button type="button" onClick={done}>Cancel</button>
         </form>
       </div>
     );

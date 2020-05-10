@@ -6,27 +6,27 @@
 import React from 'react';
 import { validatePassword, parseAPIresponse } from '../utils/validation';
 
-function validate(mailreg, password, new_password, confirm_password) {
+function validate(mailreg, password, newPassword, confirmPassword) {
   const errors = [];
 
   if (mailreg) {
     const oldpasserror = validatePassword(password);
     if (oldpasserror) errors.push(oldpasserror);
   }
-  if (new_password != confirm_password) {
+  if (newPassword !== confirmPassword) {
     errors.push('Passwords do not match.');
     return errors;
   }
-  const passerror = validatePassword(new_password);
+  const passerror = validatePassword(newPassword);
   if (passerror) errors.push(passerror);
 
   return errors;
 }
 
-async function submit_passwordchange(new_password, password) {
+async function submitPasswordChange(newPassword, password) {
   const body = JSON.stringify({
     password,
-    new_password,
+    newPassword,
   });
   const response = await fetch('./api/auth/change_passwd', {
     method: 'POST',
@@ -46,8 +46,8 @@ class ChangePassword extends React.Component {
     super();
     this.state = {
       password: '',
-      new_password: '',
-      confirm_password: '',
+      newPassword: '',
+      confirmPassword: '',
       success: false,
       submitting: false,
 
@@ -61,17 +61,26 @@ class ChangePassword extends React.Component {
     e.preventDefault();
 
     const {
-      password, new_password, confirm_password, submitting,
+      password, newPassword, confirmPassword, submitting,
     } = this.state;
     if (submitting) return;
 
-    const errors = validate(this.props.mailreg, password, new_password, confirm_password);
+    const { mailreg } = this.props;
+    const errors = validate(
+      mailreg,
+      password,
+      newPassword,
+      confirmPassword,
+    );
 
     this.setState({ errors });
     if (errors.length > 0) return;
     this.setState({ submitting: true });
 
-    const { errors: resperrors } = await submit_passwordchange(new_password, password);
+    const { errors: resperrors } = await submitPasswordChange(
+      newPassword,
+      password,
+    );
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -85,25 +94,34 @@ class ChangePassword extends React.Component {
   }
 
   render() {
-    if (this.state.success) {
+    const { success } = this.state;
+    if (success) {
+      const { done } = this.props;
       return (
         <div className="inarea">
           <p className="modalmessage">Changed Password successfully.</p>
-          <button type="button" onClick={this.props.done}>Close</button>
+          <button type="button" onClick={done}>Close</button>
         </div>
       );
     }
-    const { errors } = this.state;
+    const {
+      errors,
+      password,
+      newPassword,
+      confirmPassword,
+      submitting,
+    } = this.state;
+    const { cancel, mailreg } = this.props;
     return (
       <div className="inarea">
         <form onSubmit={this.handleSubmit}>
           {errors.map((error) => (
             <p key={error} className="errormessage">Error: {error}</p>
           ))}
-          {(this.props.mailreg)
+          {(mailreg)
           && (
           <input
-            value={this.state.password}
+            value={password}
             onChange={(evt) => this.setState({ password: evt.target.value })}
             type="password"
             placeholder="Old Password"
@@ -111,21 +129,25 @@ class ChangePassword extends React.Component {
           )}
           <br />
           <input
-            value={this.state.new_password}
-            onChange={(evt) => this.setState({ new_password: evt.target.value })}
+            value={newPassword}
+            onChange={(evt) => this.setState({ newPassword: evt.target.value })}
             type="password"
             placeholder="New Password"
           />
           <br />
           <input
-            value={this.state.confirm_password}
-            onChange={(evt) => this.setState({ confirm_password: evt.target.value })}
+            value={confirmPassword}
+            onChange={(evt) => this.setState({
+              confirmPassword: evt.target.value,
+            })}
             type="password"
             placeholder="Confirm New Password"
           />
           <br />
-          <button type="submit">{(this.state.submitting) ? '...' : 'Save'}</button>
-          <button type="button" onClick={this.props.cancel}>Cancel</button>
+          <button type="submit">
+            {(submitting) ? '...' : 'Save'}
+          </button>
+          <button type="button" onClick={cancel}>Cancel</button>
         </form>
       </div>
     );

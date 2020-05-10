@@ -4,9 +4,13 @@
  */
 
 import React from 'react';
+import { connect } from 'react-redux';
 import {
   validateEMail, validateName, validatePassword, parseAPIresponse,
 } from '../utils/validation';
+
+import { showUserAreaModal, receiveMe } from '../actions';
+
 
 function validate(name, email, password, confirmPassword) {
   const errors = [];
@@ -90,12 +94,23 @@ class SignUpForm extends React.Component {
       });
       return;
     }
-    this.props.me(me);
-    this.props.userarea();
+    const { doMe, userarea } = this.props;
+    doMe(me);
+    userarea();
   }
 
   render() {
-    const { errors } = this.state;
+    const {
+      errors,
+      name,
+      email,
+      password,
+      confirmPassword,
+      submitting,
+    } = this.state;
+    const {
+      back,
+    } = this.props;
     return (
       <form onSubmit={this.handleSubmit}>
         {errors.map((error) => (
@@ -103,28 +118,28 @@ class SignUpForm extends React.Component {
         ))}
         <input
           style={inputStyles}
-          value={this.state.name}
+          value={name}
           onChange={(evt) => this.setState({ name: evt.target.value })}
           type="text"
           placeholder="Name"
         /><br />
         <input
           style={inputStyles}
-          value={this.state.email}
+          value={email}
           onChange={(evt) => this.setState({ email: evt.target.value })}
           type="text"
           placeholder="Email"
         /><br />
         <input
           style={inputStyles}
-          value={this.state.password}
+          value={password}
           onChange={(evt) => this.setState({ password: evt.target.value })}
           type="password"
           placeholder="Password"
         /><br />
         <input
           style={inputStyles}
-          value={this.state.confirmPassword}
+          value={confirmPassword}
           onChange={(evt) => this.setState({
             confirmPassword: evt.target.value,
           })}
@@ -132,11 +147,29 @@ class SignUpForm extends React.Component {
           placeholder="Confirm Password"
         /><br />
         <button type="submit">
-          {(this.state.submitting) ? '...' : 'Submit'}
+          {(submitting) ? '...' : 'Submit'}
+        </button>
+        <button
+          type="button"
+          onClick={back}
+        >
+          Cancel
         </button>
       </form>
     );
   }
 }
 
-export default SignUpForm;
+
+function mapDispatchToProps(dispatch) {
+  return {
+    doMe(me) {
+      dispatch(receiveMe(me));
+    },
+    userarea() {
+      dispatch(showUserAreaModal());
+    },
+  };
+}
+
+export default connect(null, mapDispatchToProps)(SignUpForm);

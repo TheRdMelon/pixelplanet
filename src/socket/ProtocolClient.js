@@ -3,6 +3,9 @@
  * @flow
  */
 
+// allow the websocket to be noisy on the console
+/* eslint-disable no-console */
+
 import EventEmitter from 'events';
 
 import CoolDownPacket from './packets/CoolDownPacket';
@@ -44,9 +47,9 @@ class ProtocolClient extends EventEmitter {
       console.log('WebSocket already open, not starting');
     }
     this.timeConnected = Date.now();
-    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const url = `${protocol}//${location.hostname}${
-      location.port ? `:${location.port}` : ''
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const url = `${protocol}//${window.location.hostname}${
+      window.location.port ? `:${window.location.port}` : ''
     }/ws`;
     this.ws = new WebSocket(url);
     this.ws.binaryType = 'arraybuffer';

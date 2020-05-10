@@ -4,7 +4,11 @@
  */
 
 import React from 'react';
+import { Provider } from 'react-redux';
+import ReactDOM from 'react-dom';
 import { IconContext } from 'react-icons';
+
+import store from '../ui/store';
 
 import CoordinatesBox from './CoordinatesBox';
 import CanvasSwitchButton from './CanvasSwitchButton';
@@ -17,12 +21,8 @@ import ReCaptcha from './ReCaptcha';
 import ExpandMenuButton from './ExpandMenuButton';
 import ModalRoot from './ModalRoot';
 
-import baseCss from './base.tcss';
-
 const App = () => (
   <div>
-    {/* eslint-disable-next-line react/no-danger */}
-    <style dangerouslySetInnerHTML={{ __html: baseCss }} />
     <div id="outstreamContainer" />
     <ReCaptcha />
     <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
@@ -39,4 +39,13 @@ const App = () => (
   </div>
 );
 
-export default App;
+function renderApp(domParent) {
+  ReactDOM.render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+    domParent,
+  );
+}
+
+export default renderApp;

@@ -15,6 +15,7 @@ import type { State } from '../reducers';
  */
 function globe(canvasId, canvasIdent, canvasSize, view) {
   const [x, y] = view.map(Math.round);
+  // eslint-disable-next-line max-len
   window.location.href = `globe#${canvasIdent},${canvasId},${canvasSize},${x},${y}`;
 }
 
@@ -22,12 +23,17 @@ function globe(canvasId, canvasIdent, canvasSize, view) {
 const GlobeButton = ({
   canvasId, canvasIdent, canvasSize, view,
 }) => (
-  <div id="globebutton" className="actionbuttons" onClick={() => globe(canvasId, canvasIdent, canvasSize, view)}>
+  <div
+    role="button"
+    tabIndex={-1}
+    id="globebutton"
+    className="actionbuttons"
+    onClick={() => globe(canvasId, canvasIdent, canvasSize, view)}
+  >
     <Md3DRotation />
   </div>
 );
 
-// TODO optimize
 function mapStateToProps(state: State) {
   const {
     canvasId, canvasIdent, canvasSize, view,

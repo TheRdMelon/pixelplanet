@@ -12,8 +12,6 @@ import { requestPlacePixel } from '../actions';
 
 
 function onCaptcha(token: string) {
-  console.log('token', token);
-
   const { canvasId, coordinates, color } = window.pixel;
 
   store.dispatch(requestPlacePixel(canvasId, coordinates, color, token));

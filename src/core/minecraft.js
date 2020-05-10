@@ -15,7 +15,7 @@ class Minecraft {
     this.online = {};
   }
 
-  async report_login(minecraftid, minecraftname) {
+  async reportLogin(minecraftid, minecraftname) {
     const user = new User();
     user.minecraftname = minecraftname;
     const reguser = await RegUser.findOne({ where: { minecraftid } });
@@ -35,26 +35,27 @@ class Minecraft {
   }
   */
 
-  report_logout(minecraftid) {
+  reportLogout(minecraftid) {
     delete this.online[minecraftid];
   }
 
-  report_userlist(list) {
+  reportUserlist(list) {
     this.online = {};
     list.forEach((user) => {
       const [minecraftid, minecraftname] = user;
-      this.report_login(minecraftid, minecraftname);
+      this.reportLogin(minecraftid, minecraftname);
     });
   }
 
-  async linkacc(minecraftid, minecraftname, name) {
+  static async linkacc(minecraftid, minecraftname, name) {
     try {
       const finduser = await RegUser.findOne({ where: { minecraftid } });
       if (finduser) {
-        if (finduser.name == name) {
+        if (finduser.name === name) {
           if (finduser.mcVerified) {
             return 'You are already verified';
           }
+          // eslint-disable-next-line max-len
           return 'You already got a verification message in the pixelplanet UserArea. Please refresh the page if you do not see it.';
         }
         return `You already linked to other account ${finduser.name}.`;
@@ -62,6 +63,7 @@ class Minecraft {
       const reguser = await RegUser.findOne({ where: { name } });
       if (reguser) {
         if (reguser.minecraftid) {
+          // eslint-disable-next-line max-len
           return `This pixelplanet account is already linked to ${reguser.minecraftname}`;
         }
         reguser.update({ minecraftname, minecraftid });
@@ -95,8 +97,11 @@ class Minecraft {
 
   minecraftname2User(minecraftname: string): User {
     const searchstring = minecraftname;
-    for (const [minecraftid, user] of Object.entries(this.online)) {
-      if (user.minecraftname == searchstring) { return user; }
+    const onlineIds = Object.keys(this.online);
+    for (let i = 0; i < onlineIds.length; i += 1) {
+      const id = onlineIds[i];
+      const user = this.online[id];
+      if (user.minecraftname === searchstring) { return user; }
     }
 
     const user = new User();

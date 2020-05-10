@@ -45,60 +45,6 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx|ts|tsx)$/,
-        loader: 'babel-loader',
-        include: [
-          path.resolve(__dirname, '../src'),
-        ],
-        query: {
-          // https://github.com/babel/babel-loader#options
-          cacheDirectory: isDebug,
-
-          // https://babeljs.io/docs/usage/options/
-          babelrc: false,
-          presets: [
-            // A Babel preset that can automatically determine the Babel plugins and polyfills
-            // https://github.com/babel/babel-preset-env
-            ['@babel/preset-env', {
-              targets: {
-                browsers: pkg.browserslist,
-              },
-              modules: false,
-              useBuiltIns: 'usage',
-              corejs: {
-                version: 3,
-              },
-              debug: false,
-            }],
-            "@babel/typescript",
-            // JSX, Flow
-            // https://github.com/babel/babel/tree/master/packages/babel-preset-react
-            '@babel/react',
-          ],
-          plugins: [
-            '@babel/transform-flow-strip-types',
-            ['@babel/plugin-proposal-decorators', { legacy: true }],
-            '@babel/plugin-proposal-function-sent',
-            '@babel/plugin-proposal-export-namespace-from',
-            '@babel/plugin-proposal-numeric-separator',
-            '@babel/plugin-proposal-throw-expressions',
-            ['@babel/plugin-proposal-class-properties', { loose: true }],
-            '@babel/proposal-object-rest-spread',
-            // Adds component stack to warning messages
-            // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-jsx-source
-            ...isDebug ? ['@babel/transform-react-jsx-source'] : [],
-            // Adds __self attribute to JSX which React will use for some warnings
-            // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-jsx-self
-            ...isDebug ? ['@babel/transform-react-jsx-self'] : [],
-            // react-optimize
-            '@babel/transform-react-constant-elements',
-            '@babel/transform-react-inline-elements',
-            'transform-react-remove-prop-types',
-            'transform-react-pure-class-to-function',
-          ],
-        },
-      },
-      {
         test: /\.svg$/,
         use: [
           {
@@ -134,21 +80,6 @@ const config = {
         ],
       },
       {
-        test: /\.tcss/,
-        use: [
-          {
-            loader: 'css-loader',
-            options: {
-              // CSS Loader https://github.com/webpack/css-loader
-              importLoaders: 1,
-              sourceMap: isDebug,
-              // CSS Modules https://github.com/css-modules/css-modules
-              modules: true,
-            },
-          },
-        ],
-      },
-      {
         test: /\.scss/,
         use: [
           'style-loader',
@@ -163,20 +94,6 @@ const config = {
             },
           },
           'sass-loader',
-        ],
-      },
-      {
-        test: /\.css/,
-        use: ['style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              // CSS Loader https://github.com/webpack/css-loader
-              sourceMap: isDebug,
-              // CSS Modules https://github.com/css-modules/css-modules
-              modules: false,
-            },
-          },
         ],
       },
       {
@@ -240,6 +157,81 @@ const clientConfig = {
     ...config.output,
     filename: isDebug ? '[name].js' : '[name].[chunkhash:8].js',
     chunkFilename: isDebug ? '[name].chunk.js' : '[name].[chunkhash:8].js',
+  },
+
+  module: {
+    ...config.module,
+    rules: [
+      ...config.module.rules,
+      {
+        test: /\.(js|jsx|ts|tsx)$/,
+        loader: 'babel-loader',
+        include: [
+          path.resolve(__dirname, '../src'),
+        ],
+        query: {
+          // https://github.com/babel/babel-loader#options
+          cacheDirectory: isDebug,
+
+          // https://babeljs.io/docs/usage/options/
+          babelrc: false,
+          presets: [
+            // A Babel preset that can automatically determine the Babel plugins and polyfills
+            // https://github.com/babel/babel-preset-env
+            ['@babel/preset-env', {
+              targets: {
+                browsers: pkg.browserslist,
+              },
+              modules: false,
+              useBuiltIns: 'usage',
+              corejs: {
+                version: 3,
+              },
+              debug: false,
+            }],
+            "@babel/typescript",
+            // JSX, Flow
+            // https://github.com/babel/babel/tree/master/packages/babel-preset-react
+            '@babel/react',
+          ],
+          plugins: [
+            '@babel/transform-flow-strip-types',
+            ['@babel/plugin-proposal-decorators', { legacy: true }],
+            '@babel/plugin-proposal-function-sent',
+            '@babel/plugin-proposal-export-namespace-from',
+            '@babel/plugin-proposal-numeric-separator',
+            '@babel/plugin-proposal-throw-expressions',
+            ['@babel/plugin-proposal-class-properties', { loose: true }],
+            '@babel/proposal-object-rest-spread',
+            // Adds component stack to warning messages
+            // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-jsx-source
+            ...isDebug ? ['@babel/transform-react-jsx-source'] : [],
+            // Adds __self attribute to JSX which React will use for some warnings
+            // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-jsx-self
+            ...isDebug ? ['@babel/transform-react-jsx-self'] : [],
+            // react-optimize
+            '@babel/transform-react-constant-elements',
+            '@babel/transform-react-inline-elements',
+            'transform-react-remove-prop-types',
+            'transform-react-pure-class-to-function',
+          ],
+        },
+      },
+      {
+        test: /\.css/,
+        use: ['style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              // CSS Loader https://github.com/webpack/css-loader
+              sourceMap: isDebug,
+              // CSS Modules https://github.com/css-modules/css-modules
+              modules: false,
+            },
+          },
+        ],
+      },
+    ],
   },
 
   plugins: [
@@ -315,26 +307,85 @@ const webConfig = {
     ...config.module,
 
     // Override babel-preset-env configuration for Node.js
-    rules: config.module.rules.map((rule) => (rule.loader !== 'babel-loader' ? rule : {
-      ...rule,
-      query: {
-        ...rule.query,
-        presets: rule.query.presets.map((preset) => (preset[0] !== '@babel/preset-env' ? preset : ['@babel/preset-env', {
-          targets: {
-            node: pkg.engines.node.replace(/^\D+/g, ''),
-          },
-          modules: false,
-          useBuiltIns: false,
-          debug: false,
-        }])),
+    rules: [
+      ...config.module.rules,
+      {
+        test: /\.(js|jsx|ts|tsx)$/,
+        loader: 'babel-loader',
+        include: [
+          path.resolve(__dirname, '../src'),
+        ],
+        query: {
+          // https://github.com/babel/babel-loader#options
+          cacheDirectory: isDebug,
+
+          // https://babeljs.io/docs/usage/options/
+          babelrc: false,
+          presets: [
+            // A Babel preset that can automatically determine the Babel plugins and polyfills
+            // https://github.com/babel/babel-preset-env
+            ['@babel/preset-env', {
+              targets: {
+                node: pkg.engines.node.replace(/^\D+/g, ''),
+              },
+              modules: false,
+              useBuiltIns: false,
+              corejs: {
+                version: 3,
+              },
+              debug: false,
+            }],
+            "@babel/typescript",
+            // JSX, Flow
+            // https://github.com/babel/babel/tree/master/packages/babel-preset-react
+            '@babel/react',
+          ],
+          plugins: [
+            '@babel/transform-flow-strip-types',
+            ['@babel/plugin-proposal-decorators', { legacy: true }],
+            '@babel/plugin-proposal-function-sent',
+            '@babel/plugin-proposal-export-namespace-from',
+            '@babel/plugin-proposal-numeric-separator',
+            '@babel/plugin-proposal-throw-expressions',
+            ['@babel/plugin-proposal-class-properties', { loose: true }],
+            '@babel/proposal-object-rest-spread',
+            // Adds component stack to warning messages
+            // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-jsx-source
+            ...isDebug ? ['@babel/transform-react-jsx-source'] : [],
+            // Adds __self attribute to JSX which React will use for some warnings
+            // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-jsx-self
+            ...isDebug ? ['@babel/transform-react-jsx-self'] : [],
+            // react-optimize
+            '@babel/transform-react-constant-elements',
+            '@babel/transform-react-inline-elements',
+            'transform-react-remove-prop-types',
+            'transform-react-pure-class-to-function',
+          ],
+        },
       },
-    })),
+      {
+        test: /\.css/,
+        use: [
+          {
+            loader: 'css-loader',
+            options: {
+              // CSS Loader https://github.com/webpack/css-loader
+              importLoaders: 1,
+              sourceMap: isDebug,
+              // CSS Modules https://github.com/css-modules/css-modules
+              modules: false,
+            },
+          },
+        ],
+      },
+    ],
   },
 
   // needed because webpack tries to pack socket.io
   externals: [
     /\/proxies\.json$/,
     /\/canvases\.json$/,
+    /^\.\/styleassets\.json$/,
     /^\.\/assets\.json$/,
     (context, request, callback) => {
       const isExternal = request.match(/^[@a-z][a-z/.\-0-9]*$/i)

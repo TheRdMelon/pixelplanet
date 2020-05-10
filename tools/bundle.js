@@ -31,6 +31,7 @@ function bundle() {
       fileContent = fileContent.replace(regex, 'core-js/features/set-immediate');
       fs.writeFileSync(file, fileContent);
     });
+    console.log('Pathing image-q done');
   } catch {
     console.log('Error while patching image-q');
   }

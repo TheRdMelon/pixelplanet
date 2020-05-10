@@ -12,28 +12,6 @@ import type { State } from '../reducers';
 import printGIMPPalette from '../core/exportGPL';
 import { copyCanvasToClipboard } from '../utils/clipboard';
 
-const titleStyle = {
-  color: '#4f545c',
-  marginLeft: 0,
-  marginRight: 10,
-  overflow: 'hidden',
-  wordWrap: 'break-word',
-  lineHeight: '24px',
-  fontSize: 16,
-  fontWeight: 500,
-  marginTop: 4,
-  marginBottom: 0,
-};
-
-const textStyle = {
-  color: 'hsla(218, 5%, 47%, .6)',
-  fontSize: 14,
-  fontWeight: 500,
-  position: 'relative',
-  textAlign: 'inherit',
-  float: 'none',
-  lineHeight: 'normal',
-};
 
 function downloadOutput() {
   const output = document.getElementById('imgoutput');
@@ -284,7 +262,7 @@ function Converter({
 
   return (
     <p style={{ textAlign: 'center' }}>
-      <p style={textStyle}>Choose Canvas:&nbsp;
+      <p className="modalcotext">Choose Canvas:&nbsp;
         <select
           onChange={(e) => {
             const sel = e.target;
@@ -307,8 +285,8 @@ function Converter({
         }
         </select>
       </p>
-      <h3 style={titleStyle}>Palette Download</h3>
-      <p style={textStyle}>
+      <h3 className="modaltitle">Palette Download</h3>
+      <p className="modalcotext">
         Palette for <a href="https://www.gimp.org">GIMP</a>:&nbsp;
         <button
           type="button"
@@ -329,8 +307,8 @@ function Converter({
         <p>Credit for the Palette of the Moon goes to
           <a href="https://twitter.com/starhousedev">starhouse</a>.</p>
       </p>
-      <h3 style={titleStyle}>Image Converter</h3>
-      <p style={textStyle}>Convert an image to canvas colors</p>
+      <h3 className="modaltitle">Image Converter</h3>
+      <p className="modalcotext">Convert an image to canvas colors</p>
       <input
         type="file"
         id="imgfile"
@@ -341,7 +319,7 @@ function Converter({
           readFile(file, selectFile, setScaleData);
         }}
       />
-      <p style={textStyle}>Choose Strategy:&nbsp;
+      <p className="modalcotext">Choose Strategy:&nbsp;
         <select
           onChange={(e) => {
             const sel = e.target;
@@ -368,7 +346,7 @@ function Converter({
           }
         </select>
       </p>
-      <p style={textStyle}>Choose Color Mode:&nbsp;
+      <p className="modalcotext">Choose Color Mode:&nbsp;
         <select
           onChange={(e) => {
             const sel = e.target;
@@ -395,7 +373,7 @@ function Converter({
           }
         </select>
       </p>
-      <p style={{ ...textStyle, fontHeight: 16 }}>
+      <p style={{ fontHeight: 16 }} className="modalcotext">
         <input
           type="checkbox"
           checked={gridEnabled}
@@ -418,7 +396,7 @@ function Converter({
             display: 'inline-block',
           }}
           >
-            <p style={{ ...textStyle, fontHeight: 16 }}>
+            <p style={{ fontHeight: 16 }} className="modalcotext">
               <input
                 type="checkbox"
                 checked={gridLight}
@@ -431,7 +409,7 @@ function Converter({
               />
               Light Grid
             </p>
-            <span style={textStyle}>Offset X:&nbsp;
+            <span className="modalcotext">Offset X:&nbsp;
               <input
                 type="number"
                 step="1"
@@ -445,9 +423,9 @@ function Converter({
                     offsetX: e.target.value,
                   });
                 }}
-              />%
+              />&nbsp;
             </span>
-            <span style={textStyle}>Offset Y:&nbsp;
+            <span className="modalcotext">Offset Y:&nbsp;
               <input
                 type="number"
                 step="1"
@@ -461,12 +439,12 @@ function Converter({
                     offsetY: e.target.value,
                   });
                 }}
-              />%
+              />
             </span>
           </div>
         )
         : null}
-      <p style={{ ...textStyle, fontHeight: 16 }}>
+      <p style={{ fontHeight: 16 }} className="modalcotext">
         <input
           type="checkbox"
           checked={scalingEnabled}
@@ -489,7 +467,7 @@ function Converter({
             display: 'inline-block',
           }}
           >
-            <span style={textStyle}>Width:&nbsp;
+            <span className="modalcotext">Width:&nbsp;
               <input
                 type="number"
                 step="1"
@@ -504,6 +482,7 @@ function Converter({
                   if (selectedScaleKeepRatio && selectedFile) {
                     const ratio = selectedFile.width / selectedFile.height;
                     const newHeight = Math.round(newWidth / ratio);
+                    if (newHeight <= 0) return;
                     setScaleData({
                       ...scaleData,
                       width: newWidth,
@@ -516,9 +495,9 @@ function Converter({
                     width: newWidth,
                   });
                 }}
-              />%
+              />&nbsp;
             </span>
-            <span style={textStyle}>Height:&nbsp;
+            <span className="modalcotext">Height:&nbsp;
               <input
                 type="number"
                 step="1"
@@ -533,6 +512,7 @@ function Converter({
                   if (selectedScaleKeepRatio && selectedFile) {
                     const ratio = selectedFile.width / selectedFile.height;
                     const nuWidth = Math.round(ratio * nuHeight);
+                    if (nuWidth <= 0) return;
                     setScaleData({
                       ...scaleData,
                       width: nuWidth,
@@ -545,9 +525,9 @@ function Converter({
                     height: nuHeight,
                   });
                 }}
-              />%
+              />
             </span>
-            <p style={{ ...textStyle, fontHeight: 16 }}>
+            <p style={{ fontHeight: 16 }} className="modalcotext">
               <input
                 type="checkbox"
                 checked={selectedScaleKeepRatio}
@@ -557,7 +537,7 @@ function Converter({
               />
               Keep Ratio
             </p>
-            <p style={{ ...textStyle, fontHeight: 16 }}>
+            <p style={{ fontHeight: 16 }} className="modalcotext">
               <input
                 type="checkbox"
                 checked={scalingAA}

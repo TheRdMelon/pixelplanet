@@ -214,7 +214,7 @@ class APISocketServer extends WebSocketEvents {
       logger.info(`APISocket message  ${message}`);
       if (command === 'login') {
         const [minecraftid, minecraftname, ip] = packet;
-        const user = await this.mc.report_login(minecraftid, minecraftname);
+        const user = await this.mc.reportLogin(minecraftid, minecraftname);
         // get userinfo
         user.ip = ip;
         const wait = await user.getWait(0);
@@ -234,12 +234,12 @@ class APISocketServer extends WebSocketEvents {
           logger.error('Got invalid minecraft userlist on APISocketServer');
           return;
         }
-        this.mc.report_userlist(userlist);
+        this.mc.reportUserlist(userlist);
         return;
       }
       if (command === 'logout') {
         const [minecraftid] = packet;
-        this.mc.report_logout(minecraftid);
+        this.mc.reportLogout(minecraftid);
         return;
       }
       if (command === 'mcchat') {
@@ -260,7 +260,7 @@ class APISocketServer extends WebSocketEvents {
       }
       if (command === 'linkacc') {
         const [minecraftid, minecraftname, name] = packet;
-        const ret = await this.mc.linkacc(minecraftid, minecraftname, name);
+        const ret = await Minecraft.linkacc(minecraftid, minecraftname, name);
         if (!ret) {
           webSockets.notifyChangedMe(name);
         }

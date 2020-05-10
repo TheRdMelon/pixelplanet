@@ -89,6 +89,13 @@ export function toggleOpenPalette(): Action {
   };
 }
 
+export function selectStyle(style: string): Action {
+  return {
+    type: 'SELECT_STYLE',
+    style,
+  };
+}
+
 export function toggleOpenMenu(): Action {
   return {
     type: 'TOGGLE_OPEN_MENU',
@@ -581,11 +588,10 @@ export function initTimer(): ThunkAction {
   };
 }
 
-export function showModal(modalType: string, modalProps: Object = {}): Action {
+export function showModal(modalType: string): Action {
   return {
     type: 'SHOW_MODAL',
     modalType,
-    modalProps,
   };
 }
 

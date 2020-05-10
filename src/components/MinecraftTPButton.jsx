@@ -9,13 +9,13 @@ import { MdNearMe } from 'react-icons/md';
 
 import type { State } from '../reducers';
 
-async function submit_minecraft_tp(view) {
+async function submitMinecraftTp(view) {
   const [x, y] = view.map(Math.round);
   const body = JSON.stringify({
     x,
     y,
   });
-  const response = await fetch('./api/mctp', {
+  await fetch('./api/mctp', {
     method: 'POST',
     headers: {
       'Content-type': 'application/json',
@@ -27,7 +27,13 @@ async function submit_minecraft_tp(view) {
 
 
 const MinecraftTPButton = ({ view }) => (
-  <div id="minecrafttpbutton" className="actionbuttons" onClick={() => submit_minecraft_tp(view)}>
+  <div
+    id="minecrafttpbutton"
+    className="actionbuttons"
+    role="button"
+    tabIndex={-1}
+    onClick={() => submitMinecraftTp(view)}
+  >
     <MdNearMe />
   </div>
 );

@@ -45,23 +45,35 @@ router.use(bodyParser.urlencoded({ extended: true }));
  * Check for POST parameters,
  * if invalid password is given, ignore it and go to next
  */
-router.post('/', async (req: Request, res: Response, next) => {
+router.post('/', async (req: Request, res: Response) => {
   const { pass, passconf, code } = req.body;
   if (!pass || !passconf || !code) {
-    const html = getPasswordResetHtml(null, null, 'You sent an empty password or invalid data :(');
+    const html = getPasswordResetHtml(
+      null,
+      null,
+      'You sent an empty password or invalid data :(',
+    );
     res.status(400).send(html);
     return;
   }
 
   const email = mailProvider.checkCode(code);
   if (!email) {
-    const html = getPasswordResetHtml(null, null, "This password-reset link isn't valid anymore :(");
+    const html = getPasswordResetHtml(
+      null,
+      null,
+      "This password-reset link isn't valid anymore :(",
+    );
     res.status(401).send(html);
     return;
   }
 
-  if (pass != passconf) {
-    const html = getPasswordResetHtml(null, null, 'Your passwords do not match :(');
+  if (pass !== passconf) {
+    const html = getPasswordResetHtml(
+      null,
+      null,
+      'Your passwords do not match :(',
+    );
     res.status(400).send(html);
     return;
   }
@@ -69,15 +81,24 @@ router.post('/', async (req: Request, res: Response, next) => {
   // set password
   const reguser = await RegUser.findOne({ where: { email } });
   if (!reguser) {
+    // eslint-disable-next-line max-len
     logger.error(`${email} from PasswordReset page does not exist in database`);
-    const html = getPasswordResetHtml(null, null, "User doesn't exist in our database :(");
+    const html = getPasswordResetHtml(
+      null,
+      null,
+      "User doesn't exist in our database :(",
+    );
     res.status(400).send(html);
     return;
   }
   await reguser.update({ password: pass });
 
   logger.info(`Changed password of ${email} via passowrd reset form`);
-  const html = getPasswordResetHtml(null, null, 'Passowrd successfully changed.');
+  const html = getPasswordResetHtml(
+    null,
+    null,
+    'Passowrd successfully changed.',
+  );
   res.status(200).send(html);
 });
 
@@ -85,17 +106,26 @@ router.post('/', async (req: Request, res: Response, next) => {
 /*
  * Check GET parameters for action to execute
  */
-router.get('/', async (req: Request, res: Response, next) => {
+router.get('/', async (req: Request, res: Response) => {
   const { token } = req.query;
   if (!token) {
-    const html = getPasswordResetHtml(null, null, 'Invalid url :( Please check your mail again.');
+    const html = getPasswordResetHtml(
+      null,
+      null,
+      'Invalid url :( Please check your mail again.',
+    );
     res.status(400).send(html);
     return;
   }
 
   const email = mailProvider.checkCode(token);
   if (!email) {
-    const html = getPasswordResetHtml(null, null, 'This passwort reset link is wrong or already expired, please request a new one (Note: you can use those links just once)');
+    const html = getPasswordResetHtml(
+      null,
+      null,
+      // eslint-disable-next-line max-len
+      'This passwort reset link is wrong or already expired, please request a new one (Note: you can use those links just once)',
+    );
     res.status(401).send(html);
     return;
   }

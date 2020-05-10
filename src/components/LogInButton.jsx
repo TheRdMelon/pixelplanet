@@ -11,7 +11,13 @@ import { showUserAreaModal } from '../actions';
 
 
 const LogInButton = ({ open }) => (
-  <div id="loginbutton" className="actionbuttons" onClick={open}>
+  <div
+    id="loginbutton"
+    className="actionbuttons"
+    onClick={open}
+    role="button"
+    tabIndex={-1}
+  >
     <MdPerson />
   </div>
 );

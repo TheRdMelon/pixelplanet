@@ -15,19 +15,6 @@ import CanvasItem from './CanvasItem';
 import type { State } from '../reducers';
 
 
-const textStyle = {
-  color: 'hsla(218, 5%, 47%, .6)',
-  fontSize: 14,
-  fontWeight: 500,
-  position: 'relative',
-  textAlign: 'inherit',
-  float: 'none',
-  margin: 0,
-  padding: 0,
-  lineHeight: 'normal',
-};
-
-
 const CanvasSelectModal = ({ canvases }) => (
   <Modal title="Canvas Selection">
     <p style={{
@@ -37,7 +24,7 @@ const CanvasSelectModal = ({ canvases }) => (
       paddingTop: 20,
     }}
     >
-      <p style={textStyle}>
+      <p className="modaltext">
         Select the canvas you want to use.
         Every canvas is unique and has different palettes,
         cooldown and requirements.

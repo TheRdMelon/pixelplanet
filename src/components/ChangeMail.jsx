@@ -5,7 +5,7 @@
 
 import React from 'react';
 import {
-  validateName, validateEMail, validatePassword, parseAPIresponse,
+  validateEMail, validatePassword, parseAPIresponse,
 } from '../utils/validation';
 
 function validate(email, password) {
@@ -19,7 +19,7 @@ function validate(email, password) {
   return errors;
 }
 
-async function submit_mailchange(email, password) {
+async function submitMailchange(email, password) {
   const body = JSON.stringify({
     email,
     password,
@@ -63,7 +63,7 @@ class ChangeMail extends React.Component {
     if (errors.length > 0) return;
     this.setState({ submitting: true });
 
-    const { errors: resperrors } = await submit_mailchange(email, password);
+    const { errors: resperrors } = await submitMailchange(email, password);
     if (resperrors) {
       this.setState({
         errors: resperrors,
@@ -77,15 +77,24 @@ class ChangeMail extends React.Component {
   }
 
   render() {
-    if (this.state.success) {
+    const { success } = this.state;
+    const { done } = this.props;
+    if (success) {
       return (
         <div className="inarea">
-          <p className="modalmessage">Changed Mail successfully. We sent you a verification mail, please verify your new mail adress.</p>
-          <button type="button" onClick={this.props.done}>Close</button>
+          <p
+            className="modalmessage"
+          >
+            Changed Mail successfully.
+            We sent you a verification mail, please verify your new mail adress.
+          </p>
+          <button type="button" onClick={done}>Close</button>
         </div>
       );
     }
-    const { errors } = this.state;
+    const {
+      errors, password, email, submitting,
+    } = this.state;
     return (
       <div className="inarea">
         <form onSubmit={this.handleSubmit}>
@@ -93,21 +102,23 @@ class ChangeMail extends React.Component {
             <p key={error} className="errormessage">Error: {error}</p>
           ))}
           <input
-            value={this.state.password}
+            value={password}
             onChange={(evt) => this.setState({ password: evt.target.value })}
             type="password"
             placeholder="Password"
           />
           <br />
           <input
-            value={this.state.email}
+            value={email}
             onChange={(evt) => this.setState({ email: evt.target.value })}
             type="text"
             placeholder="New Mail"
           />
           <br />
-          <button type="submit">{(this.state.submitting) ? '...' : 'Save'}</button>
-          <button type="button" onClick={this.props.done}>Cancel</button>
+          <button type="submit">
+            {(submitting) ? '...' : 'Save'}
+          </button>
+          <button type="button" onClick={done}>Cancel</button>
         </form>
       </div>
     );

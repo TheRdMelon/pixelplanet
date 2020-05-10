@@ -18,6 +18,7 @@ import {
   togglePotatoMode,
   toggleLightGrid,
   toggleHistoricalView,
+  selectStyle,
 } from '../actions';
 
 import type { State } from '../reducers';
@@ -40,16 +41,6 @@ const itemStyles = {
 
 const titleStyles = {
   flex: '1 1 auto',
-  marginLeft: 0,
-  marginRight: 10,
-  color: '#4f545c',
-  overflow: 'hidden',
-  wordWrap: 'break-word',
-  lineHeight: '24px',
-  fontSize: 16,
-  fontWeight: 500,
-  marginTop: 0,
-  marginBottom: 0,
 };
 
 const rowStyles = {
@@ -57,35 +48,50 @@ const rowStyles = {
   flexDirection: 'row',
 };
 
-const descriptionStyle = {
-  boxSizing: 'border-box',
-  flex: '1 1 auto',
-  color: 'hsla(218, 5%, 47%, .6)',
-  fontSize: 14,
-  lineHeight: '20px',
-  fontWeight: 500,
-  marginTop: 4,
-};
-
-const dividerStyles = {
-  boxSizing: 'border-box',
-  marginTop: 20,
-  height: 1,
-  width: '100%',
-  backgroundColor: 'hsla(216, 4%, 74%, .3)',
-};
-
+const SettingsItemSelect = ({
+  title, description, values, selected, onSelect,
+}) => (
+  <div style={itemStyles}>
+    <div style={rowStyles}>
+      <h3 style={titleStyles} className="modaltitle">{title}</h3>
+      <select
+        onChange={(e) => {
+          const sel = e.target;
+          onSelect(sel.options[sel.selectedIndex].value);
+        }}
+      >
+        {
+          values.map((value) => (
+            <option
+              selected={value === selected}
+              value={value}
+            >
+              {value}
+            </option>
+          ))
+        }
+      </select>
+    </div>
+    {description && <div className="modaldesc">{description} </div>}
+    <div className="modaldivider" />
+  </div>
+);
 
 const SettingsItem = ({
   title, description, keyBind, value, onToggle,
 }) => (
   <div style={itemStyles}>
     <div style={rowStyles}>
-      <h3 style={titleStyles}>{title} {keyBind && <kbd>{keyBind}</kbd>}</h3>
+      <h3
+        style={titleStyles}
+        className="modaltitle"
+      >
+        {title} {keyBind && <kbd>{keyBind}</kbd>}
+      </h3>
       <MdToggleButtonHover value={value} onToggle={onToggle} />
     </div>
-    {description && <div style={descriptionStyle}>{description} </div>}
-    <div style={dividerStyles} />
+    {description && <div className="modaldesc">{description} </div>}
+    <div className="modaldivider" />
   </div>
 );
 
@@ -99,6 +105,7 @@ function SettingsModal({
   onMute,
   autoZoomIn,
   compactPalette,
+  selectedStyle,
   onToggleGrid,
   onTogglePixelNotify,
   onToggleAutoZoomIn,
@@ -107,6 +114,7 @@ function SettingsModal({
   onTogglePotatoMode,
   onToggleLightGrid,
   onToggleHistoricalView,
+  onSelectStyle,
   chatNotify,
 }) {
   return (
@@ -175,6 +183,15 @@ function SettingsModal({
               onToggle={onToggleHistoricalView}
             />
           ) : null }
+        {(typeof window.availableStyles !== 'undefined') && (
+          <SettingsItemSelect
+            title="Styles"
+            description="How pixelplanet should look like."
+            values={Object.keys(window.availableStyles)}
+            selected={selectedStyle}
+            onSelect={onSelectStyle}
+          />
+        )}
       </p>
     </Modal>
   );
@@ -189,6 +206,7 @@ function mapStateToProps(state: State) {
     compactPalette,
     isPotato,
     isLightGrid,
+    style: selectedStyle,
   } = state.gui;
   const isMuted = mute;
   const {
@@ -206,6 +224,7 @@ function mapStateToProps(state: State) {
     isPotato,
     isLightGrid,
     isHistoricalView,
+    selectedStyle,
   };
 }
 
@@ -237,6 +256,9 @@ function mapDispatchToProps(dispatch) {
     },
     onToggleHistoricalView() {
       dispatch(toggleHistoricalView());
+    },
+    onSelectStyle(style) {
+      dispatch(selectStyle(style));
     },
   };
 }

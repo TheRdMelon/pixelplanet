@@ -9,11 +9,15 @@ import { FaCog } from 'react-icons/fa';
 
 import { showSettingsModal } from '../actions';
 
-import type { State } from '../reducers';
-
 
 const SettingsButton = ({ open }) => (
-  <div id="settingsbutton" className="actionbuttons" onClick={open}>
+  <div
+    id="settingsbutton"
+    className="actionbuttons"
+    onClick={open}
+    role="button"
+    tabIndex={-1}
+  >
     <FaCog />
   </div>
 );

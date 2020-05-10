@@ -9,22 +9,29 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 
 import Html from './Html';
+/* this one is set by webpack */
+// eslint-disable-next-line import/no-unresolved
 import assets from './assets.json';
+// eslint-disable-next-line import/no-unresolved
+import styleassets from './styleassets.json';
+
 import { ASSET_SERVER, BACKUP_URL } from '../core/config';
 
-const data = {
-  title: 'PixelPlanet.fun',
-  description: 'Place color pixels on an map styled canvas '
-  + 'with other players online',
-  //  styles: [
-  //    { id: 'css', cssText: baseCss },
-  //  ],
-  scripts: [
-    ASSET_SERVER + assets.vendor.js,
-    ASSET_SERVER + assets.client.js,
-  ],
-  useRecaptcha: true,
-};
+// eslint-disable-next-line max-len
+let code = `window.assetserver="${ASSET_SERVER}";window.availableStyles=JSON.parse('${JSON.stringify(styleassets)}');`;
+if (BACKUP_URL) {
+  code += `window.backupurl="${BACKUP_URL}";`;
+}
+const scripts = [
+  ASSET_SERVER + assets.vendor.js,
+  ASSET_SERVER + assets.client.js,
+];
+const css = [
+  {
+    id: 'globcss',
+    uri: styleassets.default,
+  },
+];
 
 /*
  * generates string with html of main page
@@ -35,12 +42,18 @@ const data = {
  */
 function generateMainPage(countryCoords: Cell): string {
   const [x, y] = countryCoords;
-  let code = `window.coordx=${x};window.coordy=${y};window.assetserver="${ASSET_SERVER}";`;
-  if (BACKUP_URL) {
-    code += `window.backupurl="${BACKUP_URL}";`;
-  }
-  const htmldata = { ...data, code };
-  const html = ReactDOM.renderToStaticMarkup(<Html {...htmldata} />);
+  // eslint-disable-next-line
+  const html = ReactDOM.renderToStaticMarkup(
+    <Html
+      title="PixelPlanet.fun"
+      // eslint-disable-next-line max-len
+      description="Place color pixels on an map styled canvas with other players online"
+      scripts={scripts}
+      css={css}
+      code={`${code}window.coordx=${x};window.coordy=${y};`}
+      useRecaptcha
+    />,
+  );
 
   return `<!doctype html>${html}`;
 }

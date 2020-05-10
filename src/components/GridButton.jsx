@@ -11,15 +11,15 @@ import { toggleGrid } from '../actions';
 
 
 const GridButton = ({ onToggleGrid }) => (
-  <div className="actionbuttons" onClick={onToggleGrid}>
+  <div
+    role="button"
+    tabIndex={-1}
+    className="actionbuttons"
+    onClick={onToggleGrid}
+  >
     <FaTh />
   </div>
 );
-
-// TODO simplify...
-function mapStateToProps(state: State) {
-  return {};
-}
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -29,4 +29,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GridButton);
+export default connect(null, mapDispatchToProps)(GridButton);

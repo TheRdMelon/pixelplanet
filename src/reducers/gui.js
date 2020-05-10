@@ -18,6 +18,7 @@ export type GUIState = {
   paletteOpen: boolean,
   menuOpen: boolean,
   chatChannel: number,
+  style: string,
 };
 
 const initialState: GUIState = {
@@ -33,6 +34,7 @@ const initialState: GUIState = {
   paletteOpen: true,
   menuOpen: false,
   chatChannel: 0,
+  style: 'default',
 };
 
 
@@ -94,6 +96,14 @@ export default function gui(
       return {
         ...state,
         menuOpen: !state.menuOpen,
+      };
+    }
+
+    case 'SELECT_STYLE': {
+      const { style } = action;
+      return {
+        ...state,
+        style,
       };
     }
 

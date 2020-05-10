@@ -4,6 +4,9 @@
  * @flow
  * */
 
+// Tile creation is allowed to be slow
+/* eslint-disable no-await-in-loop */
+
 import sharp from 'sharp';
 import fs from 'fs';
 
@@ -14,7 +17,8 @@ import { getMaxTiledZoom } from './utils';
 import { TILE_SIZE, TILE_ZOOM_LEVEL } from './constants';
 
 /*
- * Deletes a subtile from a tile (paints it in color 0), if we wouldn't do it, it would be black
+ * Deletes a subtile from a tile (paints it in color 0),
+ * if we wouldn't do it, it would be black
  * @param palette Palette to use
  * @param subtilesInTile how many subtiles are in a tile (per dimension)
  * @param cell subtile to delete [dx, dy]
@@ -32,8 +36,11 @@ function deleteSubtilefromTile(
     let channelOffset = (offset + row * TILE_SIZE * subtilesInTile) * 3;
     const max = channelOffset + TILE_SIZE * 3;
     while (channelOffset < max) {
+      // eslint-disable-next-line prefer-destructuring
       buffer[channelOffset++] = palette.rgb[0];
+      // eslint-disable-next-line prefer-destructuring
       buffer[channelOffset++] = palette.rgb[1];
+      // eslint-disable-next-line prefer-destructuring
       buffer[channelOffset++] = palette.rgb[2];
     }
   }
@@ -52,7 +59,7 @@ function addRGBSubtiletoTile(
   buffer: Uint8Array,
 ) {
   const [dx, dy] = cell;
-  const chunkOffset = (dx + dy * subtilesInTile * TILE_SIZE) * TILE_SIZE; // offset in pixels
+  const chunkOffset = (dx + dy * subtilesInTile * TILE_SIZE) * TILE_SIZE;
   let pos: number = 0;
   for (let row = 0; row < TILE_SIZE; row += 1) {
     let channelOffset = (chunkOffset + row * TILE_SIZE * subtilesInTile) * 3;
@@ -80,7 +87,7 @@ function addIndexedSubtiletoTile(
   buffer: Uint8Array,
 ) {
   const [dx, dy] = cell;
-  const chunkOffset = (dx + dy * subtilesInTile * TILE_SIZE) * TILE_SIZE; // offset in pixels
+  const chunkOffset = (dx + dy * subtilesInTile * TILE_SIZE) * TILE_SIZE;
   let pos: number = 0;
   let clr: number;
   for (let row = 0; row < TILE_SIZE; row += 1) {
@@ -194,6 +201,7 @@ export async function createZoomedTile(
   const na = [];
   for (let dy = 0; dy < TILE_ZOOM_LEVEL; dy += 1) {
     for (let dx = 0; dx < TILE_ZOOM_LEVEL; dx += 1) {
+      // eslint-disable-next-line max-len
       const chunkfile = `${canvasTileFolder}/${z + 1}/${x * TILE_ZOOM_LEVEL + dx}/${y * TILE_ZOOM_LEVEL + dy}.png`;
       if (!fs.existsSync(chunkfile)) {
         na.push([dx, dy]);
@@ -244,8 +252,11 @@ export async function createEmptyTile(
   let i = 0;
   const max = TILE_SIZE * TILE_SIZE * 3;
   while (i < max) {
+    // eslint-disable-next-line prefer-destructuring
     tileRGBBuffer[i++] = palette.rgb[0];
+    // eslint-disable-next-line prefer-destructuring
     tileRGBBuffer[i++] = palette.rgb[1];
+    // eslint-disable-next-line prefer-destructuring
     tileRGBBuffer[i++] = palette.rgb[2];
   }
   const filename = `${canvasTileFolder}/emptytile.png`;
@@ -416,6 +427,7 @@ export async function initializeTiles(
       }
     }
     logger.info(
+      // eslint-disable-next-line max-len
       `Tiling: Created ${cnts} / ${cnt} tiles for zoom ${zoom} for canvas${canvasId}`,
     );
   }
@@ -429,6 +441,7 @@ export async function initializeTiles(
   );
   //--
   logger.info(
+    // eslint-disable-next-line max-len
     `Tiling: Elapsed Time: ${Math.round((Date.now() - startTime) / 1000)} for canvas${canvasId}`,
   );
 }

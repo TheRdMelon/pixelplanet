@@ -145,6 +145,10 @@ If you want to add a new canvas, be sure that you additionally create `public/lo
 
 The default configuration values can be seen in `src/core/config.js` and for the canvases in `src/core/constats.js`
 
+#### Styles
+
+To add more css styles, create a new css file in `src/styles` based on `src/styles/default.css` and add it to the FILES array in `tools/minifyCss.js`
+
 ### Running
 
 1. Make sure that mysql and redis are running
@@ -206,7 +210,7 @@ After=network.target mysql.service redis.service
 ### Development
 
 Run `npm run lint:src` to check for code errors and warnings or `npm run lint -- ./your/file.js` to check a single file.
-We have enough warnings already, just don't produce too many additional ones.
+Please do not produce too many additional warnings.
 
 You can use `npm run babel-node ./your/script.js` to execute a script with local babel.
 

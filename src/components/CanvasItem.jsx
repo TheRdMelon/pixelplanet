@@ -10,38 +10,6 @@ import { THREE_CANVAS_HEIGHT } from '../core/constants';
 import { selectCanvas } from '../actions';
 
 
-const textStyle = {
-  color: 'hsla(218, 5%, 47%, .6)',
-  fontSize: 14,
-  fontWeight: 500,
-  padding: 0,
-  display: 'inline-block',
-  verticalAlign: 'middle',
-  marginTop: 3,
-  marginBottom: 3,
-  width: '75%',
-};
-
-const infoStyle = {
-  color: '#4f545c',
-  fontSize: 15,
-  fontWeight: 500,
-  position: 'relative',
-  textAlign: 'inherit',
-  float: 'none',
-  margin: 0,
-  padding: 0,
-};
-
-const titleStyle = {
-  color: '#4f545c',
-  overflow: 'hidden',
-  wordWrap: 'break-word',
-  lineHeight: '26px',
-  fontSize: 16,
-  fontWeight: 'bold',
-};
-
 const buttonStyle = {
   marginTop: 8,
   marginBottom: 8,
@@ -71,29 +39,29 @@ const CanvasItem = ({ canvasId, canvas, changeCanvas }) => (
       alt="preview"
       src={`/preview${canvasId}.png`}
     />
-    <p style={textStyle}>
-      <span style={titleStyle}>{canvas.title}</span><br />
-      <span style={infoStyle}>{canvas.desc}</span><br />
+    <p className="modalcvtext">
+      <span className="modaltitle">{canvas.title}</span><br />
+      <span className="modalinfo">{canvas.desc}</span><br />
       Cooldown:
       &nbsp;
-      <span style={infoStyle}>
+      <span className="modalinfo">
         {(canvas.bcd !== canvas.pcd)
           ? <span> {canvas.bcd / 1000}s / {canvas.pcd / 1000}s</span>
           : <span> {canvas.bcd / 1000}s</span>}
       </span><br />
       Stacking till
-      <span style={infoStyle}> {canvas.cds / 1000}s</span><br />
+      <span className="modalinfo"> {canvas.cds / 1000}s</span><br />
       Ranked:
       &nbsp;
-      <span style={infoStyle}>{(canvas.ranked) ? 'Yes' : 'No'}</span><br />
+      <span className="modalinfo">{(canvas.ranked) ? 'Yes' : 'No'}</span><br />
       {(canvas.req !== -1) ? <span>Requirements:<br /></span> : null}
-      <span style={infoStyle}>
+      <span className="modalinfo">
         {(canvas.req !== -1) ? <span>User Account </span> : null}
         {(canvas.req > 0) ? <span> and {canvas.req} Pixels set</span> : null}
       </span>
       {(canvas.req !== -1) ? <br /> : null}
       Dimensions:
-      <span style={infoStyle}> {canvas.size} x {canvas.size}
+      <span className="modalinfo"> {canvas.size} x {canvas.size}
         {(canvas.v)
           ? <span> x {THREE_CANVAS_HEIGHT} Voxels</span>
           : <span> Pixels</span>}

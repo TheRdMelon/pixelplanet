@@ -9,11 +9,14 @@ import Creeper from './Creeper.svg';
 
 import { showMinecraftModal } from '../actions';
 
-import type { State } from '../reducers';
-
-
 const MinecraftButton = ({ open }) => (
-  <div id="minecraftbutton" className="actionbuttons" onClick={open}>
+  <div
+    id="minecraftbutton"
+    className="actionbuttons"
+    onClick={open}
+    role="button"
+    tabIndex={-1}
+  >
     <Creeper />
   </div>
 );

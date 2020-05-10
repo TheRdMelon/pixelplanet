@@ -19,7 +19,7 @@ function validate(newPassword) {
 }
 
 export default async (req: Request, res: Response) => {
-  const { new_password: newPassword, password } = req.body;
+  const { newPassword, password } = req.body;
   const errors = validate(newPassword);
   if (errors.length > 0) {
     res.status(400);

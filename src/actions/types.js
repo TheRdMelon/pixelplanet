@@ -25,6 +25,7 @@ export type Action =
   | { type: 'TOGGLE_LIGHT_GRID' }
   | { type: 'TOGGLE_OPEN_MENU' }
   | { type: 'TOGGLE_HISTORICAL_VIEW' }
+  | { type: 'SELECT_STYLE', style: string }
   | { type: 'SET_NOTIFICATION', notification: string }
   | { type: 'UNSET_NOTIFICATION' }
   | { type: 'SET_PLACE_ALLOWED', placeAllowed: boolean }
@@ -78,15 +79,10 @@ export type Action =
   | { type: 'SET_MINECRAFT_NAME', minecraftname: string }
   | { type: 'SET_MAILREG', mailreg: boolean }
   | { type: 'REM_FROM_MESSAGES', message: string }
-  | { type: 'SHOW_MODAL', modalType: string, modalProps: obj }
+  | { type: 'SHOW_MODAL', modalType: string }
   | { type: 'HIDE_MODAL' }
   | { type: 'RELOAD_URL' }
   | { type: 'SET_HISTORICAL_TIME', date: string, time: string }
   | { type: 'ON_VIEW_FINISH_CHANGE' };
 export type PromiseAction = Promise<Action>;
-export type Dispatch = (action: Action
-  | ThunkAction
-  | PromiseAction
-  | Array<Action>) => any;
 export type GetState = () => State;
-export type ThunkAction = (dispatch: Dispatch, getState: GetState) => any;

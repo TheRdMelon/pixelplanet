@@ -13,26 +13,6 @@ import {
 } from '../actions';
 
 
-const closeStyles = {
-  position: 'fixed',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  flex: '0 0 36px',
-  borderWidth: 2,
-  borderStyle: 'solid',
-  borderRadius: '50%',
-  width: 36,
-  height: 36,
-  cursor: 'pointer',
-  backgroundColor: '#f6f6f7',
-  borderColor: '#dcddde',
-  top: 30,
-  right: 40,
-};
-
-
-// TODO appear with animation
 function MyModal({ close, title, children }) {
   return (
     <Modal
@@ -45,8 +25,8 @@ function MyModal({ close, title, children }) {
     >
       <h2 style={{ paddingLeft: '5%' }}>{title}</h2>
       <div
-        style={closeStyles}
         onClick={close}
+        className="ModalClose"
         role="button"
         label="close"
         tabIndex={-1}

@@ -13,20 +13,21 @@ class UserMessages extends React.Component {
   constructor() {
     super();
     this.state = {
-      resent_verify: false,
-      sent_link: false,
-      verify_answer: null,
-      link_answer: null,
+      resentVerify: false,
+      sentLink: false,
+      verifyAnswer: null,
+      linkAnswer: null,
     };
 
-    this.submit_resend_verify = this.submit_resend_verify.bind(this);
-    this.submit_mc_link = this.submit_mc_link.bind(this);
+    this.submitResendVerify = this.submitResendVerify.bind(this);
+    this.submitMcLink = this.submitMcLink.bind(this);
   }
 
-  async submit_resend_verify() {
-    if (this.state.resent_verify) return;
+  async submitResendVerify() {
+    const { resentVerify } = this.state;
+    if (resentVerify) return;
     this.setState({
-      resent_verify: true,
+      resentVerify: true,
     });
 
     const response = await fetch('./api/auth/resend_verify', {
@@ -34,16 +35,19 @@ class UserMessages extends React.Component {
     });
 
     const { errors } = await parseAPIresponse(response);
-    const verify_answer = (errors) ? errors[0] : 'A new verification mail is getting sent to you.';
+    const verifyAnswer = (errors)
+      ? errors[0]
+      : 'A new verification mail is getting sent to you.';
     this.setState({
-      verify_answer,
+      verifyAnswer,
     });
   }
 
-  async submit_mc_link(accepted) {
-    if (this.state.sent_link) return;
+  async submitMcLink(accepted) {
+    const { sentLink } = this.state;
+    if (sentLink) return;
     this.setState({
-      sent_link: true,
+      sentLink: true,
     });
     const body = JSON.stringify({ accepted });
     const rep = await fetch('./api/auth/mclink', {
@@ -56,43 +60,94 @@ class UserMessages extends React.Component {
     const { errors } = parseAPIresponse(rep);
     if (errors) {
       this.setState({
-        link_answer: errors[0],
+        linkAnswer: errors[0],
       });
       return;
     }
+    const { setMCName, remFromUserMessages } = this.props;
     if (!accepted) {
-      this.props.setMCName(null);
+      setMCName(null);
     }
-    this.props.rem_from_messages('not_mc_verified');
+    remFromUserMessages('not_mc_verified');
     this.setState({
-      link_answer: (accepted) ? 'You successfully linked your mc account.' : 'You denied.',
+      linkAnswer: (accepted)
+        ? 'You successfully linked your mc account.'
+        : 'You denied.',
     });
   }
 
   render() {
-    if (!this.props.messages) return null;
+    const { messages: messagesr } = this.props;
+    if (!messagesr) return null;
     // state variable is not allowed to be changed, make copy
-    const messages = [...this.props.messages];
+    const messages = [...messagesr];
+    const { verifyAnswer, linkAnswer } = this.state;
+    const { minecraftname } = this.props;
 
     return (
       <div style={{ paddingLeft: '5%', paddingRight: '5%' }}>
-        {(messages.includes('not_verified') && messages.splice(messages.indexOf('not_verified'), 1))
+        {(messages.includes('not_verified')
+          && messages.splice(messages.indexOf('not_verified'), 1))
           ? (
             <p className="usermessages">
-              Please verify your mail address or your account could get deleted after a few days.&nbsp;
-              {(this.state.verify_answer)
-                ? <span className="modallink">{this.state.verify_answer}</span>
-                : <span className="modallink" onClick={this.submit_resend_verify}>Click here to request a new verification mail.</span>}
+              Please verify your mail address&nbsp;
+              or your account could get deleted after a few days.&nbsp;
+              {(verifyAnswer)
+                ? (
+                  <span
+                    className="modallink"
+                  >
+                    {verifyAnswer}
+                  </span>
+                )
+                : (
+                  <span
+                    role="button"
+                    tabIndex={-1}
+                    className="modallink"
+                    onClick={this.submitResendVerify}
+                  >
+                    Click here to request a new verification mail.
+                  </span>
+                )}
             </p>
           ) : null}
-        {(messages.includes('not_mc_verified') && messages.splice(messages.indexOf('not_mc_verified'), 1))
+        {(messages.includes('not_mc_verified')
+          && messages.splice(messages.indexOf('not_mc_verified'), 1))
           ? (
-            <p className="usermessages">You requested to link your mc account {this.props.minecraftname}.
-              {(this.state.link_answer)
-                ? <span className="modallink">{this.state.link_answer}</span>
+            <p className="usermessages">
+              You requested to link your mc account {minecraftname}.
+              &nbsp;
+              {(linkAnswer)
+                ? (
+                  <span
+                    className="modallink"
+                  >
+                    {linkAnswer}
+                  </span>
+                )
                 : (
                   <span>
-                    <span className="modallink" onClick={() => { this.submit_mc_link(true); }}>Accept</span> or <span className="modallink" onClick={() => { this.submit_mc_link(false); }}>Deny</span>.
+                    <span
+                      role="button"
+                      tabIndex={-1}
+                      className="modallink"
+                      onClick={() => {
+                        this.submitMcLink(true);
+                      }}
+                    >
+                      Accept
+                    </span>&nbsp;or&nbsp;
+                    <span
+                      role="button"
+                      tabIndex={-1}
+                      className="modallink"
+                      onClick={() => {
+                        this.submitMcLink(false);
+                      }}
+                    >
+                      Deny
+                    </span>.
                   </span>
                 )}
             </p>
@@ -110,7 +165,7 @@ function mapDispatchToProps(dispatch) {
     setMCName(minecraftname) {
       dispatch(setMinecraftName(minecraftname));
     },
-    rem_from_messages(message) {
+    remFromUserMessages(message) {
       dispatch(remFromMessages(message));
     },
   };

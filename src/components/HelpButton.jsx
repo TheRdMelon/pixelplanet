@@ -11,7 +11,13 @@ import { showHelpModal } from '../actions';
 
 
 const HelpButton = ({ open }) => (
-  <div id="helpbutton" className="actionbuttons" onClick={open}>
+  <div
+    id="helpbutton"
+    className="actionbuttons"
+    onClick={open}
+    role="button"
+    tabIndex={-1}
+  >
     <FaQuestion />
   </div>
 );
