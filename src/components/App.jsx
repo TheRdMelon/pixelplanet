@@ -10,6 +10,7 @@ import { IconContext } from 'react-icons';
 
 import store from '../ui/store';
 
+import Style from './Style';
 import CoordinatesBox from './CoordinatesBox';
 import CanvasSwitchButton from './CanvasSwitchButton';
 import OnlineBox from './OnlineBox';
@@ -19,10 +20,12 @@ import Menu from './Menu';
 import UI from './UI';
 import ReCaptcha from './ReCaptcha';
 import ExpandMenuButton from './ExpandMenuButton';
+import MinecraftTPButton from './MinecraftTPButton';
 import ModalRoot from './ModalRoot';
 
 const App = () => (
   <div>
+    <Style />
     <div id="outstreamContainer" />
     <ReCaptcha />
     <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
@@ -33,6 +36,7 @@ const App = () => (
       <OnlineBox />
       <CoordinatesBox />
       <ExpandMenuButton />
+      <MinecraftTPButton />
       <UI />
       <ModalRoot />
     </IconContext.Provider>

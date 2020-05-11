@@ -185,7 +185,7 @@ function SettingsModal({
           ) : null }
         {(typeof window.availableStyles !== 'undefined') && (
           <SettingsItemSelect
-            title="Styles"
+            title="Themes"
             description="How pixelplanet should look like."
             values={Object.keys(window.availableStyles)}
             selected={selectedStyle}

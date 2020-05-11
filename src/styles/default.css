@@ -38,12 +38,25 @@ kbd {
   white-space: nowrap;
 }
 
+a:link {
+  color: #428bca;
+}
+
+a:visited {
+  color: #327bba;
+}
+
+a:hover {
+  font-weight: bold;
+}
+
 .modallink {
   text-decoration: none;
   color: #428bca;
   cursor: pointer;
 }
-.modallink:hover){
+
+.modallink:hover {
   font-weight: bold;
   color: #226baa;
 }
@@ -93,79 +106,101 @@ tr:nth-child(even) {
 .chatbox {
   position: absolute;
   background-color: rgba(226, 226, 226, 0.92);
-  width: 350px;
-  height: 200px;
+  border: solid black;
+  border-width: thin;
+  width: 0px;
+  height: 36px;
   bottom: 16px;
   right: 98px;
+  visibility: hidden;
+  overflow: hidden;
+  transition: 0.3s;
+}
+
+.chatbox.show {
+  height: 200px;
+  width: 350px;
+  bottom: 16px;
+  right: 98px;
+  visibility: visible;
+}
+
+.actionbuttons, .coorbox, .onlinebox, .cooldownbox, #palettebox {
+  position: absolute;
+  background-color: rgba(226, 226, 226, 0.80);
+  color: black;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 36px;
+  height: 36px;
+  width: auto;
+  padding: 0 16px;
   border: solid black;
   border-width: thin;
 }
-
-.actionbuttons, .coorbox, .onlinebox, .cooldownbox, .palettebox {
-    position: absolute;
-    background-color: rgba(226, 226, 226, 0.80);
-    color: black;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 36px;
-    height: 36px;
-    width: auto;
-    padding: 0 16px;
-    border: solid black;
-    border-width: thin;
-}
 .coorbox {
-    left: 16px;
-    cursor: pointer;
-    bottom: 16px;
+  left: 16px;
+  cursor: pointer;
+  bottom: 16px;
 }
 .onlinebox {
-    left: 16px;
-    bottom: 57px;
-    white-space: nowrap;
+  left: 16px;
+  bottom: 57px;
+  white-space: nowrap;
 }
 
 #menubutton {
-    left: 16px;
-    top: 16px;
+  left: 16px;
+  top: 16px;
 }
 
-#menu > div {
+.menu > div {
   z-index: 1;
   background-color: rgb(213, 238, 255);
 }
 
+.menu {
+  opacity: 0;
+  visibility: hidden;
+  transition: all .1s cubic-bezier(.46,.03,.52,.96);
+}
+
+.menu.show {
+  opacity: 1;
+  visibility: visible;
+}
+
 #helpbutton {
-    left: 16px;
-    top: 221px;
+  left: 16px;
+  top: 221px;
 }
 #minecraftbutton {
-    left: 16px;
-    top: 180px;
+  left: 16px;
+  top: 180px;
 }
 #settingsbutton {
-    left: 16px;
-    top: 57px;
+  left: 16px;
+  top: 57px;
 }
 #loginbutton {
-    left: 16px;
-    top: 98px;
+  left: 16px;
+  top: 98px;
 }
 #downloadbutton {
-    left: 16px;
-    top: 139px;
+  left: 16px;
+  top: 139px;
 }
 #globebutton {
-    left: 98px;
-    top: 16px;
+  left: 98px;
+  top: 16px;
 }
 #voxelbutton {
-    left: 180px;
-    top: 16px;
+  left: 180px;
+  top: 16px;
 }
 #canvasbutton {
-    left: 57px;
-    top: 16px;
+  left: 57px;
+  top: 16px;
 }
 #minecrafttpbutton {
   top: 16px;
@@ -324,13 +359,13 @@ tr:nth-child(even) {
   }
 }
 .Overlay {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    background-color: rgba(255, 255, 255, 0.75);
-    z-index: 4;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background-color: rgba(255, 255, 255, 0.75);
+  z-index: 4;
 }
 
 .chatbox div .chatarea  {
@@ -374,74 +409,79 @@ tr:nth-child(even) {
 }
 
 .pressed {
-    box-shadow:0 0 3px 2px rgba(0,0,0,.6);
+  box-shadow:0 0 3px 2px rgba(0,0,0,.6);
 }
 
 .notifyboxvis, .notifyboxhid {
-    background-color: rgba(226, 226, 226, 0.80);
-    position: absolute;
-    top: 57px;
-    left: 0px;
-    right: 0px;
-    height: 30px;
-    width: 20px;
-    color: black;
-    font-size: 14px;
-    line-height: 30px;
-    text-align: center;
-    vertical-align: middle;
-    border: solid black;
-    border-width: thin;
-    padding: 0 24px;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 2;
+  background-color: rgba(226, 226, 226, 0.80);
+  position: absolute;
+  top: 57px;
+  left: 0px;
+  right: 0px;
+  height: 30px;
+  width: 20px;
+  color: black;
+  font-size: 14px;
+  line-height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  border: solid black;
+  border-width: thin;
+  padding: 0 24px;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 2;
 }
 
 .notifyboxvis {
-    visibility: visible;
-    opacity: 1;
-    transition: visibility 0s, opacity 0.5s linear;
+  visibility: visible;
+  opacity: 1;
+  transition: visibility 0s, opacity 0.5s linear;
 }
 .notifyboxhid {
-    visibility: hidden;
-    opacity: 0;
-    transition: visibility 0.5s, opacity 0.5s linear;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.5s, opacity 0.5s linear;
 }
 
 .cooldownbox {
-    top: 16px;
-    width: 48px;
-    left: 0px;
-    right: 0px;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 2;
+  top: 16px;
+  width: 48px;
+  left: 0px;
+  right: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 2;
 }
 
 .actionbuttons {
-    vertical-align: text-bottom;
-    cursor: pointer;
-    width: 36px;
-    padding: 0;
+  vertical-align: text-bottom;
+  cursor: pointer;
+  width: 36px;
+  padding: 0;
 }
 
-.actionbuttons:hover, .coorbox:hover, #menu > div:hover {
+.actionbuttons:hover, .coorbox:hover, .menu > div:hover {
   background-color: #d2d2d2cc;
 }
 
-.palettebox {
-    z-index: 1;
-    bottom: 59px;
-    padding: 3px; 
-    position: fixed; 
-    right: 16px; 
-    margin-left: auto; 
-    margin-right: auto; 
+#palettebox {
+  z-index: 1;
+  bottom: 59px;
+  padding: 3px; 
+  position: fixed; 
+  right: 16px; 
+  margin-left: auto; 
+  margin-right: auto; 
+  overflow: hidden;
 }
 
-#colors .selected,
-#colors span:hover {
+#palettebox, #palettebox span {
+  transition: 0.3s;
+}
+
+#palettebox .selected,
+#palettebox span:hover {
   z-index: 2 !important;
   outline: rgb(234, 234, 234) solid 1px;
   box-shadow: rgba(0, 0, 0, 0.80) 0px 0px 5px 2px;
@@ -451,18 +491,18 @@ tr:nth-child(even) {
 }
 
 #outstreamContainer {
-    position: fixed;
-    display: none;
-    width: 100%;
-    height: 100%;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    background-color: black;
-    z-index: 9000;
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background-color: black;
+  z-index: 9000;
 }
 
 .grecaptcha-badge {
-    visibility: hidden;
+  visibility: hidden;
 }

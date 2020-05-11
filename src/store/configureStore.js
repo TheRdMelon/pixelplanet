@@ -9,7 +9,6 @@ import audio from './audio';
 import swal from './sweetAlert';
 import protocolClientHook from './protocolClientHook';
 import rendererHook from './rendererHook';
-import styleHook from './styleHook';
 // import ads from './ads';
 // import analytics from './analytics';
 import array from './array';
@@ -41,7 +40,6 @@ const store = createStore(
       title,
       protocolClientHook,
       rendererHook,
-      styleHook,
       // ads,
       // analytics,
       logger,

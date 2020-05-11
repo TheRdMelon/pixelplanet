@@ -16,6 +16,7 @@ import type { State } from '../reducers';
  * based on windowSize
  */
 function getStylesByWindowSize(
+  paletteOpen,
   windowSize,
   colors,
   clrIgnore,
@@ -27,29 +28,46 @@ function getStylesByWindowSize(
   } = windowSize;
   const numCal = colors.length - clrIgnore;
 
-  let width;
-  let height;
   let flexDirection;
   let spanSize;
+  let paletteCols;
   if (windowWidth <= 300 || windowHeight <= 432) {
     // tiny compact palette
     spanSize = 24;
-    height = Math.ceil(numCal / 5 * spanSize);
-    width = 5 * spanSize;
+    paletteCols = 5;
     flexDirection = 'row';
   } else if (numCal > 30 || compactPalette) {
     // compact palette
     spanSize = 28;
-    height = Math.ceil(numCal / 5 * spanSize);
-    width = 5 * spanSize;
+    paletteCols = 5;
     flexDirection = 'row';
   } else {
     // ordinary palette (one or two colums)
     spanSize = 24;
-    const paletteCols = (windowHeight < 801) ? 2 : 1;
-    height = numCal * spanSize / paletteCols;
-    width = spanSize * paletteCols;
+    paletteCols = (windowHeight < 801) ? 2 : 1;
     flexDirection = 'column';
+  }
+  const height = Math.ceil(numCal * spanSize / paletteCols);
+  const width = spanSize * paletteCols;
+
+  if (!paletteOpen) {
+    return [{
+      display: 'flex',
+      flexWrap: 'wrap',
+      textAlign: 'center',
+      lineHeight: 0,
+      height: 0,
+      width,
+      flexDirection,
+      visibility: 'hidden',
+    }, {
+      display: 'block',
+      height: 0,
+      width: spanSize,
+      margin: 0,
+      padding: 0,
+      visibility: 'hidden',
+    }];
   }
 
   return [{
@@ -60,6 +78,7 @@ function getStylesByWindowSize(
     height,
     width,
     flexDirection,
+    visibility: 'visible',
   }, {
     display: 'block',
     width: spanSize,
@@ -67,6 +86,7 @@ function getStylesByWindowSize(
     margin: 0,
     padding: 0,
     cursor: 'pointer',
+    visibility: 'visible',
   }];
 }
 
@@ -99,11 +119,8 @@ function Palette({
   select,
   clrIgnore,
 }) {
-  if (!paletteOpen) {
-    return null;
-  }
-
   const [paletteStyle, spanStyle] = getStylesByWindowSize(
+    paletteOpen,
     useWindowSize(),
     colors,
     clrIgnore,
@@ -112,8 +129,7 @@ function Palette({
 
   return (
     <div
-      className="palettebox"
-      id="colors"
+      id="palettebox"
       style={paletteStyle}
     >
       {colors.slice(2).map((color, index) => (

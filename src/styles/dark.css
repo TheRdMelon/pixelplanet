@@ -1,43 +1,3 @@
-body {
-  margin: 0;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 16px;
-  border: none;
-  user-select: none;
-  background: white;
-}
-
-html, body {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  overflow: hidden;
-}
-
-/**
- * https://github.com/benweet/stackedit/issues/212
- */
-kbd {
-  padding: 0.1em 0.6em;
-  border: 1px solid #ccc;
-  font-size: 11px;
-  font-family: Arial,Helvetica,sans-serif;
-  background-color: #f7f7f7;
-  color: #333;
-  -moz-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
-  -webkit-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
-  box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  display: inline-block;
-  margin: 0 0.1em;
-  text-shadow: 0 1px 0 #fff;
-  line-height: 1.4;
-  white-space: nowrap;
-}
-
 a:link {
   color: #91ffe0;
 }
@@ -51,51 +11,19 @@ a:hover {
 }
 
 .modallink {
-  text-decoration: none;
   color: #91ffe0;
-  cursor: pointer;
 }
-.modallink:hover){
-  font-weight: bold;
+
+.modallink:hover {
   color: #d9f68a;
 }
 
 .inarea {
-  border-style: solid;
   border-color: #d5d5d5;
-  padding: 4px;
-  margin-top: 4px;
-  border-width: 1px;
-}
-
-.tab-list {
-  border-bottom: 1px solid #ccc;
-  padding-left: 0;
-}
-
-.tab-list-item {
-  display: inline-block;
-  list-style: none;
-  margin-bottom: -1px;
-  padding: 0.5rem 0.75rem;
 }
 
 .tab-list-active {
   background-color: #7b7b7b;
-  border: solid #ccc;
-  border-width: 1px 1px 0 1px;
-}
-
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
 }
 
 tr:nth-child(even) {
@@ -103,43 +31,12 @@ tr:nth-child(even) {
 }
 
 .chatbox {
-  position: absolute;
   background-color: rgba(59, 59, 59, 0.8);
-  width: 350px;
-  height: 200px;
-  bottom: 16px;
-  right: 98px;
-  border: solid black;
-  border-width: thin;
 }
 
-.actionbuttons, .coorbox, .onlinebox, .cooldownbox, .palettebox {
-    position: absolute;
-    background-color: rgba(59, 59, 59, 0.8);
-    color: #f4f4f4;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 36px;
-    height: 36px;
-    width: auto;
-    padding: 0 16px;
-    border: solid black;
-    border-width: thin;
-}
-.coorbox {
-    left: 16px;
-    cursor: pointer;
-    bottom: 16px;
-}
-.onlinebox {
-    left: 16px;
-    bottom: 57px;
-    white-space: nowrap;
-}
-
-#menubutton {
-    left: 16px;
-    top: 16px;
+.actionbuttons, .coorbox, .onlinebox, .cooldownbox, .palettebox, #historyselect {
+  background-color: rgba(59, 59, 59, 0.8);
+  color: #f4f4f4;
 }
 
 #menu > div {
@@ -147,335 +44,60 @@ tr:nth-child(even) {
   background-color: #15374fd1;
 }
 
-#helpbutton {
-    left: 16px;
-    top: 221px;
-}
-#minecraftbutton {
-    left: 16px;
-    top: 180px;
-}
-#settingsbutton {
-    left: 16px;
-    top: 57px;
-}
-#loginbutton {
-    left: 16px;
-    top: 98px;
-}
-#downloadbutton {
-    left: 16px;
-    top: 139px;
-}
-#globebutton {
-    left: 98px;
-    top: 16px;
-}
-#voxelbutton {
-    left: 180px;
-    top: 16px;
-}
-#canvasbutton {
-    left: 57px;
-    top: 16px;
-}
-#minecrafttpbutton {
-  top: 16px;
-  right: 16px;
-}
-#palselbutton {
-  bottom: 16px;
-  right: 16px;
-}
-#chatbutton {
-  bottom: 16px;
-  right: 57px;
-}
-
-#historyselect {
-  position: absolute;
-  top: 16px;
-  left: 0px;
-  right: 0px;
-  height: 70px;
-  width: 140px;
-  background-color: rgba(226, 226, 226, 0.80);
-  color: black;
-  font-size: 14px;
-  line-height: 26px;
-  text-align: center;
-  border: solid black;
-  border-width: thin;
-  padding: 0 24px;
-  margin-left: auto;
-  margin-right: auto;
-  z-index: 2;
-}
-
-.hsar {
-  padding: 0;
-}
-
 .Modal {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  border: 1px solid rgb(204, 204, 204);
   background: #444242 none repeat scroll 0 0;;
   color: #f4f4f4;
-  overflow-y: auto;
-  border-radius: 4px;
-  outline: currentcolor none medium;
-  transform: translate(-50%, -50%);
-  height: 80%;
-  max-height: 900px;
-  width: 70%;
-  transition: all 0.5s ease 0s;
 }
 
 .modaltext, .modalcotext {
   color: #f4f4f4;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: normal;
-  position: relative;
-  text-align: inherit;
-  float: none;
-}
-
-.modaltext {
-  margin: 0;
-  padding: 0;
 }
 
 .modaltitle {
   color: #d7e5fb;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  margin-left: 0;
-  margin-right: 10px;
-  overflow: hidden;
-  word-wrap: break-word;
-  margin-bottom: 0;
 }
 
 .modaldesc {
-  box-sizing: border-box;
-  flex: 1 1 auto;
   color: hsla(220, 100%, 95.3%, 0.6);
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 500;
-  margin-top: 4px;
 }
 
 .modaldivider {
-  box-sizing: border-box;
-  margin-top: 20px;
-  height: 1px;
-  width: 100%;
   background-color: hsla(216, 4%, 74%, .3);
 }
 
 .modalinfo {
   color: #ddd;
-  font-size: 15px;
-  font-weight: 500;
-  position: relative;
-  text-align: inherit;
-  float: none;
-  margin: 0;
-  padding: 0;
 }
 
 .modalcvtext {
   color: hsla(220, 100%, 95.3%, 0.6);
-  font-size: 14px;
-  font-weight: 500;
-  padding: 0;
-  display: inline-block;
-  vertical-align: middle;
-  margin-top: 3px;
-  margin-bottom: 3px;
-  width: 75%;
 }
 
 .ModalClose {
-  position: fixed;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 0 0 36px;
-  border-width: 2px;
-  border-style: solid;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
   background-color: #55555d;
   border-color: #dcddde;
-  top: 30px;
-  right: 40px;
 }
 
-@media (max-width: 604px) {
-  .Modal {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    height: 95%;
-    width: 90%;
-    transform: none;
-    max-width: none;
-    max-height: none;
-    padding: 5%;
-  }
-}
 .Overlay {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    background-color: rgba(255, 255, 255, 0.75);
-    z-index: 4;
+  background-color: rgba(187, 187, 187, 0.75);
 }
 
-.chatbox div .chatarea  {
-  height: 174px;
-}
-.chatarea {
-  padding: 3px 3px 0px 3px;
-  margin: 0px;
-  overflow-x: hidden;
-  overflow-y: scroll;
-  height: 95%;
-}
-.chatinput {
-  height: 22px;
-  white-space: nowrap;
-}
-.chatname {
-  color: #4B0000;
-  font-size: 13px;
-  user-select: all;
-}
 .chatmsg {
   color: white;
-  font-size: 13px;
-  user-select: text;
-  margin: 0;
 }
 
-.usermessages {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: normal;
-}
-.stattext {
-  font-size: 18px;
-}
 .statvalue {
-  font-size: 18px;
-  font-weight: bold;
   color: #ecc9ff;
 }
 
-.pressed {
-    box-shadow:0 0 3px 2px rgba(0,0,0,.6);
-}
-
 .notifyboxvis, .notifyboxhid {
-    background-color: rgba(226, 226, 226, 0.80);
-    position: absolute;
-    top: 57px;
-    left: 0px;
-    right: 0px;
-    height: 30px;
-    width: 20px;
-    color: black;
-    font-size: 14px;
-    line-height: 30px;
-    text-align: center;
-    vertical-align: middle;
-    border: solid black;
-    border-width: thin;
-    padding: 0 24px;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 2;
-}
-
-.notifyboxvis {
-    visibility: visible;
-    opacity: 1;
-    transition: visibility 0s, opacity 0.5s linear;
-}
-.notifyboxhid {
-    visibility: hidden;
-    opacity: 0;
-    transition: visibility 0.5s, opacity 0.5s linear;
-}
-
-.cooldownbox {
-    top: 16px;
-    width: 48px;
-    left: 0px;
-    right: 0px;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 2;
-}
-
-.actionbuttons {
-    vertical-align: text-bottom;
-    cursor: pointer;
-    width: 36px;
-    padding: 0;
+  background-color: rgba(59, 59, 59, 0.8);
 }
 
 .actionbuttons:hover, .coorbox:hover, #menu > div:hover {
   background-color: #363637;
 }
 
-.palettebox {
-    z-index: 1;
-    bottom: 59px;
-    padding: 3px; 
-    position: fixed; 
-    right: 16px; 
-    margin-left: auto; 
-    margin-right: auto; 
-}
-
-#colors .selected,
-#colors span:hover {
-  z-index: 2 !important;
-  outline: rgb(234, 234, 234) solid 1px;
-  box-shadow: rgba(0, 0, 0, 0.80) 0px 0px 5px 2px;
-  -ms-transform: scale(1.10,1.10); /* IE 9 */
-  -webkit-transform: scale(1.10,1.10); /* Safari */
-  transform: scale(1.10,1.10); /* Standard syntax */
-}
-
 #outstreamContainer {
-    position: fixed;
-    display: none;
-    width: 100%;
-    height: 100%;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    background-color: black;
-    z-index: 9000;
-}
-
-.grecaptcha-badge {
-    visibility: hidden;
+  background-color: black;
 }

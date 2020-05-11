@@ -11,30 +11,21 @@ import HelpButton from './HelpButton';
 import SettingsButton from './SettingsButton';
 import LogInButton from './LogInButton';
 import DownloadButton from './DownloadButton';
-import MinecraftTPButton from './MinecraftTPButton';
 import MinecraftButton from './MinecraftButton';
 
-const Menu = ({
-  menuOpen, minecraftname, messages, canvasId,
-}) => (
-  <div id="menu">
-    {(menuOpen) ? <SettingsButton /> : null}
-    {(menuOpen) ? <LogInButton /> : null}
-    {(menuOpen) ? <DownloadButton /> : null}
-    {(menuOpen) ? <MinecraftButton /> : null}
-    {(menuOpen) ? <HelpButton /> : null}
-    {(minecraftname && !messages.includes('not_mc_verified') && canvasId === 0)
-      ? <MinecraftTPButton /> : null}
+const Menu = ({ menuOpen }) => (
+  <div className={menuOpen ? 'menu show' : 'menu'}>
+    <SettingsButton />
+    <LogInButton />
+    <DownloadButton />
+    <MinecraftButton />
+    <HelpButton />
   </div>
 );
 
 function mapStateToProps(state: State) {
   const { menuOpen } = state.gui;
-  const { minecraftname, messages } = state.user;
-  const { canvasId } = state.canvas;
-  return {
-    menuOpen, minecraftname, messages, canvasId,
-  };
+  return { menuOpen };
 }
 
 export default connect(mapStateToProps)(Menu);

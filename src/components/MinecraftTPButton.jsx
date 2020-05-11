@@ -26,21 +26,36 @@ async function submitMinecraftTp(view) {
 }
 
 
-const MinecraftTPButton = ({ view }) => (
-  <div
-    id="minecrafttpbutton"
-    className="actionbuttons"
-    role="button"
-    tabIndex={-1}
-    onClick={() => submitMinecraftTp(view)}
-  >
-    <MdNearMe />
-  </div>
-);
+function MinecraftTPButton({
+  view,
+  canvasId,
+  minecraftname,
+  messages,
+}) {
+  if (minecraftname
+    && !messages.includes('not_mc_verified')
+    && canvasId === 0) {
+    return (
+      <div
+        id="minecrafttpbutton"
+        className="actionbuttons"
+        role="button"
+        tabIndex={-1}
+        onClick={() => submitMinecraftTp(view)}
+      >
+        <MdNearMe />
+      </div>
+    );
+  }
+  return null;
+}
 
 function mapStateToProps(state: State) {
-  const { view } = state.canvas;
-  return { view };
+  const { view, canvasId } = state.canvas;
+  const { minecraftname, messages } = state.user;
+  return {
+    view, canvasId, minecraftname, messages,
+  };
 }
 
 export default connect(mapStateToProps)(MinecraftTPButton);
