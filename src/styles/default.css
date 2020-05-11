@@ -397,6 +397,12 @@ tr:nth-child(even) {
   user-select: text;
   margin: 0;
 }
+.msg.info {
+  color: #cc0000;
+}
+.msg.greentext{
+  color: green;
+}
 #chatlink {
   position: absolute;
   font-weight: bold;

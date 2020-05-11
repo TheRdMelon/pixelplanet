@@ -11,6 +11,65 @@ import type { State } from '../reducers';
 import ChatInput from './ChatInput';
 import { colorFromText, splitCoordsInString } from '../core/utils';
 
+function ChatMessage({ name, text, country }) {
+  const msgText = text.trim();
+  let className = 'msg';
+  const isInfo = (name === 'info');
+  if (isInfo) {
+    className += ' info';
+  } else if (text.charAt(0) === '>') {
+    className += ' greentext';
+  }
+  const splitMsg = splitCoordsInString(msgText);
+
+  return (
+    <p className="chatmsg">
+      {
+        (!isInfo)
+        && (
+        <img
+          alt=""
+          title={country}
+          src={`${window.assetserver}/cf/${country}.gif`}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = './cf/xx.gif';
+          }}
+        />
+        )
+      }
+      {
+        (!isInfo)
+        && (
+        <span
+          className="chatname"
+          style={{
+            color: colorFromText(name),
+          }}
+        >
+              &nbsp;
+          {name}
+          :&nbsp;
+        </span>
+        )
+      }
+      {
+        splitMsg.map((txt, i) => {
+          if (i % 2 === 0) {
+            return (
+              <span
+                className={className}
+              >
+                {txt}
+              </span>
+            );
+          }
+          return (<a href={`./${txt}`}>{txt}</a>);
+        })
+      }
+    </p>
+  );
+}
 
 const Chat = ({ chatMessages, chatChannel }) => {
   const listRef = useRef();
@@ -29,41 +88,11 @@ const Chat = ({ chatMessages, chatChannel }) => {
       <ul className="chatarea" ref={listRef} style={{ flexGrow: 1 }}>
         {
           channelMessages.map((message) => (
-            <p className="chatmsg">
-              {(message[0] === 'info')
-                ? <span style={{ color: '#cc0000' }}>{message[1]}</span>
-                : (
-                  <div>
-                    <img
-                      alt=""
-                      title={`${message[2]}`}
-                      src={`${window.assetserver}/cf/${message[2]}.gif`}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = './cf/xx.gif';
-                      }}
-                    />
-                    &nbsp;
-                    <span
-                      className="chatname"
-                      style={{
-                        color: colorFromText(message[0]),
-                      }}
-                    >
-                      {`${message[0]}`}
-                    </span>
-                    : &nbsp;
-                    {
-                    splitCoordsInString(message[1]).map((text, i) => {
-                      if (i % 2 === 0) {
-                        return (<span className="msg">{text}</span>);
-                      }
-                      return (<a href={`./${text}`}>{text}</a>);
-                    })
-                    }
-                  </div>
-                )}
-            </p>
+            <ChatMessage
+              name={message[0]}
+              text={message[1]}
+              country={message[2]}
+            />
           ))
         }
       </ul>

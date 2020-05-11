@@ -330,9 +330,6 @@ const webConfig = {
               },
               modules: false,
               useBuiltIns: false,
-              corejs: {
-                version: 3,
-              },
               debug: false,
             }],
             "@babel/typescript",

@@ -89,6 +89,12 @@ tr:nth-child(even) {
 .chatmsg {
   color: white;
 }
+.msg.info{
+  color: #ff91a6;
+}
+.msg.greentext{
+  color: #94ff94;
+}
 
 #chatlink {
   color: #f9edde;
