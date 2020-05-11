@@ -6,17 +6,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import Modal from './Modal';
-
 
 const MinecraftModal = () => (
-  <Modal title="PixelPlanet Minecraft Server">
-    <p style={{ textAlign: 'center' }}>
-      <p>You can also place pixels from our Minecraft Server at</p>
-      <p><input type="text" value="mc.pixelplanet.fun" readOnly /></p>
-      <p>Please Note that the Minecraft Server is down from time to time</p>
-    </p>
-  </Modal>
+  <p style={{ textAlign: 'center' }}>
+    <p>You can also place pixels from our Minecraft Server at</p>
+    <p><input type="text" value="mc.pixelplanet.fun" readOnly /></p>
+    <p>Please Note that the Minecraft Server is down from time to time</p>
+  </p>
 );
 
 function mapStateToProps(state: State) {
@@ -24,4 +20,9 @@ function mapStateToProps(state: State) {
   return { center };
 }
 
-export default connect(mapStateToProps)(MinecraftModal);
+const data = {
+  content: connect(mapStateToProps)(MinecraftModal),
+  title: 'PixelPlanet Minecraft Server',
+};
+
+export default data;

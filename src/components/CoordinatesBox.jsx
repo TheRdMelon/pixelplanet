@@ -19,8 +19,7 @@ function renderCoordinates(cell): string {
 const CoordinatesBox = ({ view, hover, notifyCopy }) => (
   <div
     className="coorbox"
-  // eslint-disable-next-line no-restricted-globals
-    onClick={() => { copy(location.hash); notifyCopy(); }}
+    onClick={() => { copy(window.location.hash); notifyCopy(); }}
     role="button"
     title="Copy to Clipboard"
     tabIndex="0"

@@ -7,8 +7,8 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { selectColor } from '../actions';
-
 import type { State } from '../reducers';
+import useWindowSize from '../utils/reactHookResize';
 
 
 /*
@@ -90,27 +90,6 @@ function getStylesByWindowSize(
   }];
 }
 
-function useWindowSize() {
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-
-  useEffect(() => {
-    function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return windowSize;
-}
-
 function Palette({
   colors,
   selectedColor,
@@ -119,8 +98,20 @@ function Palette({
   select,
   clrIgnore,
 }) {
+  const [render, setRender] = useState(false);
+
+  useEffect(() => {
+    window.setTimeout(() => {
+      if (paletteOpen) setRender(true);
+    }, 10);
+  }, [paletteOpen]);
+
+  const onTransitionEnd = () => {
+    if (!paletteOpen) setRender(false);
+  };
+
   const [paletteStyle, spanStyle] = getStylesByWindowSize(
-    paletteOpen,
+    (render && paletteOpen),
     useWindowSize(),
     colors,
     clrIgnore,
@@ -128,28 +119,31 @@ function Palette({
   );
 
   return (
-    <div
-      id="palettebox"
-      style={paletteStyle}
-    >
-      {colors.slice(2).map((color, index) => (
-        <span
-          style={{
-            backgroundColor: color,
-            ...spanStyle,
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label={`color ${index + 2}`}
-          key={color}
-          className={selectedColor === (index + clrIgnore)
-            ? 'selected'
-            : 'unselected'}
-          color={color}
-          onClick={() => select(index + clrIgnore)}
-        />
-      ))}
-    </div>
+    (render || paletteOpen) && (
+      <div
+        id="palettebox"
+        style={paletteStyle}
+        onTransitionEnd={onTransitionEnd}
+      >
+        {colors.slice(2).map((color, index) => (
+          <span
+            style={{
+              backgroundColor: color,
+              ...spanStyle,
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label={`color ${index + 2}`}
+            key={color}
+            className={selectedColor === (index + clrIgnore)
+              ? 'selected'
+              : 'unselected'}
+            color={color}
+            onClick={() => select(index + clrIgnore)}
+          />
+        ))}
+      </div>
+    )
   );
 }
 

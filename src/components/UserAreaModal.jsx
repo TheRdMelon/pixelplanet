@@ -6,8 +6,6 @@
 import React, { Suspense } from 'react';
 import { connect } from 'react-redux';
 
-import Modal from './Modal';
-
 import type { State } from '../reducers';
 
 
@@ -86,40 +84,38 @@ const LogInArea = ({ register, forgotPassword, me }) => (
 const UserAreaModal = ({
   name, register, forgotPassword, doMe, logout, setUserName, setUserMailreg,
 }) => (
-  <Modal title="User Area">
-    <p style={{ textAlign: 'center' }}>
-      {(name === null)
-        ? (
-          <LogInArea
-            register={register}
-            forgotPassword={forgotPassword}
-            me={doMe}
-          />
-        )
-        : (
-          <Tabs>
-            <div label="Profile">
-              <UserArea
-                logout={logout}
-                setName={setUserName}
-                setMailreg={setUserMailreg}
-              />
-            </div>
-            <div label="Ranking">
-              <Rankings />
-            </div>
-            <div label="Converter">
-              <Suspense fallback={<div>Loading...</div>}>
-                <Converter />
-              </Suspense>
-            </div>
-          </Tabs>
-        )}
-      <p>Also join our Discord:&nbsp;
-        <a href="./discord" target="_blank">pixelplanet.fun/discord</a>
-      </p>
+  <p style={{ textAlign: 'center' }}>
+    {(name === null)
+      ? (
+        <LogInArea
+          register={register}
+          forgotPassword={forgotPassword}
+          me={doMe}
+        />
+      )
+      : (
+        <Tabs>
+          <div label="Profile">
+            <UserArea
+              logout={logout}
+              setName={setUserName}
+              setMailreg={setUserMailreg}
+            />
+          </div>
+          <div label="Ranking">
+            <Rankings />
+          </div>
+          <div label="Converter">
+            <Suspense fallback={<div>Loading...</div>}>
+              <Converter />
+            </Suspense>
+          </div>
+        </Tabs>
+      )}
+    <p>Also join our Discord:&nbsp;
+      <a href="./discord" target="_blank">pixelplanet.fun/discord</a>
     </p>
-  </Modal>
+  </p>
 );
 
 function mapDispatchToProps(dispatch) {
@@ -157,4 +153,9 @@ function mapStateToProps(state: State) {
   return { name };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserAreaModal);
+const data = {
+  content: connect(mapStateToProps, mapDispatchToProps)(UserAreaModal),
+  title: 'User Area',
+};
+
+export default data;

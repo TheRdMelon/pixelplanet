@@ -25,7 +25,7 @@ const ChatButton = ({ open }) => (
 function mapDispatchToProps(dispatch) {
   return {
     open() {
-      dispatch(showChatModal());
+      dispatch(showChatModal(false));
     },
   };
 }

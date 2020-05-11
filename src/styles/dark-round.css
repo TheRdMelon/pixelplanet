@@ -41,7 +41,7 @@ tr:nth-child(even) {
   border-radius: 21px;
 }
 
-#menu > div {
+.menu > div {
   z-index: 1;
   background-color: #15374fd1;
 }
@@ -81,12 +81,20 @@ tr:nth-child(even) {
   border-color: #dcddde;
 }
 
+.ModalClose:hover {
+  background-color: #6f6f75;
+}
+
 .Overlay {
   background-color: rgba(187, 187, 187, 0.75);
 }
 
 .chatmsg {
   color: white;
+}
+
+#chatlink {
+  color: #f9edde;
 }
 
 .statvalue {
@@ -98,7 +106,7 @@ tr:nth-child(even) {
   border-radius: 21px;
 }
 
-.actionbuttons:hover, .coorbox:hover, #menu > div:hover {
+.actionbuttons:hover, .coorbox:hover, .menu > div:hover {
   background-color: #363637;
 }
 

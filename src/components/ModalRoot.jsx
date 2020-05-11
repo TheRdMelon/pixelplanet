@@ -6,7 +6,13 @@
  */
 
 import React from 'react';
+import Modal from 'react-modal';
 import { connect } from 'react-redux';
+import { MdClose } from 'react-icons/md';
+
+import {
+  hideModal,
+} from '../actions';
 
 import HelpModal from './HelpModal';
 import SettingsModal from './SettingsModal';
@@ -19,6 +25,7 @@ import MinecraftModal from './MinecraftModal';
 
 
 const MODAL_COMPONENTS = {
+  NONE: { content: <div />, title: '' },
   HELP: HelpModal,
   SETTINGS: SettingsModal,
   USERAREA: UserAreaModal,
@@ -30,15 +37,43 @@ const MODAL_COMPONENTS = {
   /* other modals */
 };
 
-const ModalRoot = ({ modalType }) => {
-  if (!modalType) {
-    return null;
-  }
-
-  const SpecificModal = MODAL_COMPONENTS[modalType];
-  return <SpecificModal />;
+const ModalRoot = ({ modalType, modalOpen, close }) => {
+  const choice = MODAL_COMPONENTS[modalType || 'NONE'];
+  const { content: SpecificModal, title } = choice;
+  return (
+    <Modal
+      isOpen={modalOpen}
+      onClose={close}
+      className="Modal"
+      overlayClassName="Overlay"
+      contentLabel={`${title} Modal`}
+      closeTimeoutMS={200}
+      onRequestClose={close}
+    >
+      <h2 style={{ paddingLeft: '5%' }}>{title}</h2>
+      <div
+        onClick={close}
+        className="ModalClose"
+        role="button"
+        label="close"
+        tabIndex={-1}
+      ><MdClose /></div>
+      <SpecificModal />
+    </Modal>
+  );
 };
 
-export default connect(
-  (state) => state.modal,
-)(ModalRoot);
+function mapStateToProps(state: State) {
+  const { modalType, modalOpen } = state.modal;
+  return { modalType, modalOpen };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    close() {
+      dispatch(hideModal());
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ModalRoot);

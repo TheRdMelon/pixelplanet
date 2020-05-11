@@ -7,11 +7,13 @@
 import type { Action } from '../actions/types';
 
 export type ModalState = {
+  modalOpen: boolean,
   modalType: ?string,
   chatOpen: boolean,
 };
 
 const initialState: ModalState = {
+  modalOpen: false,
   modalType: null,
   chatOpen: false,
 };
@@ -31,6 +33,7 @@ export default function modal(
         ...state,
         modalType,
         chatOpen,
+        modalOpen: true,
       };
     }
 
@@ -38,7 +41,7 @@ export default function modal(
     case 'HIDE_MODAL':
       return {
         ...state,
-        modalType: null,
+        modalOpen: false,
       };
 
     case 'TOGGLE_CHAT_BOX': {

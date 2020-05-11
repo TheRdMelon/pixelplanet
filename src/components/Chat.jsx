@@ -25,8 +25,8 @@ const Chat = ({ chatMessages, chatChannel }) => {
   }, [channelMessages.length]);
 
   return (
-    <div style={{ height: '100%' }}>
-      <ul className="chatarea" ref={listRef}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <ul className="chatarea" ref={listRef} style={{ flexGrow: 1 }}>
         {
           channelMessages.map((message) => (
             <p className="chatmsg">

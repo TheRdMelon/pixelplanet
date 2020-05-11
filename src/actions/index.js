@@ -623,8 +623,8 @@ export function showCanvasSelectionModal(): Action {
   return showModal('CANVAS_SELECTION');
 }
 
-export function showChatModal(): Action {
-  if (window.innerWidth > 604) { return toggleChatBox(); }
+export function showChatModal(forceModal: boolean = false): Action {
+  if (window.innerWidth > 604 && !forceModal) { return toggleChatBox(); }
   return showModal('CHAT');
 }
 

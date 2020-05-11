@@ -162,7 +162,7 @@ tr:nth-child(even) {
 .menu {
   opacity: 0;
   visibility: hidden;
-  transition: all .1s cubic-bezier(.46,.03,.52,.96);
+  transition: all .15s cubic-bezier(.46,.03,.52,.96);
 }
 
 .menu.show {
@@ -341,6 +341,11 @@ tr:nth-child(even) {
   border-color: #dcddde;
   top: 30px;
   right: 40px;
+  z-index: 5;
+}
+
+.ModalClose:hover {
+  background-color: #e3e3e4;
 }
 
 @media (max-width: 604px) {
@@ -376,7 +381,6 @@ tr:nth-child(even) {
   margin: 0px;
   overflow-x: hidden;
   overflow-y: scroll;
-  height: 95%;
 }
 .chatinput {
   height: 22px;
@@ -392,6 +396,15 @@ tr:nth-child(even) {
   font-size: 13px;
   user-select: text;
   margin: 0;
+}
+#chatlink {
+  position: absolute;
+  font-weight: bold;
+  font-size: 20px;
+  right: 17px;
+  top: 5px;
+  color: #4a4a49; 
+  cursor: pointer;
 }
 
 .usermessages {
@@ -477,7 +490,7 @@ tr:nth-child(even) {
 }
 
 #palettebox, #palettebox span {
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
 #palettebox .selected,
@@ -505,4 +518,17 @@ tr:nth-child(even) {
 
 .grecaptcha-badge {
   visibility: hidden;
+}
+
+.ReactModal__Overlay {
+    opacity: 0;
+    transition: opacity 200ms ease-in-out;
+}
+
+.ReactModal__Overlay--after-open{
+    opacity: 1;
+}
+
+.ReactModal__Overlay--before-close{
+    opacity: 0;
 }
