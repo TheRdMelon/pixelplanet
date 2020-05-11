@@ -58,13 +58,15 @@ class Palette {
    */
   getIndexOfColor(r: number, g: number, b: number): ColorIndex {
     const { rgb } = this;
-    let i = rgb.length;
-    while (i >= 0) {
-      if (rgb[--i] === b
-          && rgb[--i] === g
-          && rgb[--i] === r
+    let i = rgb.length / 3;
+    while (i > 0) {
+      i -= 1;
+      const off = i * 3;
+      if (rgb[off] === r
+          && rgb[off + 1] === g
+          && rgb[off + 2] === b
       ) {
-        return (i / 3);
+        return i;
       }
     }
     return null;
