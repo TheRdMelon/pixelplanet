@@ -31,7 +31,7 @@ function Menu({
   return (
     (render || menuOpen) && (
       <div
-        className={menuOpen ? 'menu show' : 'menu'}
+        className={(menuOpen && render) ? 'menu show' : 'menu'}
         onTransitionEnd={onTransitionEnd}
       >
         <SettingsButton />

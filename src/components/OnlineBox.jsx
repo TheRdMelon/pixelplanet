@@ -17,7 +17,7 @@ const OnlineBox = ({ online, totalPixels, name }) => (
     {(online || name)
       ? (
         <div className="onlinebox">
-          {(online) && <span>{online} <FaUser /></span>}
+          {(online) && <span>{online} <FaUser />&nbsp;</span>}
           {(name != null)
               && <span>{numberToString(totalPixels)} <FaPaintBrush /></span>}
         </div>

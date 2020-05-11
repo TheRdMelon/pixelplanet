@@ -16,6 +16,7 @@ import DeRegisterMultipleChunks from './packets/DeRegisterMultipleChunks';
 import RequestChatHistory from './packets/RequestChatHistory';
 import CoolDownPacket from './packets/CoolDownPacket';
 import ChangedMe from './packets/ChangedMe';
+import OnlineCounter from './packets/OnlineCounter';
 
 import chatProvider from '../core/ChatProvider';
 import authenticateClient from './verifyClient';
@@ -85,6 +86,10 @@ class SocketServer extends WebSocketEvents {
       if (ws.name) {
         ws.send(`"${ws.name}"`);
       }
+
+      ws.send(OnlineCounter.dehydrate({
+        online: this.wss.clients.size || 0,
+      }));
 
       ws.on('error', (e) => {
         logger.error(`WebSocket Client Error for ${ws.name}: ${e.message}`);
