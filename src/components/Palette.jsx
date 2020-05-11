@@ -125,7 +125,7 @@ function Palette({
         style={paletteStyle}
         onTransitionEnd={onTransitionEnd}
       >
-        {colors.slice(2).map((color, index) => (
+        {colors.slice(clrIgnore).map((color, index) => (
           <span
             style={{
               backgroundColor: color,
