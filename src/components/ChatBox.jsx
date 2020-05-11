@@ -30,7 +30,7 @@ function ChatBox({
   };
 
   const { width } = useWindowSize();
-  if (width < 604) {
+  if (width < 604 && chatOpen) {
     triggerModal();
   }
 
