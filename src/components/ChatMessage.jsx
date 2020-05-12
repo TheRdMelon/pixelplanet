@@ -25,7 +25,6 @@ function ChatMessage({
     className += ' greentext';
   }
 
-  let pinged = false;
   return (
     <p className="chatmsg">
       {
@@ -68,12 +67,6 @@ function ChatMessage({
           } if (type === 'c') {
             return (<a href={`./${txt}`}>{txt}</a>);
           } if (type === 'p') {
-            if (!pinged) {
-              pinged = true;
-              // TODO notify of ping
-              // ahmm. does that do this on every rerender? :peepowerid:
-              // better put nameRegexp in the store or something
-            }
             return (
               <span
                 className="ping"

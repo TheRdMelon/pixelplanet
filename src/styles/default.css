@@ -396,6 +396,9 @@ tr:nth-child(even) {
   user-select: text;
   margin: 0;
 }
+.chatmsg > span {
+  display: inline-block;
+}
 .msg.info {
   color: #cc0000;
 }
