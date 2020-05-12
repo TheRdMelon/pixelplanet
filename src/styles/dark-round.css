@@ -35,7 +35,7 @@ tr:nth-child(even) {
   border-radius: 8px;
 }
 
-.actionbuttons, .coorbox, .onlinebox, .cooldownbox, #historyselect {
+.actionbuttons, .coorbox, .onlinebox, .cooldownbox, #historyselect, .notifybox {
   background-color: rgba(59, 59, 59, 0.8);
   color: #f4f4f4;
   border-radius: 21px;
@@ -107,9 +107,8 @@ tr:nth-child(even) {
   color: #ecc9ff;
 }
 
-.notifyboxvis, .notifyboxhid {
-  background-color: rgba(59, 59, 59, 0.8);
-  border-radius: 21px;
+.notifybox.green, .notifybox.red {
+  color: black;
 }
 
 .actionbuttons:hover, .coorbox:hover, .menu > div:hover {

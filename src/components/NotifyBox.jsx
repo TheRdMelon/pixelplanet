@@ -3,32 +3,38 @@
  * @flow
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import type { State } from '../reducers';
 
-function getStyle(notification) {
-  if (!notification) return {};
 
-  if (typeof notification === 'string') {
-    return {
-      width: 50,
-    };
+const NotifyBox = ({ notification }) => {
+  const [className, setClassName] = useState('notifybox');
+  const [value, setValue] = useState(notification);
+
+  if (notification) {
+    let newClassName = 'notifybox';
+    if (notification && typeof notification !== 'string') {
+      if (notification > 0) newClassName += ' green';
+      else newClassName += ' red';
+    }
+    if (newClassName !== className) {
+      setClassName(newClassName);
+    }
+    if (notification !== value) {
+      setValue(notification);
+    }
   }
-  return {
-    backgroundColor: (notification >= 0) ? '#a9ffb0cc' : '#ffa9a9cc',
-  };
-}
 
-const NotifyBox = ({ notification }) => (
-  <div
-    className={(notification) ? 'notifyboxvis' : 'notifyboxhid'}
-    style={getStyle(notification)}
-  >
-    {notification}
-  </div>
-);
+  return (
+    <div
+      className={(notification) ? `${className} show` : className}
+    >
+      {value}
+    </div>
+  );
+};
 
 function mapStateToProps(state: State) {
   const { notification } = state.user;

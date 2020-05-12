@@ -34,7 +34,7 @@ tr:nth-child(even) {
   background-color: rgba(59, 59, 59, 0.8);
 }
 
-.actionbuttons, .coorbox, .onlinebox, .cooldownbox, .palettebox, #historyselect {
+.actionbuttons, .coorbox, .onlinebox, .cooldownbox, .palettebox, #historyselect, .notifybox {
   background-color: rgba(59, 59, 59, 0.8);
   color: #f4f4f4;
 }
@@ -104,8 +104,8 @@ tr:nth-child(even) {
   color: #ecc9ff;
 }
 
-.notifyboxvis, .notifyboxhid {
-  background-color: rgba(59, 59, 59, 0.8);
+.notifybox.green, .notifybox.red {
+  color: black;
 }
 
 .actionbuttons:hover, .coorbox:hover, .menu > div:hover {
