@@ -403,6 +403,18 @@ tr:nth-child(even) {
 .msg.greentext{
   color: green;
 }
+.ping {
+  background-color: #ffff87;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  color: #1d1c1c;
+  border-radius: 6px;
+}
+.mention, .ping {
+  margin-left: 5px;
+  margin-right: 5px;
+}
 #chatlink {
   position: absolute;
   font-weight: bold;

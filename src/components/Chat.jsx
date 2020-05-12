@@ -13,23 +13,21 @@ import { MAX_CHAT_MESSAGES } from '../core/constants';
 import type { State } from '../reducers';
 import ChatInput from './ChatInput';
 import { saveSelection, restoreSelection } from '../utils/storeSelection';
-import { colorFromText, splitCoordsInString } from '../core/utils';
+import { colorFromText, splitChatMessage } from '../core/utils';
 
 
-function ChatMessage({ name, text, country }) {
-  if (!name || !text) {
+function ChatMessage({ name, msgArray, country }) {
+  if (!name || !msgArray) {
     return null;
   }
 
-  const msgText = text.trim();
   const isInfo = (name === 'info');
   let className = 'msg';
   if (isInfo) {
     className += ' info';
-  } else if (text.charAt(0) === '>') {
+  } else if (msgArray[0][1].charAt(0) === '>') {
     className += ' greentext';
   }
-  const splitMsg = splitCoordsInString(msgText);
 
   return (
     <p className="chatmsg">
@@ -60,26 +58,35 @@ function ChatMessage({ name, text, country }) {
         )
       }
       {
-        splitMsg.map((txt, i) => {
-          if (i % 2 === 0) {
+        msgArray.map((msgPart) => {
+          const [type, txt] = msgPart;
+          if (type === 't') {
+            return (<span className={className}>{txt}</span>);
+          } if (type === 'c') {
+            return (<a href={`./${txt}`}>{txt}</a>);
+          } if (type === 'p') {
+            return (<span className="ping">{txt}</span>);
+          } if (type === 'm') {
             return (
               <span
-                className={className}
-              >
-                {txt}
-              </span>
+                className="mention"
+                style={{
+                  color: colorFromText(txt),
+                }}
+              >{txt}</span>
             );
           }
-          return (<a href={`./${txt}`}>{txt}</a>);
+          return null;
         })
       }
     </p>
   );
 }
 
-const Chat = ({ chatMessages, chatChannel }) => {
+const Chat = ({ chatMessages, chatChannel, ownName }) => {
   const listRef = useRef();
   const [selection, setSelection] = useState(null);
+  const [nameRegExp, setNameRegExp] = useState(null);
   const { stayScrolled } = useStayScrolled(listRef, {
     initialScroll: Infinity,
   });
@@ -94,7 +101,14 @@ const Chat = ({ chatMessages, chatChannel }) => {
     if (channelMessages.length === MAX_CHAT_MESSAGES) {
       restoreSelection(selection);
     }
-  });
+  }, [channelMessages]);
+
+  useEffect(() => {
+    const regExp = (ownName)
+      ? new RegExp(`(^|\\s+)(@${ownName})(\\s+|$)`, 'g')
+      : null;
+    setNameRegExp(regExp);
+  }, [ownName]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -109,7 +123,7 @@ const Chat = ({ chatMessages, chatChannel }) => {
           channelMessages.map((message) => (
             <ChatMessage
               name={message[0]}
-              text={message[1]}
+              msgArray={splitChatMessage(message[1], nameRegExp)}
               country={message[2]}
             />
           ))
@@ -121,9 +135,9 @@ const Chat = ({ chatMessages, chatChannel }) => {
 };
 
 function mapStateToProps(state: State) {
-  const { chatMessages } = state.user;
+  const { chatMessages, name } = state.user;
   const { chatChannel } = state.gui;
-  return { chatMessages, chatChannel };
+  return { chatMessages, chatChannel, ownName: name };
 }
 
 export default connect(mapStateToProps)(Chat);

@@ -227,10 +227,55 @@ export function colorFromText(str: string) {
   return `#${'00000'.substring(0, 6 - c.length)}${c}`;
 }
 
+/*
+ * splits chat message into array of what it represents
+ * [[type, text],[type, text], ...]
+ * type:
+ *   't': text
+ *   'p': ping
+ *   'c': coordinates
+ *   'm': mention of somebody else
+ *  nameRegExp has to be in the form of:
+      new RegExp(`(^|\\s+)(@${ownName})(\\s+|$)`, 'g');
+ */
 const linkRegExp = /(#[a-z]*,-?[0-9]*,-?[0-9]*(,-?[0-9]+)?)/gi;
-export function splitCoordsInString(text) {
-  const arr = text
-    .split(linkRegExp)
-    .filter((val, ind) => ((ind % 3) !== 2));
+const linkRegExpFilter = (val, ind) => ((ind % 3) !== 2);
+const mentionRegExp = /(^|\s+)(@\S+)(\s+|$)/g;
+const spaceFilter = (val) => (val !== ' ');
+
+function splitChatMessageRegexp(
+  msgArray,
+  regExp,
+  ident,
+  filter = () => true,
+) {
+  return msgArray.map((msgPart) => {
+    const [type, part] = msgPart;
+    if (type !== 't') {
+      return [msgPart];
+    }
+    return part
+      .split(regExp)
+      .filter(filter)
+      .map((stri, i) => {
+        if (i % 2 === 0) {
+          return ['t', stri];
+        }
+        return [ident, stri];
+      })
+      .filter((el) => !!el)
+  }).flat(1);
+}
+
+export function splitChatMessage(message, nameRegExp = null) {
+  if (!message) {
+    return null;
+  }
+  let arr = [['t', message.trim()]];
+  arr = splitChatMessageRegexp(arr, linkRegExp, 'c', linkRegExpFilter);
+  if (nameRegExp) {
+    arr = splitChatMessageRegexp(arr, nameRegExp, 'p', spaceFilter);
+  }
+  arr = splitChatMessageRegexp(arr, mentionRegExp, 'm', spaceFilter);
   return arr;
 }
