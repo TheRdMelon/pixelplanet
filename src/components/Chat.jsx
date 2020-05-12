@@ -3,18 +3,27 @@
  * @flow
  */
 
-import React, { useRef, useLayoutEffect } from 'react';
+import React, {
+  useRef, useLayoutEffect, useState, useEffect,
+} from 'react';
 import useStayScrolled from 'react-stay-scrolled';
 import { connect } from 'react-redux';
 
+import { MAX_CHAT_MESSAGES } from '../core/constants';
 import type { State } from '../reducers';
 import ChatInput from './ChatInput';
+import { saveSelection, restoreSelection } from '../utils/storeSelection';
 import { colorFromText, splitCoordsInString } from '../core/utils';
 
+
 function ChatMessage({ name, text, country }) {
+  if (!name || !text) {
+    return null;
+  }
+
   const msgText = text.trim();
-  let className = 'msg';
   const isInfo = (name === 'info');
+  let className = 'msg';
   if (isInfo) {
     className += ' info';
   } else if (text.charAt(0) === '>') {
@@ -27,28 +36,25 @@ function ChatMessage({ name, text, country }) {
       {
         (!isInfo)
         && (
-        <img
-          alt=""
-          title={country}
-          src={`${window.assetserver}/cf/${country}.gif`}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = './cf/xx.gif';
-          }}
-        />
-        )
-      }
-      {
-        (!isInfo)
-        && (
-        <span
-          className="chatname"
-          style={{
-            color: colorFromText(name),
-          }}
-        >
-              &nbsp;
-          {name}
+        <span>
+          <img
+            alt=""
+            title={country}
+            src={`${window.assetserver}/cf/${country}.gif`}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = './cf/xx.gif';
+            }}
+          />
+          <span
+            className="chatname"
+            style={{
+              color: colorFromText(name),
+            }}
+          >
+                &nbsp;
+            {name}
+          </span>
           :&nbsp;
         </span>
         )
@@ -73,6 +79,7 @@ function ChatMessage({ name, text, country }) {
 
 const Chat = ({ chatMessages, chatChannel }) => {
   const listRef = useRef();
+  const [selection, setSelection] = useState(null);
   const { stayScrolled } = useStayScrolled(listRef, {
     initialScroll: Infinity,
   });
@@ -81,11 +88,23 @@ const Chat = ({ chatMessages, chatChannel }) => {
 
   useLayoutEffect(() => {
     stayScrolled();
-  }, [channelMessages.length]);
+  }, [channelMessages.slice(-1)]);
+
+  useEffect(() => {
+    if (channelMessages.length === MAX_CHAT_MESSAGES) {
+      restoreSelection(selection);
+    }
+  });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <ul className="chatarea" ref={listRef} style={{ flexGrow: 1 }}>
+      <ul
+        className="chatarea"
+        ref={listRef}
+        style={{ flexGrow: 1 }}
+        onMouseUp={() => { setSelection(saveSelection); }}
+        role="presentation"
+      >
         {
           channelMessages.map((message) => (
             <ChatMessage

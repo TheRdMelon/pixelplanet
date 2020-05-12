@@ -44,6 +44,8 @@ async function exportVox(
   canvas,
   centerPoint,
 ) {
+  // TODO deactivated cause its not finished
+  // eslint-disable-next-line no-unused-vars
   const { size: canvasSize, colors } = canvas;
   // round to chunk with its -x and -y corner closest to centerPoint
   const [xc,, yc] = centerPoint.map((z) => {
@@ -94,6 +96,8 @@ async function exportVox(
   // 4 * 256 palette content (rgba * 256 colors)
   const rgbaChunkSize = 4 * 256;
   const rgbaChunkLength = 4 + 4 + 4 + rgbaChunkSize;
+  // TODO deactivated cause its not finished
+  // eslint-disable-next-line no-unused-vars
   const rgbaPadding = [256, 256, 256, 256];
   // Main Chunk
   // 4 bytes MAIN

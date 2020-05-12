@@ -91,3 +91,4 @@ export const MONTH = 30 * DAY;
 
 // available Chat Channels
 export const CHAT_CHANNELS = ['en', 'int'];
+export const MAX_CHAT_MESSAGES = 100;

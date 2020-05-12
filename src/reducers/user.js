@@ -1,5 +1,7 @@
 /* @flow */
 
+import { MAX_CHAT_MESSAGES } from '../core/constants';
+
 import type { Action } from '../actions/types';
 
 
@@ -127,7 +129,7 @@ export default function user(
       } = action;
       const chatMessages = state.chatMessages.slice();
       let channelMessages = chatMessages[channel];
-      if (channelMessages.length > 50) {
+      if (channelMessages.length > MAX_CHAT_MESSAGES) {
         channelMessages = channelMessages.slice(-50);
       }
       channelMessages = channelMessages.concat([
