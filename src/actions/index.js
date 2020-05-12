@@ -197,6 +197,7 @@ export function receiveChatMessage(
   text: string,
   country: string,
   channel: number,
+  isPing: boolean,
 ): Action {
   return {
     type: 'RECEIVE_CHAT_MESSAGE',
@@ -204,6 +205,7 @@ export function receiveChatMessage(
     text,
     country,
     channel,
+    isPing,
   };
 }
 

@@ -59,6 +59,7 @@ export type Action =
     text: string,
     country: string,
     channel: number,
+    isPing: boolean,
   }
   | { type: 'RECEIVE_CHAT_HISTORY', data: Array }
   | { type: 'SET_CHAT_CHANNEL', channelId: number }

@@ -174,8 +174,9 @@ export default (store) => (next) => (action) => {
     case 'RECEIVE_CHAT_MESSAGE': {
       if (!chatNotify) break;
 
+      const { isPing } = action;
       const { chatChannel } = state.gui;
-      if (action.channel !== chatChannel) {
+      if (!isPing && action.channel !== chatChannel) {
         break;
       }
 
@@ -184,8 +185,9 @@ export default (store) => (next) => (action) => {
 
       oscillatorNode.type = 'sine';
       oscillatorNode.frequency.setValueAtTime(310, context.currentTime);
+      const freq = (isPing) ? 540 : 355;
       oscillatorNode.frequency.exponentialRampToValueAtTime(
-        355,
+        freq,
         context.currentTime + 0.025,
       );
 

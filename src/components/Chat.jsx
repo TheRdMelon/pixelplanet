@@ -9,82 +9,26 @@ import React, {
 import useStayScrolled from 'react-stay-scrolled';
 import { connect } from 'react-redux';
 
-import { MAX_CHAT_MESSAGES } from '../core/constants';
 import type { State } from '../reducers';
-import ChatInput from './ChatInput';
+import ChatMessage from './ChatMessage';
+
+import { showUserAreaModal, setChatChannel } from '../actions';
+import { MAX_CHAT_MESSAGES, CHAT_CHANNELS } from '../core/constants';
+import ProtocolClient from '../socket/ProtocolClient';
 import { saveSelection, restoreSelection } from '../utils/storeSelection';
-import { colorFromText, splitChatMessage } from '../core/utils';
+import splitChatMessage from '../core/chatMessageFilter';
 
 
-function ChatMessage({ name, msgArray, country }) {
-  if (!name || !msgArray) {
-    return null;
-  }
-
-  const isInfo = (name === 'info');
-  let className = 'msg';
-  if (isInfo) {
-    className += ' info';
-  } else if (msgArray[0][1].charAt(0) === '>') {
-    className += ' greentext';
-  }
-
-  return (
-    <p className="chatmsg">
-      {
-        (!isInfo)
-        && (
-        <span>
-          <img
-            alt=""
-            title={country}
-            src={`${window.assetserver}/cf/${country}.gif`}
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = './cf/xx.gif';
-            }}
-          />
-          <span
-            className="chatname"
-            style={{
-              color: colorFromText(name),
-            }}
-          >
-                &nbsp;
-            {name}
-          </span>
-          :&nbsp;
-        </span>
-        )
-      }
-      {
-        msgArray.map((msgPart) => {
-          const [type, txt] = msgPart;
-          if (type === 't') {
-            return (<span className={className}>{txt}</span>);
-          } if (type === 'c') {
-            return (<a href={`./${txt}`}>{txt}</a>);
-          } if (type === 'p') {
-            return (<span className="ping">{txt}</span>);
-          } if (type === 'm') {
-            return (
-              <span
-                className="mention"
-                style={{
-                  color: colorFromText(txt),
-                }}
-              >{txt}</span>
-            );
-          }
-          return null;
-        })
-      }
-    </p>
-  );
-}
-
-const Chat = ({ chatMessages, chatChannel, ownName }) => {
+const Chat = ({
+  chatMessages,
+  chatChannel,
+  ownName,
+  open,
+  setChannel,
+}) => {
   const listRef = useRef();
+  const inputRef = useRef();
+  const [inputMessage, setInputMessage] = useState('');
   const [selection, setSelection] = useState(null);
   const [nameRegExp, setNameRegExp] = useState(null);
   const { stayScrolled } = useStayScrolled(listRef, {
@@ -95,7 +39,7 @@ const Chat = ({ chatMessages, chatChannel, ownName }) => {
 
   useLayoutEffect(() => {
     stayScrolled();
-  }, [channelMessages.slice(-1)]);
+  }, [channelMessages]);
 
   useEffect(() => {
     if (channelMessages.length === MAX_CHAT_MESSAGES) {
@@ -109,6 +53,25 @@ const Chat = ({ chatMessages, chatChannel, ownName }) => {
       : null;
     setNameRegExp(regExp);
   }, [ownName]);
+
+  function padToInputMessage(txt) {
+    const lastChar = inputMessage.substr(-1);
+    const pad = (lastChar && lastChar !== ' ');
+    let newMsg = inputMessage;
+    if (pad) newMsg += ' ';
+    newMsg += txt;
+    setInputMessage(newMsg);
+    inputRef.current.focus();
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!inputMessage) return;
+    // send message via websocket
+    ProtocolClient.sendChatMessage(inputMessage, chatChannel);
+    setInputMessage('');
+  }
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -125,11 +88,54 @@ const Chat = ({ chatMessages, chatChannel, ownName }) => {
               name={message[0]}
               msgArray={splitChatMessage(message[1], nameRegExp)}
               country={message[2]}
+              insertText={(txt) => padToInputMessage(txt)}
             />
           ))
         }
       </ul>
-      <ChatInput />
+      {(ownName) ? (
+        <div classNam="chatinput">
+          <form
+            onSubmit={(e) => handleSubmit(e)}
+            style={{ display: 'flex', flexDirection: 'row' }}
+          >
+            <input
+              style={{ flexGrow: 1, minWidth: 40 }}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              ref={inputRef}
+              type="text"
+              placeholder="Chat here"
+            />
+            <button
+              style={{ flexGrow: 0 }}
+              type="submit"
+            >
+              ‣
+            </button>
+            <select
+              style={{ flexGrow: 0 }}
+              onChange={(evt) => setChannel(evt.target.selectedIndex)}
+            >
+              {
+                CHAT_CHANNELS.map((ch) => (
+                  <option selected={ch === chatChannel}>{ch}</option>
+                ))
+              }
+            </select>
+          </form>
+        </div>
+      ) : (
+        <div
+          className="modallink"
+          onClick={open}
+          style={{ textAlign: 'center', fontSize: 13 }}
+          role="button"
+          tabIndex={0}
+        >
+          You must be logged in to chat
+        </div>
+      )}
     </div>
   );
 };
@@ -140,4 +146,15 @@ function mapStateToProps(state: State) {
   return { chatMessages, chatChannel, ownName: name };
 }
 
-export default connect(mapStateToProps)(Chat);
+function mapDispatchToProps(dispatch) {
+  return {
+    open() {
+      dispatch(showUserAreaModal());
+    },
+    setChannel(channelId) {
+      dispatch(setChatChannel(channelId));
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Chat);

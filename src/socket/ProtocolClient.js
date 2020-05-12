@@ -173,6 +173,7 @@ class ProtocolClient extends EventEmitter {
     } else {
       // string = name
       this.name = data;
+      this.emit('setWsName', data);
     }
   }
 

@@ -13,7 +13,7 @@ import {
 } from './config';
 
 
-class ChatProvider {
+export class ChatProvider {
   /*
    * TODO:
    * history really be saved in redis
@@ -187,13 +187,13 @@ class ChatProvider {
     webSockets.broadcastChatMessage(name, message, country, channelId, sendapi);
   }
 
-  /*
-   * that is really just because i do not like to import the class AND the
-   * singleton
-   */
-  // eslint-disable-next-line class-methods-use-this
-  automute(name, channelId = 0) {
+  static automute(name, channelId = 0) {
     ChatProvider.mute(name, channelId, 60);
+    webSockets.broadcastChatMessage(
+      'info',
+      `${name} has been muted for spam for 60min`,
+      channelId,
+    );
   }
 
   static async checkIfMuted(user) {
@@ -202,7 +202,8 @@ class ChatProvider {
     return ttl;
   }
 
-  static async mute(name, channelId = 0, timeMin = null) {
+  static async mute(plainName, channelId = 0, timeMin = null) {
+    const name = (plainName.startsWith('@')) ? plainName.substr(1) : plainName;
     const id = await User.name2Id(name);
     if (!id) {
       return `Couldn't find user ${name}`;
@@ -230,7 +231,8 @@ class ChatProvider {
     return null;
   }
 
-  static async unmute(name, channelId = 0) {
+  static async unmute(plainName, channelId = 0) {
+    const name = (plainName.startsWith('@')) ? plainName.substr(1) : plainName;
     const id = await User.name2Id(name);
     if (!id) {
       return `Couldn't find user ${name}`;

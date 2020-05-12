@@ -29,6 +29,7 @@ import ProtocolClient from './socket/ProtocolClient';
 function init() {
   initRenderer(store, false);
 
+  let nameRegExp = null;
   ProtocolClient.on('pixelUpdate', ({
     i, j, offset, color,
   }) => {
@@ -40,8 +41,12 @@ function init() {
   ProtocolClient.on('onlineCounter', ({ online }) => {
     store.dispatch(receiveOnline(online));
   });
+  ProtocolClient.on('setWsName', (name) => {
+    nameRegExp = new RegExp(`(^|\\s+)(@${name})(\\s+|$)`, 'g');
+  });
   ProtocolClient.on('chatMessage', (name, text, country, channelId) => {
-    store.dispatch(receiveChatMessage(name, text, country, channelId));
+    const isPing = (nameRegExp && text.match(nameRegExp));
+    store.dispatch(receiveChatMessage(name, text, country, channelId, isPing));
   });
   ProtocolClient.on('chatHistory', (data) => {
     store.dispatch(receiveChatHistory(data));

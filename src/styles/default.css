@@ -389,7 +389,6 @@ tr:nth-child(even) {
 .chatname {
   color: #4B0000;
   font-size: 13px;
-  user-select: all;
 }
 .chatmsg {
   color: #030303;

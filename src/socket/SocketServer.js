@@ -18,7 +18,7 @@ import CoolDownPacket from './packets/CoolDownPacket';
 import ChangedMe from './packets/ChangedMe';
 import OnlineCounter from './packets/OnlineCounter';
 
-import chatProvider from '../core/ChatProvider';
+import chatProvider, { ChatProvider } from '../core/ChatProvider';
 import authenticateClient from './verifyClient';
 import WebSocketEvents from './WebSocketEvents';
 import webSockets from './websockets';
@@ -261,19 +261,21 @@ class SocketServer extends WebSocketEvents {
         message,
         channelId,
       );
-      if (errorMsg) {
-        ws.send(JSON.stringify(['info', errorMsg, 'il', channelId]));
-      }
-      if (ws.last_message && ws.last_message === message) {
-        ws.message_repeat += 1;
-        if (ws.message_repeat >= 3) {
-          logger.info(`User ${ws.name} got automuted`);
-          chatProvider.automute(ws.name, channelId);
+      if (!errorMsg) {
+        // automute on repeated message spam
+        if (ws.last_message && ws.last_message === message) {
+          ws.message_repeat += 1;
+          if (ws.message_repeat >= 4) {
+            logger.info(`User ${ws.name} got automuted`);
+            ChatProvider.automute(ws.name, channelId);
+            ws.message_repeat = 0;
+          }
+        } else {
           ws.message_repeat = 0;
+          ws.last_message = message;
         }
       } else {
-        ws.message_repeat = 0;
-        ws.last_message = message;
+        ws.send(JSON.stringify(['info', errorMsg, 'il', channelId]));
       }
       logger.info(
         `Received chat message ${message} from ${ws.name} / ${ws.user.ip}`,
