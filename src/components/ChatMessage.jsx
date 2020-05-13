@@ -3,8 +3,9 @@
  * @flow
  */
 import React from 'react';
+import { connect } from 'react-redux';
 
-import { colorFromText } from '../core/utils';
+import { colorFromText, setBrightness } from '../core/utils';
 
 
 function ChatMessage({
@@ -12,6 +13,7 @@ function ChatMessage({
   msgArray,
   country,
   insertText,
+  darkMode,
 }) {
   if (!name || !msgArray) {
     return null;
@@ -44,7 +46,7 @@ function ChatMessage({
           <span
             className="chatname"
             style={{
-              color: colorFromText(name),
+              color: setBrightness(colorFromText(name), darkMode),
               cursor: 'pointer',
             }}
             role="button"
@@ -71,7 +73,7 @@ function ChatMessage({
               <span
                 className="ping"
                 style={{
-                  color: colorFromText(txt.substr(1)),
+                  color: setBrightness(colorFromText(txt.substr(1)), darkMode),
                 }}
               >{txt}</span>
             );
@@ -80,7 +82,7 @@ function ChatMessage({
               <span
                 className="mention"
                 style={{
-                  color: colorFromText(txt.substr(1)),
+                  color: setBrightness(colorFromText(txt.substr(1)), darkMode),
                 }}
               >{txt}</span>
             );
@@ -92,4 +94,10 @@ function ChatMessage({
   );
 }
 
-export default ChatMessage;
+function mapStateToProps(state: State) {
+  const { style } = state.gui;
+  const darkMode = style.indexOf('dark') !== -1;
+  return { darkMode };
+}
+
+export default connect(mapStateToProps)(ChatMessage);

@@ -109,6 +109,7 @@ function getViewFromURL(canvases: Object) {
       canvasMaxTiledZoom: getMaxTiledZoom(canvasSize),
       palette: new Palette(colors, 0),
       clrIgnore,
+      selectedColor: clrIgnore,
       view,
       viewscale: scale,
       scale,
@@ -125,6 +126,7 @@ function getViewFromURL(canvases: Object) {
       canvasMaxTiledZoom: getMaxTiledZoom(canvasd.size),
       palette: new Palette(canvasd.colors, 0),
       clrIgnore: canvasd.cli,
+      selectedColor: canvasd.cli,
       view: getGivenCoords(),
       viewscale: DEFAULT_SCALE,
       scale: DEFAULT_SCALE,
@@ -135,7 +137,6 @@ function getViewFromURL(canvases: Object) {
 const initialState: CanvasState = {
   ...getViewFromURL(DEFAULT_CANVASES),
   fetchs: 0,
-  selectedColor: 3,
   isHistoricalView: false,
   historicalDate: null,
   historicalTime: null,

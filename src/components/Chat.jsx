@@ -33,13 +33,14 @@ const Chat = ({
   const [nameRegExp, setNameRegExp] = useState(null);
   const { stayScrolled } = useStayScrolled(listRef, {
     initialScroll: Infinity,
+    inaccuracy: 10,
   });
 
   const channelMessages = chatMessages[chatChannel];
 
   useLayoutEffect(() => {
     stayScrolled();
-  }, [channelMessages]);
+  }, [channelMessages.length]);
 
   useEffect(() => {
     if (channelMessages.length === MAX_CHAT_MESSAGES) {
@@ -66,9 +67,10 @@ const Chat = ({
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!inputMessage) return;
+    const msg = inputMessage.trim();
+    if (!msg) return;
     // send message via websocket
-    ProtocolClient.sendChatMessage(inputMessage, chatChannel);
+    ProtocolClient.sendChatMessage(msg, chatChannel);
     setInputMessage('');
   }
 

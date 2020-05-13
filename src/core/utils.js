@@ -199,6 +199,9 @@ export function numberToString(num: number): string {
   return '';
 }
 
+/*
+ * generates a color based on a given string
+ */
 export function numberToStringFull(num: number): string {
   if (num < 0) {
     return `${num} :-(`;
@@ -225,4 +228,25 @@ export function colorFromText(str: string) {
     .toUpperCase();
 
   return `#${'00000'.substring(0, 6 - c.length)}${c}`;
+}
+
+/*
+ * sets a color into bright or dark mode
+ */
+export function setBrightness(hex, dark: boolean = false) {
+  hex = hex.replace(/^\s*#|\s*$/g, '');
+
+  if (hex.length === 3) {
+    hex = hex.replace(/(.)/g, '$1$1');
+  }
+
+  let r = Math.floor(parseInt(hex.substr(0, 2), 16) / 2);
+  let g = Math.floor(parseInt(hex.substr(2, 2), 16) / 2);
+  let b = Math.floor(parseInt(hex.substr(4, 2), 16) / 2);
+  if (dark) {
+    r += 128;
+    g += 128;
+    b += 128;
+  }
+  return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
 }

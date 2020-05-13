@@ -228,60 +228,65 @@ class SocketServer extends WebSocketEvents {
   }
 
   static async onTextMessage(text, ws) {
-    let message;
-    let channelId;
     try {
-      const data = JSON.parse(text);
-      [message, channelId] = data;
-      channelId = Number(channelId);
-      if (Number.isNaN(channelId)) {
-        throw new Error('NaN');
-      }
-    } catch {
-      logger.warn(
-        `Received unparseable message from ${ws.name} on websocket: ${text}`,
-      );
-      return;
-    }
-
-    if (ws.name && message) {
-      const waitLeft = ws.rateLimiter.tick();
-      if (waitLeft) {
-        ws.send(JSON.stringify([
-          'info',
-          // eslint-disable-next-line max-len
-          `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`,
-          'il',
-          channelId,
-        ]));
+      let message;
+      let channelId;
+      try {
+        const data = JSON.parse(text);
+        [message, channelId] = data;
+        channelId = Number(channelId);
+        if (Number.isNaN(channelId)) {
+          throw new Error('NaN');
+        }
+      } catch {
+        logger.warn(
+          `Received unparseable message from ${ws.name} on websocket: ${text}`,
+        );
         return;
       }
-      const errorMsg = await chatProvider.sendMessage(
-        ws.user,
-        message,
-        channelId,
-      );
-      if (!errorMsg) {
-        // automute on repeated message spam
-        if (ws.last_message && ws.last_message === message) {
-          ws.message_repeat += 1;
-          if (ws.message_repeat >= 4) {
-            logger.info(`User ${ws.name} got automuted`);
-            ChatProvider.automute(ws.name, channelId);
+      message = message.trim();
+
+      if (ws.name && message) {
+        const waitLeft = ws.rateLimiter.tick();
+        if (waitLeft) {
+          ws.send(JSON.stringify([
+            'info',
+            // eslint-disable-next-line max-len
+            `You are sending messages too fast, you have to wait ${Math.floor(waitLeft / 1000)}s :(`,
+            'il',
+            channelId,
+          ]));
+          return;
+        }
+        const errorMsg = await chatProvider.sendMessage(
+          ws.user,
+          message,
+          channelId,
+        );
+        if (!errorMsg) {
+          // automute on repeated message spam
+          if (ws.last_message && ws.last_message === message) {
+            ws.message_repeat += 1;
+            if (ws.message_repeat >= 4) {
+              logger.info(`User ${ws.name} got automuted`);
+              ChatProvider.automute(ws.name, channelId);
+              ws.message_repeat = 0;
+            }
+          } else {
             ws.message_repeat = 0;
+            ws.last_message = message;
           }
         } else {
-          ws.message_repeat = 0;
-          ws.last_message = message;
+          ws.send(JSON.stringify(['info', errorMsg, 'il', channelId]));
         }
+        logger.info(
+          `Received chat message ${message} from ${ws.name} / ${ws.user.ip}`,
+        );
       } else {
-        ws.send(JSON.stringify(['info', errorMsg, 'il', channelId]));
+        logger.info('Got empty message or message from unidentified ws');
       }
-      logger.info(
-        `Received chat message ${message} from ${ws.name} / ${ws.user.ip}`,
-      );
-    } else {
-      logger.info('Got empty message or message from unidentified ws');
+    } catch {
+      logger.info('Got invalid ws message');
     }
   }
 
