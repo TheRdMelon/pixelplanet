@@ -64,7 +64,7 @@ export default function user(
       const { coolDown } = action;
       return {
         ...state,
-        coolDown,
+        coolDown: coolDown || null,
       };
     }
 
@@ -93,6 +93,18 @@ export default function user(
       return {
         ...state,
         wait,
+      };
+    }
+
+    case 'RECEIVE_COOLDOWN': {
+      const { wait: duration } = action;
+      const wait = duration
+        ? new Date(Date.now() + duration)
+        : null;
+      return {
+        ...state,
+        wait,
+        coolDown: null,
       };
     }
 
@@ -147,18 +159,6 @@ export default function user(
       return {
         ...state,
         chatMessages,
-      };
-    }
-
-    case 'RECEIVE_COOLDOWN': {
-      const { waitSeconds } = action;
-      const wait = waitSeconds
-        ? new Date(Date.now() + waitSeconds * 1000)
-        : null;
-      return {
-        ...state,
-        wait,
-        coolDown: null,
       };
     }
 

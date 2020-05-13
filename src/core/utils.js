@@ -38,6 +38,8 @@ export function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(n, max));
 }
 
+// z is assumed to be height here
+// in ui and rendeer, y is height
 export function getChunkOfPixel(
   canvasSize: number,
   x: number,
@@ -109,18 +111,26 @@ export function getIdFromObject(obj: Object, ident: string): number {
   return null;
 }
 
+// z is returned as height here
+// in ui and rendeer, y is height
 export function getPixelFromChunkOffset(
   i: number,
   j: number,
   offset: number,
   canvasSize: number,
+  is3d: boolean = false,
 ): Cell {
-  const cx = mod(offset, TILE_SIZE);
-  const cy = Math.floor(offset / TILE_SIZE);
-  const devOffset = canvasSize / 2 / TILE_SIZE;
-  const x = ((i - devOffset) * TILE_SIZE) + cx;
-  const y = ((j - devOffset) * TILE_SIZE) + cy;
-  return [x, y];
+  const tileSize = (is3d) ? THREE_TILE_SIZE : TILE_SIZE;
+  const cx = offset % tileSize;
+  const off = offset - cx;
+  let cy = off % (tileSize * tileSize);
+  const z = (is3d) ? (off - cy) / tileSize / tileSize : null;
+  cy /= tileSize;
+
+  const devOffset = canvasSize / 2 / tileSize;
+  const x = ((i - devOffset) * tileSize) + cx;
+  const y = ((j - devOffset) * tileSize) + cy;
+  return [x, y, z];
 }
 
 export function getCellInsideChunk(

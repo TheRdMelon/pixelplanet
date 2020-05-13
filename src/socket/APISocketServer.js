@@ -15,7 +15,7 @@ import WebSocketEvents from './WebSocketEvents';
 import webSockets from './websockets';
 import { getIPFromRequest } from '../utils/ip';
 import Minecraft from '../core/minecraft';
-import { drawUnsafe, setPixel } from '../core/draw';
+import { drawByCoords, setPixelByCoords } from '../core/draw';
 import logger from '../core/logger';
 import { APISOCKET_KEY } from '../core/config';
 import chatProvider from '../core/ChatProvider';
@@ -192,7 +192,7 @@ class APISocketServer extends WebSocketEvents {
         if (clr < 0 || clr > 32) return;
         // be aware that user null has no cd
         if (!minecraftid && !ip) {
-          setPixel('0', clr, x, y);
+          setPixelByCoords('0', clr, x, y);
           ws.send(JSON.stringify(['retpxl', null, null, true, 0, 0]));
           return;
         }
@@ -200,7 +200,7 @@ class APISocketServer extends WebSocketEvents {
         user.ip = ip;
         const {
           error, success, waitSeconds, coolDownSeconds,
-        } = await drawUnsafe(user, '0', clr, x, y, null);
+        } = await drawByCoords(user, '0', clr, x, y, null);
         ws.send(JSON.stringify([
           'retpxl',
           (minecraftid) || ip,

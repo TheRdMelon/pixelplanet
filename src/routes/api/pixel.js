@@ -5,7 +5,7 @@
 
 import type { Request, Response } from 'express';
 
-import draw from '../../core/draw';
+import { drawSafeByCoords } from '../../core/draw';
 import {
   blacklistDetector,
   cheapDetector,
@@ -197,7 +197,7 @@ async function place(req: Request, res: Response) {
 
   const {
     errorTitle, error, success, waitSeconds, coolDownSeconds,
-  } = await draw(user, cn, clr, x, y, z);
+  } = await drawSafeByCoords(user, cn, clr, x, y, z);
   logger.log('debug', success);
 
   if (success) {

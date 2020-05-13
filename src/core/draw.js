@@ -4,24 +4,30 @@ import { using } from 'bluebird';
 
 import type { User } from '../data/models';
 import { redlock } from '../data/redis';
-import { getChunkOfPixel, getOffsetOfPixel } from './utils';
+import {
+  getChunkOfPixel,
+  getOffsetOfPixel,
+  getPixelFromChunkOffset,
+} from './utils';
 import webSockets from '../socket/websockets';
-import logger from './logger';
+import logger, { pixelLogger } from './logger';
 import RedisCanvas from '../data/models/RedisCanvas';
 // eslint-disable-next-line import/no-unresolved
 import canvases from './canvases.json';
 
-import { THREE_CANVAS_HEIGHT } from './constants';
+import { THREE_CANVAS_HEIGHT, THREE_TILE_SIZE, TILE_SIZE } from './constants';
 
 
 /**
  *
  * @param canvasId
+ * @param canvasId
+ * @param color
  * @param x
  * @param y
- * @param color
+ * @param z optional, if given its 3d canvas
  */
-export function setPixel(
+export function setPixelByCoords(
   canvasId: number,
   color: ColorIndex,
   x: number,
@@ -37,6 +43,150 @@ export function setPixel(
 
 /**
  *
+ * By Offset is prefered on server side
+ * @param canvasId
+ * @param i Chunk coordinates
+ * @param j
+ * @param offset Offset of pixel withing chunk
+ */
+export function setPixelByOffset(
+  canvasId: number,
+  color: ColorIndex,
+  i: number,
+  j: number,
+  offset: number,
+) {
+  RedisCanvas.setPixelInChunk(i, j, offset, color, canvasId);
+  webSockets.broadcastPixel(canvasId, i, j, offset, color);
+}
+
+/**
+ *
+ * By Offset is prefered on server side
+ * This gets used by websocket pixel placing requests
+ * @param user user that can be registered, but doesn't have to
+ * @param canvasId
+ * @param i Chunk coordinates
+ * @param j
+ * @param offset Offset of pixel withing chunk
+ */
+export async function drawByOffset(
+  user: User,
+  canvasId: number,
+  color: ColorIndex,
+  i: number,
+  j: number,
+  offset: number,
+): Promise<Object> {
+  let wait = 0;
+  let coolDown = 0;
+  let retCode = 0;
+
+  logger.info(`Got request for ${canvasId} ${i} ${j} ${offset} ${color}`);
+
+  const canvas = canvases[canvasId];
+  if (!canvas) {
+    // canvas doesn't exist
+    return {
+      wait,
+      coolDown,
+      retCode: 1,
+    };
+  }
+  const { size: canvasSize, v: is3d } = canvas;
+
+  try {
+    const tileSize = (is3d) ? THREE_TILE_SIZE : TILE_SIZE;
+    if (i >= canvasSize / tileSize) {
+      // x out of bounds
+      throw new Error(2);
+    }
+    if (j >= canvasSize / tileSize) {
+      // y out of bounds
+      throw new Error(3);
+    }
+    const maxSize = (is3d) ? tileSize * tileSize * THREE_CANVAS_HEIGHT
+      : tileSize * tileSize;
+    if (offset >= maxSize) {
+      // z out of bounds or weird stuff
+      throw new Error(4);
+    }
+    if (color >= canvas.colors.length) {
+      // color out of bounds
+      throw new Error(5);
+    }
+
+    if (canvas.req !== -1) {
+      if (user.id === null) {
+        // not logged in
+        throw new Error(6);
+      }
+      const totalPixels = await user.getTotalPixels();
+      if (totalPixels < canvas.req) {
+        // not enough pixels placed yet
+        throw new Error(7);
+      }
+    }
+
+    const setColor = await RedisCanvas.getPixelByOffset(canvasId, i, j, offset);
+    if (setColor & 0x80
+      /* 3D Canvas Minecraft Avatars */
+      // && x >= 96 && x <= 128 && z >= 35 && z <= 100
+      // 96 - 128 on x
+      // 32 - 128 on z
+      || (canvas.v && i === 19 && j >= 17 && j < 20 && !user.isAdmin())
+    ) {
+      // protected pixel
+      throw new Error(8);
+    }
+
+    coolDown = (setColor & 0x3F) < canvas.cli ? canvas.bcd : canvas.pcd;
+    if (user.isAdmin()) {
+      coolDown = 0.0;
+    }
+
+    const now = Date.now();
+    wait = await user.getWait(canvasId);
+    if (!wait) wait = now;
+    wait += coolDown;
+    const waitLeft = wait - now;
+    if (waitLeft > canvas.cds) {
+      // cooldown stack used
+      wait = waitLeft - coolDown;
+      coolDown = canvas.cds - waitLeft;
+      throw new Error(9);
+    }
+
+    setPixelByOffset(canvasId, color, i, j, offset);
+
+    user.setWait(waitLeft, canvasId);
+    if (canvas.ranked) {
+      user.incrementPixelcount();
+    }
+    wait = waitLeft;
+  } catch (e) {
+    retCode = parseInt(e.message, 10);
+    if (Number.isNaN(retCode)) {
+      throw e;
+    }
+  }
+
+  const [x, y, z] = getPixelFromChunkOffset(i, j, offset, canvasSize, is3d);
+  // eslint-disable-next-line max-len
+  pixelLogger.info(`${user.ip} ${user.id} ${canvasId} ${x} ${y} ${z} ${color} ${retCode}`);
+
+  return {
+    wait,
+    coolDown,
+    retCode,
+  };
+}
+
+
+/**
+ *
+ * Old version of draw that returns explicit error messages
+ * used for http json api/pixel, used with coordinates
  * @param user
  * @param canvasId
  * @param x
@@ -44,7 +194,7 @@ export function setPixel(
  * @param color
  * @returns {Promise.<Object>}
  */
-async function draw(
+export async function drawByCoords(
   user: User,
   canvasId: number,
   color: ColorIndex,
@@ -178,7 +328,7 @@ async function draw(
     };
   }
 
-  setPixel(canvasId, color, x, y, z);
+  setPixelByCoords(canvasId, color, x, y, z);
 
   user.setWait(waitLeft, canvasId);
   if (canvas.ranked) {
@@ -191,18 +341,20 @@ async function draw(
   };
 }
 
+
 /**
  * This function is a wrapper for draw. It fixes race condition exploits
  * It permits just placing one pixel at a time per user.
  *
  * @param user
  * @param canvasId
+ * @param color
  * @param x
  * @param y
- * @param color
+ * @param z (optional for 3d canvas)
  * @returns {Promise.<boolean>}
  */
-function drawSafe(
+export function drawSafeByCoords(
   user: User,
   canvasId: number,
   color: ColorIndex,
@@ -211,7 +363,7 @@ function drawSafe(
   z: number = null,
 ): Promise<Cell> {
   if (user.isAdmin()) {
-    return draw(user, canvasId, color, x, y, z);
+    return drawByCoords(user, canvasId, color, x, y, z);
   }
 
   // can just check for one unique occurence,
@@ -223,7 +375,7 @@ function drawSafe(
     using(
       redlock.disposer(`locks:${userId}`, 5000, logger.error),
       async () => {
-        const ret = await draw(user, canvasId, color, x, y, z);
+        const ret = await drawByCoords(user, canvasId, color, x, y, z);
         resolve(ret);
       },
     ); // <-- unlock is automatically handled by bluebird
@@ -231,6 +383,42 @@ function drawSafe(
 }
 
 
-export const drawUnsafe = draw;
+/**
+ * This function is a wrapper for draw. It fixes race condition exploits
+ * It permits just placing one pixel at a time per user.
+ *
+ * @param user
+ * @param canvasId
+ * @param color
+ * @param i Chunk coordinates
+ * @param j
+ * @param offset Offset of pixel withing chunk
+ * @returns {Promise.<boolean>}
+ */
+export function drawSafeByOffset(
+  user: User,
+  canvasId: number,
+  color: ColorIndex,
+  i: number,
+  j: number,
+  offset: number,
+): Promise<Cell> {
+  if (user.isAdmin()) {
+    return drawByOffset(user, canvasId, color, i, j, offset);
+  }
 
-export default drawSafe;
+  // can just check for one unique occurence,
+  // we use ip, because id for logged out users is
+  // always null
+  const userId = user.ip;
+
+  return new Promise((resolve) => {
+    using(
+      redlock.disposer(`locks:${userId}`, 5000, logger.error),
+      async () => {
+        const ret = await drawByOffset(user, canvasId, color, i, j, offset);
+        resolve(ret);
+      },
+    ); // <-- unlock is automatically handled by bluebird
+  });
+}

@@ -162,7 +162,7 @@ async function withoutCache(f, ip) {
 let lock = 4;
 const checking = [];
 async function withCache(f, ip) {
-  if (!ip) return true;
+  if (!ip || ip === '0.0.0.1') return true;
   // get from cache, if there
   const ipKey = getIPv6Subnet(ip);
   const key = `isprox:${ipKey}`;

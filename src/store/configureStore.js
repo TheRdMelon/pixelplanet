@@ -10,7 +10,6 @@ import swal from './sweetAlert';
 import protocolClientHook from './protocolClientHook';
 import rendererHook from './rendererHook';
 // import ads from './ads';
-// import analytics from './analytics';
 import array from './array';
 import promise from './promise';
 import notifications from './notifications';
@@ -41,7 +40,6 @@ const store = createStore(
       protocolClientHook,
       rendererHook,
       // ads,
-      // analytics,
       logger,
     ),
   ),

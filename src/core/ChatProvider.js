@@ -7,11 +7,6 @@ import User from '../data/models/User';
 import webSockets from '../socket/websockets';
 
 import { CHAT_CHANNELS } from './constants';
-import { cheapDetector } from './isProxy';
-import {
-  USE_PROXYCHECK,
-} from './config';
-
 
 export class ChatProvider {
   /*
@@ -92,14 +87,6 @@ export class ChatProvider {
         return 'Ow no! Spam protection decided to mute you';
       }
     }
-
-    if (USE_PROXYCHECK && user.ip && await cheapDetector(user.ip)) {
-      logger.info(
-        `${name} / ${user.ip} tried to send chat message with proxy`,
-      );
-      return 'You can not send chat messages with a proxy';
-    }
-
 
     for (let i = 0; i < this.substitutes.length; i += 1) {
       const subsitute = this.substitutes[i];

@@ -30,6 +30,17 @@ export default (store) => (next) => (action) => {
       break;
     }
 
+    case 'REQUEST_PLACE_PIXEL': {
+      const {
+        i, j, offset, color,
+      } = action;
+      ProtocolClient.requestPlacePixel(
+        i, j, offset,
+        color,
+      );
+      break;
+    }
+
     default:
     // nothing
   }

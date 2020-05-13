@@ -8,13 +8,28 @@
 import React from 'react';
 
 import store from '../ui/store';
-import { requestPlacePixel } from '../actions';
+import { tryPlacePixel } from '../actions';
 
 
-function onCaptcha(token: string) {
-  const { canvasId, coordinates, color } = window.pixel;
+async function onCaptcha(token: string) {
+  const body = JSON.stringify({
+    token,
+  });
+  await fetch('/api/captcha', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+    // https://github.com/github/fetch/issues/349
+    credentials: 'include',
+  });
 
-  store.dispatch(requestPlacePixel(canvasId, coordinates, color, token));
+  const {
+    i, j, offset, color,
+  } = window.pixel;
+  store.dispatch(tryPlacePixel(i, j, offset, color));
+
   window.grecaptcha.reset();
 }
 // https://stackoverflow.com/questions/41717304/recaptcha-google-data-callback-with-angularjs

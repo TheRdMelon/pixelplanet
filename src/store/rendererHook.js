@@ -47,6 +47,12 @@ export default (store) => (next) => (action) => {
       break;
     }
 
+    case 'SET_PLACE_ALLOWED': {
+      const renderer = getRenderer();
+      renderer.forceNextSubRender = true;
+      break;
+    }
+
     case 'TOGGLE_HISTORICAL_VIEW':
     case 'SET_SCALE': {
       const {

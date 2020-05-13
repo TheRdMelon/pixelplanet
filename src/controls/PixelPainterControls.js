@@ -24,6 +24,8 @@ import {
 } from '../actions';
 import {
   screenToWorld,
+  getChunkOfPixel,
+  getOffsetOfPixel,
 } from '../core/utils';
 
 let store = null;
@@ -145,11 +147,14 @@ export function initControls(renderer, viewport: HTMLCanvasElement, curStore) {
 
     if (!placeAllowed) return;
 
-    // dirty trick: to fetch only before multiple 3 AND on user action
-    // if (pixelsPlaced % 3 === 0) requestAds();
-
     if (selectedColor !== renderer.getColorIndexOfPixel(...cell)) {
-      store.dispatch(tryPlacePixel(cell));
+      const { canvasSize } = state.canvas;
+      const [i, j] = getChunkOfPixel(canvasSize, ...cell);
+      const offset = getOffsetOfPixel(canvasSize, ...cell);
+      store.dispatch(tryPlacePixel(
+        i, j, offset,
+        selectedColor,
+      ));
     }
   });
 

@@ -6,16 +6,12 @@ const OP_CODE = 0xC2;
 export default {
   OP_CODE,
   hydrate(data: DataView) {
-    // SERVER (Client)
-    const waitSeconds = data.getUint16(1);
-    return waitSeconds;
+    return data.getUint32(1);
   },
-  dehydrate(waitSeconds): Buffer {
-    // CLIENT (Sender)
-    const buffer = Buffer.allocUnsafe(1 + 2);
+  dehydrate(wait): Buffer {
+    const buffer = Buffer.allocUnsafe(1 + 4);
     buffer.writeUInt8(OP_CODE, 0);
-
-    buffer.writeUInt16BE(waitSeconds, 1);
+    buffer.writeUInt32BE(wait, 1);
     return buffer;
   },
 };

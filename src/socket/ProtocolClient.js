@@ -9,7 +9,8 @@
 import EventEmitter from 'events';
 
 import CoolDownPacket from './packets/CoolDownPacket';
-import PixelUpdate from './packets/PixelUpdate';
+import PixelUpdate from './packets/PixelUpdateClient';
+import PixelReturn from './packets/PixelReturn';
 import OnlineCounter from './packets/OnlineCounter';
 import RegisterCanvas from './packets/RegisterCanvas';
 import RegisterChunk from './packets/RegisterChunk';
@@ -130,6 +131,14 @@ class ProtocolClient extends EventEmitter {
     if (~pos) chunks.splice(pos, 1);
   }
 
+  requestPlacePixel(
+    i, j, offset,
+    color,
+  ) {
+    const buffer = PixelUpdate.dehydrate(i, j, offset, color);
+    this.sendWhenReady(buffer);
+  }
+
   requestChatHistory() {
     const buffer = RequestChatHistory.dehydrate();
     if (this.isConnected) this.ws.send(buffer);
@@ -185,6 +194,9 @@ class ProtocolClient extends EventEmitter {
     switch (opcode) {
       case PixelUpdate.OP_CODE:
         this.emit('pixelUpdate', PixelUpdate.hydrate(data));
+        break;
+      case PixelReturn.OP_CODE:
+        this.emit('pixelReturn', PixelReturn.hydrate(data));
         break;
       case OnlineCounter.OP_CODE:
         this.emit('onlineCounter', OnlineCounter.hydrate(data));

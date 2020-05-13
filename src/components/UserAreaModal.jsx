@@ -65,7 +65,7 @@ const LogInArea = ({ register, forgotPassword, me }) => (
         style={logoStyle}
         width={32}
         src={`${window.assetserver}/vklogo.svg`}
-        alt="vk"
+        alt="VK"
       />
     </a>
     <a href="./api/auth/reddit">
@@ -73,7 +73,7 @@ const LogInArea = ({ register, forgotPassword, me }) => (
         style={logoStyle}
         width={32}
         src={`${window.assetserver}/redditlogo.svg`}
-        alt="vk"
+        alt="Reddit"
       />
     </a>
     <h2>or register here:</h2>

@@ -105,8 +105,7 @@ export default (store) => (next) => (action) => {
 
     case 'PLACE_PIXEL': {
       if (mute) break;
-      const { color } = action;
-      const { palette } = state.canvas;
+      const { palette, selectedColor: color } = state.canvas;
       const colorsAmount = palette.colors.length;
 
       const clrFreq = 100 + Math.log(color / colorsAmount + 1) * 300;

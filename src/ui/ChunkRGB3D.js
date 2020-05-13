@@ -87,7 +87,7 @@ class Chunk {
   timestamp: number;
 
   constructor(palette, key, xc, zc) {
-    this.array = [0, xc, zc];
+    this.cell = [0, xc, zc];
     this.key = key;
     this.palette = palette;
     this.timestamp = Date.now();

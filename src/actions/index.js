@@ -163,19 +163,15 @@ export function selectCanvas(canvasId: number): Action {
   };
 }
 
-export function placePixel(coordinates: Cell, color: ColorIndex): Action {
+export function placedPixel(): Action {
   return {
     type: 'PLACE_PIXEL',
-    coordinates,
-    color,
   };
 }
 
-export function pixelWait(coordinates: Cell, color: ColorIndex): Action {
+export function pixelWait(): Action {
   return {
     type: 'PIXEL_WAIT',
-    coordinates,
-    color,
   };
 }
 
@@ -230,92 +226,120 @@ export function notify(notification: string) {
   };
 }
 
-export function requestPlacePixel(
-  canvasId: number,
-  coordinates: Cell,
+let pixelTimeout = null;
+
+export function tryPlacePixel(
+  i: number,
+  j: number,
+  offset: number,
   color: ColorIndex,
-  token: ?string = null,
 ): ThunkAction {
-  const [x, y, z] = coordinates;
-
   return async (dispatch) => {
-    const body = JSON.stringify({
-      cn: canvasId,
-      x,
-      y,
-      z,
-      clr: color,
-      token,
+    pixelTimeout = Date.now() + 5000;
+    await dispatch(setPlaceAllowed(false));
+
+    // TODO:
+    // this is for resending after captcha returned
+    // window is ugly, put it into redux or something
+    window.pixel = {
+      i,
+      j,
+      offset,
+      color,
+    };
+
+    dispatch({
+      type: 'REQUEST_PLACE_PIXEL',
+      i,
+      j,
+      offset,
+      color,
     });
-
-    dispatch(setPlaceAllowed(false));
-    try {
-      const response = await fetch('/api/pixel', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body,
-        // https://github.com/github/fetch/issues/349
-        credentials: 'include',
-      });
-      const {
-        success,
-        waitSeconds,
-        coolDownSeconds,
-        errors,
-        errorTitle,
-      } = await response.json();
-
-      if (waitSeconds) {
-        dispatch(setWait(waitSeconds * 1000));
-      }
-      const coolDownNotify = Math.round(coolDownSeconds);
-      if (coolDownSeconds) {
-        dispatch(notify(coolDownNotify));
-      }
-      if (response.ok) {
-        if (success) {
-          dispatch(placePixel(coordinates, color));
-        } else {
-          dispatch(pixelWait(coordinates, color));
-        }
-        return;
-      }
-
-      if (response.status === 422) {
-        window.pixel = { canvasId, coordinates, color };
-        window.grecaptcha.execute();
-        return;
-      }
-
-      dispatch(pixelFailure());
-      dispatch(sweetAlert(
-        (errorTitle || `Error ${response.status}`),
-        errors[0].msg,
-        'error',
-        'OK',
-      ));
-    } finally {
-      dispatch(setPlaceAllowed(true));
-    }
   };
 }
 
-export function tryPlacePixel(
-  coordinates: Cell,
-  color: ?ColorIndex = null,
+export function receivePixelReturn(
+  retCode: number,
+  wait: number,
+  coolDownSeconds: number,
 ): ThunkAction {
-  return (dispatch, getState) => {
-    const state = getState();
-    const {
-      canvasId,
-    } = state.canvas;
-    const selectedColor = (color === undefined || color === null)
-      ? state.canvas.selectedColor
-      : color;
+  return (dispatch) => {
+    try {
+      if (wait) {
+        dispatch(setWait(wait));
+      }
+      if (coolDownSeconds) {
+        dispatch(notify(coolDownSeconds));
+      }
 
-    dispatch(requestPlacePixel(canvasId, coordinates, selectedColor));
+      let errorTitle = null;
+      let msg = null;
+      switch (retCode) {
+        case 0:
+          dispatch(placedPixel());
+          break;
+        case 1:
+          errorTitle = 'Invalid Canvas';
+          msg = 'This canvas doesn\'t exist';
+          break;
+        case 2:
+          errorTitle = 'Invalid Coordinates';
+          msg = 'x out of bounds';
+          break;
+        case 3:
+          errorTitle = 'Invalid Coordinates';
+          msg = 'y out of bounds';
+          break;
+        case 4:
+          errorTitle = 'Invalid Coordinates';
+          msg = 'z out of bounds';
+          break;
+        case 5:
+          errorTitle = 'Wrong Color';
+          msg = 'Invalid color selected';
+          break;
+        case 6:
+          errorTitle = 'Just for registered Users';
+          msg = 'You have to be logged in to place on this canvas';
+          break;
+        case 7:
+          errorTitle = 'Place more :)';
+          // eslint-disable-next-line max-len
+          msg = 'You can not access this canvas yet. You need to place more pixels';
+          break;
+        case 8:
+          errorTitle = 'Oww noo';
+          msg = 'This pixel is protected.';
+          break;
+        case 9:
+          // pixestack used up
+          dispatch(pixelWait());
+          break;
+        case 10:
+          // captcha
+          window.grecaptcha.execute();
+          break;
+        case 11:
+          errorTitle = 'No Proxies Allowed :(';
+          msg = 'You are using a Proxy.';
+          break;
+        default:
+          errorTitle = 'Weird';
+          msg = 'Couldn\'t set Pixel';
+      }
+      if (msg) {
+        dispatch(pixelFailure());
+        dispatch(sweetAlert(
+          (errorTitle || `Error ${retCode}`),
+          msg,
+          'error',
+          'OK',
+        ));
+      }
+    } finally {
+      pixelTimeout = null;
+      dispatch(setPlaceAllowed(true));
+    }
   };
 }
 
@@ -428,11 +452,11 @@ export function receiveBigChunkFailure(center: Cell, error: Error): Action {
 }
 
 export function receiveCoolDown(
-  waitSeconds: number,
+  wait: number,
 ): Action {
   return {
     type: 'RECEIVE_COOLDOWN',
-    waitSeconds,
+    wait,
   };
 }
 
@@ -565,14 +589,28 @@ function endCoolDown(): Action {
 
 function getPendingActions(state): Array<Action> {
   const actions = [];
+  const now = Date.now();
 
   const { wait } = state.user;
-  if (wait === null || wait === undefined) return actions;
 
-  const coolDown = wait - Date.now();
+  const coolDown = wait - now;
 
-  if (coolDown > 0) actions.push(setCoolDown(coolDown));
-  else actions.push(endCoolDown());
+  if (wait !== null && wait !== undefined) {
+    if (coolDown > 0) actions.push(setCoolDown(coolDown));
+    else actions.push(endCoolDown());
+  }
+
+  if (pixelTimeout && now > pixelTimeout) {
+    actions.push(pixelFailure());
+    pixelTimeout = null;
+    actions.push(setPlaceAllowed(true));
+    actions.push(sweetAlert(
+      'Error :(',
+      'Didn\'t get an answer from pixelplanet. Maybe try to refresh?',
+      'error',
+      'OK',
+    ));
+  }
 
   return actions;
 }

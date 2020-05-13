@@ -1,5 +1,6 @@
 /* @flow */
 
+// eslint-disable-next-line no-unused-vars
 import fetch from 'isomorphic-fetch'; // TODO put in the beggining with webpack!
 
 import './styles/font.css';
@@ -8,14 +9,15 @@ import './styles/font.css';
 import onKeyPress from './controls/keypress';
 import {
   receivePixelUpdate,
-  receiveCoolDown,
   fetchMe,
   fetchStats,
   initTimer,
   urlChange,
   receiveOnline,
+  receiveCoolDown,
   receiveChatMessage,
   receiveChatHistory,
+  receivePixelReturn,
   setMobile,
 } from './actions';
 import store from './ui/store';
@@ -35,8 +37,13 @@ function init() {
   }) => {
     store.dispatch(receivePixelUpdate(i, j, offset, color));
   });
-  ProtocolClient.on('cooldownPacket', (waitSeconds) => {
-    store.dispatch(receiveCoolDown(waitSeconds));
+  ProtocolClient.on('pixelReturn', ({
+    retCode, wait, coolDownSeconds,
+  }) => {
+    store.dispatch(receivePixelReturn(retCode, wait, coolDownSeconds));
+  });
+  ProtocolClient.on('cooldownPacket', (coolDown) => {
+    store.dispatch(receiveCoolDown(coolDown));
   });
   ProtocolClient.on('onlineCounter', ({ online }) => {
     store.dispatch(receiveOnline(online));
@@ -74,27 +81,6 @@ function init() {
 
   store.dispatch(fetchStats());
   setInterval(() => { store.dispatch(fetchStats()); }, 300000);
-
-  // mess with void bot :)
-  function ayylmao() {
-    let cnt = 0;
-    for (let i = 0; i < document.body.children.length; i += 1) {
-      const node = document.body.children[i];
-      if (node.nodeName === 'SCRIPT' && node.src === '') {
-        cnt += 1;
-      }
-    }
-    if (cnt > 1) {
-      document.body.style.setProperty(
-        '-webkit-transform', 'rotate(-180deg)',
-        null,
-      );
-      fetch('https://assets.pixelplanet.fun/iamabot');
-      window.fetch = () => true;
-    }
-  }
-  ayylmao();
-  setInterval(ayylmao, 120000);
 }
 init();
 

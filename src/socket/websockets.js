@@ -6,7 +6,7 @@
  */
 
 import OnlineCounter from './packets/OnlineCounter';
-import PixelUpdate from './packets/PixelUpdate';
+import PixelUpdate from './packets/PixelUpdateServer';
 
 
 class WebSockets {

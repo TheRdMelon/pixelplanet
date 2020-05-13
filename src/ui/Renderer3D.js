@@ -12,6 +12,7 @@ import VoxelPainterControls from '../controls/VoxelPainterControls';
 import ChunkLoader from './ChunkLoader3D';
 import {
   getChunkOfPixel,
+  getOffsetOfPixel,
 } from '../core/utils';
 import {
   THREE_TILE_SIZE,
@@ -458,6 +459,21 @@ class Renderer {
     }
   }
 
+  placeVoxel(x: number, y: number, z: number, color: number = null) {
+    const {
+      store,
+    } = this;
+    const state = store.getState();
+    const {
+      canvasSize,
+      selectedColor,
+    } = state.canvas;
+    const chClr = (color === null) ? selectedColor : color;
+    const [i, j] = getChunkOfPixel(canvasSize, x, y, z);
+    const offset = getOffsetOfPixel(canvasSize, x, y, z);
+    store.dispatch(tryPlacePixel(i, j, offset, chClr));
+  }
+
   multiTapEnd() {
     const {
       store,
@@ -486,7 +502,7 @@ class Renderer {
         if (this.rollOverMesh.position.y < 0) {
           return;
         }
-        store.dispatch(tryPlacePixel([px, py, pz]));
+        this.placeVoxel(px, py, pz);
         break;
       }
       case 2: {
@@ -512,8 +528,8 @@ class Renderer {
             return;
           }
           if (target.clone().sub(camera.position).length() <= 50) {
-            const cell = target.toArray();
-            store.dispatch(tryPlacePixel(cell, 0));
+            const [x, y, z] = target.toArray();
+            this.placeVoxel(x, y, z, 0);
           }
         }
         break;
@@ -602,8 +618,8 @@ class Renderer {
           .addScalar(0.5)
           .floor();
         if (target.clone().sub(camera.position).length() < 120) {
-          const cell = target.toArray();
-          store.dispatch(tryPlacePixel(cell));
+          const [x, y, z] = target.toArray();
+          this.placeVoxel(x, y, z);
         }
       } else if (button === 1) {
         // middle mouse button
@@ -635,8 +651,8 @@ class Renderer {
           return;
         }
         if (target.clone().sub(camera.position).length() < 120) {
-          const cell = target.toArray();
-          store.dispatch(tryPlacePixel(cell, 0));
+          const [x, y, z] = target.toArray();
+          this.placeVoxel(x, y, z, 0);
         }
       }
     }

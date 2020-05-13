@@ -8,13 +8,15 @@ import Counter from '../utils/Counter';
 import RateLimiter from '../utils/RateLimiter';
 import { getIPFromRequest } from '../utils/ip';
 
+import CoolDownPacket from './packets/CoolDownPacket';
+import PixelUpdate from './packets/PixelUpdateServer';
+import PixelReturn from './packets/PixelReturn';
 import RegisterCanvas from './packets/RegisterCanvas';
 import RegisterChunk from './packets/RegisterChunk';
 import RegisterMultipleChunks from './packets/RegisterMultipleChunks';
 import DeRegisterChunk from './packets/DeRegisterChunk';
 import DeRegisterMultipleChunks from './packets/DeRegisterMultipleChunks';
 import RequestChatHistory from './packets/RequestChatHistory';
-import CoolDownPacket from './packets/CoolDownPacket';
 import ChangedMe from './packets/ChangedMe';
 import OnlineCounter from './packets/OnlineCounter';
 
@@ -22,6 +24,14 @@ import chatProvider, { ChatProvider } from '../core/ChatProvider';
 import authenticateClient from './verifyClient';
 import WebSocketEvents from './WebSocketEvents';
 import webSockets from './websockets';
+import { drawSafeByOffset } from '../core/draw';
+
+import redis from '../data/redis';
+import { cheapDetector, blacklistDetector } from '../core/isProxy';
+import {
+  USE_PROXYCHECK,
+  RECAPTCHA_SECRET,
+} from '../core/config';
 
 
 const ipCounter: Counter<string> = new Counter();
@@ -32,10 +42,11 @@ function heartbeat() {
 
 async function verifyClient(info, done) {
   const { req } = info;
+  const { headers } = req;
 
   // Limiting socket connections per ip
   const ip = await getIPFromRequest(req);
-  logger.info(`Got ws request from ${ip}`);
+  logger.info(`Got ws request from ${ip} via ${headers.origin}`);
   if (ipCounter.get(ip) > 50) {
     logger.info(`Client ${ip} has more than 50 connections open.`);
     return done(false);
@@ -81,7 +92,7 @@ class SocketServer extends WebSocketEvents {
       ws.user = user;
       ws.name = (user.regUser) ? user.regUser.name : null;
       ws.rateLimiter = new RateLimiter(20, 15, true);
-      const ip = await getIPFromRequest(req);
+      SocketServer.checkIfProxy(ws);
 
       if (ws.name) {
         ws.send(`"${ws.name}"`);
@@ -91,6 +102,7 @@ class SocketServer extends WebSocketEvents {
         online: this.wss.clients.size || 0,
       }));
 
+      const ip = await getIPFromRequest(req);
       ws.on('error', (e) => {
         logger.error(`WebSocket Client Error for ${ws.name}: ${e.message}`);
       });
@@ -111,9 +123,15 @@ class SocketServer extends WebSocketEvents {
 
     this.onlineCounterBroadcast = this.onlineCounterBroadcast.bind(this);
     this.ping = this.ping.bind(this);
-    this.killOld = this.killOld.bind(this);
 
-    setInterval(this.killOld, 10 * 60 * 1000);
+    /*
+     * i don't tink that we really need that, it just stresses the server
+     * with lots of reconnects at once, the overhead of having a few idle
+     * connections isn't too bad in comparison
+     */
+    // this.killOld = this.killOld.bind(this);
+    // setInterval(this.killOld, 10 * 60 * 1000);
+
     setInterval(this.onlineCounterBroadcast, 10 * 1000);
     // https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
     setInterval(this.ping, 45 * 1000);
@@ -207,7 +225,7 @@ class SocketServer extends WebSocketEvents {
     const now = Date.now();
     this.wss.clients.forEach((ws) => {
       const lifetime = now - ws.startDate;
-      if (lifetime > 30 * 60 * 1000) ws.terminate();
+      if (lifetime > 30 * 60 * 1000 && Math.random() < 0.3) ws.terminate();
     });
   }
 
@@ -225,6 +243,16 @@ class SocketServer extends WebSocketEvents {
   onlineCounterBroadcast() {
     const online = this.wss.clients.size || 0;
     webSockets.broadcastOnlineCounter(online);
+  }
+
+  static async checkIfProxy(ws) {
+    const { ip } = ws.user;
+    if (USE_PROXYCHECK && ip && await cheapDetector(ip)) {
+      return true;
+    } if (await blacklistDetector(ip)) {
+      return true;
+    }
+    return false;
   }
 
   static async onTextMessage(text, ws) {
@@ -247,6 +275,7 @@ class SocketServer extends WebSocketEvents {
       message = message.trim();
 
       if (ws.name && message) {
+        const { user } = ws;
         const waitLeft = ws.rateLimiter.tick();
         if (waitLeft) {
           ws.send(JSON.stringify([
@@ -258,8 +287,22 @@ class SocketServer extends WebSocketEvents {
           ]));
           return;
         }
+        // check proxy
+        if (await SocketServer.checkIfProxy(ws)) {
+          logger.info(
+            `${ws.name} / ${user.ip} tried to send chat message with proxy`,
+          );
+          ws.send(JSON.stringify([
+            'info',
+            'You can not send chat messages with a proxy',
+            'il',
+            channelId,
+          ]));
+          return;
+        }
+        //
         const errorMsg = await chatProvider.sendMessage(
-          ws.user,
+          user,
           message,
           channelId,
         );
@@ -286,7 +329,7 @@ class SocketServer extends WebSocketEvents {
         logger.info('Got empty message or message from unidentified ws');
       }
     } catch {
-      logger.info('Got invalid ws message');
+      logger.info('Got invalid ws text message');
     }
   }
 
@@ -294,52 +337,98 @@ class SocketServer extends WebSocketEvents {
     if (buffer.byteLength === 0) return;
     const opcode = buffer[0];
 
-    switch (opcode) {
-      case RegisterCanvas.OP_CODE: {
-        const canvasId = RegisterCanvas.hydrate(buffer);
-        if (ws.canvasId !== null && ws.canvasId !== canvasId) {
-          this.deleteAllChunks(ws);
+    try {
+      switch (opcode) {
+        case PixelUpdate.OP_CODE: {
+          const { canvasId, user } = ws;
+          if (canvasId === null) {
+            return;
+          }
+          const { ip } = user;
+          // check if captcha needed
+          if (RECAPTCHA_SECRET) {
+            const key = `human:${ip}`;
+            const ttl: number = await redis.ttlAsync(key);
+            if (ttl <= 0) {
+              // need captcha
+              logger.info(`CAPTCHA ${ip} / ${ws.name} got captcha`);
+              ws.send(PixelReturn.dehydrate(10, 0, 0));
+              break;
+            }
+          }
+          // (re)check for Proxy
+          if (await SocketServer.checkIfProxy(ws)) {
+            ws.send(PixelReturn.dehydrate(11, 0, 0));
+            break;
+          }
+          // receive pixels here
+          const {
+            i, j, offset,
+            color,
+          } = PixelUpdate.hydrate(buffer);
+          const {
+            wait,
+            coolDown,
+            retCode,
+          } = await drawSafeByOffset(
+            ws.user,
+            ws.canvasId,
+            color,
+            i, j, offset,
+          );
+          logger.info(`send: ${wait}, ${coolDown}, ${retCode}`);
+          ws.send(PixelReturn.dehydrate(retCode, wait, coolDown));
+          break;
         }
-        ws.canvasId = canvasId;
-        const wait = await ws.user.getWait(canvasId);
-        const waitSeconds = (wait) ? Math.ceil((wait - Date.now()) / 1000) : 0;
-        ws.send(CoolDownPacket.dehydrate(waitSeconds));
-        break;
-      }
-      case RegisterChunk.OP_CODE: {
-        const chunkid = RegisterChunk.hydrate(buffer);
-        this.pushChunk(chunkid, ws);
-        break;
-      }
-      case RegisterMultipleChunks.OP_CODE: {
-        this.deleteAllChunks(ws);
-        let posu = 2;
-        while (posu < buffer.length) {
-          const chunkid = buffer[posu++] | buffer[posu++] << 8;
+        case RegisterCanvas.OP_CODE: {
+          const canvasId = RegisterCanvas.hydrate(buffer);
+          if (ws.canvasId !== null && ws.canvasId !== canvasId) {
+            this.deleteAllChunks(ws);
+          }
+          ws.canvasId = canvasId;
+          const wait = await ws.user.getWait(canvasId);
+          const waitMs = (wait) ? wait - Date.now() : 0;
+          ws.send(CoolDownPacket.dehydrate(waitMs));
+          break;
+        }
+        case RegisterChunk.OP_CODE: {
+          const chunkid = RegisterChunk.hydrate(buffer);
           this.pushChunk(chunkid, ws);
+          break;
         }
-        break;
-      }
-      case DeRegisterChunk.OP_CODE: {
-        const chunkidn = DeRegisterChunk.hydrate(buffer);
-        this.deleteChunk(chunkidn, ws);
-        break;
-      }
-      case DeRegisterMultipleChunks.OP_CODE: {
-        let posl = 2;
-        while (posl < buffer.length) {
-          const chunkid = buffer[posl++] | buffer[posl++] << 8;
-          this.deleteChunk(chunkid, ws);
+        case RegisterMultipleChunks.OP_CODE: {
+          this.deleteAllChunks(ws);
+          let posu = 2;
+          while (posu < buffer.length) {
+            const chunkid = buffer[posu++] | buffer[posu++] << 8;
+            this.pushChunk(chunkid, ws);
+          }
+          break;
         }
-        break;
+        case DeRegisterChunk.OP_CODE: {
+          const chunkidn = DeRegisterChunk.hydrate(buffer);
+          this.deleteChunk(chunkidn, ws);
+          break;
+        }
+        case DeRegisterMultipleChunks.OP_CODE: {
+          let posl = 2;
+          while (posl < buffer.length) {
+            const chunkid = buffer[posl++] | buffer[posl++] << 8;
+            this.deleteChunk(chunkid, ws);
+          }
+          break;
+        }
+        case RequestChatHistory.OP_CODE: {
+          const history = JSON.stringify(chatProvider.history);
+          ws.send(history);
+          break;
+        }
+        default:
+          break;
       }
-      case RequestChatHistory.OP_CODE: {
-        const history = JSON.stringify(chatProvider.history);
-        ws.send(history);
-        break;
-      }
-      default:
-        break;
+    } catch (e) {
+      logger.info('Got invalid ws binary message');
+      throw e;
     }
   }
 

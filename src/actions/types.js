@@ -32,13 +32,20 @@ export type Action =
   | { type: 'SET_HOVER', hover: Cell }
   | { type: 'UNSET_HOVER' }
   | { type: 'SET_WAIT', wait: ?number }
+  | { type: 'RECEIVE_COOLDOWN', wait: number }
   | { type: 'SET_MOBILE', mobile: boolean }
   | { type: 'COOLDOWN_END' }
   | { type: 'COOLDOWN_SET', coolDown: number }
   | { type: 'SELECT_COLOR', color: ColorIndex }
   | { type: 'SELECT_CANVAS', canvasId: number }
-  | { type: 'PLACE_PIXEL', coordinates: Cell, color: ColorIndex, wait: string }
-  | { type: 'PIXEL_WAIT', coordinates: Cell, color: ColorIndex, wait: string }
+  | { type: 'REQUEST_PLACE_PIXEL',
+    i: number,
+    j: number,
+    offset: number,
+    color: ColorIndex,
+  }
+  | { type: 'PLACE_PIXEL' }
+  | { type: 'PIXEL_WAIT' }
   | { type: 'PIXEL_FAILURE' }
   | { type: 'SET_VIEW_COORDINATES', view: Cell }
   | { type: 'SET_SCALE', scale: number, zoompoint: Cell }
@@ -46,7 +53,6 @@ export type Action =
   | { type: 'PRE_LOADED_BIG_CHUNK', center: Cell }
   | { type: 'RECEIVE_BIG_CHUNK', center: Cell }
   | { type: 'RECEIVE_BIG_CHUNK_FAILURE', center: Cell, error: Error }
-  | { type: 'RECEIVE_COOLDOWN', waitSeconds: number }
   | { type: 'RECEIVE_PIXEL_UPDATE',
     i: number,
     j: number,

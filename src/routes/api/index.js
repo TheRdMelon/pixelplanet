@@ -13,7 +13,8 @@ import { getIPFromRequest, getIPv6Subnet } from '../../utils/ip';
 
 import me from './me';
 import mctp from './mctp';
-import pixel from './pixel';
+// import pixel from './pixel';
+import captcha from './captcha';
 import auth from './auth';
 import ranking from './ranking';
 import history from './history';
@@ -63,7 +64,11 @@ router.use((err, req, res, next) => {
  * rate limiting should occure outside,
  * with nginx or whatever
  */
-router.post('/pixel', pixel);
+/* api pixel got deactivated in favor of websocket */
+/* keeping it still here to enable it again if needed */
+// router.post('/pixel', pixel);
+
+router.post('/captcha', captcha);
 
 /*
  * passport authenticate

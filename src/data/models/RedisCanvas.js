@@ -94,16 +94,13 @@ class RedisCanvas {
 
   static async getPixelIfExists(
     canvasId: number,
-    x: number,
-    y: number,
-    z: number = null,
+    i: number,
+    j: number,
+    offset: number,
   ): Promise<number> {
     // 1st bit -> protected or not
     // 2nd bit -> unused
     // rest (6 bits) -> index of color
-    const canvasSize = canvases[canvasId].size;
-    const [i, j] = getChunkOfPixel(canvasSize, x, y, z);
-    const offset = getOffsetOfPixel(canvasSize, x, y, z);
     const args = [
       `ch:${canvasId}:${i}:${j}`,
       'GET',
@@ -116,13 +113,27 @@ class RedisCanvas {
     return color;
   }
 
+  static async getPixelByOffset(
+    canvasId: number,
+    i: number,
+    j: number,
+    offset: number,
+  ): Promise<number> {
+    const clr = RedisCanvas.getPixelIfExists(canvasId, i, j, offset);
+    return (clr == null) ? 0 : clr;
+  }
+
   static async getPixel(
     canvasId: number,
     x: number,
     y: number,
     z: number = null,
   ): Promise<number> {
-    const clr = RedisCanvas.getPixelIfExists(canvasId, x, y, z);
+    const canvasSize = canvases[canvasId].size;
+    const [i, j] = getChunkOfPixel(canvasSize, x, y, z);
+    const offset = getOffsetOfPixel(canvasSize, x, y, z);
+
+    const clr = RedisCanvas.getPixelIfExists(canvasId, i, j, offset);
     return (clr == null) ? 0 : clr;
   }
 }

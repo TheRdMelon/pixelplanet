@@ -18,6 +18,9 @@ import ProtocolClient from '../socket/ProtocolClient';
 import { saveSelection, restoreSelection } from '../utils/storeSelection';
 import splitChatMessage from '../core/chatMessageFilter';
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
 
 const Chat = ({
   chatMessages,
@@ -50,7 +53,7 @@ const Chat = ({
 
   useEffect(() => {
     const regExp = (ownName)
-      ? new RegExp(`(^|\\s+)(@${ownName})(\\s+|$)`, 'g')
+      ? new RegExp(`(^|\\s+)(@${escapeRegExp(ownName)})(\\s+|$)`, 'g')
       : null;
     setNameRegExp(regExp);
   }, [ownName]);
