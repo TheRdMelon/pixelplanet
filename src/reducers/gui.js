@@ -1,14 +1,12 @@
 /* @flow */
 
 import type { Action } from '../actions/types';
-import type { ColorIndex } from '../core/Palette';
 import type { Cell } from '../core/Cell';
 
 
 export type GUIState = {
   showGrid: boolean,
   showPixelNotify: boolean,
-  selectedColor: ColorIndex,
   hover: ?Cell,
   pixelsPlaced: number,
   autoZoomIn: boolean,
@@ -24,7 +22,6 @@ export type GUIState = {
 const initialState: GUIState = {
   showGrid: false,
   showPixelNotify: false,
-  selectedColor: 3,
   hover: null,
   pixelsPlaced: 0,
   autoZoomIn: false,
@@ -127,14 +124,6 @@ export default function gui(
       return {
         ...state,
         paletteOpen,
-        selectedColor: action.color,
-      };
-    }
-
-    case 'SELECT_CANVAS': {
-      return {
-        ...state,
-        selectedColor: 2,
       };
     }
 

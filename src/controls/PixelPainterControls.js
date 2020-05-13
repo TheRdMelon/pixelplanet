@@ -121,13 +121,14 @@ export function initControls(renderer, viewport: HTMLCanvasElement, curStore) {
 
   hammertime.on('tap', ({ center }) => {
     const state = store.getState();
-    const { autoZoomIn, selectedColor } = state.gui;
+    const { autoZoomIn } = state.gui;
     const { placeAllowed } = state.user;
-
     const {
       scale,
       isHistoricalView,
+      selectedColor,
     } = state.canvas;
+
     if (isHistoricalView) return;
 
     const { x, y } = center;

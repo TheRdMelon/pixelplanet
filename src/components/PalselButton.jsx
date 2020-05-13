@@ -30,8 +30,8 @@ const PalselButton = ({
 
 // TODO simplify...
 function mapStateToProps(state: State) {
-  const { selectedColor, paletteOpen } = state.gui;
-  const { palette } = state.canvas;
+  const { paletteOpen } = state.gui;
+  const { palette, selectedColor } = state.canvas;
   return { palette, selectedColor, paletteOpen };
 }
 

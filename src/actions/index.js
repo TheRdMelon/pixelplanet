@@ -312,7 +312,7 @@ export function tryPlacePixel(
       canvasId,
     } = state.canvas;
     const selectedColor = (color === undefined || color === null)
-      ? state.gui.selectedColor
+      ? state.canvas.selectedColor
       : color;
 
     dispatch(requestPlacePixel(canvasId, coordinates, selectedColor));

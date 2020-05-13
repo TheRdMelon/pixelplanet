@@ -47,7 +47,7 @@ function getStylesByWindowSize(
     paletteCols = (windowHeight < 801) ? 2 : 1;
     flexDirection = 'column';
   }
-  const height = Math.ceil(numCal * spanSize / paletteCols);
+  const height = Math.ceil(numCal / paletteCols) * spanSize;
   const width = spanSize * paletteCols;
 
   if (!paletteOpen) {
@@ -148,8 +148,8 @@ function Palette({
 }
 
 function mapStateToProps(state: State) {
-  const { selectedColor, paletteOpen, compactPalette } = state.gui;
-  const { palette, clrIgnore } = state.canvas;
+  const { paletteOpen, compactPalette } = state.gui;
+  const { palette, clrIgnore, selectedColor } = state.canvas;
   return {
     colors: palette.colors,
     selectedColor,

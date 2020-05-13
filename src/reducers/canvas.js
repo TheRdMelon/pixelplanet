@@ -2,6 +2,7 @@
 
 import type { Action } from '../actions/types';
 import type { Cell } from '../core/Cell';
+import type { ColorIndex } from '../core/Palette';
 import Palette from '../core/Palette';
 import {
   getMaxTiledZoom,
@@ -21,6 +22,7 @@ import {
 export type CanvasState = {
   canvasId: number,
   canvasIdent: string,
+  selectedColor: ColorIndex,
   is3D: boolean,
   canvasSize: number,
   canvasMaxTiledZoom: number,
@@ -133,6 +135,7 @@ function getViewFromURL(canvases: Object) {
 const initialState: CanvasState = {
   ...getViewFromURL(DEFAULT_CANVASES),
   fetchs: 0,
+  selectedColor: 3,
   isHistoricalView: false,
   historicalDate: null,
   historicalTime: null,
@@ -258,6 +261,13 @@ export default function canvasReducer(
       };
     }
 
+    case 'SELECT_COLOR': {
+      return {
+        ...state,
+        selectedColor: action.color,
+      };
+    }
+
     case 'SELECT_CANVAS': {
       let { canvasId } = action;
       const { canvases, isHistoricalView } = state;
@@ -285,6 +295,7 @@ export default function canvasReducer(
         ...state,
         canvasId,
         canvasIdent,
+        selectedColor: clrIgnore,
         canvasSize,
         is3D,
         canvasStartDate,
