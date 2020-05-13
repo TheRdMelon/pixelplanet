@@ -14,10 +14,8 @@ import type { State } from '../reducers';
 
 const CoolDownBox = ({ coolDown }) => (
   <div
-    className="cooldownbox"
-    style={{
-      display: (coolDown >= 1000) ? 'block' : 'none',
-    }}
+    className={(coolDown && coolDown >= 300)
+      ? 'cooldownbox show' : 'cooldownbox'}
   >
     {coolDown && durationToString(coolDown, true)}
   </div>

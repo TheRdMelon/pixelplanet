@@ -469,7 +469,7 @@ tr:nth-child(even) {
   opacity: 0;
 }
 
-.notifybox.show {
+.notifybox.show, .cooldownbox.show {
   visibility: visible;
   opacity: 1;
 }
@@ -494,6 +494,9 @@ tr:nth-child(even) {
   margin-left: auto;
   margin-right: auto;
   z-index: 2;
+  transition: visibility 0.3s, opacity 0.3s linear;
+  visibility: hidden;
+  opacity: 0;
 }
 
 .actionbuttons {

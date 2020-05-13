@@ -163,7 +163,7 @@ export function durationToString(
   ms: number,
   smallest: boolean = false,
 ): string {
-  const seconds = Math.floor(ms / 1000);
+  const seconds = Math.ceil(ms / 1000);
   let timestring: string;
   if (seconds < 60 && smallest) {
     timestring = seconds;
