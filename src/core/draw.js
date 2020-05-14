@@ -82,8 +82,6 @@ export async function drawByOffset(
   let coolDown = 0;
   let retCode = 0;
 
-  logger.info(`Got request for ${canvasId} ${i} ${j} ${offset} ${color}`);
-
   const canvas = canvases[canvasId];
   if (!canvas) {
     // canvas doesn't exist

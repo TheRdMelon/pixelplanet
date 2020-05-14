@@ -376,7 +376,6 @@ class SocketServer extends WebSocketEvents {
             color,
             i, j, offset,
           );
-          logger.info(`send: ${wait}, ${coolDown}, ${retCode}`);
           ws.send(PixelReturn.dehydrate(retCode, wait, coolDown));
           break;
         }
