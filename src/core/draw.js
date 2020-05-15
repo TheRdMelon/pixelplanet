@@ -109,7 +109,9 @@ export async function drawByOffset(
       // z out of bounds or weird stuff
       throw new Error(4);
     }
-    if (color >= canvas.colors.length || color < canvas.cli) {
+    if (color >= canvas.colors.length
+      || (color < canvas.cli && !(canvas.v && color === 0))
+    ) {
       // color out of bounds
       throw new Error(5);
     }
