@@ -17,7 +17,7 @@
  */
 const linkRegExp = /(#[a-z]*,-?[0-9]*,-?[0-9]*(,-?[0-9]+)?)/gi;
 const linkRegExpFilter = (val, ind) => ((ind % 3) !== 2);
-const mentionRegExp = /(^|\s+)(@\S+)/g;
+const mentionRegExp = /(^|\s)(@\S+)/g;
 const spaceFilter = (val, ind) => (val !== ' ' && (ind !== 0 | val !== ''));
 
 function splitChatMessageRegexp(

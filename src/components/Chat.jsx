@@ -53,7 +53,7 @@ const Chat = ({
 
   useEffect(() => {
     const regExp = (ownName)
-      ? new RegExp(`(^|\\s+)(@${escapeRegExp(ownName)})(\\s+|$)`, 'g')
+      ? new RegExp(`(^|\\s)(@${escapeRegExp(ownName)})(\\s|$)`, 'g')
       : null;
     setNameRegExp(regExp);
   }, [ownName]);
