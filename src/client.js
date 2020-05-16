@@ -142,8 +142,9 @@ window.onCaptcha = async function onCaptcha(token: string) {
 
   if (typeof window.hcaptcha !== 'undefined') {
     window.hcaptcha.reset();
-    const body = document.getElementsByTagName("BODY")[0];
-    body.style.overflow = 'hidden';
+    const domBody = document.getElementsByTagName('BODY')[0];
+    domBody.style.overflowY = null;
+    domBody.style.overflow = 'hidden';
   } else {
     window.grecaptcha.reset();
   }
