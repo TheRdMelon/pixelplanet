@@ -38,7 +38,7 @@ class ProtocolClient extends EventEmitter {
     this.isConnected = false;
     this.ws = null;
     this.name = null;
-    this.canvasId = null;
+    this.canvasId = '0';
     this.msgQueue = [];
   }
 
@@ -105,7 +105,11 @@ class ProtocolClient extends EventEmitter {
   }
 
   setCanvas(canvasId) {
-    if (this.canvasId === canvasId || canvasId === null) {
+    /* canvasId can be string or integer, thanks to
+     * JSON not allowing integer keys
+     */
+    // eslint-disable-next-line eqeqeq
+    if (this.canvasId == canvasId || canvasId === null) {
       return;
     }
     console.log('Notify websocket server that we changed canvas');

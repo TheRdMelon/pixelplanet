@@ -62,10 +62,10 @@ export default async (req: Request, res: Response) => {
     return;
   }
 
-  const ip = await getIPFromRequest(req);
+  const ip = getIPFromRequest(req);
   logger.info(`Created new user ${name} ${email} ${ip}`);
 
-  const user = req.noauthUser;
+  const { user } = req;
   user.id = newuser.id;
   user.regUser = newuser;
   const me = await getMe(user);

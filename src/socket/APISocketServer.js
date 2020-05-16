@@ -27,7 +27,7 @@ function heartbeat() {
 async function verifyClient(info, done) {
   const { req } = info;
   const { headers } = req;
-  const ip = await getIPFromRequest(req);
+  const ip = getIPFromRequest(req);
 
   if (!headers.authorization
     || headers.authorization !== `Bearer ${APISOCKET_KEY}`) {

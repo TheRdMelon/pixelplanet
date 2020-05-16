@@ -14,7 +14,7 @@ import { cheapDetector } from '../../core/isProxy';
 
 
 export default async (req: Request, res: Response) => {
-  const user = req.user || req.noauthUser;
+  const { user } = req;
   const userdata = await getMe(user);
   user.updateLogInTimestamp();
 

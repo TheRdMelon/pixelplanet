@@ -8,12 +8,11 @@ import bodyParser from 'body-parser';
 import session from '../../core/session';
 import passport from '../../core/passport';
 import logger from '../../core/logger';
-import { User } from '../../data/models';
-import { getIPFromRequest, getIPv6Subnet } from '../../utils/ip';
+import User from '../../data/models/User';
+import { getIPFromRequest } from '../../utils/ip';
 
 import me from './me';
 import mctp from './mctp';
-// import pixel from './pixel';
 import captcha from './captcha';
 import auth from './auth';
 import ranking from './ranking';
@@ -27,27 +26,6 @@ router.get('/ranking', ranking);
 
 router.get('/history', history);
 
-/*
- * get user session
- */
-router.use(session);
-
-/*
- * create dummy user that has just ip and id
- * (cut IPv6 to subnet to prevent abuse)
- */
-router.use(async (req, res, next) => {
-  const { session: sess } = req;
-  const id = (sess.passport && sess.passport.user)
-    ? sess.passport.user : null;
-  const ip = await getIPFromRequest(req);
-  const trueIp = ip || '0.0.0.1';
-  req.trueIp = trueIp;
-  const user = new User(id, getIPv6Subnet(trueIp));
-  req.noauthUser = user;
-  next();
-});
-
 router.use(bodyParser.json());
 
 router.use((err, req, res, next) => {
@@ -60,15 +38,20 @@ router.use((err, req, res, next) => {
   }
 });
 
-/*
- * rate limiting should occure outside,
- * with nginx or whatever
- */
-/* api pixel got deactivated in favor of websocket */
-/* keeping it still here to enable it again if needed */
-// router.post('/pixel', pixel);
-
+// captcah doesn't need a user
 router.post('/captcha', captcha);
+
+/*
+ * get user session
+ */
+router.use(session);
+
+/*
+ * at this point we could use the session id to get
+ * stuff without having to verify the whole user,
+ * which would avoid SQL requests and it got used previously
+ * when we set pixels via api/pixel (new removed)
+*/
 
 /*
  * passport authenticate
@@ -78,6 +61,17 @@ router.post('/captcha', captcha);
  */
 router.use(passport.initialize());
 router.use(passport.session());
+
+/*
+ * create dummy user with just ip if not
+ * logged in
+ */
+router.use((req, res, next) => {
+  if (!req.user) {
+    req.user = new User(null, getIPFromRequest(req));
+  }
+  next();
+});
 
 router.get('/me', me);
 

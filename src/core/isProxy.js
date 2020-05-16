@@ -9,6 +9,8 @@ import { getIPv6Subnet } from '../utils/ip';
 import { Blacklist, Whitelist } from '../data/models';
 import { proxyLogger } from './logger';
 
+import { USE_PROXYCHECK } from './config';
+
 const logger = proxyLogger;
 
 
@@ -204,7 +206,10 @@ async function withCache(f, ip) {
 }
 
 export function cheapDetector(ip: string): Promise<boolean> {
-  return withCache(getProxyCheck, ip);
+  if (USE_PROXYCHECK) {
+    return withCache(getProxyCheck, ip);
+  }
+  return withCache(dummy, ip);
 }
 
 export function strongDetector(ip: string): Promise<boolean> {
@@ -214,5 +219,3 @@ export function strongDetector(ip: string): Promise<boolean> {
 export function blacklistDetector(ip: string): Promise<boolean> {
   return withCache(dummy, ip);
 }
-
-// export default cheapDetector;

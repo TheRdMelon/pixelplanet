@@ -13,6 +13,7 @@ import logger from '../../core/logger';
 
 import Model from '../sequelize';
 import RegUser from './RegUser';
+import { getIPv6Subnet } from '../../utils/ip';
 
 import { ADMIN_IDS } from '../../core/config';
 
@@ -27,6 +28,7 @@ class User {
     // id should stay null if unregistered, and user email if registered
     this.id = id;
     this.ip = ip;
+    this.ipSub = getIPv6Subnet(ip);
     this.wait = null;
     this.regUser = null;
   }
@@ -50,7 +52,7 @@ class User {
     if (!coolDown) return false;
     this.wait = Date.now() + coolDown;
     // PX is milliseconds expire
-    await redis.setAsync(`cd:${canvasId}:ip:${this.ip}`, '', 'PX', coolDown);
+    await redis.setAsync(`cd:${canvasId}:ip:${this.ipSub}`, '', 'PX', coolDown);
     if (this.id != null) {
       await redis.setAsync(`cd:${canvasId}:id:${this.id}`, '', 'PX', coolDown);
     }
@@ -58,7 +60,7 @@ class User {
   }
 
   async getWait(canvasId: number): Promise<?number> {
-    let ttl: number = await redis.pttlAsync(`cd:${canvasId}:ip:${this.ip}`);
+    let ttl: number = await redis.pttlAsync(`cd:${canvasId}:ip:${this.ipSub}`);
     if (this.id != null && ttl < 0) {
       const ttlid: number = await redis.pttlAsync(
         `cd:${canvasId}:id:${this.id}`,

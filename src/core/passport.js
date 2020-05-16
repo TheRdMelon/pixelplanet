@@ -18,17 +18,15 @@ import { sanitizeName } from '../utils/validation';
 import { User, RegUser } from '../data/models';
 import { auth } from './config';
 import { compareToHash } from '../utils/hash';
+import { getIPFromRequest } from '../utils/ip';
 
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser((req, id, done) => {
-  // req.noauthUser already get populated with id and ip in routes/api/index to allow
-  // some api requests (pixel) to not require this sql deserlialize
-  // but still know the id
-  const user = (req.noauthUser) ? req.noauthUser : new User(id);
+passport.deserializeUser(async (req, id, done) => {
+  const user = new User(id, getIPFromRequest(req));
   if (id) {
     RegUser.findOne({ where: { id } }).then((reguser) => {
       if (reguser) {

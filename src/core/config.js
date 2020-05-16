@@ -89,9 +89,9 @@ export const ads = {
   },
 };
 
-export const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET || false;
-export const RECAPTCHA_SITEKEY = process.env.RECAPTCHA_SITEKEY || false;
+export const CAPTCHA_SECRET = process.env.CAPTCHA_SECRET || false;
+export const CAPTCHA_SITEKEY = process.env.CAPTCHA_SITEKEY || false;
 // time on which to display captcha in minutes
-export const RECAPTCHA_TIME = parseInt(process.env.RECAPTCHA_TIME, 10) || 30;
+export const CAPTCHA_TIME = parseInt(process.env.CAPTCHA_TIME, 10) || 30;
 
 export const SESSION_SECRET = process.env.SESSION_SECRET || 'dummy';

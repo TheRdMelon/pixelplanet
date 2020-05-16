@@ -8,50 +8,17 @@
 import type { Request, Response } from 'express';
 
 import logger from '../../core/logger';
-import redis from '../../data/redis';
-import verifyCaptcha from '../../utils/recaptcha';
-
-import {
-  RECAPTCHA_SECRET,
-  RECAPTCHA_TIME,
-} from '../../core/config';
-
-const TTL_CACHE = RECAPTCHA_TIME * 60; // seconds
+import { verifyCaptcha } from '../../utils/captcha';
+import { getIPFromRequest } from '../../utils/ip';
 
 export default async (req: Request, res: Response) => {
-  if (!RECAPTCHA_SECRET) {
-    res.status(200)
-      .json({
-        errors: [{
-          msg:
-        'No need for a captcha here',
-        }],
-      });
-    return;
-  }
-
-  const user = req.user || req.noauthUser;
-  const { ip } = user;
+  const ip = getIPFromRequest(req);
 
   try {
     const { token } = req.body;
     if (!token) {
       res.status(400)
         .json({ errors: [{ msg: 'No token given' }] });
-      return;
-    }
-
-    const key = `human:${ip}`;
-
-    const ttl: number = await redis.ttlAsync(key);
-    if (ttl > 0) {
-      res.status(400)
-        .json({
-          errors: [{
-            msg:
-          'Why would you even want to solve a captcha?',
-          }],
-        });
       return;
     }
 
@@ -66,9 +33,6 @@ export default async (req: Request, res: Response) => {
         });
       return;
     }
-
-    // save to cache
-    await redis.setAsync(key, 'y', 'EX', TTL_CACHE);
 
     res.status(200)
       .json({ success: true });

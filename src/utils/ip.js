@@ -25,10 +25,11 @@ export function getHostFromRequest(req): ?string {
   return `${proto}://${host}`;
 }
 
-export async function getIPFromRequest(req): ?string {
+export function getIPFromRequest(req): ?string {
   const { socket, connection, headers } = req;
 
-  const conip = (connection ? connection.remoteAddress : socket.remoteAddress);
+  let conip = (connection ? connection.remoteAddress : socket.remoteAddress);
+  conip = conip || '0.0.0.1';
 
   if (USE_XREALIP) {
     const ip = headers['x-real-ip'];
@@ -48,9 +49,7 @@ export async function getIPFromRequest(req): ?string {
   while (isTrustedProxy(ip) && ipList.length) {
     ip = ipList.pop();
   }
-
-  // logger.info('Proxied Connection allowed', ip, forwardedFor);
-  return ip;
+  return ip || conip;
 }
 
 export function getIPv6Subnet(ip: string): string {

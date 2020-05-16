@@ -19,6 +19,7 @@ import {
   receiveChatHistory,
   receivePixelReturn,
   setMobile,
+  tryPlacePixel,
 } from './actions';
 import store from './ui/store';
 
@@ -116,3 +117,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   setInterval(runGC, 300000);
 });
+
+
+// on captcha received
+// TODO: this really isn't beautiful
+window.onCaptcha = async function onCaptcha(token: string) {
+  const body = JSON.stringify({
+    token,
+  });
+  await fetch('/api/captcha', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+    // https://github.com/github/fetch/issues/349
+    credentials: 'include',
+  });
+
+  const {
+    i, j, offset, color,
+  } = window.pixel;
+  store.dispatch(tryPlacePixel(i, j, offset, color));
+
+  window.grecaptcha.reset();
+};

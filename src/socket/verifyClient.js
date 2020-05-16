@@ -6,26 +6,12 @@ import express from 'express';
 
 import session from '../core/session';
 import passport from '../core/passport';
-import { User } from '../data/models';
-import { getIPFromRequest, getIPv6Subnet } from '../utils/ip';
+import User from '../data/models/User';
+import { getIPFromRequest } from '../utils/ip';
 
 const router = express.Router();
 
 router.use(session);
-
-/*
- * create dummy user that has just ip and id
- * (cut IPv6 to subnet to prevent abuse)
- */
-router.use(async (req, res, next) => {
-  const ip = await getIPFromRequest(req);
-  const trueIp = ip || '0.0.0.1';
-  req.trueIp = trueIp;
-  const user = new User(null, getIPv6Subnet(trueIp));
-  req.noauthUser = user;
-  next();
-});
-
 
 router.use(passport.initialize());
 router.use(passport.session());
@@ -34,9 +20,10 @@ router.use(passport.session());
 function authenticateClient(req) {
   return new Promise(
     ((resolve) => {
-      router(req, {}, () => {
-        const user = req.user || req.noauthUser;
+      router(req, {}, async () => {
         const country = req.headers['cf-ipcountry'];
+        const user = (req.user) ? req.user
+          : new User(null, getIPFromRequest(req));
         user.country = country.toLowerCase();
         resolve(user);
       });

@@ -11,7 +11,7 @@
 /* eslint-disable max-len */
 
 import React from 'react';
-import { analytics, RECAPTCHA_SITEKEY } from '../core/config';
+import { CAPTCHA_SITEKEY } from '../core/config';
 
 const Html = ({
   title,
@@ -48,10 +48,16 @@ const Html = ({
           dangerouslySetInnerHTML={{ __html: style.cssText }}
         />
       ))}
-      {RECAPTCHA_SITEKEY && useRecaptcha
-          // eslint-disable-next-line react/no-danger
-          && <script dangerouslySetInnerHTML={{ __html: `window.sitekey="${RECAPTCHA_SITEKEY}"` }} />}
-      {RECAPTCHA_SITEKEY && useRecaptcha && <script src="https://www.google.com/recaptcha/api.js" async defer />}
+      {CAPTCHA_SITEKEY && useRecaptcha
+          && (
+          <div
+            className="g-recaptcha"
+            data-sitekey={CAPTCHA_SITEKEY}
+            data-callback="onCaptcha"
+            data-size="invisible"
+          />
+          )}
+      {CAPTCHA_SITEKEY && useRecaptcha && <script src="https://www.google.com/recaptcha/api.js" async defer />}
       {code && (
       <script
         // eslint-disable-next-line react/no-danger
@@ -67,19 +73,6 @@ const Html = ({
         {body}
       </div>
       {scripts && scripts.map((script) => <script key={script} src={script} />)}
-      {analytics.google.trackingId
-      && (
-      <script
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html:
-        'window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;'
-        + `ga('create','${analytics.google.trackingId}','auto');ga('send','pageview')`,
-        }}
-      />
-      )}
-      {analytics.google.trackingId
-        && <script src="https://www.google-analytics.com/analytics.js" async defer />}
     </body>
   </html>
 );

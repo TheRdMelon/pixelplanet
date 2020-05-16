@@ -25,13 +25,8 @@ import authenticateClient from './verifyClient';
 import WebSocketEvents from './WebSocketEvents';
 import webSockets from './websockets';
 import { drawSafeByOffset } from '../core/draw';
-
-import redis from '../data/redis';
-import { cheapDetector, blacklistDetector } from '../core/isProxy';
-import {
-  USE_PROXYCHECK,
-  RECAPTCHA_SECRET,
-} from '../core/config';
+import { needCaptcha } from '../utils/captcha';
+import { cheapDetector } from '../core/isProxy';
 
 
 const ipCounter: Counter<string> = new Counter();
@@ -45,7 +40,7 @@ async function verifyClient(info, done) {
   const { headers } = req;
 
   // Limiting socket connections per ip
-  const ip = await getIPFromRequest(req);
+  const ip = getIPFromRequest(req);
   logger.info(`Got ws request from ${ip} via ${headers.origin}`);
   if (ipCounter.get(ip) > 50) {
     logger.info(`Client ${ip} has more than 50 connections open.`);
@@ -92,7 +87,7 @@ class SocketServer extends WebSocketEvents {
       ws.user = user;
       ws.name = (user.regUser) ? user.regUser.name : null;
       ws.rateLimiter = new RateLimiter(20, 15, true);
-      SocketServer.checkIfProxy(ws);
+      cheapDetector(user.ip);
 
       if (ws.name) {
         ws.send(`"${ws.name}"`);
@@ -102,7 +97,7 @@ class SocketServer extends WebSocketEvents {
         online: this.wss.clients.size || 0,
       }));
 
-      const ip = await getIPFromRequest(req);
+      const ip = getIPFromRequest(req);
       ws.on('error', (e) => {
         logger.error(`WebSocket Client Error for ${ws.name}: ${e.message}`);
       });
@@ -245,16 +240,6 @@ class SocketServer extends WebSocketEvents {
     webSockets.broadcastOnlineCounter(online);
   }
 
-  static async checkIfProxy(ws) {
-    const { ip } = ws.user;
-    if (USE_PROXYCHECK && ip && await cheapDetector(ip)) {
-      return true;
-    } if (await blacklistDetector(ip)) {
-      return true;
-    }
-    return false;
-  }
-
   static async onTextMessage(text, ws) {
     try {
       let message;
@@ -288,7 +273,7 @@ class SocketServer extends WebSocketEvents {
           return;
         }
         // check proxy
-        if (await SocketServer.checkIfProxy(ws)) {
+        if (await cheapDetector(ws)) {
           logger.info(
             `${ws.name} / ${user.ip} tried to send chat message with proxy`,
           );
@@ -346,18 +331,13 @@ class SocketServer extends WebSocketEvents {
           }
           const { ip } = user;
           // check if captcha needed
-          if (RECAPTCHA_SECRET) {
-            const key = `human:${ip}`;
-            const ttl: number = await redis.ttlAsync(key);
-            if (ttl <= 0) {
-              // need captcha
-              logger.info(`CAPTCHA ${ip} / ${ws.name} got captcha`);
-              ws.send(PixelReturn.dehydrate(10, 0, 0));
-              break;
-            }
+          if (await needCaptcha(ip)) {
+            // need captcha
+            ws.send(PixelReturn.dehydrate(10, 0, 0));
+            break;
           }
           // (re)check for Proxy
-          if (await SocketServer.checkIfProxy(ws)) {
+          if (await cheapDetector(ip)) {
             ws.send(PixelReturn.dehydrate(11, 0, 0));
             break;
           }
