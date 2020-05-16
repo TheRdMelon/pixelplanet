@@ -273,7 +273,7 @@ class SocketServer extends WebSocketEvents {
           return;
         }
         // check proxy
-        if (await cheapDetector(ws)) {
+        if (await cheapDetector(user.ip)) {
           logger.info(
             `${ws.name} / ${user.ip} tried to send chat message with proxy`,
           );

@@ -49,25 +49,7 @@ const Html = ({
         />
       ))}
       {(CAPTCHA_METHOD === 1) && CAPTCHA_SITEKEY && useCaptcha
-          && (
-          <div
-            className="g-recaptcha"
-            data-sitekey={CAPTCHA_SITEKEY}
-            data-callback="onCaptcha"
-            data-size="invisible"
-          />
-          )}
-      {(CAPTCHA_METHOD === 1) && CAPTCHA_SITEKEY && useCaptcha
           && <script src="https://www.google.com/recaptcha/api.js" async defer />}
-      {(CAPTCHA_METHOD === 2) && CAPTCHA_SITEKEY && useCaptcha
-          && (
-          <div
-            className="h-captcha"
-            data-sitekey={CAPTCHA_SITEKEY}
-            data-callback="onCaptcha"
-            data-size="invisible"
-          />
-          )}
       {(CAPTCHA_METHOD === 2) && CAPTCHA_SITEKEY && useCaptcha
           && <script src="https://hcaptcha.com/1/api.js" async defer />}
       {code && (
@@ -85,6 +67,24 @@ const Html = ({
         {body}
       </div>
       {scripts && scripts.map((script) => <script key={script} src={script} />)}
+      {(CAPTCHA_METHOD === 2) && CAPTCHA_SITEKEY && useCaptcha
+          && (
+          <div
+            className="h-captcha"
+            data-sitekey={CAPTCHA_SITEKEY}
+            data-callback="onCaptcha"
+            data-size="invisible"
+          />
+          )}
+      {(CAPTCHA_METHOD === 1) && CAPTCHA_SITEKEY && useCaptcha
+          && (
+          <div
+            className="g-recaptcha"
+            data-sitekey={CAPTCHA_SITEKEY}
+            data-callback="onCaptcha"
+            data-size="invisible"
+          />
+          )}
     </body>
   </html>
 );
