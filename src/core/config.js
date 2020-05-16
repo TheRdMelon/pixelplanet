@@ -82,13 +82,10 @@ export const auth = {
   },
 };
 
-
-export const ads = {
-  adsense: {
-    id: 'ca-pub-41116611299745444',
-  },
-};
-
+// o: none
+// 1: reCaptcha
+// 2: hCaptcha
+export const CAPTCHA_METHOD = Number(process.env.CAPTCHA_METHOD || 0);
 export const CAPTCHA_SECRET = process.env.CAPTCHA_SECRET || false;
 export const CAPTCHA_SITEKEY = process.env.CAPTCHA_SITEKEY || false;
 // time on which to display captcha in minutes

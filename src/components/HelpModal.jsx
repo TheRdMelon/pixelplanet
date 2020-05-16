@@ -52,12 +52,22 @@ const HelpModal = () => (
     <p className="modaltext">Left Click or tap to place a pixel</p>
     <p className="modaltext">Right Click of double tap to remove a pixel</p>
     <p>Partners: <a href="https://www.crazygames.com/c/io" target="_blank" rel="noopener noreferrer">crazygames.com</a></p>
-    <p className="modaltext">
-      <small>This site is protected by reCAPTCHA and the Google
-        <a href="https://policies.google.com/privacy">Privacy Policy</a> and
-        <a href="https://policies.google.com/terms">Terms of Service</a> apply.
-      </small>
-    </p>
+    { (typeof window.hcaptcha === 'undefined')
+      ? (
+        <p className="modaltext">
+          <small>This site is protected by reCAPTCHA and the Google&nbsp;
+            <a href="https://policies.google.com/privacy">Privacy Policy</a> and&nbsp;
+            <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+          </small>
+        </p>
+      ) : (
+        <p className="modaltext">
+          <small>This site is protected by hCAPTCHA and its&nbsp;
+            <a href="https://hcaptcha.com/privacy">Privacy Policy</a>and&nbsp;
+            <a href="https://hcaptcha.com/terms">Terms of Service</a>apply.
+          </small>
+        </p>
+      )}
   </p>
 );
 

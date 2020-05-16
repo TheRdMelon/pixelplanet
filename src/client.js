@@ -140,5 +140,9 @@ window.onCaptcha = async function onCaptcha(token: string) {
   } = window.pixel;
   store.dispatch(tryPlacePixel(i, j, offset, color));
 
-  window.grecaptcha.reset();
+  if (typeof window.hcaptcha !== 'undefined') {
+    window.hcaptcha.reset();
+  } else {
+    window.grecaptcha.reset();
+  }
 };

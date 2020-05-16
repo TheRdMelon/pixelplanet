@@ -81,10 +81,11 @@ Configuration takes place in the environment variables that are defined in ecosy
 | USE_PROXYCHECK    | Check users for Proxies               | 0                  |
 | APISOCKET_KEY     | Key for API Socket for SpecialAccess™ | "SDfasife3"        |
 | ADMIN_IDS         | Ids of users with Admin rights        | "1,12,3"           |
-| RECAPTCHA_SECRET  | reCaptcha secret key                  | "asdieewff"        |
-| RECAPTCHA_SITEKEY | reCaptcha site key                    | "23ksdfssd"        |
-| RECAPTCHA_TIME    | time in minutes between captchas      | 30                 |
-| SESSION_SECRET    | random sting for expression sessions  | "ayylmao"          |
+| CAPTCHA_METHOD    | 0: none, 1: reCaptcha, 2: hCaptcha    | 2                  |
+| CAPTCHA_SECRET    | re/hCaptcha secret key                | "asdieewff"        |
+| CAPTCHA_SITEKEY   | re/hCaptcha site key                  | "23ksdfssd"        |
+| CAPTCHA_TIME      | time in minutes between captchas      | 30                 |
+| SESSION_SECRET    | random sting for express sessions     | "ayylmao"          |
 | LOG_MYSQL         | if sql queries should get logged      | 0                  |
 | USE_XREALIP       | see cloudflare section                | 1                  |
 | BACKUP_URL        | url of backup server (see Backup)     | "http://localhost" |

@@ -316,8 +316,12 @@ export function receivePixelReturn(
           dispatch(pixelWait());
           break;
         case 10:
-          // captcha
-          window.grecaptcha.execute();
+          // captcha, reCaptcha or hCaptcha
+          if (typeof window.hcaptcha !== 'undefined') {
+            window.hcaptcha.execute();
+          } else {
+            window.grecaptcha.execute();
+          }
           break;
         case 11:
           errorTitle = 'No Proxies Allowed :(';

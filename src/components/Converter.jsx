@@ -304,7 +304,7 @@ function Converter({
         >
           Download
         </button>
-        <p>Credit for the Palette of the Moon goes to
+        <p>Credit for the Palette of the Moon goes to&nbsp;
           <a href="https://twitter.com/starhousedev">starhouse</a>.</p>
       </p>
       <h3 className="modaltitle">Image Converter</h3>

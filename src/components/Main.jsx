@@ -51,7 +51,7 @@ function generateMainPage(countryCoords: Cell): string {
       scripts={scripts}
       css={css}
       code={`${code}window.coordx=${x};window.coordy=${y};`}
-      useRecaptcha
+      useCaptcha
     />,
   );
 

@@ -11,7 +11,7 @@
 /* eslint-disable max-len */
 
 import React from 'react';
-import { CAPTCHA_SITEKEY } from '../core/config';
+import { CAPTCHA_METHOD, CAPTCHA_SITEKEY } from '../core/config';
 
 const Html = ({
   title,
@@ -26,7 +26,7 @@ const Html = ({
   // code as string
   code,
   // if recaptcha should get loaded
-  useRecaptcha,
+  useCaptcha,
 }) => (
   <html className="no-js" lang="en">
     <head>
@@ -48,7 +48,7 @@ const Html = ({
           dangerouslySetInnerHTML={{ __html: style.cssText }}
         />
       ))}
-      {CAPTCHA_SITEKEY && useRecaptcha
+      {(CAPTCHA_METHOD === 1) && CAPTCHA_SITEKEY && useCaptcha
           && (
           <div
             className="g-recaptcha"
@@ -57,7 +57,19 @@ const Html = ({
             data-size="invisible"
           />
           )}
-      {CAPTCHA_SITEKEY && useRecaptcha && <script src="https://www.google.com/recaptcha/api.js" async defer />}
+      {(CAPTCHA_METHOD === 1) && CAPTCHA_SITEKEY && useCaptcha
+          && <script src="https://www.google.com/recaptcha/api.js" async defer />}
+      {(CAPTCHA_METHOD === 2) && CAPTCHA_SITEKEY && useCaptcha
+          && (
+          <div
+            className="h-captcha"
+            data-sitekey={CAPTCHA_SITEKEY}
+            data-callback="onCaptcha"
+            data-size="invisible"
+          />
+          )}
+      {(CAPTCHA_METHOD === 2) && CAPTCHA_SITEKEY && useCaptcha
+          && <script src="https://hcaptcha.com/1/api.js" async defer />}
       {code && (
       <script
         // eslint-disable-next-line react/no-danger
