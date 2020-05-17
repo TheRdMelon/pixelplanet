@@ -83,10 +83,10 @@ class ProtocolClient extends EventEmitter {
     this.isConnected = true;
     this.emit('open', {});
     this.requestChatHistory();
-    this.processMsgQueue();
     if (this.canvasId !== null) {
       this.ws.send(RegisterCanvas.dehydrate(this.canvasId));
     }
+    this.processMsgQueue();
     console.log(`Register ${chunks.length} chunks`);
     this.ws.send(RegisterMultipleChunks.dehydrate(chunks));
   }
