@@ -13,7 +13,7 @@ const FILES = [
   'dark.css',
   'light-round.css',
   'dark-round.css',
-  'trans.css',
+  'arkeros.css',
 ];
 
 async function minifyCss() {

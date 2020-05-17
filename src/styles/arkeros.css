@@ -1,0 +1,52 @@
+tr:nth-child(even) {
+  background-color: #61dcea;
+}
+
+tr:nth-child(odd) {
+  background-color: #ffb1e1;
+}
+
+.actionbuttons, .onlinebox, .cooldownbox, #historyselect, .notifybox {
+  background: linear-gradient(0deg, #61dcea , #ffb1e1, #ecffec, #ffb1e1, #61dcea);
+  border-radius: 10px;
+}
+
+.Overlay {
+  background: linear-gradient(175deg, #61dceaab , #ffb1e1, #ecffec, #ffb1e1, #61dceaab);
+}
+
+.chatname {
+  background: linear-gradient(0deg, #61dcea , #ffb1e1, #ecffec, #ffb1e1, #61dcea);
+}
+.msg.info{
+  color: #ff91a6;
+}
+
+.actionbuttons:hover, .menu > div:hover {
+  background: linear-gradient(160deg, #61dcea , #ffb1e1, #ecffec, #ffb1e1, #61dcea);
+}
+
+#chatbutton {
+  background: linear-gradient(135deg, orange , yellow, green, aqua, blue, violet);
+}
+
+#chatbutton:hover {
+  background: linear-gradient(45deg, orange , yellow, green, aqua, blue, violet);
+}
+
+.coorbox {
+  background: linear-gradient(45deg, orange , yellow, green, aqua, blue, violet);
+  border-radius: 10px;
+}
+
+.coorbox:hover {
+  background: linear-gradient(135deg, orange , yellow, green, aqua, blue, violet);
+}
+
+.Modal {
+  background: #f4edf0 none repeat scroll 0 0;
+  background-image: url("../jew.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 10px;
+}
