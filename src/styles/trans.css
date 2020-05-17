@@ -16,7 +16,7 @@ tr:nth-child(odd) {
 }
 
 .Overlay {
-  background: linear-gradient(175deg, #61dcea , #ffb1e1, #ecffec, #ffb1e1, #61dcea);
+  background: linear-gradient(175deg, #61dceaab , #ffb1e1, #ecffec, #ffb1e1, #61dceaab);
 }
 
 .chatmsg {
@@ -41,6 +41,6 @@ tr:nth-child(odd) {
 }
 
 .Modal {
-  background: #efd9e2 none repeat scroll 0 0;;
+  background: #f4edf0 none repeat scroll 0 0;
   border-radius: 10px;
 }

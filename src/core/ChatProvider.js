@@ -177,6 +177,9 @@ export class ChatProvider {
     channelId: number = 0,
     sendapi: boolean = true,
   ) {
+    if (message.length > 250) {
+      return;
+    }
     this.addMessage(name, message, country, channelId);
     webSockets.broadcastChatMessage(name, message, country, channelId, sendapi);
   }
