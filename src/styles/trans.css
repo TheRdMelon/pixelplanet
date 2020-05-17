@@ -1,0 +1,46 @@
+tr:nth-child(even) {
+  background-color: #61dcea;
+}
+
+tr:nth-child(odd) {
+  background-color: #ffb1e1;
+}
+
+.chatbox {
+  background-color: rgba(59, 59, 59, 0.8);
+}
+
+.actionbuttons, .coorbox, .onlinebox, .cooldownbox, #historyselect, .notifybox {
+  background: linear-gradient(0deg, #61dcea , #ffb1e1, #ecffec, #ffb1e1, #61dcea);
+  border-radius: 10px;
+}
+
+.Overlay {
+  background: linear-gradient(175deg, #61dcea , #ffb1e1, #ecffec, #ffb1e1, #61dcea);
+}
+
+.chatmsg {
+  color: white;
+}
+.chatname {
+  background: linear-gradient(0deg, #61dcea , #ffb1e1, #ecffec, #ffb1e1, #61dcea);
+}
+.msg.info{
+  color: #ff91a6;
+}
+.msg.greentext{
+  color: #94ff94;
+}
+
+#chatlink {
+  color: #f9edde;
+}
+
+.actionbuttons:hover, .coorbox:hover, .menu > div:hover {
+  background: linear-gradient(160deg, #61dcea , #ffb1e1, #ecffec, #ffb1e1, #61dcea);
+}
+
+.Modal {
+  background: #efd9e2 none repeat scroll 0 0;;
+  border-radius: 10px;
+}

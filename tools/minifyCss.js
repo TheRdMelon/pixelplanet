@@ -8,7 +8,13 @@ import CleanCSS from 'clean-css';
 import crypto from 'crypto';
 
 const FOLDER = './src/styles';
-const FILES = [ 'default.css', 'dark.css', 'light-round.css', 'dark-round.css' ];
+const FILES = [
+  'default.css',
+  'dark.css',
+  'light-round.css',
+  'dark-round.css',
+  'trans.css',
+];
 
 async function minifyCss() {
   console.log('Minifying css');
