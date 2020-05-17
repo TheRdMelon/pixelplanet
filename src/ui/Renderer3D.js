@@ -163,9 +163,10 @@ class Renderer {
     });
     threeRenderer.setPixelRatio(window.devicePixelRatio);
     threeRenderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(threeRenderer.domElement);
-    this.threeRenderer = threeRenderer;
     const { domElement } = threeRenderer;
+    domElement.className = 'viewport';
+    document.body.appendChild(domElement);
+    this.threeRenderer = threeRenderer;
 
     // controls
     const controls = new VoxelPainterControls(

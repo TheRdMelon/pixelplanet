@@ -16,6 +16,13 @@ html, body {
   overflow: hidden;
 }
 
+.viewport {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
 /**
  * https://github.com/benweet/stackedit/issues/212
  */

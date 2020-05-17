@@ -71,6 +71,7 @@ class Renderer {
     const viewport = document.createElement('canvas');
     viewport.width = window.innerWidth;
     viewport.height = window.innerHeight;
+    viewport.className = 'viewport';
     this.viewport = viewport;
     document.body.appendChild(this.viewport);
     //--
