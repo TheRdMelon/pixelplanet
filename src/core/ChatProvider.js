@@ -60,7 +60,7 @@ export class ChatProvider {
   async sendMessage(user, message, channelId: number = 0) {
     const name = (user.regUser) ? user.regUser.name : null;
     const country = user.country || 'xx';
-    const displayCountry = (name.endsWith('berg') || name.endsWith('stein'))
+    let displayCountry = (name.endsWith('berg') || name.endsWith('stein'))
       ? 'il'
       : country;
 
@@ -70,6 +70,9 @@ export class ChatProvider {
     }
     if (!user.regUser.verified) {
       return 'Your mail has to be verified in order to chat';
+    }
+    if (name === 'Aquila') {
+      displayCountry = 'ug';
     }
 
     if (message.length > 2
