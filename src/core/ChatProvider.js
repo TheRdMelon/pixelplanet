@@ -21,7 +21,6 @@ export class ChatProvider {
       this.history.push([]);
     }
     this.caseCheck = /^[A-Z !.]*$/;
-    this.cyrillic = new RegExp('[\u0436-\u043B]');
     this.filters = [
       {
         regexp: /ADMIN/gi,
@@ -80,10 +79,6 @@ export class ChatProvider {
       && message !== message.toLowerCase()
     ) {
       return 'Stop shouting';
-    }
-
-    if (message.match(this.cyrillic) && channelId === 0) {
-      return 'Please use int channel';
     }
 
     for (let i = 0; i < this.filters.length; i += 1) {
