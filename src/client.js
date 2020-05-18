@@ -135,10 +135,12 @@ window.onCaptcha = async function onCaptcha(token: string) {
     credentials: 'include',
   });
 
-  const {
-    i, j, offset, color,
-  } = window.pixel;
-  store.dispatch(tryPlacePixel(i, j, offset, color));
+  if (window.pixel) {
+    const {
+      i, j, offset, color,
+    } = window.pixel;
+    store.dispatch(tryPlacePixel(i, j, offset, color));
+  }
 
   if (typeof window.hcaptcha !== 'undefined') {
     window.hcaptcha.reset();
