@@ -93,11 +93,6 @@ export async function verifyCaptcha(
     }
     const key = `human:${ip}`;
 
-    const ttl: number = await redis.ttlAsync(key);
-    if (ttl > 0) {
-      return true;
-    }
-
     switch (CAPTCHA_METHOD) {
       case 1:
         if (!await verifyReCaptcha(token, ip)) {
