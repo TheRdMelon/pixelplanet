@@ -111,7 +111,7 @@ tr:nth-child(even) {
 }
 
 .chatbox {
-  position: absolute;
+  position: fixed;
   background-color: rgba(226, 226, 226, 0.92);
   border: solid black;
   border-width: thin;
@@ -133,7 +133,7 @@ tr:nth-child(even) {
 }
 
 .actionbuttons, .coorbox, .onlinebox, .cooldownbox, #palettebox {
-  position: absolute;
+  position: fixed;
   background-color: rgba(226, 226, 226, 0.80);
   color: black;
   text-align: center;
@@ -223,7 +223,7 @@ tr:nth-child(even) {
 }
 
 #historyselect {
-  position: absolute;
+  position: fixed;
   top: 16px;
   left: 0px;
   right: 0px;
@@ -247,7 +247,7 @@ tr:nth-child(even) {
 }
 
 .Modal {
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   right: auto;
@@ -454,7 +454,7 @@ tr:nth-child(even) {
 
 .notifybox {
   background-color: rgba(226, 226, 226, 0.80);
-  position: absolute;
+  position: fixed;
   top: 57px;
   left: 0px;
   right: 0px;
